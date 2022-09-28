@@ -1,0 +1,67 @@
+.rtoken-button {
+  margin-left: 0.55rem;
+  background: rgba(25, 38, 52, 0.35);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(0.81rem);
+  border-radius: 0.16rem;
+  font-size: 0.32rem;
+  padding: 0.15rem 0.32rem;
+  cursor: pointer;
+}
+
+.account {
+  background: rgba(25, 38, 52, 0.35);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(0.81rem);
+  border-radius: 0.16rem;
+  font-size: 0.24rem;
+  padding: 0.08rem 0.16rem;
+  display: flex;
+  align-items: center;
+
+  .account-info-container {
+    margin-left: 0.14rem;
+    background: linear-gradient(
+      180deg,
+      rgba(54, 78, 100, 0.4) -23.71%,
+      rgba(25, 38, 52, 0.4) 100%
+    );
+    backdrop-filter: blur(0.81rem);
+    border-radius: 0.16rem;
+    height: 0.52rem;
+    padding: 0 0.2rem 0 0.16rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+}
+
+.connect-wallet-container {
+  background: linear-gradient(
+    180deg,
+    rgba(54, 78, 100, 0.4) -23.71%,
+    rgba(25, 38, 52, 0.4) 100%
+  );
+  backdrop-filter: blur(0.4rem);
+  border-radius: 0.16rem;
+
+  font-size: 0.2rem;
+  color: #00f3ab;
+  font-weight: 700;
+  height: 0.52rem;
+  display: flex;
+  align-items: center;
+  padding: 0 0.17rem;
+  cursor: pointer;
+}
+
+.notification {
+  margin-left: 0.36rem;
+  background: rgba(25, 38, 52, 0.35);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(0.27rem);
+  border-radius: 0.16rem;
+  padding: 0.19rem 0.28rem;
+  cursor: pointer;
+  position: relative;
+}

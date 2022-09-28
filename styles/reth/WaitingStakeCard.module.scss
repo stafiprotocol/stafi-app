@@ -1,0 +1,25 @@
+.card {
+  background: rgba(26, 40, 53, 0.2);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.16rem;
+
+  width: 3.35rem;
+  min-width: 3.35rem;
+  margin-bottom: 0.5rem;
+  margin-left: 0.24rem;
+  margin-right: 0.24rem;
+  padding: 0.35rem 0.24rem;
+}
+
+.description {
+  margin-top: 0.24rem;
+  height: 0.35rem;
+  background: #55362a;
+  border-radius: 0.06rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.16rem;
+  color: white;
+}

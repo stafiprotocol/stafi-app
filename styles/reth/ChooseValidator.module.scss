@@ -1,0 +1,30 @@
+.left-container {
+  width: 4.04rem;
+  background: linear-gradient(
+    243.03deg,
+    rgba(50, 220, 218, 0.282752) 2.46%,
+    rgba(43, 122, 211, 0.270214) 86.13%
+  );
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.16rem;
+}
+
+.validator-type-container {
+  width: 3.9rem;
+  height: 3.4rem;
+  border-radius: 0.16rem;
+  background: rgba(26, 40, 53, 0.2);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(1.35rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.validator-type-container-selected {
+  background: rgba(0, 243, 171, 0.1);
+  border: 1px solid rgba(0, 243, 171, 0.5);
+  backdrop-filter: blur(1.35rem);
+}

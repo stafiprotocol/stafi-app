@@ -1,0 +1,106 @@
+.card-container {
+  background: rgba(26, 40, 53, 0.2);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.16rem;
+
+  padding: 0.56rem 0;
+}
+
+.tab-container {
+  background: #1a2835;
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(1.35rem);
+
+  height: 0.65rem;
+  border-radius: 0.325rem;
+  display: flex;
+
+  .tab-item {
+    cursor: pointer;
+    width: 2.24rem;
+    height: 100%;
+    border-radius: 0.325rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a2835;
+    color: #9dafbe;
+    font-size: 0.24rem;
+  }
+
+  .tab-item-active {
+    cursor: pointer;
+    width: 2.24rem;
+    height: 100%;
+    border-radius: 0.325rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a2835;
+    color: #9dafbe;
+    font-size: 0.24rem;
+    background: linear-gradient(140.73deg, #0093ed 4.72%, #00f3ab 96.52%);
+    border: 1px solid rgba(38, 73, 78, 0.5);
+    backdrop-filter: blur(1.35rem);
+    color: #1a2835;
+    font-weight: 700;
+  }
+}
+
+.run-nodes {
+  width: 2.12rem;
+  height: 0.65rem;
+  background: rgba(0, 243, 171, 0.1);
+  border: 1px solid rgba(0, 243, 171, 0.5);
+  border-radius: 0.32rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00f3ab;
+  font-weight: 700;
+  font-size: 0.24rem;
+  letter-spacing: 0;
+  cursor: pointer;
+
+  div {
+    margin-right: 0.07rem;
+  }
+}
+
+.public-key-item {
+  height: 1.11rem;
+  display: grid;
+  grid-template-columns: 66% 34%;
+}
+
+.public-key-item-even {
+  background: rgba(26, 40, 53, 0.3);
+  border: 1px solid #1a2835;
+  height: 1.11rem;
+  display: grid;
+  grid-template-columns: 66% 34%;
+}
+
+.warning-container {
+  margin: 0.67rem 0.56rem 0 0.56rem;
+  border: 1px solid rgba(0, 149, 235, 0.5);
+  backdrop-filter: blur(0.81rem);
+  border-radius: 0.32rem;
+  position: relative;
+  display: flex;
+  padding: 0.24rem;
+}
+
+.eth-reward-container {
+  background: rgba(26, 40, 53, 0.2);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(0.81rem);
+  border-radius: 0.16rem;
+}
+
+.my-reward-table-item {
+  display: grid;
+  grid-template-columns: 20% 32% 16% 32%;
+  align-items: center;
+}

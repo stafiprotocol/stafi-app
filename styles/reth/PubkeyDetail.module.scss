@@ -1,0 +1,95 @@
+.pending-status {
+  background: rgba(0, 149, 235, 0.1);
+  border: 1px solid rgba(0, 149, 235, 0.5);
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.07rem;
+
+  align-self: center;
+  margin-top: 0.55rem;
+  width: 2.5rem;
+  height: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & div {
+    color: #0095eb;
+    font-weight: 700;
+    font-size: 0.24rem;
+    margin-left: 0.12rem;
+  }
+}
+
+.active-status {
+  background: rgba(0, 243, 171, 0.1);
+  border: 1px solid rgba(0, 243, 171, 0.5);
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.07rem;
+
+  align-self: center;
+  margin-top: 0.55rem;
+  width: 2.5rem;
+  height: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & div {
+    color: #00f3ab;
+    font-weight: 700;
+    font-size: 0.24rem;
+    margin-left: 0.12rem;
+  }
+}
+
+.exit-status {
+  background: rgba(255, 82, 196, 0.1);
+  border: 1px solid rgba(255, 82, 196, 0.5);
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.07rem;
+
+  align-self: center;
+  margin-top: 0.55rem;
+  width: 2.5rem;
+  height: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & div {
+    color: #ff52c4;
+    font-weight: 700;
+    font-size: 0.24rem;
+    margin-left: 0.12rem;
+  }
+}
+
+.card-container {
+  background: rgba(26, 40, 53, 0.2);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.16rem;
+
+  padding: 0.56rem 0;
+}
+
+.status-dot {
+  background: #5b6872;
+  width: 0.24rem;
+  height: 0.24rem;
+  border-radius: 50%;
+}
+
+.status-dot-active {
+  background: linear-gradient(160.97deg, #0093ed 12.83%, #00f3ab 96.02%);
+  width: 0.24rem;
+  height: 0.24rem;
+  border-radius: 50%;
+}
+
+.eth-reward-container {
+  background: rgba(26, 40, 53, 0.2);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(0.81rem);
+  border-radius: 0.16rem;
+}

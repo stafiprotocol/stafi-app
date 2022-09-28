@@ -1,0 +1,29 @@
+.card-container {
+  background: rgba(26, 40, 53, 0.2);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.16rem;
+
+  padding: 0.56rem 0;
+}
+
+.my-pool {
+  margin-left: 0.33rem;
+  width: 2.12rem;
+  height: 0.65rem;
+  background: rgba(0, 243, 171, 0.1);
+  border: 1px solid rgba(0, 243, 171, 0.5);
+  border-radius: 0.32rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00f3ab;
+  font-weight: 700;
+  font-size: 0.24rem;
+  letter-spacing: 0;
+  cursor: pointer;
+
+  div {
+    margin-right: 0.07rem;
+  }
+}

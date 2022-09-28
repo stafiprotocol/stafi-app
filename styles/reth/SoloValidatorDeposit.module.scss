@@ -1,0 +1,48 @@
+.row-container {
+  background: rgba(25, 38, 52, 0.35);
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(0.81rem);
+  border-radius: 0.32rem;
+  height: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.select-icon-container {
+  background: #1a2835;
+  border: 1px solid #1a2835;
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.17rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 1.35rem;
+  height: 0.67rem;
+  margin-right: 0.56rem;
+}
+
+.warning-container {
+  margin-top: 0.55rem;
+  border: 1px solid rgba(0, 149, 235, 0.5);
+  backdrop-filter: blur(0.81rem);
+  border-radius: 0.32rem;
+  position: relative;
+  display: flex;
+  padding: 0.24rem;
+}
+
+.file-container {
+  background: rgba(0, 243, 171, 0.1);
+  border: 1px solid rgba(0, 243, 171, 0.5);
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.16rem;
+
+  margin: 0 0.9rem;
+  padding: 0 0.28rem;
+  height: 1.32rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+}

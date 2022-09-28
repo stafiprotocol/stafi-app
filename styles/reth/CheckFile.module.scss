@@ -1,0 +1,73 @@
+.bee {
+  animation-name: bee-scale;
+  animation-duration: 1500ms;
+  animation-iteration-count: infinite;
+  width: 2.2rem;
+  height: 1.6rem;
+  position: relative;
+  margin-top: 0.3rem;
+}
+
+@keyframes bee-scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.bee-light {
+  animation-name: bee-light-alpha;
+  animation-duration: 1500ms;
+  animation-iteration-count: infinite;
+  width: 3rem;
+  height: 2rem;
+  position: absolute;
+  top: 0.2rem;
+  left: 0;
+  right: 0;
+}
+
+@keyframes bee-light-alpha {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.detail-container {
+  background: rgba(9, 15, 23, 0.25);
+  border: 1px solid rgba(38, 73, 78, 0.5);
+  backdrop-filter: blur(0.4rem);
+  border-radius: 0.32rem;
+  width: 7rem;
+  height: auto;
+  padding-bottom: 0.5rem;
+  top: 0.23rem;
+  left: auto;
+  right: auto;
+  position: absolute;
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
+.detail-item {
+  padding: 30px 30px 0 30px;
+}
+
+.detail-indicator-dot {
+  background: #1a2835;
+  border: 0.5px solid #0095eb;
+  border-radius: 50%;
+  width: 0.24rem;
+  height: 0.24rem;
+}

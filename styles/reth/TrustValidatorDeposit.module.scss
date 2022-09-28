@@ -1,0 +1,13 @@
+.file-container {
+  background: rgba(0, 243, 171, 0.1);
+  border: 1px solid rgba(0, 243, 171, 0.5);
+  backdrop-filter: blur(1.35rem);
+  border-radius: 0.16rem;
+
+  margin: 0 0.9rem;
+  padding: 0 0.28rem;
+  height: 1.32rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
