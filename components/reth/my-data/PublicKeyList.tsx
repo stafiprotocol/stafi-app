@@ -1,6 +1,7 @@
 import { TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import classNames from "classnames";
 import { Icomoon } from "components/Icomoon";
+import { EthRunNodesModal } from "components/modal/EthRunNodesModal";
 import { CustomPagination } from "components/pagination";
 import { useState } from "react";
 import snackbarUtil from "utils/snackbarUtils";
@@ -20,8 +21,7 @@ interface PublicKeyListProps {
 export const PublicKeyList = (props: PublicKeyListProps) => {
   const [tab, setTab] = useState<"all" | "active" | "unrespond">("all");
   const [page, setPage] = useState(1);
-
-  const list = [1, 2, 3];
+  const [runNodesModalVisible, setRunNodesModalVisible] = useState(false);
 
   return (
     <div className={classNames(styles["card-container"], "mt-[.36rem]")}>
@@ -69,7 +69,10 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
           </div>
         </div>
 
-        <div className={styles["run-nodes"]}>
+        <div
+          className={styles["run-nodes"]}
+          onClick={() => setRunNodesModalVisible(true)}
+        >
           <div>Run Nodes</div>
           <Icomoon icon="right" size="0.19rem" color="#00F3AB" />
         </div>
@@ -140,6 +143,11 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
           onChange={setPage}
         />
       </div>
+
+      <EthRunNodesModal
+        visible={runNodesModalVisible}
+        onClose={() => setRunNodesModalVisible(false)}
+      />
     </div>
   );
 };
