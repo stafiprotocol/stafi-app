@@ -371,11 +371,12 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                         Wait
                       </div>
 
-                      {ethStakeParams?.status === "waiting" && (
-                        <div className="ml-[.26rem]">
-                          <CustomLoading color="#0095EB" size=".24rem" />
-                        </div>
-                      )}
+                      {ethStakeParams?.status === "staked" ||
+                        (ethStakeParams?.status === "waiting" && (
+                          <div className="ml-[.26rem]">
+                            <CustomLoading color="#0095EB" size=".24rem" />
+                          </div>
+                        ))}
 
                       {ethStakeParams?.status === "active" && (
                         <div className="ml-[.26rem]">

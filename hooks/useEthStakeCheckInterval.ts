@@ -15,11 +15,14 @@ import { useInterval } from "./useInterval";
 export function useEthStakeCheckInterval() {
   const dispatch = useAppDispatch();
 
-  const { ethStakeParams } = useAppSelector((state: RootState) => {
-    return {
-      ethStakeParams: state.eth.ethStakeParams,
-    };
-  });
+  const { ethStakeParams, ethStakeModalVisible } = useAppSelector(
+    (state: RootState) => {
+      return {
+        ethStakeParams: state.eth.ethStakeParams,
+        ethStakeModalVisible: state.eth.ethStakeModalVisible,
+      };
+    }
+  );
 
   const fetchStatus = useCallback(async () => {
     if (
@@ -117,8 +120,4 @@ export function useEthStakeCheckInterval() {
   }, [dispatch, ethStakeParams]);
 
   useInterval(fetchStatus, 8000);
-
-  useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
 }
