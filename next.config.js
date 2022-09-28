@@ -10,6 +10,15 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/rtoken",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
