@@ -8,11 +8,11 @@ export const RethLayout = (props: RethLayoutProps) => {
   const chainId = useChainId();
   const account = useAccount();
 
-  useEffect(() => {
-    if (!account) {
-      metaMask.connectEagerly();
-    }
-  }, [account]);
+  // useEffect(() => {
+  //   if (!account) {
+  //     metaMask.connectEagerly();
+  //   }
+  // }, [account]);
 
   return <div>{props.children}</div>;
 };

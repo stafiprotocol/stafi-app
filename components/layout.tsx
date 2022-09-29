@@ -1,6 +1,8 @@
+import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthStakeCheckInterval } from "hooks/useEthStakeCheckInterval";
 import { useInit } from "hooks/useInit";
+import { useEffect } from "react";
 import { setEthStakeModalVisible } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { EthStakeLoadingModal } from "./modal/EthStakeLoadingModal";
@@ -13,12 +15,20 @@ export const Layout = (props: LayoutProps) => {
   useInit();
   useEthStakeCheckInterval();
   const dispatch = useAppDispatch();
+  const { useAccount: useMetaMaskAccount } = hooks;
+  const metaMaskAccount = useMetaMaskAccount();
 
   const { ethStakeModalVisible } = useAppSelector((state: RootState) => {
     return {
       ethStakeModalVisible: state.eth.ethStakeModalVisible,
     };
   });
+
+  useEffect(() => {
+    if (!metaMaskAccount) {
+      metaMask.connectEagerly();
+    }
+  }, [metaMaskAccount]);
 
   return (
     <div className="">
