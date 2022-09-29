@@ -26,6 +26,7 @@ export function useEthDepositList() {
       return;
     }
     try {
+      setLoading(true);
       const resList: EthDepositItem[] = [];
       const web3 = createWeb3();
       const ethContractConfig = getStafiEthContractConfig();
