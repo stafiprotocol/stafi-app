@@ -22,6 +22,7 @@ export function useEthDepositList() {
 
   const updateEthStakeList = useCallback(async () => {
     if (!account) {
+      setLoading(false);
       return;
     }
     try {
