@@ -26,7 +26,7 @@ const ChooseValidator = () => {
         <div className="ml-[.16rem] text-link text-[.32rem]">rToken List</div>
       </div>
 
-      <Card mt=".56rem">
+      <Card mt=".56rem" backgroundColor="#0A131B">
         <div className="flex h-[10.13rem] items-stretch">
           <ChooseValidatorLeftExplanation />
 

@@ -11,7 +11,7 @@
 }
 
 .validator-type-container {
-  width: 3.9rem;
+  width: 2.8rem;
   height: 3.4rem;
   border-radius: 0.16rem;
   background: rgba(26, 40, 53, 0.2);
@@ -21,6 +21,7 @@
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  position: relative;
 }
 
 .validator-type-container-selected {

@@ -107,7 +107,7 @@ const CheckFile = () => {
 
           <div
             className={classNames(
-              "mt-[.1rem] font-[700] text-[.42rem]",
+              "mt-[0rem] font-[700] text-[.42rem]",
               status === "loading"
                 ? "text-white"
                 : status === "success"

@@ -1,11 +1,12 @@
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
 import { ValidatorKeyUpload } from "components/reth/upload";
-import { isDev } from "config/env";
-import { getMetamaskChainId, getMetaMaskStafiTestnetConfig } from "config/eth";
+import { getMetamaskChainId } from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useEthPoolData } from "hooks/useEthPoolData";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import closeIcon from "public/icon_close.svg";
@@ -13,7 +14,9 @@ import uploadIcon from "public/upload.svg";
 import { useEffect, useState } from "react";
 import { handleEthDeposit } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
+import { formatNumber } from "utils/number";
 import { getShortAddress } from "utils/string";
+import { connectMetaMask } from "utils/web3Utils";
 import styles from "../../../styles/reth/TrustValidatorDeposit.module.scss";
 
 export const TrustValidatorDepositForm = () => {
@@ -24,6 +27,7 @@ export const TrustValidatorDepositForm = () => {
   const chainId = useChainId();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
   const [fileName, setFileName] = useState<string>("");
+  const { unmatchedEth } = useEthPoolData();
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -44,17 +48,24 @@ export const TrustValidatorDepositForm = () => {
       </div>
 
       <div className="mt-[.3rem] flex items-center">
-        <div className="text-primary font-[700] text-[.24rem]">23.344 ETH</div>
+        <div className="text-primary font-[700] text-[.24rem]">
+          {formatNumber(unmatchedEth)} ETH
+        </div>
         <div className="ml-[.1rem] text-text1 text-[.24rem]">
           is waiting to be staked
         </div>
-        <div className="ml-[.16rem] text-primary text-[.24rem]">
-          check pool status
-        </div>
 
-        <div className="ml-[.16rem] w-[.27rem] h-[.18rem] relative rotate-180">
-          <Image src={leftArrowIcon} layout="fill" alt="back" />
-        </div>
+        <Link href="/reth/pool-data">
+          <div className="flex items-center cursor-pointer">
+            <div className="ml-[.16rem] text-primary text-[.24rem]">
+              check pool status
+            </div>
+
+            <div className="ml-[.16rem] w-[.27rem] h-[.18rem] relative rotate-180">
+              <Image src={leftArrowIcon} layout="fill" alt="back" />
+            </div>
+          </div>
+        </Link>
       </div>
 
       <div className="mt-[1.1rem] h-[2rem] self-stretch">
@@ -122,11 +133,7 @@ export const TrustValidatorDepositForm = () => {
           height="1.3rem"
           onClick={() => {
             if (!account || chainId !== getMetamaskChainId()) {
-              if (isDev()) {
-                metaMask.activate(getMetaMaskStafiTestnetConfig());
-              } else {
-                metaMask.activate(getMetamaskChainId());
-              }
+              connectMetaMask(metaMask);
               return;
             }
             dispatch(

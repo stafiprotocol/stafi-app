@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="76px" height="76px" viewBox="0 0 76 76" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group 12</title>
+    <defs>
+        <linearGradient x1="10.4929716%" y1="0%" x2="92.2525491%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#0093ED" offset="0%"></stop>
+            <stop stop-color="#00F3AB" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="solo-validator---deposit-copy" transform="translate(-427.000000, -1494.000000)">
+            <g id="Group-36-Copy" transform="translate(279.000000, 284.000000)">
+                <g id="Group-14-Copy" transform="translate(57.000000, 890.000000)">
+                    <g id="Group-12" transform="translate(91.000000, 320.000000)">
+                        <circle id="Oval" stroke-opacity="0.2" stroke="#00F3AB" cx="38" cy="38" r="37.5"></circle>
+                        <g id="serverfuwuqi" transform="translate(20.000000, 20.000000)" fill="url(#linearGradient-1)" fill-rule="nonzero">
+                            <path d="M31.9545455,20.1818182 C34.7410731,20.1818182 37,22.4407451 37,25.2272727 L37,31.9545455 C37,34.7410731 34.7410731,37 31.9545455,37 L5.04545455,37 C2.25892695,37 0,34.7410731 0,31.9545455 L0,25.2272727 C0,22.4407451 2.25892695,20.1818182 5.04545455,20.1818182 L31.9545455,20.1818182 Z M8.5,26 C7.11928813,26 6,27.1192881 6,28.5 C6,29.8807119 7.11928813,31 8.5,31 C9.88071187,31 11,29.8807119 11,28.5 C11,27.1192881 9.88071187,26 8.5,26 Z M31.9545455,0 C34.7410731,0 37,2.25892695 37,5.04545455 L37,11.7727273 C37,14.5592549 34.7410731,16.8181818 31.9545455,16.8181818 L5.04545455,16.8181818 C2.25892695,16.8181818 0,14.5592549 0,11.7727273 L0,5.04545455 C0,2.25892695 2.25892695,0 5.04545455,0 L31.9545455,0 Z M8.5,6 C7.11928813,6 6,7.11928813 6,8.5 C6,9.88071187 7.11928813,11 8.5,11 C9.88071187,11 11,9.88071187 11,8.5 C11,7.11928813 9.88071187,6 8.5,6 Z" id="Combined-Shape"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

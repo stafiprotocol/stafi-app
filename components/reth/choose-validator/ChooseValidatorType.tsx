@@ -1,13 +1,20 @@
 import classNames from "classnames";
 import { Button } from "components/button";
+import { getMetamaskChainId } from "config/eth";
+import { hooks, metaMask } from "connectors/metaMask";
+import { useEthValidatorType } from "hooks/useEthValidatorType";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import leftArrowIcon from "public/icon_arrow_left.png";
+import permissioned from "public/permissioned.svg";
+import permissionless from "public/permissionless.svg";
 import soloValidatorText from "public/soloValidator_text.svg";
 import trustValidatorText from "public/trustValidator_text.svg";
 import validatorSelected from "public/validator_selected.svg";
 import validatorUnselected from "public/validator_unselected.svg";
 import { useState } from "react";
+import { openLink } from "utils/common";
+import { connectMetaMask } from "utils/web3Utils";
 import styles from "../../../styles/reth/ChooseValidator.module.scss";
 
 export const ChooseValidatorType = () => {
@@ -15,9 +22,14 @@ export const ChooseValidatorType = () => {
   const [selectedType, setSelectedType] = useState<
     "solo" | "trust" | undefined
   >();
+  const { useAccount, useChainId } = hooks;
+  const account = useAccount();
+  const chainId = useChainId();
+
+  const { isTrust } = useEthValidatorType();
 
   return (
-    <div className="pl-[1.12rem] pr-[1.38rem] pt-[1.24rem]">
+    <div className="pl-[1.12rem] pr-[1.38rem] pt-[1.24rem] flex-1">
       <div className="text-white text-[.42rem] font-[700]">
         Choose your validator type
       </div>
@@ -30,7 +42,7 @@ export const ChooseValidatorType = () => {
         </div>
       </div>
 
-      <div className="mt-[.75rem] flex">
+      <div className="mt-[.75rem] flex justify-center">
         <div
           className={classNames(
             styles["validator-type-container"],
@@ -40,7 +52,11 @@ export const ChooseValidatorType = () => {
           )}
           onClick={() => setSelectedType("solo")}
         >
-          <div className="w-[.44rem] h-[.44rem] mt-[.68rem] relative">
+          <div className="w-[1.59rem] h-[.91rem] absolute right-[-1.5px] top-[-1px]">
+            <Image src={permissionless} layout="fill" alt="permissionless" />
+          </div>
+
+          <div className="w-[.44rem] h-[.44rem] mt-[.48rem] relative">
             <Image
               src={
                 selectedType === "solo"
@@ -52,11 +68,11 @@ export const ChooseValidatorType = () => {
             />
           </div>
 
-          <div className="mt-[.34rem] relative w-[2.62rem] h-[.23rem]">
+          <div className="mt-[.4rem] relative w-[1.5rem] h-[.6rem]">
             <Image src={soloValidatorText} layout="fill" alt="solo" />
           </div>
 
-          <div className="mt-[.42rem] text-[.24rem] text-text2 text-center">
+          <div className="mt-[.3rem] text-[.24rem] text-text2 text-center leading-normal">
             Deposit ETH
             <br />
             to be delegated
@@ -72,7 +88,11 @@ export const ChooseValidatorType = () => {
           )}
           onClick={() => setSelectedType("trust")}
         >
-          <div className="w-[.44rem] h-[.44rem] mt-[.68rem] relative">
+          <div className="w-[1.59rem] h-[.91rem] absolute right-[-1.5px] top-[-1px]">
+            <Image src={permissioned} layout="fill" alt="permissioned" />
+          </div>
+
+          <div className="w-[.44rem] h-[.44rem] mt-[.48rem] relative">
             <Image
               src={
                 selectedType === "trust"
@@ -84,20 +104,35 @@ export const ChooseValidatorType = () => {
             />
           </div>
 
-          <div className="mt-[.34rem] relative w-[2.62rem] h-[.23rem]">
+          <div className="mt-[.4rem] relative w-[1.5rem] h-[.6rem]">
             <Image src={trustValidatorText} layout="fill" alt="trust" />
           </div>
 
-          <div className="mt-[.42rem] text-[.24rem] text-text2 text-center">
+          <div className="mt-[.3rem] text-[.24rem] text-text2 text-center leading-normal">
             Apply to be delegated
+            <br />0 ETH needed
           </div>
         </div>
       </div>
 
       <Button
-        disabled={!selectedType}
+        disabled={
+          !(
+            !account ||
+            (selectedType === "trust" && !isTrust) ||
+            !!selectedType
+          )
+        }
         mt=".76rem"
         onClick={() => {
+          if (!account || chainId !== getMetamaskChainId()) {
+            connectMetaMask(metaMask);
+            return;
+          }
+          if (selectedType === "trust" && !isTrust) {
+            openLink("https://www.google.com");
+            return;
+          }
           if (selectedType === "trust") {
             router.push("/reth/trust-validator-deposit");
           } else {
@@ -105,7 +140,11 @@ export const ChooseValidatorType = () => {
           }
         }}
       >
-        Next Step
+        {!account
+          ? "Connect Wallet"
+          : selectedType === "trust" && !isTrust
+          ? "Go to apply"
+          : "Next Step"}
       </Button>
     </div>
   );

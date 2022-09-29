@@ -5,9 +5,12 @@ import ETH from "../../public/tokenName/ETH.svg";
 import { Icomoon } from "components/Icomoon";
 import { Button } from "components/button";
 import { useRouter } from "next/router";
+import { useEthPoolData } from "hooks/useEthPoolData";
+import { formatNumber } from "utils/number";
 
 export const RTokenAllStakeCard = () => {
   const router = useRouter();
+  const { stakeApr, stakedEth, stakedEthValue } = useEthPoolData();
 
   return (
     <div className={styles["all-stakes-card"]}>
@@ -29,7 +32,9 @@ export const RTokenAllStakeCard = () => {
           <div className="text-text2 text-[.16rem] mr-[.07rem]">APY</div>
           <Icomoon icon="question" size=".16rem" color="#5B6872" />
         </div>
-        <div className="text-text1 font-[700] text-[.28rem]">6.95%</div>
+        <div className="text-text1 font-[700] text-[.28rem]">
+          {formatNumber(stakeApr, { decimals: 2 })}%
+        </div>
       </div>
 
       <div className="mt-[.23rem] flex items-end justify-between">
@@ -39,7 +44,9 @@ export const RTokenAllStakeCard = () => {
           </div>
           <Icomoon icon="question" size=".16rem" color="#5B6872" />
         </div>
-        <div className="text-text2 text-[.16rem]">$293,923</div>
+        <div className="text-text2 text-[.16rem]">
+          ${formatNumber(stakedEthValue, { decimals: 2 })}
+        </div>
       </div>
 
       <div className="mt-[.23rem] flex items-end justify-between">
@@ -49,7 +56,9 @@ export const RTokenAllStakeCard = () => {
           </div>
           <Icomoon icon="question" size=".16rem" color="#5B6872" />
         </div>
-        <div className="text-text2 text-[.16rem]">1827.19</div>
+        <div className="text-text2 text-[.16rem]">
+          {formatNumber(stakedEth)}
+        </div>
       </div>
 
       <Button

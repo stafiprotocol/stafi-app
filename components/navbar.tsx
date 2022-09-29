@@ -21,6 +21,7 @@ import { setEthBalance } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import { getShortAddress } from "utils/string";
+import { connectMetaMask } from "utils/web3Utils";
 import Web3 from "web3";
 import styles from "../styles/Navbar.module.scss";
 
@@ -121,7 +122,7 @@ export const Navbar = () => {
             <div
               className={styles["connect-wallet-container"]}
               onClick={() => {
-                metaMask.activate(getMetamaskChainId());
+                connectMetaMask(metaMask);
               }}
             >
               <div>Connect Wallet</div>

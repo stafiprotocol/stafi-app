@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { handleEthStake } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { getShortAddress } from "utils/string";
-import Web3 from "web3";
+import { connectMetaMask } from "utils/web3Utils";
 
 export const StakeForm = () => {
   const router = useRouter();
@@ -186,7 +186,7 @@ export const StakeForm = () => {
           height="1.3rem"
           onClick={() => {
             if (!account || chainId !== getMetamaskChainId()) {
-              metaMask.activate(getMetamaskChainId());
+              connectMetaMask(metaMask);
               return;
             }
             dispatch(
