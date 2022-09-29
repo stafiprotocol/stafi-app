@@ -54,8 +54,8 @@ interface StafiEthContractConfig {
 
 export function getStafiEthContractConfig(): StafiEthContractConfig {
   return {
-    stafiLightNode: "0x751b25DC76de15a799C4aB010D7791DF92424EdF",
-    stafiSuperNode: "0x7211713Edf49bc59160787EdDe18e71Bb6263425",
+    stafiLightNode: "0x4FEEA697bE14596c672681b92B1dfA41b654955b",
+    stafiSuperNode: "0xfa052FB4D0C530bDCBA7bF0C675515d3f12313b6",
     stafiNodeManager: "0xC495018a16A9cF1b3659C1AcCbf1ddE50FD1b1A0",
     stafiNetworkSettings: "0x430CB4F814EaA5816E3845f31A5EC3803bDa5B9F",
   };
