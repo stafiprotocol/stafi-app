@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { handleEthDeposit } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
+import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask } from "utils/web3Utils";
 import styles from "../../../styles/reth/TrustValidatorDeposit.module.scss";
@@ -136,6 +137,12 @@ export const TrustValidatorDepositForm = () => {
               connectMetaMask(metaMask);
               return;
             }
+
+            if (Number(unmatchedEth) < validatorKeys.length) {
+              snackbarUtil.error("Insufficient ETH in pool");
+              return;
+            }
+
             dispatch(
               handleEthDeposit(
                 account,

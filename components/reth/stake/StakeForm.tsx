@@ -5,10 +5,12 @@ import { ValidatorKeyUpload } from "components/reth/upload";
 import { getMetamaskChainId } from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useEthPoolData } from "hooks/useEthPoolData";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { handleEthStake } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
+import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask } from "utils/web3Utils";
 
@@ -20,6 +22,7 @@ export const StakeForm = () => {
   const account = useAccount();
   const chainId = useChainId();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
+  const { unmatchedEth } = useEthPoolData();
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -189,6 +192,21 @@ export const StakeForm = () => {
               connectMetaMask(metaMask);
               return;
             }
+            if (
+              depositType === "solo" &&
+              Number(unmatchedEth) < validatorKeys.length * 28
+            ) {
+              snackbarUtil.error("Insufficient ETH in pool");
+              return;
+            }
+            if (
+              depositType === "trust" &&
+              Number(unmatchedEth) < validatorKeys.length * 31
+            ) {
+              snackbarUtil.error("Insufficient ETH in pool");
+              return;
+            }
+
             dispatch(
               handleEthStake(
                 account,

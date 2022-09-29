@@ -125,34 +125,13 @@ const SoloValidatorDeposit = () => {
       </div>
 
       <Card mt=".56rem" backgroundColor="#0A131B">
-        <div className="flex flex-col items-stretch px-[.56rem]">
+        <div className="flex flex-col items-stretch px-[.56rem] pb-[.56rem]">
           <div className="self-center relative w-[2.4rem] h-[.9rem]">
             <Image src={rectangle} layout="fill" alt="rectangle" />
           </div>
 
           <div className="text-center mt-[0rem] text-white font-[700] text-[.42rem]">
             Deposit
-          </div>
-
-          <div className="mt-[.3rem] flex items-center justify-center">
-            <div className="text-primary font-[700] text-[.24rem]">
-              {formatNumber(unmatchedEth)} ETH
-            </div>
-            <div className="ml-[.1rem] text-text1 text-[.24rem]">
-              is waiting to be staked
-            </div>
-
-            <Link href="/reth/pool-data">
-              <div className="flex items-center cursor-pointer">
-                <div className="ml-[.16rem] text-primary text-[.24rem]">
-                  check pool status
-                </div>
-
-                <div className="ml-[.16rem] w-[.27rem] h-[.18rem] relative rotate-180">
-                  <Image src={leftArrowIcon} layout="fill" alt="back" />
-                </div>
-              </div>
-            </Link>
           </div>
 
           <Card mt=".76rem" backgroundColor="rgba(26, 40, 53, 0.2)">

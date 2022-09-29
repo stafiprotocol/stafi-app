@@ -14,17 +14,19 @@ export function useEthValidatorType() {
       setIsTrust(false);
       return;
     }
-    const web3 = createWeb3();
-    const ethContractConfig = getStafiEthContractConfig();
+    try {
+      const web3 = createWeb3();
+      const ethContractConfig = getStafiEthContractConfig();
 
-    let nodeManagerContract = new web3.eth.Contract(
-      getStafiNodeManagerAbi(),
-      ethContractConfig.stafiNodeManager
-    );
-    const exist = await nodeManagerContract.methods
-      .getSuperNodeExists(account)
-      .call();
-    setIsTrust(exist);
+      let nodeManagerContract = new web3.eth.Contract(
+        getStafiNodeManagerAbi(),
+        ethContractConfig.stafiNodeManager
+      );
+      const exist = await nodeManagerContract.methods
+        .getSuperNodeExists(account)
+        .call();
+      setIsTrust(exist);
+    } catch {}
   }, [account]);
 
   useEffect(() => {
