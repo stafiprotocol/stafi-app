@@ -126,7 +126,7 @@ const PubkeyDetail = () => {
               <div className="flex flex-col items-center">
                 <div
                   className={classNames(
-                    Number(status) >= 2
+                    Number(status) > 2 && Number(status) !== 4
                       ? styles["status-dot-active"]
                       : styles["status-dot"]
                   )}
@@ -134,7 +134,9 @@ const PubkeyDetail = () => {
                 <div
                   className={classNames(
                     "text-[.24rem] mt-[.16rem]",
-                    Number(status) >= 2 ? "text-active" : "text-text2"
+                    Number(status) > 2 && Number(status) !== 4
+                      ? "text-active"
+                      : "text-text2"
                   )}
                 >
                   Staked

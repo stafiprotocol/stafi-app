@@ -6,6 +6,7 @@ import {
   getStafiLightNodeAbi,
   getStafiSuperNodeAbi,
 } from "config/eth";
+import { useInterval } from "./useInterval";
 
 export interface EthDepositItem {
   type: "solo" | "trust";
@@ -25,6 +26,8 @@ export function useEthDepositList() {
       setLoading(false);
       return;
     }
+    const userAddress = account;
+    // const userAddress = "0xeB4fd0a7F270C8EFb52d6789B4F5930eD46CB375";
     try {
       setLoading(true);
       const resList: EthDepositItem[] = [];
@@ -36,17 +39,17 @@ export function useEthDepositList() {
         getStafiLightNodeAbi(),
         ethContractConfig.stafiLightNode,
         {
-          from: account,
+          from: userAddress,
         }
       );
       const soloCount = await lightNodeContract.methods
-        .getLightNodePubkeyCount(account)
+        .getLightNodePubkeyCount(userAddress)
         .call();
       console.log("soloCount:", soloCount);
 
       for (let index = 0; index < soloCount; index++) {
         const pubkey = await lightNodeContract.methods
-          .getLightNodePubkeyAt(account, index)
+          .getLightNodePubkeyAt(userAddress, index)
           .call();
         console.log("pubkey:", pubkey);
 
@@ -68,17 +71,17 @@ export function useEthDepositList() {
         getStafiSuperNodeAbi(),
         ethContractConfig.stafiSuperNode,
         {
-          from: account,
+          from: userAddress,
         }
       );
       const trustCount = await superNodeContract.methods
-        .getSuperNodePubkeyCount(account)
+        .getSuperNodePubkeyCount(userAddress)
         .call();
       console.log("trustCount:", trustCount);
 
       for (let index = 0; index < trustCount; index++) {
         const pubkey = await superNodeContract.methods
-          .getSuperNodePubkeyAt(account, index)
+          .getSuperNodePubkeyAt(userAddress, index)
           .call();
         console.log("pubkey:", pubkey);
 
@@ -108,6 +111,10 @@ export function useEthDepositList() {
   useEffect(() => {
     updateEthStakeList();
   }, [updateEthStakeList]);
+
+  useInterval(() => {
+    updateEthStakeList();
+  }, 15000);
 
   return { depositList, loading };
 }

@@ -21,7 +21,7 @@ import checkFileSuccess from "public/check_file_success.svg";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import downIcon from "public/icon_down_gray.png";
 import rectangle from "public/rectangle1.svg";
-import { ReactElement, useCallback, useState } from "react";
+import { ReactElement, useCallback, useState, useMemo } from "react";
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import styles from "../../styles/reth/CheckFile.module.scss";
@@ -34,14 +34,21 @@ const CheckFile = () => {
   const [showDetail, setShowDetail] = useState(false);
   const { txHash } = router.query;
 
+  const depositPubkeys = useMemo(() => {
+    const { pubkeys } = router.query;
+    if (!Array.isArray(pubkeys)) {
+      return [pubkeys];
+    }
+    return pubkeys;
+  }, [router]);
+
   const fetchStatus = useCallback(async () => {
     if (status !== "loading") {
       return;
     }
 
-    const pubkeys = router.query?.pubkeys;
     const type = router.query?.type;
-    if (!pubkeys || !Array.isArray(pubkeys) || Array.isArray(type)) {
+    if (Array.isArray(type) || depositPubkeys.length === 0) {
       router.push("/reth/token-stake");
       return;
     }
@@ -55,7 +62,7 @@ const CheckFile = () => {
         : ethContractConfig.stafiSuperNode
     );
 
-    const requests = pubkeys.map((pubkey) => {
+    const requests = depositPubkeys.map((pubkey) => {
       return (async () => {
         const method =
           type === "solo"
@@ -80,7 +87,7 @@ const CheckFile = () => {
       } else {
       }
     } catch {}
-  }, [router, status]);
+  }, [router, status, depositPubkeys]);
 
   useInterval(fetchStatus, 8000);
 

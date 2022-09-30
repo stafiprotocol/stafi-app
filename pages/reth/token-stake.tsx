@@ -1,13 +1,12 @@
 import classNames from "classnames";
 import { Button } from "components/button";
-import { CustomLoading } from "components/CustomLoading";
 import { EmptyContent } from "components/EmptyContent";
 import { RethLayout } from "components/layout_reth";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { PrimaryLoading } from "components/PrimaryLoading";
 import { useEthDepositList } from "hooks/useEthStakeList";
 import { useRouter } from "next/router";
-import { ReactElement, useEffect, useMemo, useState } from "react";
+import { ReactElement, useMemo, useState } from "react";
 import { RethStakeLayout } from "../../components/layout_reth_stake";
 import { TokenStakeTabs } from "../../components/reth/TokenStakeTabs";
 import { WaitingStakeCard } from "../../components/reth/WaitingStakeCard";
@@ -77,29 +76,34 @@ const TokenStake = () => {
         className={classNames("mx-[.75rem] mb-[1rem]", {
           invisible: tab !== "unmatched",
         })}
-        onClick={() => {
-          const trustList = stakableList.filter(
-            (item) => item.type === "trust"
-          );
-          const soloList = stakableList.filter((item) => item.type === "solo");
-          if (trustList.length > 0 && soloList.length > 0) {
-            setChooseStakeTypeModalVisible(true);
-            return;
-          }
-          const pubkeys = stakableList.map((item) => item.pubkey);
-          router.push(
-            {
-              pathname: "/reth/stake",
-              query: {
-                pubkeys: pubkeys,
-                depositType: trustList.length > 0 ? "trust" : "solo",
-              },
-            },
-            "/reth/stake"
-          );
-        }}
       >
-        <Button height="1.3rem" disabled={stakableList.length === 0}>
+        <Button
+          height="1.3rem"
+          disabled={stakableList.length === 0}
+          onClick={() => {
+            const trustList = stakableList.filter(
+              (item) => item.type === "trust"
+            );
+            const soloList = stakableList.filter(
+              (item) => item.type === "solo"
+            );
+            if (trustList.length > 0 && soloList.length > 0) {
+              setChooseStakeTypeModalVisible(true);
+              return;
+            }
+            const pubkeys = stakableList.map((item) => item.pubkey);
+            router.push(
+              {
+                pathname: "/reth/stake",
+                query: {
+                  pubkeys: pubkeys,
+                  depositType: trustList.length > 0 ? "trust" : "solo",
+                },
+              },
+              "/reth/stake"
+            );
+          }}
+        >
           Apply for stake({stakableList.length})
         </Button>
       </div>

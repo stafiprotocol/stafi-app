@@ -36,12 +36,6 @@ export const TrustValidatorDepositForm = () => {
     };
   });
 
-  useEffect(() => {
-    // metaMask.connectEagerly();
-  }, []);
-
-  useEffect(() => {}, [account, chainId]);
-
   return (
     <div className="flex-1 flex flex-col items-center">
       <div className="mt-[.9rem] text-white font-[700] text-[.42rem]">

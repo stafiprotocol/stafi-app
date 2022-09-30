@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
+import { hooks } from "connectors/metaMask";
 import { EthDepositItem } from "hooks/useEthStakeList";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,6 +18,8 @@ interface WaitingStakeCardProps {
 }
 
 export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
+  const { useAccount } = hooks;
+  const account = useAccount();
   const router = useRouter();
   const { depositItem } = props;
 
@@ -128,13 +131,24 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
         </div>
       </div>
 
-      <div className="mt-[.24rem] flex items-center justify-between">
+      <div
+        className="mt-[.24rem] flex items-center justify-between"
+        onClick={() => {
+          router.push(`/reth/my-data`);
+        }}
+      >
         <div className="flex items-center">
           <div className="mr-[.06rem] text-text2 text-[.16rem]">Node Addr</div>
           <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
         </div>
 
-        <div className="text-text1 text-[.16rem]">N/A</div>
+        <div className="ml-[.12rem] flex items-center cursor-pointer">
+          <div className="mr-[.09rem] text-[.16rem] text-text1">
+            {getShortAddress(account, 4)}
+          </div>
+
+          <Icomoon icon="right" size="0.155rem" color={"#9DAFBE"} />
+        </div>
       </div>
 
       <div className="mt-[.24rem] flex items-center justify-between">

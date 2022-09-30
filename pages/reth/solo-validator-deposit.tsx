@@ -4,7 +4,12 @@ import { Card } from "components/card";
 import { Icomoon } from "components/Icomoon";
 import { RethLayout } from "components/layout_reth";
 import { ValidatorKeyUpload } from "components/reth/upload";
-import { getMetamaskChainId, getStafiEthContractConfig } from "config/eth";
+import { getApiHost } from "config/env";
+import {
+  getMetamaskChainId,
+  getStafiEthContractConfig,
+  getStafiLightNodeAbi,
+} from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
@@ -28,6 +33,7 @@ import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask, createWeb3 } from "utils/web3Utils";
+import Web3 from "web3";
 import styles from "../../styles/reth/SoloValidatorDeposit.module.scss";
 
 const SoloValidatorDeposit = () => {
@@ -40,6 +46,9 @@ const SoloValidatorDeposit = () => {
   const [fileName, setFileName] = useState<string>("");
   const { unmatchedEth, validatorApr } = useEthPoolData();
   const [showWarning, setShowWarning] = useState(true);
+  const [gasPrice, setGasPrice] = useState("--");
+  const [depositFee, setDepositFee] = useState("--");
+  const [stakeFee, setStakeFee] = useState("--");
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -47,8 +56,29 @@ const SoloValidatorDeposit = () => {
     };
   });
 
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const resJson = await response.json();
+      if (resJson && resJson.status === "80000") {
+        setGasPrice(
+          Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
+        );
+      }
+    })();
+  }, []);
+
   const estimateFee = useCallback(async () => {
-    if (!validatorKeys || validatorKeys.length === 0) {
+    if (
+      !validatorKeys ||
+      validatorKeys.length === 0 ||
+      isNaN(Number(gasPrice))
+    ) {
       return;
     }
     const ethContractConfig = getStafiEthContractConfig();
@@ -64,49 +94,36 @@ const SoloValidatorDeposit = () => {
     });
 
     const web3 = createWeb3();
-    console.log("11");
-    const data = web3.eth.abi.encodeFunctionCall(
-      {
-        name: "deposit",
-        type: "function",
-        inputs: [
-          {
-            internalType: "bytes[]",
-            name: "_validatorPubkeys",
-            type: "bytes[]",
-          },
-          {
-            internalType: "bytes[]",
-            name: "_validatorSignatures",
-            type: "bytes[]",
-          },
-          {
-            internalType: "bytes32[]",
-            name: "_depositDataRoots",
-            type: "bytes32[]",
-          },
-        ],
-      },
-      [
-        JSON.stringify(pubkeys),
-        JSON.stringify(signatures),
-        JSON.stringify(depositDataRoots),
-      ]
+    const contract = new web3.eth.Contract(
+      getStafiLightNodeAbi(),
+      ethContractConfig.stafiLightNode
     );
-    console.log("22");
 
-    web3.eth
-      .estimateGas({
-        to: ethContractConfig.stafiLightNode,
-        data: data,
-      })
-      .then((res) => {
-        console.log("est gas", res);
-      });
-  }, [validatorKeys]);
+    try {
+      const estimateSoloDepositGas = await contract.methods
+        .deposit(pubkeys, signatures, depositDataRoots)
+        .estimateGas({
+          from: account,
+          value: Web3.utils.toWei(4 * validatorKeys.length + ""),
+        });
+
+      // console.log("estimateSoloDepositGas", estimateSoloDepositGas);
+
+      const trustDepositFee = Web3.utils
+        .toBN(estimateSoloDepositGas)
+        .mul(Web3.utils.toBN(gasPrice));
+
+      const trustDepositFeeEth = Web3.utils.fromWei(trustDepositFee, "gwei");
+      // console.log("soloDepositFeeEth", trustDepositFeeEth);
+
+      setDepositFee(trustDepositFeeEth);
+
+      setStakeFee(validatorKeys.length * 0.01 + "");
+    } catch {}
+  }, [validatorKeys, account, gasPrice]);
 
   useEffect(() => {
-    // estimateFee();
+    estimateFee();
   }, [estimateFee]);
 
   return (
@@ -328,12 +345,21 @@ const SoloValidatorDeposit = () => {
             </div>
           </Card>
 
-          <div className="mt-[.76rem] flex items-center">
+          <div
+            className={classNames("mt-[.76rem] flex items-center", {
+              invisible: !validatorKeys.length || !account,
+            })}
+          >
             <div className="text-[.32rem] text-primary">
-              Est. total fee: 0.11ETH (Gwei 200)
+              Est. total fee:{" "}
+              {isNaN(Number(depositFee)) || isNaN(Number(stakeFee))
+                ? "--"
+                : formatNumber(Number(depositFee) + Number(stakeFee))}
+              ETH (Gwei {gasPrice})
             </div>
             <div className="ml-[.32rem] text-[.24rem] text-text1">
-              Deposit Fee: 0.08ETH + Stake Fee:0.03
+              Deposit Fee: {formatNumber(depositFee)}ETH + Stake Fee:{" "}
+              {formatNumber(stakeFee)}
             </div>
           </div>
 
