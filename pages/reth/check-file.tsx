@@ -76,15 +76,33 @@ const CheckFile = () => {
 
     try {
       const statusList = await Promise.all(requests);
-      let success = true;
-      statusList.forEach((status) => {
-        if (Number(status) < 1) {
-          success = false;
+      let changeStatus = true;
+      let newStatus = "";
+      statusList.every((status) => {
+        console.log("status", status);
+
+        if (status) {
+          if (status === "4") {
+            changeStatus = true;
+            newStatus = "4";
+            return false;
+          }
+          if (!newStatus) {
+            newStatus = status;
+          } else if (newStatus !== status) {
+            changeStatus = false;
+          }
         }
       });
-      if (success) {
-        setStatus("success");
-      } else {
+
+      if (changeStatus) {
+        if (newStatus === "4") {
+          setStatus("error");
+        } else if (newStatus === "1") {
+          setStatus("loading");
+        } else {
+          setStatus("success");
+        }
       }
     } catch {}
   }, [router, status, depositPubkeys]);
@@ -125,7 +143,9 @@ const CheckFile = () => {
             {status === "loading"
               ? "File Submitted, wait for checking…"
               : status === "success"
-              ? "32 ETH staked successfully!"
+              ? (router.query.type as string) === "solo"
+                ? `${depositPubkeys.length * 4} ETH deposited successfully!`
+                : "Deposited successfully!"
               : "Transaction Failed"}
           </div>
 
