@@ -118,7 +118,10 @@ const SoloValidatorDeposit = () => {
 
       setDepositFee(trustDepositFeeEth);
 
-      setStakeFee(validatorKeys.length * 0.01 + "");
+      // setStakeFee(validatorKeys.length * 0.01 + "");
+      setStakeFee(
+        Web3.utils.fromWei(216485 + 61060 * validatorKeys.length + "", "gwei")
+      );
     } catch {}
   }, [validatorKeys, account, gasPrice]);
 

@@ -15,6 +15,7 @@ import styles from "../../styles/reth/WaitingStakeCard.module.scss";
 
 interface WaitingStakeCardProps {
   depositItem: EthDepositItem;
+  hasEnoughEth: boolean;
 }
 
 export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
@@ -31,9 +32,9 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       return "Validating";
     }
     if (status === "4") {
-      return "Waiting to be matched";
+      return "Verification Failed";
     }
-    return "";
+    return "Waiting to be matched";
   };
 
   const getStatusText = (status: string) => {
@@ -44,7 +45,7 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       return "Staked";
     }
     if (status === "4") {
-      return "Unmatched";
+      return "Failed";
     }
     if (status === "8") {
       return "Waiting";
@@ -55,7 +56,7 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
     if (status === "10") {
       return "Exit";
     }
-    return "";
+    return "Unmatched";
   };
 
   return (
@@ -162,7 +163,7 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
         </div>
       </div>
 
-      {depositItem.status === "2" && (
+      {depositItem.status === "2" && props.hasEnoughEth && (
         <Button
           mt=".24rem"
           height=".65rem"

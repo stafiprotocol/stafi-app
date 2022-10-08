@@ -4,7 +4,9 @@ import { EmptyContent } from "components/EmptyContent";
 import { RethLayout } from "components/layout_reth";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { PrimaryLoading } from "components/PrimaryLoading";
+import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthDepositList } from "hooks/useEthStakeList";
+import { cloneDeep } from "lodash";
 import { useRouter } from "next/router";
 import { ReactElement, useMemo, useState } from "react";
 import { RethStakeLayout } from "../../components/layout_reth_stake";
@@ -20,26 +22,63 @@ const TokenStake = () => {
     useState(false);
 
   const { depositList, loading } = useEthDepositList();
+  const { unmatchedEth } = useEthPoolData();
 
   const [displayList, stakableList] = useMemo(() => {
+    const newList = depositList.sort((a, b) => {
+      if (a.status === "2" && b.status !== "2") {
+        return -1;
+      } else if (a.type === "trust" && b.type !== "trust") {
+        return -1;
+      }
+      return 0;
+    });
+
     return [
-      depositList.filter((item) => {
+      newList.filter((item) => {
         return (
           (tab === "staked" && item.status == "3") ||
           (tab === "unmatched" && item.status !== "3")
         );
       }),
-      depositList.filter((item) => {
+      newList.filter((item) => {
         return tab === "unmatched" && item.status === "2";
       }),
     ];
   }, [depositList, tab]);
 
   const trustDepositNumber = useMemo(() => {
-    return stakableList.filter(
+    const trustStakableList = stakableList.filter(
       (item) => item.type === "trust" && item.status !== "3"
-    ).length;
-  }, [stakableList]);
+    );
+    return Math.min(
+      trustStakableList.length,
+      Math.floor(Number(unmatchedEth) / 31)
+    );
+  }, [stakableList, unmatchedEth]);
+
+  const stakableLength = useMemo(() => {
+    const list = cloneDeep(stakableList).sort((a, b) => {
+      return a.type.localeCompare(b.type);
+    });
+    let length = 0;
+    let remainingEth = unmatchedEth;
+    list.forEach((item) => {
+      if (item.type === "trust") {
+        if (item.status === "2" && Number(remainingEth) > 31) {
+          length++;
+          remainingEth = Number(unmatchedEth) - 31 + "";
+        }
+      } else {
+        if (item.status === "2" && Number(remainingEth) > 28) {
+          length++;
+          remainingEth = Number(unmatchedEth) - 28 + "";
+        }
+      }
+    });
+
+    return length;
+  }, [stakableList, unmatchedEth]);
 
   return (
     <div className="pt-[.76rem] flex flex-col items-stretch">
@@ -68,6 +107,11 @@ const TokenStake = () => {
           <WaitingStakeCard
             key={depositItem.type + depositItem.index}
             depositItem={depositItem}
+            hasEnoughEth={
+              depositItem.type === "trust"
+                ? Number(unmatchedEth) >= 31
+                : Number(unmatchedEth) >= 28
+            }
           />
         ))}
       </div>
@@ -79,7 +123,7 @@ const TokenStake = () => {
       >
         <Button
           height="1.3rem"
-          disabled={stakableList.length === 0}
+          disabled={stakableLength <= 0}
           onClick={() => {
             const trustList = stakableList.filter(
               (item) => item.type === "trust"
@@ -91,7 +135,9 @@ const TokenStake = () => {
               setChooseStakeTypeModalVisible(true);
               return;
             }
-            const pubkeys = stakableList.map((item) => item.pubkey);
+            const pubkeys = stakableList
+              .slice(0, stakableLength)
+              .map((item) => item.pubkey);
             router.push(
               {
                 pathname: "/reth/stake",
@@ -104,7 +150,7 @@ const TokenStake = () => {
             );
           }}
         >
-          Apply for stake({stakableList.length})
+          Apply for stake({stakableLength})
         </Button>
       </div>
 
@@ -119,7 +165,9 @@ const TokenStake = () => {
           const trustList = stakableList.filter(
             (item) => item.type === "trust"
           );
-          const pubkeys = trustList.map((item) => item.pubkey);
+          const pubkeys = trustList
+            .slice(0, trustDepositNumber)
+            .map((item) => item.pubkey);
           router.push(
             {
               pathname: "/reth/stake",
