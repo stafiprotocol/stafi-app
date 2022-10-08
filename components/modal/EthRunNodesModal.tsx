@@ -1,7 +1,6 @@
 import { Box, Modal } from "@mui/material";
 import classNames from "classnames";
 import { Button } from "components/button";
-import { CustomLoading } from "components/CustomLoading";
 import { Icomoon } from "components/Icomoon";
 import { StakeLeftExplanation } from "components/reth/stake/StakeLeftExplanation";
 import { getApiHost } from "config/env";

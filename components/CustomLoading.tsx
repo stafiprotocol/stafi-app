@@ -1,17 +1,18 @@
-import ReactLoading from "react-loading";
+import { CircularProgress } from "@mui/material";
 
 interface CustomLoadingProps {
-  color: string;
+  color:
+    | "primary"
+    | "secondary"
+    | "error"
+    | "info"
+    | "success"
+    | "warning"
+    | "inherit"
+    | undefined;
   size: string;
 }
 
 export const CustomLoading = (props: CustomLoadingProps) => {
-  return (
-    <ReactLoading
-      type="spin"
-      color={props.color}
-      height={props.size}
-      width={props.size}
-    />
-  );
+  return <CircularProgress size={props.size} color={props.color} />;
 };

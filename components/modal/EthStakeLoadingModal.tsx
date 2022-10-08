@@ -326,7 +326,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
 
                       {ethStakeParams?.status === "staking" ? (
                         <div className="ml-[.26rem]">
-                          <CustomLoading color="#0095EB" size=".24rem" />
+                          <CustomLoading color="info" size=".24rem" />
                         </div>
                       ) : (
                         <div className="ml-[.26rem]">
@@ -374,7 +374,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                       {ethStakeParams?.status === "staked" ||
                         (ethStakeParams?.status === "waiting" && (
                           <div className="ml-[.26rem]">
-                            <CustomLoading color="#0095EB" size=".24rem" />
+                            <CustomLoading color="info" size=".24rem" />
                           </div>
                         ))}
 

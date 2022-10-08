@@ -59,7 +59,10 @@ export const theme = createTheme({
       main: "#8E65FF",
     },
     secondary: {
-      main: "#7c7c7c",
+      main: "#5b6872",
+    },
+    info: {
+      main: "#0095EB",
     },
     darkBg: {
       main: "#1D1930",

@@ -294,7 +294,7 @@ const CheckFile = () => {
 
                     {status === "loading" && (
                       <div className="ml-[.26rem]">
-                        <CustomLoading color="#0095EB" size=".24rem" />
+                        <CustomLoading color="info" size=".24rem" />
                       </div>
                     )}
 

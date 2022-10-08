@@ -39,18 +39,19 @@ export const Button = (props: ButtonProps) => {
       }}
     >
       {props.loading && (
-        <CustomLoading
-          color={
-            props.disabled
+        <div
+          style={{
+            color: props.disabled
               ? props.stroke
                 ? "#5b6872"
                 : "#5b6872"
               : props.stroke
               ? "#00f3ab"
-              : "#1a2835"
-          }
-          size={props.fontSize || "0.32rem"}
-        />
+              : "#1a2835",
+          }}
+        >
+          <CustomLoading color="inherit" size={props.fontSize || "0.32rem"} />
+        </div>
       )}
 
       <div className={classNames({ "ml-1": props.loading })}>
