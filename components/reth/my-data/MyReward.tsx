@@ -64,7 +64,7 @@ export const MyReward = () => {
     <CollapseCard
       backgroundColor="rgba(26, 40, 53, 0.2)"
       mt=".36rem"
-      title={<div className="text-white text-[.32rem]">My Reward</div>}
+      title={<div className="text-white text-[.32rem]">My Rewards</div>}
     >
       {showWarning && (
         <div className={styles["warning-container"]}>

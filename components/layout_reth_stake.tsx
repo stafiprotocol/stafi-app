@@ -6,6 +6,7 @@ import styles from "../styles/reth/RethLayout.module.scss";
 import { Button } from "./button";
 import { Card } from "./card";
 import { Icomoon } from "./Icomoon";
+import { EthGoStakeSidebar } from "./modal/EthGoStakeSidebar";
 
 type RethStakeLayoutProps = React.PropsWithChildren<{}>;
 
@@ -132,6 +133,8 @@ export const RethStakeLayout = (props: RethStakeLayoutProps) => {
           {props.children}
         </div>
       </Card>
+
+      <EthGoStakeSidebar />
     </div>
   );
 };

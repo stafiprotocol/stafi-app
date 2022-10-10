@@ -27,7 +27,7 @@ const PoolData = () => {
   return (
     <div className="py-[.76rem] px-[.55rem] flex flex-col items-stretch">
       <div className="self-center text-[.42rem] text-white font-[700]">
-        Pool Data
+        Pool Overall Data
       </div>
 
       <CollapseCard
