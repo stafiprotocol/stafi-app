@@ -1,24 +1,23 @@
 import classNames from "classnames";
 import { Card } from "components/card";
+import { CollapseCard } from "components/CollapseCard";
+import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
+import { RethLayout } from "components/layout_reth";
 import { EthRewardChart } from "components/reth/EthRewardChart";
 import { hooks } from "connectors/metaMask";
-import { ReactElement } from "react";
-import { useAppDispatch } from "hooks/common";
 import { useEthPubkeyDetail } from "hooks/useEthPubkeyDetail";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ethIcon from "public/eth_type_green.svg";
 import arrowPath from "public/path_arrow.svg";
 import rectangle from "public/rectangle1.svg";
-import { useState } from "react";
+import { ReactElement } from "react";
+import { getEthPubkeyStatusText } from "utils/eth";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import styles from "../../../styles/reth/PubkeyDetail.module.scss";
-import { RethLayout } from "components/layout_reth";
-import { RethStakeLayout } from "components/layout_reth_stake";
-import { EmptyContent } from "components/EmptyContent";
 
 const PubkeyDetail = () => {
   const router = useRouter();
@@ -44,28 +43,6 @@ const PubkeyDetail = () => {
     chartYData,
   } = useEthPubkeyDetail(pubkey as string);
 
-  const getStatusText = (status: string) => {
-    if (status === "2") {
-      return "Deposited";
-    }
-    if (status === "3") {
-      return "Staked";
-    }
-    if (status === "4") {
-      return "Unmatched";
-    }
-    if (status === "8") {
-      return "Waiting";
-    }
-    if (status === "9") {
-      return "Active";
-    }
-    if (status === "10") {
-      return "Exit";
-    }
-    return "";
-  };
-
   return (
     <div className="pt-[.1rem]">
       <Card mt=".56rem" backgroundColor="#0A131B">
@@ -82,7 +59,7 @@ const PubkeyDetail = () => {
             className={
               Number(status) === 9
                 ? styles["active-status"]
-                : Number(status) === 8
+                : Number(status) === 8 || Number(status) === 4
                 ? styles["exit-status"]
                 : styles["pending-status"]
             }
@@ -91,13 +68,13 @@ const PubkeyDetail = () => {
               icon={
                 Number(status) === 9
                   ? "active"
-                  : Number(status) === 8
+                  : Number(status) === 8 || Number(status) === 4
                   ? "exit"
                   : "pending"
               }
               size="0.36rem"
             />
-            <div>{getStatusText(status + "")}</div>
+            <div>{getEthPubkeyStatusText(status + "")}</div>
           </div>
 
           <div className={classNames(styles["card-container"], "mt-[.36rem]")}>
@@ -105,14 +82,17 @@ const PubkeyDetail = () => {
               <div className="flex flex-col items-center">
                 <div
                   className={classNames(
-                    Number(status) >= 1
+                    Number(status) >= 1 && Number(status) !== 4
                       ? styles["status-dot-active"]
                       : styles["status-dot"]
                   )}
                 />
                 <div
                   className={classNames(
-                    "text-active text-[.24rem] mt-[.16rem]"
+                    "text-[.24rem] mt-[.16rem]",
+                    Number(status) >= 1 && Number(status) !== 4
+                      ? "text-active"
+                      : "text-text2"
                   )}
                 >
                   Deposited
@@ -213,12 +193,10 @@ const PubkeyDetail = () => {
             </div>
           </div>
 
-          <div
-            className={classNames(
-              classNames(styles["card-container"], "mt-[.36rem]")
-            )}
-          >
-            <div className="flex items-center justify-between mx-[.56rem]">
+          <CollapseCard
+            backgroundColor="rgba(26, 40, 53, 0.2)"
+            mt=".36rem"
+            title={
               <div className="flex items-center">
                 <div className="text-white text-[.32rem]">Address:</div>
 
@@ -237,13 +215,9 @@ const PubkeyDetail = () => {
                   <Icomoon icon="copy" size="0.2rem" color="#5B6872" />
                 </div>
               </div>
-
-              <div className="rotate-90">
-                <Icomoon icon="right" size="0.19rem" color="#ffffff" />
-              </div>
-            </div>
-
-            <div className="mt-[.8rem] mb-[.23rem] flex">
+            }
+          >
+            <div className="mt-[.4rem] mb-[.23rem] flex">
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Current Balance</div>
 
@@ -286,7 +260,7 @@ const PubkeyDetail = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </CollapseCard>
 
           <div
             className={classNames(
@@ -366,20 +340,12 @@ const PubkeyDetail = () => {
             </div>
           </div>
 
-          <div
-            className={classNames(
-              classNames(styles["card-container"], "mt-[.36rem]")
-            )}
+          <CollapseCard
+            backgroundColor="rgba(26, 40, 53, 0.2)"
+            mt=".36rem"
+            title={<div className="text-white text-[.32rem]">History</div>}
           >
-            <div className="flex items-center justify-between mx-[.56rem]">
-              <div className="text-white text-[.32rem]">History</div>
-
-              <div className="rotate-90">
-                <Icomoon icon="right" size="0.19rem" color="#ffffff" />
-              </div>
-            </div>
-
-            <div className="mt-[.8rem] mb-[.23rem] flex">
+            <div className="mt-[.4rem] mb-[.23rem] flex">
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
                   Eligible for Activation
@@ -408,7 +374,7 @@ const PubkeyDetail = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </CollapseCard>
         </div>
       </Card>
     </div>

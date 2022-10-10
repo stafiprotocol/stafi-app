@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import { CollapseCard } from "components/CollapseCard";
 import { Icomoon } from "components/Icomoon";
 import { RethLayout } from "components/layout_reth";
 import { MyReward } from "components/reth/my-data/MyReward";
@@ -28,20 +29,12 @@ const MyData = () => {
         My Data
       </div>
 
-      <div
-        className={classNames(
-          classNames(styles["card-container"], "mt-[.75rem]")
-        )}
+      <CollapseCard
+        backgroundColor="rgba(26, 40, 53, 0.2)"
+        mt=".75rem"
+        title={<div className="text-white text-[.32rem]">Managed ETH</div>}
       >
-        <div className="flex items-center justify-between mx-[.56rem]">
-          <div className="text-white text-[.32rem]">Managed ETH</div>
-
-          <div className="rotate-90">
-            <Icomoon icon="right" size="0.19rem" color="#ffffff" />
-          </div>
-        </div>
-
-        <div className="mt-[.8rem] mb-[.23rem] flex">
+        <div className="mt-[.4rem] mb-[.23rem] flex">
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem]">Self-deposited</div>
 
@@ -84,9 +77,13 @@ const MyData = () => {
             </div>
           </div>
         </div>
-      </div>
+      </CollapseCard>
 
-      <PublicKeyList pubkeyList={pubkeyList} totalCount={totalCount} />
+      <PublicKeyList
+        pubkeyList={pubkeyList}
+        totalCount={totalCount}
+        requestStatus={requestStatus}
+      />
 
       <MyReward />
     </div>

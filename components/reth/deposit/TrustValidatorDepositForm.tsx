@@ -1,5 +1,6 @@
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
+import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { getMetamaskChainId } from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
@@ -29,6 +30,8 @@ export const TrustValidatorDepositForm = () => {
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
   const [fileName, setFileName] = useState<string>("");
   const { unmatchedEth } = useEthPoolData();
+  const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
+    useState(false);
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -78,8 +81,7 @@ export const TrustValidatorDepositForm = () => {
             <div
               className="absolute right-[.12rem] top-[.12rem] w-[.22rem] h-[.22rem] cursor-pointer"
               onClick={() => {
-                setValidatorKeys([]);
-                setFileName("");
+                setDeleteConfirmModalVisible(true);
               }}
             >
               <Image src={closeIcon} alt="close" layout="fill" />
@@ -123,8 +125,7 @@ export const TrustValidatorDepositForm = () => {
 
       <div className="self-stretch mx-[.75rem] mt-[1rem]">
         <Button
-          loading={ethTxLoading}
-          disabled={!!account && validatorKeys.length === 0}
+          disabled={(!!account && validatorKeys.length === 0) || ethTxLoading}
           height="1.3rem"
           onClick={() => {
             if (!account || chainId !== getMetamaskChainId()) {
@@ -171,9 +172,23 @@ export const TrustValidatorDepositForm = () => {
             ? "Connect Wallet"
             : validatorKeys.length === 0
             ? "Please Upload 1 json file"
+            : ethTxLoading
+            ? "Depositing, please wait for a moment..."
             : "Deposit"}
         </Button>
       </div>
+
+      <ConfirmModal
+        visible={deleteConfirmModalVisible}
+        content={`Sure want to delete this file?`}
+        confirmText="Yes, Delete"
+        onClose={() => setDeleteConfirmModalVisible(false)}
+        onConfirm={() => {
+          setValidatorKeys([]);
+          setFileName("");
+          setDeleteConfirmModalVisible(false);
+        }}
+      />
     </div>
   );
 };

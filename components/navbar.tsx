@@ -1,4 +1,5 @@
 import { Popover } from "@mui/material";
+import classNames from "classnames";
 import { Icomoon } from "components/Icomoon";
 import { NoticeList } from "components/notice/NoticeList";
 import { getMetamaskChainId } from "config/eth";
@@ -65,13 +66,15 @@ export const Navbar = () => {
   });
 
   return (
-    <div className="bg-navbarBg py-[.32rem] flex items-center justify-between">
+    <div className="bg-navbarBg h-[1.3rem] flex items-center justify-between">
       <div className="flex items-center pl-[.85rem]">
         <div className="w-[.28rem] h-[.28rem] relative">
           <Image src={stafiLogo} alt="logo" layout="fill" />
         </div>
         <Link href="/rtoken">
-          <div className={styles["rtoken-button"]}>rToken</div>
+          <div className={classNames(styles["rtoken-button"], "text-white")}>
+            rToken
+          </div>
         </Link>
       </div>
 
@@ -133,7 +136,18 @@ export const Navbar = () => {
           )}
         </div>
 
-        <div className={styles.notification} {...bindTrigger(noticePopupState)}>
+        <div
+          className={styles.notification}
+          {...bindTrigger(noticePopupState)}
+          style={{
+            background: noticePopupState.isOpen
+              ? "linear-gradient(0deg,rgba(0, 243, 171, 0.3) 0%,rgba(26, 40, 53, 0.2) 30%),rgba(26, 40, 53, 0.2) 100%)"
+              : "rgba(25, 38, 52, 0.35)",
+            border: noticePopupState.isOpen
+              ? "1px solid rgba(0, 243, 171, 0.2)"
+              : "1px solid #1a2835",
+          }}
+        >
           {unreadNoticeFlag && (
             <div className="bg-primary rounded-full top-[.12rem] right-[.24rem] w-[.12rem] h-[.12rem] absolute" />
           )}

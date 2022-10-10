@@ -83,7 +83,7 @@
 }
 
 .warning-container {
-  margin: 0.67rem 0.56rem 0 0.56rem;
+  margin: 0.27rem 0.56rem 0 0.56rem;
   border: 1px solid rgba(0, 149, 235, 0.5);
   backdrop-filter: blur(0.81rem);
   border-radius: 0.32rem;
@@ -93,7 +93,12 @@
 }
 
 .eth-reward-container {
-  background: rgba(26, 40, 53, 0.2);
+  background: linear-gradient(
+    0deg,
+    rgba(0, 243, 171, 0.1) 0%,
+    rgba(26, 40, 53, 0.2) 30%,
+    rgba(26, 40, 53, 0.2) 100%
+  );
   border: 1px solid #1a2835;
   backdrop-filter: blur(0.81rem);
   border-radius: 0.16rem;

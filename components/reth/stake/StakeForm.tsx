@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
+import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { getMetamaskChainId } from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
@@ -22,6 +23,8 @@ export const StakeForm = () => {
   const account = useAccount();
   const chainId = useChainId();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
+  const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
+    useState(false);
   const { unmatchedEth } = useEthPoolData();
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
@@ -61,7 +64,8 @@ export const StakeForm = () => {
       </div>
 
       <div className="mt-[.3rem] flex items-center text-text1 text-[.24rem]">
-        Please follow the instruction and upload {stakePubkeys.length} pubkeys
+        Please follow the instruction and upload {stakePubkeys.length}{" "}
+        {stakePubkeys.length <= 1 ? "Pubkey" : "Pubkeys"}
       </div>
 
       <ValidatorKeyUpload
@@ -122,9 +126,9 @@ export const StakeForm = () => {
 
             <div className="ml-[.17rem] text-[.28rem] font-[700]">
               Upload {stakePubkeys.length - validatorKeys.length}{" "}
-              {stakePubkeys.length - validatorKeys.length === 1
-                ? "pubkey"
-                : "pubkeys"}
+              {stakePubkeys.length - validatorKeys.length <= 1
+                ? "Pubkey"
+                : "Pubkeys"}
             </div>
           </div>
         </div>
@@ -148,7 +152,9 @@ export const StakeForm = () => {
 
             <div
               className="cursor-pointer"
-              onClick={() => setValidatorKeys([])}
+              onClick={() => {
+                setDeleteConfirmModalVisible(true);
+              }}
             >
               <Icomoon icon="delete" size=".32rem" />
             </div>
@@ -224,10 +230,25 @@ export const StakeForm = () => {
           {!account
             ? "Connect Wallet"
             : validatorKeys.length < stakePubkeys.length
-            ? `Please Upload ${stakePubkeys.length} pubkeys`
+            ? `Please Upload ${stakePubkeys.length} ${
+                stakePubkeys.length <= 1 ? "Pubkey" : "Pubkeys"
+              }`
             : `Stake (${validatorKeys.length} Uploaded)`}
         </Button>
       </div>
+
+      <ConfirmModal
+        visible={deleteConfirmModalVisible}
+        content={`Sure want to delete all of those ${validatorKeys.length} ${
+          validatorKeys.length <= 1 ? "Pubkey" : "Pubkeys"
+        }`}
+        confirmText="Yes, Delete"
+        onClose={() => setDeleteConfirmModalVisible(false)}
+        onConfirm={() => {
+          setValidatorKeys([]);
+          setDeleteConfirmModalVisible(false);
+        }}
+      />
     </div>
   );
 };

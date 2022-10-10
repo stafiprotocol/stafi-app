@@ -16,14 +16,16 @@ const TrustValidatorDeposit = () => {
       <div
         className="inline-flex items-center cursor-pointer"
         onClick={() => {
-          router.push("/rtoken");
+          router.push("/reth/choose-validator");
         }}
       >
         <div className="w-[.27rem] h-[.18rem] relative">
           <Image src={leftArrowIcon} layout="fill" alt="back" />
         </div>
 
-        <div className="ml-[.16rem] text-link text-[.32rem]">rToken List</div>
+        <div className="ml-[.16rem] text-link text-[.32rem]">
+          Choose Validator Type
+        </div>
       </div>
 
       <Card mt=".56rem">

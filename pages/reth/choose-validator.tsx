@@ -16,14 +16,14 @@ const ChooseValidator = () => {
       <div
         className="inline-flex items-center cursor-pointer"
         onClick={() => {
-          router.push("/rtoken");
+          router.push("/reth/token-stake");
         }}
       >
         <div className="w-[.27rem] h-[.18rem] relative">
           <Image src={leftArrowIcon} layout="fill" alt="back" />
         </div>
 
-        <div className="ml-[.16rem] text-link text-[.32rem]">rToken List</div>
+        <div className="ml-[.16rem] text-link text-[.32rem]">Token Stake</div>
       </div>
 
       <Card mt=".56rem" backgroundColor="#0A131B">

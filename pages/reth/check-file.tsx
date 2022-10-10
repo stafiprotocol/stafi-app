@@ -179,14 +179,25 @@ const CheckFile = () => {
             className="mt-[.24rem] flex items-center cursor-pointer"
             onClick={() => setShowDetail(!showDetail)}
           >
-            <div className="text-text1 text-[.24rem]">Details</div>
             <div
               className={classNames(
-                "ml-[.16rem] relative w-[.19rem] h-[.1rem]",
-                { "rotate-180": showDetail }
+                "text-[.24rem]",
+                showDetail ? "text-white" : "text-text1"
               )}
             >
-              <Image src={downIcon} layout="fill" alt="down" />
+              Details
+            </div>
+            <div
+              className={classNames(
+                "ml-[.16rem]",
+                showDetail ? "-rotate-90" : "rotate-90"
+              )}
+            >
+              <Icomoon
+                icon="right"
+                size="0.19rem"
+                color={showDetail ? "#ffffff" : "#9DAFBE"}
+              />
             </div>
           </div>
 
@@ -229,7 +240,7 @@ const CheckFile = () => {
 
             {status !== "success" && (
               <a
-                className="mt-[.33rem] text-link underline text-[.24rem]"
+                className="mt-[.8rem] text-link underline text-[.24rem]"
                 href="https://www.google.com"
                 target="_blank"
                 rel="noreferrer"

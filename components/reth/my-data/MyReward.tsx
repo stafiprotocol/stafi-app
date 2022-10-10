@@ -1,15 +1,19 @@
 import classNames from "classnames";
+import { CollapseCard } from "components/CollapseCard";
+import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
 import { useEthMyReward } from "hooks/useEthMyReward";
+import { RequestStatus } from "interfaces";
 import Image from "next/image";
-import closeIcon from "public/icon_close.svg";
+import Link from "next/link";
 import ethIcon from "public/eth_type_green.svg";
+import closeIcon from "public/icon_close.svg";
 import warningIcon from "public/icon_warning.svg";
-import { EthRewardChart } from "../EthRewardChart";
-import styles from "../../../styles/reth/MyData.module.scss";
+import { useState } from "react";
 import { formatNumber } from "utils/number";
+import styles from "../../../styles/reth/MyData.module.scss";
+import { EthRewardChart } from "../EthRewardChart";
 import { MyRewardList } from "./MyRewardList";
-import { EmptyContent } from "components/EmptyContent";
 
 export const MyReward = () => {
   const {
@@ -24,32 +28,65 @@ export const MyReward = () => {
     totalCount,
   } = useEthMyReward();
 
+  const [showWarning, setShowWarning] = useState(true);
+
+  if (requestStatus === RequestStatus.success && totalCount === 0) {
+    return (
+      <CollapseCard
+        backgroundColor="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={<div className="text-white text-[.32rem]">My Reward</div>}
+      >
+        <div className="flex flex-col items-center">
+          <EmptyContent mt="0.2rem" size=".8rem" />
+          <Link href="/reth/choose-validator">
+            <div className="mt-[.3rem] flex items-center cursor-pointer">
+              <div className="text-text1 text-[.24rem] mr-[.1rem]">
+                Make a deposit
+              </div>
+              <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
+            </div>
+          </Link>
+        </div>
+
+        <div className="mt-[.56rem] h-[1px] bg-text3" />
+
+        <MyRewardList
+          rewardList={rewardList}
+          totalCount={totalCount}
+          requestStatus={requestStatus}
+        />
+      </CollapseCard>
+    );
+  }
+
   return (
-    <div className={classNames(styles["card-container"], "mt-[.36rem]")}>
-      <div className="flex items-center justify-between mx-[.56rem]">
-        <div className="text-white text-[.32rem]">My Reward</div>
+    <CollapseCard
+      backgroundColor="rgba(26, 40, 53, 0.2)"
+      mt=".36rem"
+      title={<div className="text-white text-[.32rem]">My Reward</div>}
+    >
+      {showWarning && (
+        <div className={styles["warning-container"]}>
+          <div
+            className="absolute w-[.22rem] h-[.22rem] right-[.16rem] top-[.16rem] cursor-pointer"
+            onClick={() => setShowWarning(false)}
+          >
+            <Image src={closeIcon} layout="fill" alt="close" />
+          </div>
 
-        <div className="rotate-90">
-          <Icomoon icon="right" size="0.19rem" color="#ffffff" />
-        </div>
-      </div>
+          <div className="relative w-[.24rem] h-[.24rem] min-w-[.24rem]">
+            <Image src={warningIcon} layout="fill" alt="warning" />
+          </div>
 
-      <div className={styles["warning-container"]}>
-        <div className="absolute w-[.22rem] h-[.22rem] right-[.16rem] top-[.16rem] cursor-pointer">
-          <Image src={closeIcon} layout="fill" alt="close" />
+          <div className="ml-[.12rem] text-[.2rem] font-[400] text-warning">
+            Holding rTokens still keeps generating staking reward while you
+            depositing them to farm, mine and other yield generation protocols,
+            but it can&apos;t be shown in the est.Reward as the calculation
+            limits.
+          </div>
         </div>
-
-        <div className="relative w-[.24rem] h-[.24rem] min-w-[.24rem]">
-          <Image src={warningIcon} layout="fill" alt="warning" />
-        </div>
-
-        <div className="ml-[.12rem] text-[.2rem] font-[400] text-warning">
-          Holding rTokens still keeps generating staking reward while you
-          depositing them to farm, mine and other yield generation protocols,
-          but it can&apos;t be shown in the est.Reward as the calculation
-          limits.
-        </div>
-      </div>
+      )}
 
       <div className="flex mt-[.2rem]">
         <div className="relative w-[340px]">
@@ -124,7 +161,11 @@ export const MyReward = () => {
 
       <div className="mt-[.1rem] h-[1px] bg-text3" />
 
-      <MyRewardList rewardList={rewardList} totalCount={totalCount} />
-    </div>
+      <MyRewardList
+        rewardList={rewardList}
+        totalCount={totalCount}
+        requestStatus={requestStatus}
+      />
+    </CollapseCard>
   );
 };

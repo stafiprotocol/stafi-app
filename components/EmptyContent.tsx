@@ -17,8 +17,8 @@ export const EmptyContent = (props: EmptyContentProps) => {
       <div
         className="relative"
         style={{
-          width: props.size || "1.1rem",
-          height: props.size || "1.1rem",
+          width: props.size || "1rem",
+          height: props.size || "1rem",
         }}
       >
         <Image src={empty} alt="empty" layout="fill" />

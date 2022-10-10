@@ -88,16 +88,9 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       </div>
 
       <div
-        className={classNames("mt-[.24rem] flex items-center justify-between", {
-          "cursor-pointer": props.depositItem.pubkey,
-        })}
-        onClick={() => {
-          if (props.depositItem.pubkey) {
-            router.push(`/reth/pubkey-detail/${props.depositItem.pubkey}`);
-          }
-        }}
+        className={classNames("mt-[.24rem] flex items-center justify-between")}
       >
-        <div className="flex items-center cursor-pointer">
+        <div className="flex items-center">
           <div className="mr-[.06rem] text-text2 text-[.16rem]">Pool Addr</div>
           <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
         </div>
@@ -118,7 +111,16 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
                 <Image layout="fill" alt="icon" src={copyIcon} />
               </div>
 
-              <div className="ml-[.12rem] flex items-center cursor-pointer">
+              <div
+                className="ml-[.12rem] flex items-center cursor-pointer"
+                onClick={() => {
+                  if (props.depositItem.pubkey) {
+                    router.push(
+                      `/reth/pubkey-detail/${props.depositItem.pubkey}`
+                    );
+                  }
+                }}
+              >
                 <div className="mr-[.09rem] text-[.16rem] text-text1">
                   {getShortAddress(props.depositItem.pubkey, 4)}
                 </div>

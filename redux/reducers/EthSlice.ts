@@ -220,7 +220,7 @@ export const handleEthDeposit =
       );
     } catch (err: unknown) {
       dispatch(setEthTxLoading(false));
-      console.log(err);
+      // console.log(err);
 
       if (err instanceof Error) {
         snackbarUtil.error(err.message);
@@ -304,8 +304,11 @@ export const handleEthStake =
 
       dispatch(setEthTxLoading(false));
       if (err instanceof Error) {
-        console.error(err.message);
-        snackbarUtil.error(COMMON_ERROR_MESSAGE);
+        snackbarUtil.error(err.message);
+      } else if ((err as any).code === 4001) {
+        snackbarUtil.error(CANCELLED_MESSAGE);
+      } else {
+        snackbarUtil.error((err as any).message);
       }
     }
   };

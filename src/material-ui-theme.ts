@@ -65,7 +65,7 @@ export const theme = createTheme({
       main: "#0095EB",
     },
     darkBg: {
-      main: "#1D1930",
+      main: "#000000",
     },
     darkButtonBg: {
       main: "#292E35",

@@ -192,7 +192,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                   ? "text-primary"
                   : ethStakeParams?.status === "error"
                   ? "text-error"
-                  : "text-text2"
+                  : "text-white"
               )}
             >
               {ethStakeParams?.status === "active"
@@ -238,21 +238,34 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
               className="mt-[.24rem] flex items-center cursor-pointer"
               onClick={() => setShowDetail(!showDetail)}
             >
-              <div className="text-text1 text-[.24rem]">Details</div>
               <div
                 className={classNames(
-                  "ml-[.16rem] relative w-[.19rem] h-[.1rem]",
-                  { "rotate-180": showDetail }
+                  "text-[.24rem]",
+                  showDetail ? "text-white" : "text-text1"
                 )}
               >
-                <Image src={downIcon} layout="fill" alt="down" />
+                Details
+              </div>
+              <div
+                className={classNames(
+                  "ml-[.16rem]",
+                  showDetail ? "-rotate-90" : "rotate-90"
+                )}
+              >
+                <Icomoon
+                  icon="right"
+                  size="0.19rem"
+                  color={showDetail ? "#ffffff" : "#9DAFBE"}
+                />
               </div>
             </div>
 
             <div className="self-stretch relative flex flex-col items-center">
               <div
                 className={classNames("relative flex justify-center w-[3rem]", {
-                  hidden: ethStakeParams?.status !== "staking",
+                  hidden:
+                    ethStakeParams?.status === "active" ||
+                    ethStakeParams?.status === "error",
                 })}
               >
                 <div className={styles["bee-light"]}>
@@ -292,7 +305,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
 
               {ethStakeParams?.status !== "active" && (
                 <a
-                  className="mt-[.33rem] text-link underline text-[.24rem]"
+                  className="mt-[.8rem] text-link underline text-[.24rem]"
                   href="https://www.google.com"
                   target="_blank"
                   rel="noreferrer"
@@ -371,12 +384,12 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                         Wait
                       </div>
 
-                      {ethStakeParams?.status === "staked" ||
-                        (ethStakeParams?.status === "waiting" && (
-                          <div className="ml-[.26rem]">
-                            <CustomLoading color="info" size=".24rem" />
-                          </div>
-                        ))}
+                      {(ethStakeParams?.status === "staked" ||
+                        ethStakeParams?.status === "waiting") && (
+                        <div className="ml-[.26rem]">
+                          <CustomLoading color="info" size=".24rem" />
+                        </div>
+                      )}
 
                       {ethStakeParams?.status === "active" && (
                         <div className="ml-[.26rem]">

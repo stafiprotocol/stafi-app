@@ -1,12 +1,14 @@
 import classNames from "classnames";
 import { Button } from "components/button";
 import { EmptyContent } from "components/EmptyContent";
+import { Icomoon } from "components/Icomoon";
 import { RethLayout } from "components/layout_reth";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { PrimaryLoading } from "components/PrimaryLoading";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthDepositList } from "hooks/useEthStakeList";
 import { cloneDeep } from "lodash";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactElement, useMemo, useState } from "react";
 import { RethStakeLayout } from "../../components/layout_reth_stake";
@@ -37,7 +39,7 @@ const TokenStake = () => {
     return [
       newList.filter((item) => {
         return (
-          (tab === "staked" && item.status == "3") ||
+          (tab === "staked" && item.status === "3") ||
           (tab === "unmatched" && item.status !== "3")
         );
       }),
@@ -93,7 +95,17 @@ const TokenStake = () => {
       <div className="mt-[.75rem] flex justify-start flex-wrap px-[1.6rem] min-h-[3rem] relative">
         {!loading && displayList.length === 0 && (
           <div className="flex-1">
-            <EmptyContent />
+            <div className="flex flex-col items-center">
+              <EmptyContent mt="0.2rem" size=".8rem" />
+              <Link href="/reth/choose-validator">
+                <div className="mt-[.3rem] flex items-center cursor-pointer">
+                  <div className="text-text1 text-[.24rem] mr-[.1rem]">
+                    Make a deposit
+                  </div>
+                  <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
+                </div>
+              </Link>
+            </div>
           </div>
         )}
 
@@ -118,7 +130,7 @@ const TokenStake = () => {
 
       <div
         className={classNames("mx-[.75rem] mb-[1rem]", {
-          invisible: tab !== "unmatched",
+          invisible: tab !== "unmatched" || stakableLength <= 0,
         })}
       >
         <Button

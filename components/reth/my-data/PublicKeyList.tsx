@@ -1,9 +1,14 @@
-import { TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import classNames from "classnames";
+import { CollapseCard } from "components/CollapseCard";
+import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
 import { EthRunNodesModal } from "components/modal/EthRunNodesModal";
 import { CustomPagination } from "components/pagination";
-import { useState } from "react";
+import { RequestStatus } from "interfaces";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useMemo, useState } from "react";
+import { getEthPubkeyStatusText } from "utils/eth";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import styles from "../../../styles/reth/MyData.module.scss";
@@ -16,26 +21,39 @@ interface Pubkey {
 interface PublicKeyListProps {
   pubkeyList: Pubkey[];
   totalCount: number;
+  requestStatus: RequestStatus;
 }
 
 export const PublicKeyList = (props: PublicKeyListProps) => {
+  const { pubkeyList, totalCount, requestStatus } = props;
+  const router = useRouter();
   const [tab, setTab] = useState<"all" | "active" | "unrespond">("all");
   const [page, setPage] = useState(1);
   const [runNodesModalVisible, setRunNodesModalVisible] = useState(false);
 
+  const displayList = useMemo(() => {
+    return pubkeyList.filter((item) => {
+      if (tab === "active") {
+        return item.status !== 4;
+      } else if (tab === "unrespond") {
+        return item.status === 4;
+      } else {
+        return true;
+      }
+    });
+  }, [pubkeyList, tab]);
+
   return (
-    <div className={classNames(styles["card-container"], "mt-[.36rem]")}>
-      <div className="flex items-center justify-between mx-[.56rem]">
+    <CollapseCard
+      backgroundColor="rgba(26, 40, 53, 0.2)"
+      mt=".36rem"
+      title={
         <div className="text-white text-[.32rem]">
-          Public Key List {props.totalCount > 0 ? `(${props.totalCount})` : ""}
+          Public Key List {totalCount > 0 ? `(${totalCount})` : ""}
         </div>
-
-        <div className="rotate-90">
-          <Icomoon icon="right" size="0.19rem" color="#ffffff" />
-        </div>
-      </div>
-
-      <div className="mt-[.45rem] mx-[.56rem] flex items-center justify-between">
+      }
+    >
+      <div className="mt-[.4rem] mx-[.56rem] flex items-center justify-between">
         <div className="flex items-center">
           <div className={styles["tab-container"]}>
             <div
@@ -78,25 +96,29 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
         </div>
       </div>
 
-      <div className="mt-[.56rem]">
-        <div className="flex">
-          <div className="flex justify-center flex-grow-[2]">
-            <section className="flex-1 flex justify-center items-center">
-              <div className="mr-[.07rem] text-[.2rem] text-text2">
-                Public Key
-              </div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
-            </section>
+      <div className="mt-[.56rem] min-h-[2rem]">
+        {displayList.length > 0 && (
+          <div className="flex">
+            <div className="flex justify-center flex-grow-[2]">
+              <section className="flex-1 flex justify-center items-center">
+                <div className="mr-[.07rem] text-[.2rem] text-text2">
+                  Public Key
+                </div>
+                <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              </section>
+            </div>
+            <div className="flex justify-center flex-grow-[1]">
+              <section className="flex-1 flex justify-center items-center">
+                <div className="mr-[.07rem] text-[.2rem] text-text2">
+                  Status
+                </div>
+                <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              </section>
+            </div>
           </div>
-          <div className="flex justify-center flex-grow-[1]">
-            <section className="flex-1 flex justify-center items-center">
-              <div className="mr-[.07rem] text-[.2rem] text-text2">Status</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
-            </section>
-          </div>
-        </div>
+        )}
 
-        {props.pubkeyList.map((item, index) => (
+        {displayList.map((item, index) => (
           <div
             key={index}
             className={
@@ -125,29 +147,58 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
             </div>
 
             <div className="flex justify-center flex-grow-[1]">
-              <section className="flex-1 flex justify-center items-center">
-                <div className="mr-[.07rem] text-[.2rem] text-primary">
-                  Active
+              <section
+                className="flex-1 flex justify-center items-center cursor-pointer"
+                onClick={() => {
+                  router.push(`/reth/pubkey-detail/${item.pubkey}`);
+                }}
+              >
+                <div
+                  className={classNames(
+                    "mr-[.07rem] text-[.2rem]",
+                    getEthPubkeyStatusText(item.status + "") === "Failed" ||
+                      getEthPubkeyStatusText(item.status + "") === "Unmatched"
+                      ? "text-error"
+                      : "text-primary"
+                  )}
+                >
+                  {getEthPubkeyStatusText(item.status + "")}
                 </div>
                 <Icomoon icon="right" size="0.16rem" color="#9DAFBE" />
               </section>
             </div>
           </div>
         ))}
+
+        {displayList.length === 0 && (
+          <div className="flex flex-col items-center">
+            <EmptyContent mt="0.2rem" size=".8rem" />
+            <Link href="/reth/choose-validator">
+              <div className="mt-[.3rem] flex items-center cursor-pointer">
+                <div className="text-text1 text-[.24rem] mr-[.1rem]">
+                  Make a deposit
+                </div>
+                <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
+              </div>
+            </Link>
+          </div>
+        )}
       </div>
 
-      <div className="mt-[.36rem] flex justify-center">
-        <CustomPagination
-          totalCount={props.totalCount}
-          page={page}
-          onChange={setPage}
-        />
-      </div>
+      {displayList.length > 0 && (
+        <div className="mt-[.36rem] flex justify-center">
+          <CustomPagination
+            totalCount={props.totalCount}
+            page={page}
+            onChange={setPage}
+          />
+        </div>
+      )}
 
       <EthRunNodesModal
         visible={runNodesModalVisible}
         onClose={() => setRunNodesModalVisible(false)}
       />
-    </div>
+    </CollapseCard>
   );
 };

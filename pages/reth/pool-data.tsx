@@ -1,7 +1,9 @@
 import classNames from "classnames";
+import { CollapseCard } from "components/CollapseCard";
 import { Icomoon } from "components/Icomoon";
 import { RethLayout } from "components/layout_reth";
 import { useEthPoolData } from "hooks/useEthPoolData";
+import Link from "next/link";
 import type { ReactElement } from "react";
 import { formatNumber } from "utils/number";
 import { RethStakeLayout } from "../../components/layout_reth_stake";
@@ -28,20 +30,12 @@ const PoolData = () => {
         Pool Data
       </div>
 
-      <div
-        className={classNames(
-          classNames(styles["card-container"], "mt-[.75rem]")
-        )}
+      <CollapseCard
+        backgroundColor="rgba(26, 40, 53, 0.2)"
+        mt=".75rem"
+        title={<div className="text-white text-[.32rem]">Token Overview</div>}
       >
-        <div className="flex items-center justify-between mx-[.56rem]">
-          <div className="text-white text-[.32rem]">Token Overview</div>
-
-          <div className="rotate-90">
-            <Icomoon icon="right" size="0.19rem" color="#ffffff" />
-          </div>
-        </div>
-
-        <div className="mt-[.8rem] mb-[.23rem] flex">
+        <div className="mt-[.4rem] mb-[.23rem] flex">
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem]">Deposited ETH</div>
 
@@ -80,29 +74,25 @@ const PoolData = () => {
             </div>
           </div>
         </div>
-      </div>
+      </CollapseCard>
 
-      <div
-        className={classNames(
-          classNames(styles["card-container"], "mt-[.36rem]")
-        )}
-      >
-        <div className="flex items-center justify-between mx-[.56rem]">
+      <CollapseCard
+        backgroundColor="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
           <div className="flex items-center">
             <div className="text-white text-[.32rem]">Pool Status</div>
 
-            <div className={styles["my-pool"]}>
-              <div>My Pool</div>
-              <Icomoon icon="right" size="0.19rem" color="#00F3AB" />
-            </div>
+            <Link href="/reth/my-data">
+              <div className={styles["my-pool"]}>
+                <div>My Pool</div>
+                <Icomoon icon="right" size="0.19rem" color="#00F3AB" />
+              </div>
+            </Link>
           </div>
-
-          <div className="rotate-90">
-            <Icomoon icon="right" size="0.19rem" color="#ffffff" />
-          </div>
-        </div>
-
-        <div className="mt-[.8rem] mb-[.23rem] flex">
+        }
+      >
+        <div className="mt-[.4rem] mb-[.23rem] flex">
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem]">Pool ETH</div>
 
@@ -141,22 +131,14 @@ const PoolData = () => {
             </div>
           </div>
         </div>
-      </div>
+      </CollapseCard>
 
-      <div
-        className={classNames(
-          classNames(styles["card-container"], "mt-[.36rem]")
-        )}
+      <CollapseCard
+        backgroundColor="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={<div className="text-white text-[.32rem]">APR</div>}
       >
-        <div className="flex items-center justify-between mx-[.56rem]">
-          <div className="text-white text-[.32rem]">APR</div>
-
-          <div className="rotate-90">
-            <Icomoon icon="right" size="0.19rem" color="#ffffff" />
-          </div>
-        </div>
-
-        <div className="mt-[.8rem] mb-[.23rem] flex">
+        <div className="mt-[.4rem] mb-[.23rem] flex">
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.14rem]">Staker APR</div>
@@ -187,7 +169,7 @@ const PoolData = () => {
             </div>
           </div>
         </div>
-      </div>
+      </CollapseCard>
     </div>
   );
 };

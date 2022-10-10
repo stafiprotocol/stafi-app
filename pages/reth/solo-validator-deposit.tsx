@@ -1,8 +1,10 @@
 import classNames from "classnames";
 import { Button } from "components/button";
 import { Card } from "components/card";
+import { CollapseCard } from "components/CollapseCard";
 import { Icomoon } from "components/Icomoon";
 import { RethLayout } from "components/layout_reth";
+import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { getApiHost } from "config/env";
 import {
@@ -30,6 +32,7 @@ import uploadIcon from "public/upload.svg";
 import { ReactElement, useCallback, useEffect, useState } from "react";
 import { handleEthDeposit } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
+import { openLink } from "utils/common";
 import { formatNumber } from "utils/number";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask, createWeb3 } from "utils/web3Utils";
@@ -49,6 +52,8 @@ const SoloValidatorDeposit = () => {
   const [gasPrice, setGasPrice] = useState("--");
   const [depositFee, setDepositFee] = useState("--");
   const [stakeFee, setStakeFee] = useState("--");
+  const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
+    useState(false);
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -134,14 +139,16 @@ const SoloValidatorDeposit = () => {
       <div
         className="inline-flex items-center cursor-pointer"
         onClick={() => {
-          router.push("/rtoken");
+          router.push("/reth/choose-validator");
         }}
       >
         <div className="w-[.27rem] h-[.18rem] relative">
           <Image src={leftArrowIcon} layout="fill" alt="back" />
         </div>
 
-        <div className="ml-[.16rem] text-link text-[.32rem]">rToken List</div>
+        <div className="ml-[.16rem] text-link text-[.32rem]">
+          Choose Validator Type
+        </div>
       </div>
 
       <Card mt=".56rem" backgroundColor="#0A131B">
@@ -154,25 +161,28 @@ const SoloValidatorDeposit = () => {
             Deposit
           </div>
 
-          <Card mt=".76rem" backgroundColor="rgba(26, 40, 53, 0.2)">
-            <div className="p-[.56rem] flex flex-col items-center">
-              <div className="self-stretch flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="text-white text-[.32rem]">Upload Files</div>
-                  <div className="ml-[.34rem] text-text2 text-[.24rem]">
-                    Instruction
-                  </div>
+          <CollapseCard
+            mt=".76rem"
+            backgroundColor="rgba(26, 40, 53, 0.2)"
+            title={
+              <div className="flex items-center">
+                <div className="text-white text-[.32rem]">Upload Files</div>
+                <div
+                  className="ml-[.34rem] flex items-center cursor-pointer"
+                  onClick={() => {
+                    openLink("https://www.google.com");
+                  }}
+                >
+                  <div className=" text-text2 text-[.24rem]">Instruction</div>
                   <div className="ml-[.09rem]">
                     <Icomoon icon="right" size="0.18rem" color={"#5B6872"} />
                   </div>
                 </div>
-
-                <div className="w-[.19rem] h-[0.1rem] relative">
-                  <Image src={downIcon} layout="fill" alt="down" />
-                </div>
               </div>
-
-              <div className="mt-[.8rem] flex items-center justify-center">
+            }
+          >
+            <div className="flex flex-col items-center">
+              <div className="mt-[.4rem] flex items-center justify-center">
                 <div className="text-primary font-[700] text-[.24rem]">
                   {formatNumber(unmatchedEth)} ETH
                 </div>
@@ -207,8 +217,7 @@ const SoloValidatorDeposit = () => {
                     <div
                       className="absolute right-[.12rem] top-[.12rem] w-[.22rem] h-[.22rem] cursor-pointer"
                       onClick={() => {
-                        setValidatorKeys([]);
-                        setFileName("");
+                        setDeleteConfirmModalVisible(true);
                       }}
                     >
                       <Image src={closeIcon} alt="close" layout="fill" />
@@ -263,7 +272,7 @@ const SoloValidatorDeposit = () => {
                 and combine public keys into single file.
               </div>
             </div>
-          </Card>
+          </CollapseCard>
 
           <Card mt=".56rem" backgroundColor="rgba(26, 40, 53, 0.2)">
             <div className="p-[.56rem] pb-[.76rem]">
@@ -362,13 +371,12 @@ const SoloValidatorDeposit = () => {
             </div>
             <div className="ml-[.32rem] text-[.24rem] text-text1">
               Deposit Fee: {formatNumber(depositFee)}ETH + Stake Fee:{" "}
-              {formatNumber(stakeFee)}
+              {formatNumber(stakeFee)}ETH
             </div>
           </div>
 
           <Button
-            loading={ethTxLoading}
-            disabled={!!account && validatorKeys.length === 0}
+            disabled={(!!account && validatorKeys.length === 0) || ethTxLoading}
             mt=".32rem"
             height="1.3rem"
             onClick={() => {
@@ -411,10 +419,24 @@ const SoloValidatorDeposit = () => {
               ? "Connect Wallet"
               : validatorKeys.length === 0
               ? "Please Upload 1 json file"
+              : ethTxLoading
+              ? "Depositing, please wait for a moment..."
               : "Deposit"}
           </Button>
         </div>
       </Card>
+
+      <ConfirmModal
+        visible={deleteConfirmModalVisible}
+        content={`Sure want to delete this file?`}
+        confirmText="Yes, Delete"
+        onClose={() => setDeleteConfirmModalVisible(false)}
+        onConfirm={() => {
+          setValidatorKeys([]);
+          setFileName("");
+          setDeleteConfirmModalVisible(false);
+        }}
+      />
     </div>
   );
 };

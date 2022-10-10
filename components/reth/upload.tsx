@@ -38,7 +38,9 @@ export const ValidatorKeyUpload = (props: ValidatorKeyUploadProps) => {
             } catch (err: unknown) {
               if (err instanceof Error) {
                 // console.error(err.message);
-                snackbarUtil.error(err.message);
+                snackbarUtil.error(
+                  "File parse error, please upload valid json file"
+                );
                 // snackbarUtil.error(
                 // "File format error, please upload valid json file"
                 // );

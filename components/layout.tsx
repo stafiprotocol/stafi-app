@@ -1,3 +1,4 @@
+import { AppBar } from "@mui/material";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthStakeCheckInterval } from "hooks/useEthStakeCheckInterval";
@@ -5,6 +6,7 @@ import { useInit } from "hooks/useInit";
 import { useEffect } from "react";
 import { setEthStakeModalVisible } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
+import { HideOnScroll } from "./HideOnScroll";
 import { EthStakeLoadingModal } from "./modal/EthStakeLoadingModal";
 import { EthStakeSidebar } from "./modal/EthStakeSidebar";
 import { Navbar } from "./navbar";
@@ -32,8 +34,13 @@ export const Layout = (props: LayoutProps) => {
 
   return (
     <div className="">
-      <Navbar />
-      <main className="flex flex-col items-center">
+      <HideOnScroll>
+        <AppBar position="fixed" color="darkBg">
+          <Navbar />
+        </AppBar>
+      </HideOnScroll>
+
+      <main className="flex flex-col items-center pt-[1.3rem]">
         <div className="w-[14.88rem] mb-[.3rem]">{props.children}</div>
       </main>
 

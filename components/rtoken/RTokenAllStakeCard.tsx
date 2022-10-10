@@ -21,7 +21,7 @@ export const RTokenAllStakeCard = () => {
 
         <div className="flex flex-col items-end">
           <div className="mt-[.1rem] text-text1 text-[.12rem]">Ethereum</div>
-          <div className="mt-[.12rem] h-[.32rem] w-[.62rem] relative">
+          <div className="mt-[.12rem] h-[.32rem] w-[.54rem] relative">
             <Image src={ETH} alt="token name" layout="fill" />
           </div>
         </div>
