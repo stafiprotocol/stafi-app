@@ -16,6 +16,24 @@ import { EthRewardChart } from "../EthRewardChart";
 import { MyRewardList } from "./MyRewardList";
 
 export const MyReward = () => {
+  const [showWarning, setShowWarning] = useState(true);
+  const [chartDu, setChartDu] = useState<"1W" | "1M" | "3M" | "6M" | "ALL">(
+    "ALL"
+  );
+
+  const getChartDuSeconds = () => {
+    if (chartDu === "1W") {
+      return 24 * 3600 * 7;
+    } else if (chartDu === "1M") {
+      return 24 * 3600 * 30;
+    } else if (chartDu === "3M") {
+      return 24 * 3600 * 90;
+    } else if (chartDu === "6M") {
+      return 24 * 3600 * 180;
+    }
+    return 0;
+  };
+
   const {
     requestStatus,
     chartXData,
@@ -24,11 +42,8 @@ export const MyReward = () => {
     totalStakedEthValue,
     lastEraRewardEth,
     lastEraRewardEthValue,
-    rewardList,
     totalCount,
-  } = useEthMyReward();
-
-  const [showWarning, setShowWarning] = useState(true);
+  } = useEthMyReward(getChartDuSeconds());
 
   if (requestStatus === RequestStatus.success && totalCount === 0) {
     return (
@@ -38,24 +53,22 @@ export const MyReward = () => {
         title={<div className="text-white text-[.32rem]">My Reward</div>}
       >
         <div className="flex flex-col items-center">
-          <EmptyContent mt="0.2rem" size=".8rem" />
           <Link href="/reth/choose-validator">
-            <div className="mt-[.3rem] flex items-center cursor-pointer">
-              <div className="text-text1 text-[.24rem] mr-[.1rem]">
-                Make a deposit
+            <div className="flex flex-col items-center cursor-pointer">
+              <EmptyContent mt="0.2rem" size=".8rem" />
+              <div className="mt-[.3rem] flex items-center">
+                <div className="text-text1 text-[.24rem] mr-[.1rem]">
+                  Make a deposit
+                </div>
+                <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
               </div>
-              <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
             </div>
           </Link>
         </div>
 
         <div className="mt-[.56rem] h-[1px] bg-text3" />
 
-        <MyRewardList
-          rewardList={rewardList}
-          totalCount={totalCount}
-          requestStatus={requestStatus}
-        />
+        <MyRewardList />
       </CollapseCard>
     );
   }
@@ -89,7 +102,7 @@ export const MyReward = () => {
       )}
 
       <div className="flex mt-[.2rem]">
-        <div className="relative w-[340px]">
+        <div className="relative w-[340px] ml-[.56rem]">
           {chartXData.length === 0 && (
             <div className="absolute left-[.56rem] right-0 flex justify-center top-[140px]">
               <EmptyContent size="0.6rem" />
@@ -104,15 +117,55 @@ export const MyReward = () => {
           />
 
           <div className="text-[.18rem] text-text2 absolute left-[.64rem] top-[33px]">
-            +0.0006 ETH (Last era)
+            +{formatNumber(lastEraRewardEth)} ETH (Last era)
           </div>
 
-          <div className="flex items-center text-[.16rem] absolute bottom-[40px] right-[10px]">
-            <div className="text-text2 mr-[.5rem]">1W</div>
-            <div className="text-text2 mr-[.5rem]">1M</div>
-            <div className="text-text2 mr-[.5rem]">3M</div>
-            <div className="text-text2 mr-[.5rem]">6M</div>
-            <div className="text-primary font-[700]">ALL</div>
+          <div className="flex items-center justify-end text-[.16rem] absolute bottom-[40px] right-[10px]">
+            <div
+              className={classNames(
+                "mr-[.5rem] cursor-pointer",
+                chartDu === "1W" ? "text-primary font-[700]" : "text-text2"
+              )}
+              onClick={() => setChartDu("1W")}
+            >
+              1W
+            </div>
+            <div
+              className={classNames(
+                "mr-[.5rem] cursor-pointer",
+                chartDu === "1M" ? "text-primary font-[700]" : "text-text2"
+              )}
+              onClick={() => setChartDu("1M")}
+            >
+              1M
+            </div>
+            <div
+              className={classNames(
+                "mr-[.5rem] cursor-pointer",
+                chartDu === "3M" ? "text-primary font-[700]" : "text-text2"
+              )}
+              onClick={() => setChartDu("3M")}
+            >
+              3M
+            </div>
+            <div
+              className={classNames(
+                "mr-[.5rem] cursor-pointer",
+                chartDu === "6M" ? "text-primary font-[700]" : "text-text2"
+              )}
+              onClick={() => setChartDu("6M")}
+            >
+              6M
+            </div>
+            <div
+              className={classNames(
+                "cursor-pointer",
+                chartDu === "ALL" ? "text-primary font-[700]" : "text-text2"
+              )}
+              onClick={() => setChartDu("ALL")}
+            >
+              ALL
+            </div>
           </div>
         </div>
 
@@ -161,11 +214,7 @@ export const MyReward = () => {
 
       <div className="mt-[.1rem] h-[1px] bg-text3" />
 
-      <MyRewardList
-        rewardList={rewardList}
-        totalCount={totalCount}
-        requestStatus={requestStatus}
-      />
+      <MyRewardList />
     </CollapseCard>
   );
 };

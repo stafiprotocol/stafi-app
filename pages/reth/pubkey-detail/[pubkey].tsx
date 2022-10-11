@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import ethIcon from "public/eth_type_green.svg";
 import arrowPath from "public/path_arrow.svg";
 import rectangle from "public/rectangle1.svg";
-import { ReactElement } from "react";
+import { ReactElement, useState } from "react";
 import { getEthPubkeyStatusText } from "utils/eth";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
@@ -22,7 +22,23 @@ import styles from "../../../styles/reth/PubkeyDetail.module.scss";
 const PubkeyDetail = () => {
   const router = useRouter();
   const { pubkey } = router.query;
-  const { useAccount, useChainId } = hooks;
+
+  const [chartDu, setChartDu] = useState<"1W" | "1M" | "3M" | "6M" | "ALL">(
+    "ALL"
+  );
+
+  const getChartDuSeconds = () => {
+    if (chartDu === "1W") {
+      return 24 * 3600 * 7;
+    } else if (chartDu === "1M") {
+      return 24 * 3600 * 30;
+    } else if (chartDu === "3M") {
+      return 24 * 3600 * 90;
+    } else if (chartDu === "6M") {
+      return 24 * 3600 * 180;
+    }
+    return 0;
+  };
 
   const {
     status,
@@ -41,7 +57,7 @@ const PubkeyDetail = () => {
     activeEpoch,
     chartXData,
     chartYData,
-  } = useEthPubkeyDetail(pubkey as string);
+  } = useEthPubkeyDetail(pubkey as string, getChartDuSeconds());
 
   return (
     <div className="pt-[.1rem]">
@@ -271,7 +287,7 @@ const PubkeyDetail = () => {
               Income
             </div>
             <div className="flex">
-              <div className="relative w-[340px]">
+              <div className="relative w-[340px] ml-[.56rem]">
                 {chartXData.length === 0 && (
                   <div className="absolute left-[.56rem] right-0 flex justify-center top-[140px]">
                     <EmptyContent size="0.6rem" />
@@ -289,12 +305,62 @@ const PubkeyDetail = () => {
                   +0.0006 ETH (Last era)
                 </div>
 
-                <div className="flex items-center text-[.16rem] absolute bottom-[40px] right-[10px]">
-                  <div className="text-text2 mr-[.5rem]">1W</div>
-                  <div className="text-text2 mr-[.5rem]">1M</div>
-                  <div className="text-text2 mr-[.5rem]">3M</div>
-                  <div className="text-text2 mr-[.5rem]">6M</div>
-                  <div className="text-primary font-[700]">ALL</div>
+                <div className="flex items-center justify-end text-[.16rem] absolute bottom-[40px] right-[10px]">
+                  <div
+                    className={classNames(
+                      "mr-[.5rem] cursor-pointer",
+                      chartDu === "1W"
+                        ? "text-primary font-[700]"
+                        : "text-text2"
+                    )}
+                    onClick={() => setChartDu("1W")}
+                  >
+                    1W
+                  </div>
+                  <div
+                    className={classNames(
+                      "mr-[.5rem] cursor-pointer",
+                      chartDu === "1M"
+                        ? "text-primary font-[700]"
+                        : "text-text2"
+                    )}
+                    onClick={() => setChartDu("1M")}
+                  >
+                    1M
+                  </div>
+                  <div
+                    className={classNames(
+                      "mr-[.5rem] cursor-pointer",
+                      chartDu === "3M"
+                        ? "text-primary font-[700]"
+                        : "text-text2"
+                    )}
+                    onClick={() => setChartDu("3M")}
+                  >
+                    3M
+                  </div>
+                  <div
+                    className={classNames(
+                      "mr-[.5rem] cursor-pointer",
+                      chartDu === "6M"
+                        ? "text-primary font-[700]"
+                        : "text-text2"
+                    )}
+                    onClick={() => setChartDu("6M")}
+                  >
+                    6M
+                  </div>
+                  <div
+                    className={classNames(
+                      "cursor-pointer",
+                      chartDu === "ALL"
+                        ? "text-primary font-[700]"
+                        : "text-text2"
+                    )}
+                    onClick={() => setChartDu("ALL")}
+                  >
+                    ALL
+                  </div>
                 </div>
               </div>
 
@@ -314,10 +380,12 @@ const PubkeyDetail = () => {
                   </div>
 
                   <div className="flex items-center mt-[.23rem]">
-                    <div className="text-[.32rem] text-white">{apr}%</div>
+                    <div className="text-[.32rem] text-white">
+                      {formatNumber(apr, { decimals: 2 })}%
+                    </div>
                     <div className="h-[.2rem] w-[1px] bg-text2 mx-[.18rem] opacity-50" />
                     <div className="text-text2 text-[.18rem]">
-                      estimated based on the last 7 days
+                      est. last 7 days
                     </div>
                   </div>
 

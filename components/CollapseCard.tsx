@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import Image from "next/image";
 import downIcon from "public/icon_down.png";
 import { ReactNode, useState } from "react";
@@ -27,10 +28,16 @@ export const CollapseCard = (props: CollapseCardProps) => {
           {props.title}
 
           <div
-            className="w-[.19rem] h-[0.1rem] relative cursor-pointer"
+            className="w-[.29rem] h-[0.2rem] p-[.05rem] cursor-pointer"
             onClick={() => setCollapsed(!collapsed)}
           >
-            <Image src={downIcon} layout="fill" alt="down" />
+            <div
+              className={classNames("w-full h-full relative ", {
+                "-rotate-90": collapsed,
+              })}
+            >
+              <Image src={downIcon} layout="fill" alt="down" />
+            </div>
           </div>
         </div>
       </div>

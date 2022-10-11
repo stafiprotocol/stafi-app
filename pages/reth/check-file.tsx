@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Button } from "components/button";
 import { Card } from "components/card";
-import { CustomLoading } from "components/CustomLoading";
+import { CircularLoading } from "components/CircularLoading";
 import { Icomoon } from "components/Icomoon";
 import { RethLayout } from "components/layout_reth";
 import {
@@ -305,7 +305,7 @@ const CheckFile = () => {
 
                     {status === "loading" && (
                       <div className="ml-[.26rem]">
-                        <CustomLoading color="info" size=".24rem" />
+                        <CircularLoading color="info" size=".24rem" />
                       </div>
                     )}
 

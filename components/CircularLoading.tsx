@@ -13,6 +13,6 @@ interface CustomLoadingProps {
   size: string;
 }
 
-export const CustomLoading = (props: CustomLoadingProps) => {
+export const CircularLoading = (props: CustomLoadingProps) => {
   return <CircularProgress size={props.size} color={props.color} />;
 };

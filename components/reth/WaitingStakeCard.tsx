@@ -12,6 +12,7 @@ import copyIcon from "public/icon_copy.svg";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import styles from "../../styles/reth/WaitingStakeCard.module.scss";
+import commonStyles from "../../styles/Common.module.scss";
 
 interface WaitingStakeCardProps {
   depositItem: EthDepositItem;
@@ -61,12 +62,23 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
 
   return (
     <div className={styles.card}>
-      <div className="w-[.76rem] h-[.76rem] relative">
-        <Image
-          layout="fill"
-          alt="icon"
-          src={depositItem.type === "solo" ? ethYellowIcon : ethGreenIcon}
-        />
+      <div className="flex items-center justify-between">
+        <div className="w-[.76rem] h-[.76rem] relative">
+          <Image
+            layout="fill"
+            alt="icon"
+            src={depositItem.type === "solo" ? ethYellowIcon : ethGreenIcon}
+          />
+        </div>
+
+        <div
+          className={classNames(
+            commonStyles["gradient-text"],
+            "font-bold text-[.4rem]"
+          )}
+        >
+          32 ETH
+        </div>
       </div>
 
       <div className={styles.description}>
@@ -165,7 +177,11 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
         </div>
       </div>
 
-      {depositItem.status === "2" && props.hasEnoughEth && (
+      <div
+        className={classNames({
+          invisible: depositItem.status !== "2" || !props.hasEnoughEth,
+        })}
+      >
         <Button
           mt=".24rem"
           height=".65rem"
@@ -185,7 +201,7 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
         >
           Stake
         </Button>
-      )}
+      </div>
     </div>
   );
 };

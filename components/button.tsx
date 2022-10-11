@@ -1,6 +1,6 @@
 import styles from "../styles/Button.module.scss";
 import classNames from "classnames";
-import { CustomLoading } from "components/CustomLoading";
+import { CircularLoading } from "components/CircularLoading";
 
 type ButtonProps = React.PropsWithChildren<{
   disabled?: boolean;
@@ -50,7 +50,7 @@ export const Button = (props: ButtonProps) => {
               : "#1a2835",
           }}
         >
-          <CustomLoading color="inherit" size={props.fontSize || "0.32rem"} />
+          <CircularLoading color="inherit" size={props.fontSize || "0.32rem"} />
         </div>
       )}
 

@@ -16,11 +16,13 @@ import { AppThunk } from "../store";
 export interface AppState {
   isLoading: boolean;
   unreadNoticeFlag: boolean;
+  updateFlag15s: number;
 }
 
 const initialState: AppState = {
   isLoading: false,
   unreadNoticeFlag: false,
+  updateFlag15s: 0,
 };
 
 export const appSlice = createSlice({
@@ -38,10 +40,14 @@ export const appSlice = createSlice({
       }
       state.unreadNoticeFlag = action.payload;
     },
+    setUpdateFlag15s: (state: AppState, action: PayloadAction<number>) => {
+      state.updateFlag15s = action.payload;
+    },
   },
 });
 
-export const { setIsLoading, setUnreadNoticeFlag } = appSlice.actions;
+export const { setIsLoading, setUnreadNoticeFlag, setUpdateFlag15s } =
+  appSlice.actions;
 
 export default appSlice.reducer;
 

@@ -13,8 +13,6 @@ import styles from "../../styles/reth/MyData.module.scss";
 const MyData = () => {
   const {
     requestStatus,
-    pubkeyList,
-    totalCount,
     selfDepositedEth,
     selfDepositedEthValue,
     selfRewardEth,
@@ -79,11 +77,7 @@ const MyData = () => {
         </div>
       </CollapseCard>
 
-      <PublicKeyList
-        pubkeyList={pubkeyList}
-        totalCount={totalCount}
-        requestStatus={requestStatus}
-      />
+      <PublicKeyList />
 
       <MyReward />
     </div>

@@ -1,6 +1,5 @@
 import { Pagination } from "@mui/material";
-
-const COUNT_PER_PAGE = 10;
+import { PAGE_SIZE } from "utils/constants";
 
 interface CustomPaginationProps {
   totalCount: number;
@@ -9,7 +8,7 @@ interface CustomPaginationProps {
 }
 
 export const CustomPagination = (props: CustomPaginationProps) => {
-  const pageCount = Math.ceil(props.totalCount / COUNT_PER_PAGE);
+  const pageCount = Math.ceil(props.totalCount / PAGE_SIZE);
 
   return (
     <Pagination

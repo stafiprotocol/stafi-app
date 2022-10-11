@@ -1,32 +1,10 @@
 import { Box, Modal } from "@mui/material";
-import classNames from "classnames";
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
 import { StakeLeftExplanation } from "components/reth/stake/StakeLeftExplanation";
-import { getApiHost } from "config/env";
-import {
-  getStafiEthContractConfig,
-  getStafiLightNodeAbi,
-  getStafiSuperNodeAbi,
-} from "config/eth";
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "hooks/common";
-import { useInterval } from "hooks/useInterval";
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import bee from "public/bee.png";
-import beeLight from "public/bee_light.png";
-import ownServer from "public/own_server.svg";
 import thirdPartyService from "public/3rd_party_service.svg";
-import downIcon from "public/icon_down_gray.png";
-import { useCallback, useState } from "react";
-import { setEthStakeParams } from "redux/reducers/EthSlice";
-import { RootState } from "redux/store";
-import { getShortAddress } from "utils/string";
-import { createWeb3 } from "utils/web3Utils";
-import styles from "../../styles/reth/CheckFile.module.scss";
-import { getEtherScanTxUrl } from "config/explorer";
+import ownServer from "public/own_server.svg";
 import { openLink } from "utils/common";
 
 interface EthRunNodesModalProps {
@@ -35,126 +13,6 @@ interface EthRunNodesModalProps {
 }
 
 export const EthRunNodesModal = (props: EthRunNodesModalProps) => {
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-  const [showDetail, setShowDetail] = useState(false);
-
-  const { ethStakeParams } = useAppSelector((state: RootState) => {
-    return {
-      ethStakeParams: state.eth.ethStakeParams,
-    };
-  });
-
-  useEffect(() => {
-    if (
-      (ethStakeParams?.status === "active" ||
-        ethStakeParams?.status === "error") &&
-      !props.visible
-    ) {
-      dispatch(setEthStakeParams(undefined));
-    }
-  }, [dispatch, props.visible, ethStakeParams?.status]);
-
-  const fetchStatus = useCallback(async () => {
-    if (
-      ethStakeParams?.status === "active" ||
-      ethStakeParams?.status === "error"
-    ) {
-      return;
-    }
-
-    if (!ethStakeParams) {
-      return;
-    }
-
-    const web3 = createWeb3();
-    const ethContractConfig = getStafiEthContractConfig();
-    let contract = new web3.eth.Contract(
-      ethStakeParams.type === "solo"
-        ? getStafiLightNodeAbi()
-        : getStafiSuperNodeAbi(),
-      ethStakeParams.type === "solo"
-        ? ethContractConfig.stafiLightNode
-        : ethContractConfig.stafiSuperNode
-    );
-
-    const requests = ethStakeParams.pubkeys.map((pubkey) => {
-      return (async () => {
-        const method =
-          ethStakeParams.type === "solo"
-            ? contract.methods.getLightNodePubkeyStatus
-            : contract.methods.getSuperNodePubkeyStatus;
-        const status = await method(pubkey).call();
-        console.log("statusstatus", status);
-        if (Number(status) >= 3) {
-          const params = {
-            pubkey,
-          };
-          const response = await fetch(`${getApiHost()}/reth/v1/pubkeyDetail`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(params),
-          });
-          const resJson = await response.json();
-          if (resJson && resJson.status === "80000") {
-            return resJson.data.status;
-          } else {
-            return "";
-          }
-        } else {
-          return status;
-        }
-      })();
-    });
-
-    try {
-      const statusList = await Promise.all(requests);
-      // console.log("statusList", statusList);
-      let changeStatus = true;
-      let newStatus = "";
-      statusList.every((status) => {
-        console.log("status", status);
-
-        if (status) {
-          if (status === "4") {
-            changeStatus = true;
-            newStatus = "4";
-            return false;
-          }
-          if (!newStatus) {
-            newStatus = status;
-          } else if (newStatus !== status) {
-            changeStatus = false;
-          }
-        }
-      });
-      console.log("prev", newStatus);
-      if (changeStatus) {
-        dispatch(
-          setEthStakeParams({
-            ...ethStakeParams,
-            status:
-              Number(newStatus) === 4
-                ? "error"
-                : Number(newStatus) < 3
-                ? "staking"
-                : Number(newStatus) < 8
-                ? "staked"
-                : Number(newStatus) === 8
-                ? "waiting"
-                : Number(newStatus) === 9
-                ? "active"
-                : "exit",
-          })
-        );
-      }
-    } catch {}
-  }, [dispatch, ethStakeParams]);
-
-  useInterval(fetchStatus, 8000);
-
   return (
     <Modal open={props.visible} onClose={props.onClose}>
       <Box

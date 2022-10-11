@@ -5,8 +5,9 @@ import { useCallback, useEffect, useState } from "react";
 import Web3 from "web3";
 import dayjs from "dayjs";
 import { formatNumber } from "utils/number";
+import { useAppSlice } from "./selector";
 
-export function useEthPubkeyDetail(pubkey: string) {
+export function useEthPubkeyDetail(pubkey: string, chartDuSeconds: number) {
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(
     RequestStatus.loading
   );
@@ -27,13 +28,16 @@ export function useEthPubkeyDetail(pubkey: string) {
   const [chartXData, setChartXData] = useState<string[]>([]);
   const [chartYData, setChartYData] = useState<string[]>([]);
 
+  const { updateFlag15s } = useAppSlice();
+
   const udpatePubkeyDetail = useCallback(async () => {
     try {
-      if (!pubkey) {
+      if (!pubkey || !updateFlag15s) {
         return;
       }
       const params = {
         pubkey,
+        chartDuSeconds,
       };
       const response = await fetch(`${getApiHost()}/reth/v1/pubkeyDetail`, {
         method: "POST",
@@ -97,7 +101,7 @@ export function useEthPubkeyDetail(pubkey: string) {
     } catch {
       setRequestStatus(RequestStatus.error);
     }
-  }, [pubkey]);
+  }, [pubkey, chartDuSeconds, updateFlag15s]);
 
   useEffect(() => {
     udpatePubkeyDetail();

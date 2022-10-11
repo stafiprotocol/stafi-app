@@ -1,20 +1,22 @@
-export const getEthPubkeyStatusText = (status: string) => {
-  if (status === "2") {
+import { EthPubkeyStatus } from "interfaces";
+
+export const getEthPubkeyStatusText = (status: string | number) => {
+  if (Number(status) === EthPubkeyStatus.deposited) {
     return "Deposited";
   }
-  if (status === "3") {
+  if (Number(status) === EthPubkeyStatus.staked) {
     return "Staked";
   }
-  if (status === "4") {
+  if (Number(status) === EthPubkeyStatus.unmatch) {
     return "Failed";
   }
-  if (status === "8") {
+  if (Number(status) === EthPubkeyStatus.waiting) {
     return "Waiting";
   }
-  if (status === "9") {
+  if (Number(status) === EthPubkeyStatus.active) {
     return "Active";
   }
-  if (status === "10") {
+  if (Number(status) === EthPubkeyStatus.exited) {
     return "Exit";
   }
   return "Unmatched";

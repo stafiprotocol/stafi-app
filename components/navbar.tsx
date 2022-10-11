@@ -65,6 +65,12 @@ export const Navbar = () => {
     popupId: "notice",
   });
 
+  const clickAccountLeftArea = () => {
+    if (showWrongNetwork) {
+      connectMetaMask(metaMask);
+    }
+  };
+
   return (
     <div className="bg-navbarBg h-[1.3rem] flex items-center justify-between">
       <div className="flex items-center pl-[.85rem]">
@@ -94,17 +100,24 @@ export const Navbar = () => {
         >
           {metaMaskAccount ? (
             <div className="flex items-center">
-              {showWrongNetwork && (
-                <div className="flex items-center">
-                  <div className="bg-error w-[.12rem] h-[.12rem] rounded-full" />
-                  <div className="ml-[.12rem] text-error text-[.24rem]">
-                    Wrong Net
+              <div
+                className="flex items-center cursor-pointer"
+                onClick={clickAccountLeftArea}
+              >
+                {showWrongNetwork && (
+                  <div className="flex items-center">
+                    <div className="bg-error w-[.12rem] h-[.12rem] rounded-full" />
+                    <div className="ml-[.12rem] text-error text-[.24rem]">
+                      Wrong Net
+                    </div>
+                    <div className="mx-[.12rem] w-[1px] h-[.25rem] bg-divider1" />
                   </div>
-                  <div className="mx-[.12rem] w-[1px] h-[.25rem] bg-divider1" />
-                </div>
-              )}
+                )}
 
-              <div className="text-text1">{formatNumber(ethBalance)} ETH</div>
+                <div className="text-text1">
+                  {showWrongNetwork ? "--" : formatNumber(ethBalance)} ETH
+                </div>
+              </div>
               <div className={styles["account-info-container"]}>
                 <div className="text-text2">
                   {getShortAddress(metaMaskAccount, 5)}

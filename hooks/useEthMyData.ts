@@ -4,6 +4,7 @@ import { RequestStatus } from "interfaces";
 import { useCallback, useState } from "react";
 import { useEffect } from "react";
 import Web3 from "web3";
+import { useAppSlice } from "./selector";
 
 export function useEthMyData() {
   const { useAccount } = hooks;
@@ -13,8 +14,6 @@ export function useEthMyData() {
     RequestStatus.loading
   );
 
-  const [pubkeyList, setPubkeyList] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
   const [selfDepositedEth, setSelfDepositedEth] = useState("");
   const [selfDepositedEthValue, setSelfDepositedEthValue] = useState("");
   const [totalManagedEth, setTotalManagedEth] = useState("");
@@ -22,14 +21,18 @@ export function useEthMyData() {
   const [selfRewardEth, setSelfRewardEth] = useState("");
   const [selfRewardEthValue, setSelfRewardEthValue] = useState("");
 
+  const { updateFlag15s } = useAppSlice();
+
   const updateMyData = useCallback(async () => {
-    if (!account) {
+    if (!account || !updateFlag15s) {
       return;
     }
     try {
       const params = {
         nodeAddress: account,
         status: 0,
+        pageIndex: 0,
+        pageCount: 1,
       };
       const response = await fetch(`${getApiHost()}/reth/v1/nodeInfo`, {
         method: "POST",
@@ -41,8 +44,6 @@ export function useEthMyData() {
       const resJson = await response.json();
       if (resJson && resJson.status === "80000") {
         setRequestStatus(RequestStatus.success);
-        setPubkeyList(resJson.data.pubkeyList);
-        setTotalCount(resJson.data.totalCount);
 
         const selfDepositedEth = Web3.utils.fromWei(
           resJson.data.selfDepositedEth
@@ -70,7 +71,7 @@ export function useEthMyData() {
     } catch {
       setRequestStatus(RequestStatus.error);
     }
-  }, [account]);
+  }, [account, updateFlag15s]);
 
   useEffect(() => {
     updateMyData();
@@ -78,8 +79,6 @@ export function useEthMyData() {
 
   return {
     requestStatus,
-    pubkeyList,
-    totalCount,
     selfDepositedEth,
     selfDepositedEthValue,
     selfRewardEth,

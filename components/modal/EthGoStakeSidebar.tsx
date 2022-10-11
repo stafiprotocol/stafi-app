@@ -33,7 +33,7 @@ export const EthGoStakeSidebar = () => {
         Go Stake
       </div>
 
-      <div className="ml-[.16rem] rotate-90">
+      <div className="ml-[.12rem]">
         <Icomoon icon="right" color="#9DAFBE" size=".2rem" />
       </div>
     </div>

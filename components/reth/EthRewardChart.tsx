@@ -127,7 +127,6 @@ export const EthRewardChart = (props: EthRewardChartProps) => {
         width: props.width,
         maxWidth: props.width,
         height: props.height,
-        marginLeft: ".56rem",
       }}
     >
       <ReactEcharts

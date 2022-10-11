@@ -6,7 +6,7 @@ import { RethLayout } from "components/layout_reth";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { PrimaryLoading } from "components/PrimaryLoading";
 import { useEthPoolData } from "hooks/useEthPoolData";
-import { useEthDepositList } from "hooks/useEthStakeList";
+import { useEthStakeList } from "hooks/useEthStakeList";
 import { cloneDeep } from "lodash";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -23,7 +23,7 @@ const TokenStake = () => {
   const [chooseStakeTypeModalVisible, setChooseStakeTypeModalVisible] =
     useState(false);
 
-  const { depositList, loading } = useEthDepositList();
+  const { depositList, loading } = useEthStakeList();
   const { unmatchedEth } = useEthPoolData();
 
   const [displayList, stakableList] = useMemo(() => {
@@ -96,13 +96,15 @@ const TokenStake = () => {
         {!loading && displayList.length === 0 && (
           <div className="flex-1">
             <div className="flex flex-col items-center">
-              <EmptyContent mt="0.2rem" size=".8rem" />
               <Link href="/reth/choose-validator">
-                <div className="mt-[.3rem] flex items-center cursor-pointer">
-                  <div className="text-text1 text-[.24rem] mr-[.1rem]">
-                    Make a deposit
+                <div className="flex flex-col items-center cursor-pointer">
+                  <EmptyContent mt="0.2rem" size=".8rem" />
+                  <div className="mt-[.3rem] flex items-center">
+                    <div className="text-text1 text-[.24rem] mr-[.1rem]">
+                      Make a deposit
+                    </div>
+                    <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
                   </div>
-                  <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
                 </div>
               </Link>
             </div>

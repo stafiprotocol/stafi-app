@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
-import { hooks } from "connectors/metaMask";
-import { createWeb3 } from "utils/web3Utils";
 import {
   getStafiEthContractConfig,
   getStafiLightNodeAbi,
   getStafiSuperNodeAbi,
 } from "config/eth";
-import { useInterval } from "./useInterval";
+import { hooks } from "connectors/metaMask";
+import { useCallback, useEffect, useState } from "react";
+import { RootState } from "redux/store";
+import { createWeb3 } from "utils/web3Utils";
+import { useAppSelector } from "./common";
+import { useAppSlice } from "./selector";
 
 export interface EthDepositItem {
   type: "solo" | "trust";
@@ -15,19 +17,24 @@ export interface EthDepositItem {
   status: string;
 }
 
-export function useEthDepositList() {
+export function useEthStakeList() {
   const { useAccount } = hooks;
   const account = useAccount();
   const [loading, setLoading] = useState(true);
   const [depositList, setDepositList] = useState<EthDepositItem[]>([]);
 
+  const { updateFlag15s } = useAppSlice();
+
   const updateEthStakeList = useCallback(async () => {
+    if (!updateFlag15s) {
+      return;
+    }
     if (!account) {
       setLoading(false);
       return;
     }
     const userAddress = account;
-    // const userAddress = "0xeB4fd0a7F270C8EFb52d6789B4F5930eD46CB375";
+    // const userAddress = "0xb58690DAdaa52e24dF206B22179Ad26598d920C4";
     try {
       setLoading(true);
       const resList: EthDepositItem[] = [];
@@ -45,13 +52,13 @@ export function useEthDepositList() {
       const soloCount = await lightNodeContract.methods
         .getLightNodePubkeyCount(userAddress)
         .call();
-      console.log("soloCount:", soloCount);
+      // console.log("soloCount:", soloCount);
 
       for (let index = 0; index < soloCount; index++) {
         const pubkey = await lightNodeContract.methods
           .getLightNodePubkeyAt(userAddress, index)
           .call();
-        console.log("pubkey:", pubkey);
+        // console.log("pubkey:", pubkey);
 
         const status = await lightNodeContract.methods
           .getLightNodePubkeyStatus(pubkey)
@@ -77,13 +84,13 @@ export function useEthDepositList() {
       const trustCount = await superNodeContract.methods
         .getSuperNodePubkeyCount(userAddress)
         .call();
-      console.log("trustCount:", trustCount);
+      // console.log("trustCount:", trustCount);
 
       for (let index = 0; index < trustCount; index++) {
         const pubkey = await superNodeContract.methods
           .getSuperNodePubkeyAt(userAddress, index)
           .call();
-        console.log("pubkey:", pubkey);
+        // console.log("pubkey:", pubkey);
 
         const status = await superNodeContract.methods
           .getSuperNodePubkeyStatus(pubkey)
@@ -106,15 +113,11 @@ export function useEthDepositList() {
         console.error(err.message);
       }
     }
-  }, [account]);
+  }, [account, updateFlag15s]);
 
   useEffect(() => {
     updateEthStakeList();
   }, [updateEthStakeList]);
-
-  useInterval(() => {
-    updateEthStakeList();
-  }, 15000);
 
   return { depositList, loading };
 }

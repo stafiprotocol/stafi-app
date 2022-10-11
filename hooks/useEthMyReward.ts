@@ -7,16 +7,7 @@ import Web3 from "web3";
 import dayjs from "dayjs";
 import { formatNumber } from "utils/number";
 
-export interface EthRewardInfo {
-  commission: number;
-  timestamp: number;
-  selfStakedEth: string;
-  totalStakedEth: string;
-  selfEraRewardEth: string;
-  totalEraRewardEth: string;
-}
-
-export function useEthMyReward() {
+export function useEthMyReward(chartDuSeconds: number) {
   const { useAccount } = hooks;
   const account = useAccount();
 
@@ -29,7 +20,6 @@ export function useEthMyReward() {
   const [lastEraRewardEthValue, setLastEraRewardEthValue] = useState("");
   const [chartXData, setChartXData] = useState<string[]>([]);
   const [chartYData, setChartYData] = useState<string[]>([]);
-  const [rewardList, setRewardList] = useState<EthRewardInfo[]>([]);
   const [totalCount, setTotalCount] = useState(0);
 
   const updateMyReward = useCallback(async () => {
@@ -39,6 +29,8 @@ export function useEthMyReward() {
     try {
       const params = {
         nodeAddress: account,
+        chartDuSeconds: chartDuSeconds,
+        pageCount: 1,
       };
       const response = await fetch(`${getApiHost()}/reth/v1/rewardInfo`, {
         method: "POST",
@@ -76,7 +68,6 @@ export function useEthMyReward() {
           Number(lastEraRewardEth) * Number(resJson.data.ethPrice) + ""
         );
 
-        setRewardList(resJson.data.rewardList);
         setTotalCount(resJson.data.totalCount);
       } else {
         throw Error("Network request error: " + resJson.status);
@@ -84,7 +75,7 @@ export function useEthMyReward() {
     } catch {
       setRequestStatus(RequestStatus.error);
     }
-  }, [account]);
+  }, [account, chartDuSeconds]);
 
   useEffect(() => {
     updateMyReward();
@@ -98,7 +89,6 @@ export function useEthMyReward() {
     totalStakedEthValue,
     lastEraRewardEth,
     lastEraRewardEthValue,
-    rewardList,
     totalCount,
   };
 }

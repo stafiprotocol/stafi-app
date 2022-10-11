@@ -1,7 +1,7 @@
 import { Box, Modal } from "@mui/material";
 import classNames from "classnames";
 import { Button } from "components/button";
-import { CustomLoading } from "components/CustomLoading";
+import { CircularLoading } from "components/CircularLoading";
 import { Icomoon } from "components/Icomoon";
 import { StakeLeftExplanation } from "components/reth/stake/StakeLeftExplanation";
 import { getApiHost } from "config/env";
@@ -339,7 +339,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
 
                       {ethStakeParams?.status === "staking" ? (
                         <div className="ml-[.26rem]">
-                          <CustomLoading color="info" size=".24rem" />
+                          <CircularLoading color="info" size=".24rem" />
                         </div>
                       ) : (
                         <div className="ml-[.26rem]">
@@ -387,7 +387,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                       {(ethStakeParams?.status === "staked" ||
                         ethStakeParams?.status === "waiting") && (
                         <div className="ml-[.26rem]">
-                          <CustomLoading color="info" size=".24rem" />
+                          <CircularLoading color="info" size=".24rem" />
                         </div>
                       )}
 

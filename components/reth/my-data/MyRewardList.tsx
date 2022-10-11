@@ -4,7 +4,7 @@ import { Icomoon } from "components/Icomoon";
 import { CustomPagination } from "components/pagination";
 import { PrimaryLoading } from "components/PrimaryLoading";
 import dayjs from "dayjs";
-import { EthRewardInfo } from "hooks/useEthMyReward";
+import { useEthMyRewardList } from "hooks/useEthMyRewardList";
 import { RequestStatus } from "interfaces";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,18 +12,15 @@ import { formatNumber } from "utils/number";
 import Web3 from "web3";
 import styles from "../../../styles/reth/MyData.module.scss";
 
-interface MyRewardListProps {
-  requestStatus: RequestStatus;
-  totalCount: number;
-  rewardList: EthRewardInfo[];
-}
+interface MyRewardListProps {}
 
 export const MyRewardList = (props: MyRewardListProps) => {
   const [page, setPage] = useState(1);
+  const { requestStatus, rewardList, totalCount } = useEthMyRewardList(page);
 
   return (
     <div className="relative">
-      {props.requestStatus === RequestStatus.loading && (
+      {requestStatus === RequestStatus.loading && (
         <div className="flex justify-center absolute left-0 right-0 top-[1.8rem]">
           <PrimaryLoading size="1rem" />
         </div>
@@ -37,21 +34,23 @@ export const MyRewardList = (props: MyRewardListProps) => {
         <Icomoon icon="question" size="0.16rem" color="#5B6872" />
       </div>
 
-      {props.requestStatus !== RequestStatus.loading && props.totalCount === 0 && (
+      {requestStatus !== RequestStatus.loading && totalCount === 0 && (
         <div className="flex flex-col items-center">
-          <EmptyContent mt="0.4rem" size=".8rem" />
           <Link href="/reth/choose-validator">
-            <div className="mt-[.3rem] flex items-center cursor-pointer">
-              <div className="text-text1 text-[.24rem] mr-[.1rem]">
-                Make a deposit
+            <div className="flex flex-col items-center cursor-pointer">
+              <EmptyContent mt="0.2rem" size=".8rem" />
+              <div className="mt-[.3rem] flex items-center">
+                <div className="text-text1 text-[.24rem] mr-[.1rem]">
+                  Make a deposit
+                </div>
+                <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
               </div>
-              <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
             </div>
           </Link>
         </div>
       )}
 
-      {props.rewardList.length > 0 && (
+      {rewardList.length > 0 && (
         <div
           className={classNames(
             styles["my-reward-table-item"],
@@ -91,7 +90,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
         </div>
       )}
 
-      {props.rewardList.map((rewardInfo, index) => (
+      {rewardList.map((rewardInfo, index) => (
         <div
           key={index}
           className={classNames(styles["my-reward-table-item"], "h-[1.1rem]", {
@@ -132,10 +131,10 @@ export const MyRewardList = (props: MyRewardListProps) => {
         </div>
       ))}
 
-      {props.totalCount > 0 && (
+      {totalCount > 0 && (
         <div className="mt-[.36rem] flex justify-center">
           <CustomPagination
-            totalCount={props.totalCount}
+            totalCount={totalCount}
             page={page}
             onChange={setPage}
           />
