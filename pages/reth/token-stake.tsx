@@ -20,7 +20,7 @@ import { WaitingStakeCard } from "../../components/reth/WaitingStakeCard";
 const TokenStake = (props: any) => {
   const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
-  const [tab, setTab] = useState<"unmatched" | "staked" | "matched">(
+  const [tab, setTab] = useState<"unmatched" | "staked" | "others">(
     "unmatched"
   );
   const [chooseStakeTypeModalVisible, setChooseStakeTypeModalVisible] =
@@ -49,8 +49,12 @@ const TokenStake = (props: any) => {
     return [
       newList.filter((item) => {
         return (
-          (tab === "staked" && item.status === "3") ||
-          (tab === "unmatched" && item.status !== "3")
+          (tab === "unmatched" && item.status === "2") ||
+          (tab === "staked" && (item.status === "3" || item.status === "9")) ||
+          (tab === "others" &&
+            item.status !== "2" &&
+            item.status !== "3" &&
+            item.status !== "9")
         );
       }),
       newList.filter((item) => {

@@ -143,7 +143,7 @@ export const ChooseValidatorType = () => {
         {!account
           ? "Connect Wallet"
           : selectedType === "trust" && !isTrust
-          ? "Go to apply"
+          ? "Apply for trust validator"
           : "Next Step"}
       </Button>
     </div>

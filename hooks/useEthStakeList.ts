@@ -1,3 +1,4 @@
+import { getApiHost } from "config/env";
 import {
   getStafiEthContractConfig,
   getStafiLightNodeAbi,
@@ -54,6 +55,8 @@ export function useEthStakeList() {
         .call();
       // console.log("soloCount:", soloCount);
 
+      const pubkeyRequestList: string[] = [];
+
       for (let index = 0; index < soloCount; index++) {
         const pubkey = await lightNodeContract.methods
           .getLightNodePubkeyAt(userAddress, index)
@@ -63,7 +66,11 @@ export function useEthStakeList() {
         const status = await lightNodeContract.methods
           .getLightNodePubkeyStatus(pubkey)
           .call();
-        console.log("pubkey status:", status);
+        // console.log("pubkey status:", status);
+
+        if (Number(status) >= 3) {
+          pubkeyRequestList.push(pubkey);
+        }
 
         resList.push({
           type: "solo",
@@ -95,7 +102,11 @@ export function useEthStakeList() {
         const status = await superNodeContract.methods
           .getSuperNodePubkeyStatus(pubkey)
           .call();
-        console.log("pubkey status:", status);
+        // console.log("pubkey status:", status);
+
+        if (Number(status) >= 3) {
+          pubkeyRequestList.push(pubkey);
+        }
 
         resList.push({
           type: "trust",
@@ -103,6 +114,29 @@ export function useEthStakeList() {
           pubkey,
           status,
         });
+      }
+
+      if (pubkeyRequestList.length > 0) {
+        const response = await fetch(
+          `${getApiHost()}/reth/v1/pubkeyStatusList`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ pubkeyList: pubkeyRequestList }),
+          }
+        );
+        const resJson = await response.json();
+        if (resJson && resJson.status === "80000") {
+          resJson.data?.statusList?.forEach((status: number, index: number) => {
+            resList.forEach((item) => {
+              if (item.pubkey === pubkeyRequestList[index]) {
+                item.status = status + "";
+              }
+            });
+          });
+        }
       }
 
       setDepositList(resList);

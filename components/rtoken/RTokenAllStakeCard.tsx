@@ -29,7 +29,7 @@ export const RTokenAllStakeCard = () => {
 
       <div className="mt-[.3rem] flex items-end justify-between">
         <div className="flex items-center">
-          <div className="text-text2 text-[.16rem] mr-[.07rem]">APY</div>
+          <div className="text-text2 text-[.16rem] mr-[.07rem]">APR</div>
           <Icomoon icon="question" size=".16rem" color="#5B6872" />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">

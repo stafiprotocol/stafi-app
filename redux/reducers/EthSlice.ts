@@ -77,6 +77,16 @@ export const {
 
 export default ethSlice.reducer;
 
+export const updateEthBalance =
+  (provider: any, account: string | undefined): AppThunk =>
+  async (dispatch, getState) => {
+    if (!provider || !account) {
+      return;
+    }
+    const balance = await provider.getBalance(account);
+    dispatch(setEthBalance(Web3.utils.fromWei(balance.toString())));
+  };
+
 export const handleEthDeposit =
   (
     address: string,
@@ -210,8 +220,7 @@ export const handleEthDeposit =
           { transactionHash: result.transactionHash, sender: address },
           {
             type,
-            amount:
-              (type === "solo" ? 4 * pubkeys.length : pubkeys.length) + "",
+            amount: (type === "solo" ? 4 * pubkeys.length : 0) + "",
             pubkeys,
           },
           getEtherScanTxUrl(result.transactionHash),
@@ -271,7 +280,7 @@ export const handleEthStake =
         .stake(pubkeys, signatures, depositDataRoots)
         .send();
 
-      console.log("result", result);
+      // console.log("result", result);
 
       dispatch(setEthTxLoading(false));
       dispatch(
@@ -292,7 +301,7 @@ export const handleEthStake =
           { transactionHash: result.transactionHash, sender: address },
           {
             type,
-            amount: 4 * pubkeys.length + "",
+            amount: 32 * pubkeys.length + "",
             pubkeys,
           },
           getEtherScanTxUrl(result.transactionHash),

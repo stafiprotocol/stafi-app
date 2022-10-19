@@ -41,7 +41,7 @@ import Web3 from "web3";
 import styles from "../../styles/reth/SoloValidatorDeposit.module.scss";
 
 const SoloValidatorDeposit = () => {
-  const { setNavigation } = React.useContext(MyLayoutContext);
+  const { setNavigation, updateEthBalance } = React.useContext(MyLayoutContext);
   const router = useRouter();
   const { useAccount, useChainId } = hooks;
   const account = useAccount();
@@ -280,7 +280,7 @@ const SoloValidatorDeposit = () => {
                 </div>
 
                 <div className="ml-[.34rem] text-[.24rem] text-text1">
-                  4 ETH for each contract need to be deposited
+                  4 ETH for each contract needs to be deposited
                 </div>
               </div>
 
@@ -343,10 +343,10 @@ const SoloValidatorDeposit = () => {
                   </div>
 
                   <div className="ml-[.12rem] text-[.2rem] font-[400] text-warning">
-                    For any reason, if the ETH you staked is not being matched
-                    all the time, you can only withdraw it until Ethereum launch
-                    the withdraw function, since your ETH will be sent to
-                    Ethereum once you deposit successfully.
+                    For any reason, if the ETH you staked is not being matched,
+                    you can only withdraw it when Ethereum launches the withdraw
+                    function, since your ETH will be sent to Ethereum once you
+                    deposit successfully.
                   </div>
                 </div>
               )}
@@ -387,6 +387,7 @@ const SoloValidatorDeposit = () => {
                   validatorKeys,
                   "solo",
                   (success, result) => {
+                    updateEthBalance();
                     if (success) {
                       const pubkeys: string[] = [];
 

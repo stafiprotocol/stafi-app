@@ -1,8 +1,8 @@
 import classNames from "classnames";
 
 interface TokenStakeTabsProps {
-  selectedTab: "unmatched" | "staked" | "matched";
-  onChange: (tab: "unmatched" | "staked" | "matched") => void;
+  selectedTab: "unmatched" | "staked" | "others";
+  onChange: (tab: "unmatched" | "staked" | "others") => void;
 }
 
 export const TokenStakeTabs = (props: TokenStakeTabsProps) => {
@@ -36,14 +36,13 @@ export const TokenStakeTabs = (props: TokenStakeTabsProps) => {
       <div
         className={classNames(
           "ml-[.24rem] w-[2.5rem] h-[.7rem] rounded-[.12rem] flex items-center justify-center text-[.24rem] font-[700] cursor-pointer",
-          "hidden",
-          selectedTab === "matched"
+          selectedTab === "others"
             ? "text-text3 bg-primary"
             : "text-text1 bg-[#9DAFBE37]"
         )}
-        onClick={() => onChange("matched")}
+        onClick={() => onChange("others")}
       >
-        Matched
+        Others
       </div>
     </div>
   );

@@ -7,7 +7,10 @@ import { useInit } from "hooks/useInit";
 import { NavigationItem } from "interfaces";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { setEthStakeModalVisible } from "redux/reducers/EthSlice";
+import {
+  setEthStakeModalVisible,
+  updateEthBalance,
+} from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { HideOnScroll } from "./HideOnScroll";
 import { Icomoon } from "./Icomoon";
@@ -20,17 +23,21 @@ type LayoutProps = React.PropsWithChildren<{}>;
 export const MyLayoutContext = React.createContext<{
   navigation: NavigationItem[] | undefined;
   setNavigation: any;
+  updateEthBalance: () => void;
 }>({
   navigation: undefined,
   setNavigation: undefined,
+  updateEthBalance: () => {},
 });
 
 export const Layout = (props: LayoutProps) => {
   useInit();
   useEthStakeCheckInterval();
   const dispatch = useAppDispatch();
-  const { useAccount: useMetaMaskAccount } = hooks;
+  const { useAccount: useMetaMaskAccount, useProvider: useMetaMaskProvider } =
+    hooks;
   const metaMaskAccount = useMetaMaskAccount();
+  const metaMaskProvider = useMetaMaskProvider();
   const [navigation, setNavigation] = useState<NavigationItem[]>([]);
 
   const { ethStakeModalVisible } = useAppSelector((state: RootState) => {
@@ -46,7 +53,15 @@ export const Layout = (props: LayoutProps) => {
   }, [metaMaskAccount]);
 
   return (
-    <MyLayoutContext.Provider value={{ navigation, setNavigation }}>
+    <MyLayoutContext.Provider
+      value={{
+        navigation,
+        setNavigation,
+        updateEthBalance: () => {
+          dispatch(updateEthBalance(metaMaskProvider, metaMaskAccount));
+        },
+      }}
+    >
       <div className="">
         <HideOnScroll>
           <AppBar position="fixed" color="darkBg">

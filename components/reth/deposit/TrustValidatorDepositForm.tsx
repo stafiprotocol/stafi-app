@@ -1,5 +1,6 @@
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
+import { MyLayoutContext } from "components/layout";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { getMetamaskChainId } from "config/eth";
@@ -12,8 +13,8 @@ import { useRouter } from "next/router";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import closeIcon from "public/icon_close.svg";
 import uploadIcon from "public/upload.svg";
-import { useEffect, useState } from "react";
-import { handleEthDeposit } from "redux/reducers/EthSlice";
+import React, { useEffect, useState } from "react";
+import { handleEthDeposit, updateEthBalance } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
@@ -22,6 +23,7 @@ import { connectMetaMask } from "utils/web3Utils";
 import styles from "../../../styles/reth/TrustValidatorDeposit.module.scss";
 
 export const TrustValidatorDepositForm = () => {
+  const { updateEthBalance } = React.useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { useAccount, useChainId } = hooks;
@@ -144,6 +146,8 @@ export const TrustValidatorDepositForm = () => {
                 validatorKeys,
                 "trust",
                 (success, result) => {
+                  updateEthBalance();
+
                   if (success) {
                     const pubkeys: string[] = [];
 

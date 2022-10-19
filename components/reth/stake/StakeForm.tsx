@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
+import { MyLayoutContext } from "components/layout";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { getMetamaskChainId } from "config/eth";
@@ -8,7 +9,7 @@ import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { handleEthStake } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import snackbarUtil from "utils/snackbarUtils";
@@ -16,6 +17,7 @@ import { getShortAddress } from "utils/string";
 import { connectMetaMask } from "utils/web3Utils";
 
 export const StakeForm = () => {
+  const { updateEthBalance } = React.useContext(MyLayoutContext);
   const router = useRouter();
   const { depositType } = router.query;
   const dispatch = useAppDispatch();
@@ -219,6 +221,7 @@ export const StakeForm = () => {
                 validatorKeys,
                 depositType as "solo" | "trust",
                 (success, result) => {
+                  updateEthBalance();
                   if (success) {
                     router.push("/reth/token-stake");
                   }

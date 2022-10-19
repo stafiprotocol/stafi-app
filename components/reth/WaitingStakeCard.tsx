@@ -11,11 +11,11 @@ import ethYellowIcon from "public/eth_type_yellow.svg";
 import copyIcon from "public/icon_copy.svg";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import styles from "../../styles/reth/WaitingStakeCard.module.scss";
 import commonStyles from "../../styles/Common.module.scss";
 import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
 import { useState } from "react";
 import { MyTooltip } from "components/MyTooltip";
+import styles from "../../styles/reth/WaitingStakeCard.module.scss";
 
 interface WaitingStakeCardProps {
   depositItem: EthDepositItem;
@@ -34,8 +34,8 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
     if (status === "2") {
       return "Waiting to be staked";
     }
-    if (status === "3") {
-      return "Validating";
+    if (status === "3" || status === "8" || status === "20") {
+      return "Waiting in the queue";
     }
     if (status === "4") {
       return "Verification Failed";
@@ -53,7 +53,7 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
     if (status === "2") {
       return "32 ETH may be matched or not, please click the stake button to confirm and stake";
     }
-    if (status === "3") {
+    if (status === "3" || status === "8" || status === "20") {
       return "32 ETH is successfully staked, deposit now is in the validating process";
     }
     if (status === "4") {
@@ -78,7 +78,7 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
     if (status === "4") {
       return "Failed";
     }
-    if (status === "8") {
+    if (status === "8" || status === "20") {
       return "Waiting";
     }
     if (status === "9") {
@@ -111,7 +111,13 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
         </div>
       </div>
 
-      <div className={styles.description}>
+      <div
+        className={styles.description}
+        style={{
+          backgroundColor:
+            depositItem.status === "9" ? "rgba(0, 243, 171, 0.1)" : "#55362a",
+        }}
+      >
         <div className="mr-[.06rem]">
           {getStatusDescription(depositItem.status)}
         </div>
@@ -215,7 +221,7 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
 
       <div
         className={classNames({
-          invisible: depositItem.status !== "2" || !props.hasEnoughEth,
+          hidden: depositItem.status !== "2" || !props.hasEnoughEth,
         })}
       >
         <Button

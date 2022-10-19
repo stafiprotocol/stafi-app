@@ -7,7 +7,7 @@ import rTokenImage from "public/rToken.svg";
 import React, { useEffect } from "react";
 import styles from "../styles/rTokenPage.module.scss";
 
-const rTokenPage = () => {
+const RTokenPage = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
 
   useEffect(() => {
@@ -48,4 +48,4 @@ const rTokenPage = () => {
   );
 };
 
-export default rTokenPage;
+export default RTokenPage;
