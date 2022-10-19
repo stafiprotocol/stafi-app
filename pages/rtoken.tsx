@@ -1,11 +1,19 @@
+import { MyLayoutContext } from "components/layout";
+import { RTokenAllStakeCard } from "components/rtoken/RTokenAllStakeCard";
 import Image from "next/image";
+import leftArrowIcon from "public/icon_arrow_left.png";
 import rectangle from "public/rectangle1.svg";
 import rTokenImage from "public/rToken.svg";
-import leftArrowIcon from "public/icon_arrow_left.png";
+import React, { useEffect } from "react";
 import styles from "../styles/rTokenPage.module.scss";
-import { RTokenAllStakeCard } from "components/rtoken/RTokenAllStakeCard";
 
 const rTokenPage = () => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
+
+  useEffect(() => {
+    setNavigation([{ name: "rToken List" }]);
+  }, [setNavigation]);
+
   return (
     <div>
       <div className={styles["head-banner"]}>

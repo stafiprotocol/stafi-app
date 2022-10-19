@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 import { setEthBalance } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
+import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask } from "utils/web3Utils";
 import Web3 from "web3";
@@ -118,7 +119,14 @@ export const Navbar = () => {
                   {showWrongNetwork ? "--" : formatNumber(ethBalance)} ETH
                 </div>
               </div>
-              <div className={styles["account-info-container"]}>
+              <div
+                className={styles["account-info-container"]}
+                onClick={() => {
+                  navigator.clipboard.writeText(metaMaskAccount).then(() => {
+                    snackbarUtil.success("Copied");
+                  });
+                }}
+              >
                 <div className="text-text2">
                   {getShortAddress(metaMaskAccount, 5)}
                 </div>
@@ -128,7 +136,7 @@ export const Navbar = () => {
                     <Image src={ethereumLogo} alt="logo" layout="fill" />
                   </div>
 
-                  <div className="ml-[.16rem] w-[.19rem] h-[.1rem] relative">
+                  <div className="ml-[.16rem] w-[.19rem] h-[.1rem] relative hidden">
                     <Image src={downIcon} alt="down" layout="fill" />
                   </div>
                 </div>
@@ -142,7 +150,7 @@ export const Navbar = () => {
               }}
             >
               <div>Connect Wallet</div>
-              <div className="rotate-90 ml-[.2rem]">
+              <div className="rotate-90 ml-[.2rem] hidden">
                 <Icomoon icon="right" size=".2rem" color="#ffffff" />
               </div>
             </div>

@@ -2,20 +2,23 @@ import classNames from "classnames";
 import { Button } from "components/button";
 import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
+import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { PrimaryLoading } from "components/PrimaryLoading";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthStakeList } from "hooks/useEthStakeList";
 import { cloneDeep } from "lodash";
+import { GetStaticProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ReactElement, useMemo, useState } from "react";
+import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { RethStakeLayout } from "../../components/layout_reth_stake";
 import { TokenStakeTabs } from "../../components/reth/TokenStakeTabs";
 import { WaitingStakeCard } from "../../components/reth/WaitingStakeCard";
 
-const TokenStake = () => {
+const TokenStake = (props: any) => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
   const [tab, setTab] = useState<"unmatched" | "staked" | "matched">(
     "unmatched"
@@ -25,6 +28,13 @@ const TokenStake = () => {
 
   const { depositList, loading } = useEthStakeList();
   const { unmatchedEth } = useEthPoolData();
+
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "Token Stake" },
+    ]);
+  }, [setNavigation]);
 
   const [displayList, stakableList] = useMemo(() => {
     const newList = depositList.sort((a, b) => {
@@ -202,5 +212,13 @@ TokenStake.getLayout = (page: ReactElement) => {
     </RethLayout>
   );
 };
+
+// export const getStaticProps: GetStaticProps = async (context) => {
+//   return {
+//     props: {
+//       navigations: [{ name: "rToken List", path: "/rtoken" }],
+//     },
+//   };
+// };
 
 export default TokenStake;

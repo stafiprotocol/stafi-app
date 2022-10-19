@@ -3,6 +3,7 @@ import { Button } from "components/button";
 import { Card } from "components/card";
 import { CircularLoading } from "components/CircularLoading";
 import { Icomoon } from "components/Icomoon";
+import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
 import {
   getStafiEthContractConfig,
@@ -21,18 +22,28 @@ import checkFileSuccess from "public/check_file_success.svg";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import downIcon from "public/icon_down_gray.png";
 import rectangle from "public/rectangle1.svg";
+import React, { useEffect } from "react";
 import { ReactElement, useCallback, useState, useMemo } from "react";
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import styles from "../../styles/reth/CheckFile.module.scss";
 
 const CheckFile = () => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading"
   );
   const [showDetail, setShowDetail] = useState(false);
   const { txHash } = router.query;
+
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "Token Stake", path: "/reth/token-stake" },
+      { name: "Check File" },
+    ]);
+  }, [setNavigation]);
 
   const depositPubkeys = useMemo(() => {
     const { pubkeys } = router.query;
@@ -110,21 +121,8 @@ const CheckFile = () => {
   useInterval(fetchStatus, 8000);
 
   return (
-    <div className="pt-[.56rem]">
-      <div
-        className="inline-flex items-center cursor-pointer"
-        onClick={() => {
-          router.push("/rtoken");
-        }}
-      >
-        <div className="w-[.27rem] h-[.18rem] relative">
-          <Image src={leftArrowIcon} layout="fill" alt="back" />
-        </div>
-
-        <div className="ml-[.16rem] text-link text-[.32rem]">rToken List</div>
-      </div>
-
-      <Card mt=".56rem">
+    <div>
+      <Card>
         <div className="flex flex-col items-center pb-[.85rem]">
           <div className="self-center relative w-[2.4rem] h-[.9rem]">
             <Image src={rectangle} layout="fill" alt="rectangle" />
@@ -241,7 +239,7 @@ const CheckFile = () => {
             {status !== "success" && (
               <a
                 className="mt-[.8rem] text-link underline text-[.24rem]"
-                href="https://www.google.com"
+                href="https://discord.com/invite/jB77etn"
                 target="_blank"
                 rel="noreferrer"
               >

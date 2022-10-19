@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { CollapseCard } from "components/CollapseCard";
 import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
+import { MyTooltip } from "components/MyTooltip";
 import { useEthMyReward } from "hooks/useEthMyReward";
 import { RequestStatus } from "interfaces";
 import Image from "next/image";
@@ -181,7 +182,7 @@ export const MyReward = () => {
           >
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.08rem]">Total Staked Value</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Total staked ETH value, includes validator own stakes." />
             </div>
 
             <div className="flex items-center mt-[.23rem]">
@@ -196,7 +197,7 @@ export const MyReward = () => {
 
             <div className="mt-[.4rem] text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.08rem]">Reward in last Era</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="rTokens will continuously generate staking rewards even when deposited in farms, mines or other yield generation methods, however, it will not be visible in the Est. Reward column as calculations are limited." />
             </div>
 
             <div className="flex items-center mt-[.23rem]">

@@ -107,4 +107,20 @@ export const theme = createTheme({
       fontWeight: "bold",
     },
   },
+  components: {
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: "#1A2835",
+          border: "1px solid #1A2835",
+          borderRadius: "4px",
+          boxShadow: "0 20px 25px -5px #0000000b, 0 8px 10px -6px #0000000b",
+          padding: "5px 10px",
+          color: "#5B6872",
+          fontSize: ".18rem",
+          lineHeight: ".22rem",
+        },
+      },
+    },
+  },
 });

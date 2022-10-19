@@ -7,30 +7,28 @@ import { ChooseValidatorLeftExplanation } from "components/reth/choose-validator
 import { TrustValidatorDepositForm } from "components/reth/deposit/TrustValidatorDepositForm";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import { useRouter } from "next/router";
+import React, { useEffect } from "react";
+import { MyLayoutContext } from "components/layout";
+import { TrustDepositLeftExplanation } from "components/reth/deposit/TrustDepositLeftExplanation";
 
 const TrustValidatorDeposit = () => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
 
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "Token Stake", path: "/reth/token-stake" },
+      { name: "New Deposit", path: "/reth/choose-validator" },
+      { name: "Trust Validator Deposit" },
+    ]);
+  }, [setNavigation]);
+
   return (
-    <div className="pt-[.56rem]">
-      <div
-        className="inline-flex items-center cursor-pointer"
-        onClick={() => {
-          router.push("/reth/choose-validator");
-        }}
-      >
-        <div className="w-[.27rem] h-[.18rem] relative">
-          <Image src={leftArrowIcon} layout="fill" alt="back" />
-        </div>
-
-        <div className="ml-[.16rem] text-link text-[.32rem]">
-          Choose Validator Type
-        </div>
-      </div>
-
-      <Card mt=".56rem">
+    <div>
+      <Card>
         <div className="flex h-[10.13rem] items-stretch">
-          <ChooseValidatorLeftExplanation />
+          <TrustDepositLeftExplanation />
 
           <TrustValidatorDepositForm />
         </div>

@@ -1,6 +1,7 @@
 import { Box, Modal } from "@mui/material";
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
+import { RunNodesLeftExplanation } from "components/reth/RunNodesLeftExplanation";
 import { StakeLeftExplanation } from "components/reth/stake/StakeLeftExplanation";
 import Image from "next/image";
 import thirdPartyService from "public/3rd_party_service.svg";
@@ -33,7 +34,7 @@ export const EthRunNodesModal = (props: EthRunNodesModalProps) => {
         }}
       >
         <div className="flex h-[9.65rem] items-stretch">
-          <StakeLeftExplanation />
+          <RunNodesLeftExplanation />
 
           <div className="flex-1 flex flex-col">
             <div

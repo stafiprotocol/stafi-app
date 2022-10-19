@@ -1,16 +1,20 @@
 import classNames from "classnames";
 import { CollapseCard } from "components/CollapseCard";
 import { Icomoon } from "components/Icomoon";
+import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
+import { MyTooltip } from "components/MyTooltip";
 import { MyReward } from "components/reth/my-data/MyReward";
 import { PublicKeyList } from "components/reth/my-data/PublicKeyList";
 import { useEthMyData } from "hooks/useEthMyData";
-import { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { formatNumber } from "utils/number";
 import { RethStakeLayout } from "../../components/layout_reth_stake";
 import styles from "../../styles/reth/MyData.module.scss";
 
 const MyData = () => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
+
   const {
     requestStatus,
     selfDepositedEth,
@@ -20,6 +24,13 @@ const MyData = () => {
     totalManagedEth,
     totalManagedEthValue,
   } = useEthMyData();
+
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "My Data" },
+    ]);
+  }, [setNavigation]);
 
   return (
     <div className="py-[.76rem] px-[.55rem] flex flex-col items-stretch">
@@ -48,7 +59,7 @@ const MyData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.14rem]">Total Managed ETH</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Your self deposit + delegated ETH amount" />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">
@@ -63,7 +74,7 @@ const MyData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.14rem]">My Reward</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Rewards for validator" />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">

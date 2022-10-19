@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
+import { MyTooltip } from "components/MyTooltip";
 import { CustomPagination } from "components/pagination";
 import { PrimaryLoading } from "components/PrimaryLoading";
 import dayjs from "dayjs";
@@ -60,7 +61,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
           <div className="flex justify-center">
             <section className="flex-1 flex justify-center items-center">
               <div className="mr-[.07rem] text-[.2rem] text-text2">Time</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="The time stamp that counts all the rewards and value, time reflects each era’s real time." />
             </section>
           </div>
           <div className="flex justify-center">
@@ -68,7 +69,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
               <div className="mr-[.07rem] text-[.2rem] text-text2">
                 Total-staked &amp; Self-staked ETH
               </div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Total staked ETH value includes validator own stakes, while self-staked ETH stands for the ETH validators themselves staked." />
             </section>
           </div>
           <div className="flex justify-center">
@@ -76,7 +77,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
               <div className="mr-[.07rem] text-[.2rem] text-text2">
                 Commission
               </div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Commission Fee" />
             </section>
           </div>
           <div className="flex justify-center">
@@ -84,7 +85,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
               <div className="mr-[.07rem] text-[.2rem] text-text2">
                 Total-staked &amp; Self-staked Reward
               </div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Total staked rewards includes validator own stakes, counted in ETH, while self-staked reward stands for the ETH validators themselves staked." />
             </section>
           </div>
         </div>

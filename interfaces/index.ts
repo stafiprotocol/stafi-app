@@ -19,3 +19,8 @@ export interface EthPubkey {
   pubkey: string;
   status: number;
 }
+
+export interface NavigationItem {
+  name: string;
+  path?: string;
+}

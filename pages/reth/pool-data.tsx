@@ -1,15 +1,19 @@
 import classNames from "classnames";
 import { CollapseCard } from "components/CollapseCard";
 import { Icomoon } from "components/Icomoon";
+import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
+import { MyTooltip } from "components/MyTooltip";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import Link from "next/link";
-import type { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { formatNumber } from "utils/number";
 import { RethStakeLayout } from "../../components/layout_reth_stake";
 import styles from "../../styles/reth/PoolData.module.scss";
 
 const PoolData = () => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
+
   const {
     requestStatus,
     depositedEth,
@@ -23,6 +27,13 @@ const PoolData = () => {
     stakeApr,
     validatorApr,
   } = useEthPoolData();
+
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "Pool Data" },
+    ]);
+  }, [setNavigation]);
 
   return (
     <div className="py-[.76rem] px-[.55rem] flex flex-col items-stretch">
@@ -51,7 +62,7 @@ const PoolData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.14rem]">Minted rETH</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Overall rETH generated" />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">
@@ -66,7 +77,7 @@ const PoolData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.14rem]">Staked ETH</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Overall ETH staked, including restake ETH" />
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">
@@ -108,7 +119,7 @@ const PoolData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.14rem]">Unmatched rETH</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="The amount of ETH that is not being matched or staked" />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">
@@ -123,7 +134,7 @@ const PoolData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.14rem]">Matched Validators</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="StaFi registered validators overall amount" />
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">
@@ -157,7 +168,7 @@ const PoolData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <div className="mr-[.14rem]">Validator APR</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip title="Validator APR: current network OV(s) annualized rewards. APR is denominated in terms of rETH, not USD and is not a guaranteed or promised return or profit" />
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">

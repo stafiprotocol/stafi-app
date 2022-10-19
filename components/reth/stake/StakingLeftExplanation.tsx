@@ -5,30 +5,23 @@ import rectangle from "public/rectangle1.svg";
 import { CustomPagination } from "../../pagination";
 import styles from "../../../styles/reth/ChooseValidator.module.scss";
 
-export const StakeLeftExplanation = () => {
+export const StakingLeftExplanation = () => {
   const [page, setPage] = useState(1);
 
-  const text =
-    page === 1 ? (
-      "If you are the trust validator or solo validator pro, only after you upload your files and stake, you could check if the 32 ETH is matched in the pubkey."
-    ) : page === 2 ? (
-      <div>
-        Please upload the deposit_data-*.json file, then click the
-        &quot;Stake&quot; button. As for the deposit_data-*.json file generation
-        you can refer the folllowing{" "}
-        <a
-          className="text-link underline"
-          href="https://www.google.com"
-          target="_blank"
-          rel="noreferrer"
-        >
-          instruction
-        </a>
-        .
-      </div>
-    ) : (
-      ""
-    );
+  const text = (
+    <div>
+      After Staking, please join in the ETH2 mainnet network, kindly read{" "}
+      <a
+        className="text-link underline"
+        href="https://www.google.com"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Prysm ETH2 Docs
+      </a>
+      .
+    </div>
+  );
 
   return (
     <div className={classNames(styles["left-container"], "flex flex-col")}>
@@ -44,7 +37,7 @@ export const StakeLeftExplanation = () => {
 
           <div className="mt-[.02rem] ml-[.16rem] text-primary font-[700] text-[.28rem]">
             {page === 1
-              ? "Please Notice"
+              ? "After staking"
               : page === 2
               ? "Deposit_data-*.json file"
               : "Status"}
@@ -56,7 +49,7 @@ export const StakeLeftExplanation = () => {
         </div>
 
         <div className="ml-[-.1rem]">
-          <CustomPagination totalCount={20} page={page} onChange={setPage} />
+          <CustomPagination totalCount={10} page={page} onChange={setPage} />
         </div>
 
         <div className="mt-[1rem] text-white text-[.22rem] opacity-40 underline">

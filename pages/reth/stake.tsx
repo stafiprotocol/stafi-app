@@ -1,32 +1,29 @@
+import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
 import { RethStakeLayout } from "components/layout_reth_stake";
 import { StakeForm } from "components/reth/stake/StakeForm";
 import { StakeLeftExplanation } from "components/reth/stake/StakeLeftExplanation";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { Card } from "../../components/card";
 import leftArrowIcon from "../../public/icon_arrow_left.png";
 
 const EthStake = () => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
 
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "Token Stake", path: "/reth/token-stake" },
+      { name: "Stake" },
+    ]);
+  }, [setNavigation]);
+
   return (
-    <div className="pt-[.56rem]">
-      <div
-        className="inline-flex items-center cursor-pointer"
-        onClick={() => {
-          router.push("/reth/token-stake");
-        }}
-      >
-        <div className="w-[.27rem] h-[.18rem] relative">
-          <Image src={leftArrowIcon} layout="fill" alt="back" />
-        </div>
-
-        <div className="ml-[.16rem] text-link text-[.32rem]">Token Stake</div>
-      </div>
-
-      <Card mt=".56rem">
+    <div>
+      <Card>
         <div className="flex h-[10.13rem] items-stretch">
           <StakeLeftExplanation />
 

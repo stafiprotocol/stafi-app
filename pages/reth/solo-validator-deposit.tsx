@@ -3,8 +3,10 @@ import { Button } from "components/button";
 import { Card } from "components/card";
 import { CollapseCard } from "components/CollapseCard";
 import { Icomoon } from "components/Icomoon";
+import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
 import { ConfirmModal } from "components/modal/ConfirmModal";
+import { MyTooltip } from "components/MyTooltip";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { getApiHost } from "config/env";
 import {
@@ -22,14 +24,13 @@ import ethToken from "public/eth_token.svg";
 import ethTokenOval from "public/eth_token_oval.svg";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import closeIcon from "public/icon_close.svg";
-import downIcon from "public/icon_down.png";
 import warningIcon from "public/icon_warning.svg";
 import nodeNumberCircle from "public/node_number_circle.svg";
 import arrowDownPath from "public/path_arrow_down.svg";
 import dotLinePath from "public/path_dot_line.svg";
 import rectangle from "public/rectangle1.svg";
 import uploadIcon from "public/upload.svg";
-import { ReactElement, useCallback, useEffect, useState } from "react";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { handleEthDeposit } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { openLink } from "utils/common";
@@ -40,6 +41,7 @@ import Web3 from "web3";
 import styles from "../../styles/reth/SoloValidatorDeposit.module.scss";
 
 const SoloValidatorDeposit = () => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
   const { useAccount, useChainId } = hooks;
   const account = useAccount();
@@ -60,6 +62,15 @@ const SoloValidatorDeposit = () => {
       ethTxLoading: state.eth.txLoading,
     };
   });
+
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "Token Stake", path: "/reth/token-stake" },
+      { name: "New Deposit", path: "/reth/choose-validator" },
+      { name: "Solo Validator Deposit" },
+    ]);
+  }, [setNavigation]);
 
   useEffect(() => {
     (async () => {
@@ -135,23 +146,8 @@ const SoloValidatorDeposit = () => {
   }, [estimateFee]);
 
   return (
-    <div className="pt-[.56rem]">
-      <div
-        className="inline-flex items-center cursor-pointer"
-        onClick={() => {
-          router.push("/reth/choose-validator");
-        }}
-      >
-        <div className="w-[.27rem] h-[.18rem] relative">
-          <Image src={leftArrowIcon} layout="fill" alt="back" />
-        </div>
-
-        <div className="ml-[.16rem] text-link text-[.32rem]">
-          Choose Validator Type
-        </div>
-      </div>
-
-      <Card mt=".56rem" backgroundColor="#0A131B">
+    <div>
+      <Card backgroundColor="#0A131B">
         <div className="flex flex-col items-stretch px-[.56rem] pb-[.56rem]">
           <div className="self-center relative w-[2.4rem] h-[.9rem]">
             <Image src={rectangle} layout="fill" alt="rectangle" />
@@ -325,7 +321,7 @@ const SoloValidatorDeposit = () => {
                     <div className="mr-[.08rem] text-[.24rem] text-text2">
                       Estimated APR
                     </div>
-                    <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+                    <MyTooltip title="Validator APR: current network OV(s) annualized rewards. APR is denominated in terms of rETH, not USD and is not a guaranteed or promised return or profit." />
                     <div className="ml-[.16rem] text-[.28rem] font-[700] text-primary">
                       {formatNumber(validatorApr, { decimals: 2 })}%
                     </div>
@@ -363,7 +359,7 @@ const SoloValidatorDeposit = () => {
             })}
           >
             <div className="text-[.32rem] text-primary">
-              Est. total fee:{" "}
+              Est. total Fee:{" "}
               {isNaN(Number(depositFee)) || isNaN(Number(stakeFee))
                 ? "--"
                 : formatNumber(Number(depositFee) + Number(stakeFee))}

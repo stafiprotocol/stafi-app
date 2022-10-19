@@ -3,14 +3,14 @@ import classNames from "classnames";
 import { Button } from "components/button";
 import { CircularLoading } from "components/CircularLoading";
 import { Icomoon } from "components/Icomoon";
-import { StakeLeftExplanation } from "components/reth/stake/StakeLeftExplanation";
+import { StakingLeftExplanation } from "components/reth/stake/StakingLeftExplanation";
 import { getApiHost } from "config/env";
 import {
   getStafiEthContractConfig,
   getStafiLightNodeAbi,
   getStafiSuperNodeAbi,
 } from "config/eth";
-import { useEffect } from "react";
+import { getEtherScanTxUrl } from "config/explorer";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useInterval } from "hooks/useInterval";
 import Image from "next/image";
@@ -20,14 +20,12 @@ import bee from "public/bee.png";
 import beeLight from "public/bee_light.png";
 import checkFileError from "public/check_file_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
-import downIcon from "public/icon_down_gray.png";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { setEthStakeParams } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import styles from "../../styles/reth/CheckFile.module.scss";
-import { getEtherScanTxUrl } from "config/explorer";
 
 interface EthStakeLoadingModalProps {
   visible: boolean;
@@ -175,7 +173,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
         }}
       >
         <div className="flex h-[9.65rem] items-stretch">
-          <StakeLeftExplanation />
+          <StakingLeftExplanation />
 
           <div className="flex-1 flex flex-col items-center">
             <div
@@ -306,7 +304,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
               {ethStakeParams?.status !== "active" && (
                 <a
                   className="mt-[.8rem] text-link underline text-[.24rem]"
-                  href="https://www.google.com"
+                  href="https://discord.com/invite/jB77etn"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -407,10 +405,21 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
 
                   <div className={styles["detail-item"]}>
                     <div className="flex items-center">
-                      <div className={styles["detail-indicator-dot"]} />
+                      <div
+                        className={styles["detail-indicator-dot"]}
+                        style={{
+                          border:
+                            ethStakeParams?.status === "active"
+                              ? "solid 1px #0095eb"
+                              : "solid 1px #ffffff",
+                        }}
+                      />
                       <div
                         className={classNames(
-                          "text-active text-[.2rem] font-[700] ml-[.08rem]"
+                          "text-[.2rem] font-[700] ml-[.08rem]",
+                          ethStakeParams?.status === "active"
+                            ? "text-active"
+                            : "text-white"
                         )}
                       >
                         Active

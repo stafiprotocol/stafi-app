@@ -1,5 +1,7 @@
+import { Breadcrumbs } from "@mui/material";
 import classNames from "classnames";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import styles from "../styles/reth/RethLayout.module.scss";
@@ -17,21 +19,8 @@ export const RethStakeLayout = (props: RethStakeLayoutProps) => {
   const isPoolData = router.pathname.endsWith("pool-data");
 
   return (
-    <div className="pt-[.56rem]">
-      <div
-        className="inline-flex items-center cursor-pointer"
-        onClick={() => {
-          router.push("/rtoken");
-        }}
-      >
-        <div className="w-[.27rem] h-[.18rem] relative">
-          <Image src={leftArrowIcon} layout="fill" alt="back" />
-        </div>
-
-        <div className="ml-[.16rem] text-link text-[.32rem]">rToken List</div>
-      </div>
-
-      <Card mt=".56rem" backgroundColor="#0A131B">
+    <div>
+      <Card backgroundColor="#0A131B">
         <div>
           <div className="h-[1.33rem] border-solid border-b-[1px] border-b-text3 flex items-center justify-between">
             <div className="self-stretch flex items-stretch">

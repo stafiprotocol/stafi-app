@@ -13,6 +13,9 @@ import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import styles from "../../styles/reth/WaitingStakeCard.module.scss";
 import commonStyles from "../../styles/Common.module.scss";
+import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
+import { useState } from "react";
+import { MyTooltip } from "components/MyTooltip";
 
 interface WaitingStakeCardProps {
   depositItem: EthDepositItem;
@@ -24,6 +27,8 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
   const account = useAccount();
   const router = useRouter();
   const { depositItem } = props;
+  const [pubkeyDetailModalVisible, setPubkeyDetailModalVisible] =
+    useState(false);
 
   const getStatusDescription = (status: string) => {
     if (status === "2") {
@@ -35,7 +40,32 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
     if (status === "4") {
       return "Verification Failed";
     }
+    if (status === "9") {
+      return "Active";
+    }
+    if (status === "10") {
+      return "Exited";
+    }
     return "Waiting to be matched";
+  };
+
+  const getStatusDescriptionDetail = (status: string) => {
+    if (status === "2") {
+      return "32 ETH may be matched or not, please click the stake button to confirm and stake";
+    }
+    if (status === "3") {
+      return "32 ETH is successfully staked, deposit now is in the validating process";
+    }
+    if (status === "4") {
+      return "Check file failed";
+    }
+    if (status === "9") {
+      return "Active";
+    }
+    if (status === "10") {
+      return "Exited";
+    }
+    return "32 ETH is waiting to be staked in Ethereum, please wait for a moment";
   };
 
   const getStatusText = (status: string) => {
@@ -85,7 +115,10 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
         <div className="mr-[.06rem]">
           {getStatusDescription(depositItem.status)}
         </div>
-        <Icomoon icon="question" size="0.16rem" color={"#ffffff"} />
+        <MyTooltip
+          title={getStatusDescriptionDetail(depositItem.status)}
+          color="#ffffff"
+        />
       </div>
 
       <div className="mt-[.24rem] flex items-center justify-between">
@@ -96,14 +129,16 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
           <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
         </div>
 
-        <div className="text-text1 text-[.16rem]">4 ETH (Self)</div>
+        <div className="text-text1 text-[.16rem]">
+          {depositItem.type === "solo" ? 4 : 0} ETH (Self)
+        </div>
       </div>
 
       <div
         className={classNames("mt-[.24rem] flex items-center justify-between")}
       >
         <div className="flex items-center">
-          <div className="mr-[.06rem] text-text2 text-[.16rem]">Pool Addr</div>
+          <div className="mr-[.06rem] text-text2 text-[.16rem]">Pubkey</div>
           <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
         </div>
 
@@ -127,9 +162,10 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
                 className="ml-[.12rem] flex items-center cursor-pointer"
                 onClick={() => {
                   if (props.depositItem.pubkey) {
-                    router.push(
-                      `/reth/pubkey-detail/${props.depositItem.pubkey}`
-                    );
+                    // router.push(
+                    //   `/reth/pubkey-detail/${props.depositItem.pubkey}`
+                    // );
+                    setPubkeyDetailModalVisible(true);
                   }
                 }}
               >
@@ -202,6 +238,12 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
           Stake
         </Button>
       </div>
+
+      <EthPubkeyDetailModal
+        visible={pubkeyDetailModalVisible}
+        onClose={() => setPubkeyDetailModalVisible(false)}
+        pubkey={props.depositItem.pubkey}
+      />
     </div>
   );
 };

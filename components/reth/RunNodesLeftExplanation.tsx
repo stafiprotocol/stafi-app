@@ -2,10 +2,10 @@ import classNames from "classnames";
 import Image from "next/image";
 import { useState } from "react";
 import rectangle from "public/rectangle1.svg";
-import { CustomPagination } from "../../pagination";
-import styles from "../../../styles/reth/ChooseValidator.module.scss";
+import { CustomPagination } from "../pagination";
+import styles from "../../styles/reth/ChooseValidator.module.scss";
 
-export const StakeLeftExplanation = () => {
+export const RunNodesLeftExplanation = () => {
   const [page, setPage] = useState(1);
 
   const text =
@@ -60,7 +60,11 @@ export const StakeLeftExplanation = () => {
         </div>
 
         <div className="mt-[1rem] text-white text-[.22rem] opacity-40 underline">
-          <a href="https://www.google.com" target="_blank" rel="noreferrer">
+          <a
+            href="https://docs.stafi.io/stafi-chain/network/participants/validator-sv/run-a-node?q=nodes"
+            target="_blank"
+            rel="noreferrer"
+          >
             Learn More
           </a>
         </div>

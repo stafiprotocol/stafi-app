@@ -1,32 +1,30 @@
 import { RethLayout } from "components/layout_reth";
 import { RethStakeLayout } from "components/layout_reth_stake";
-import { ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import Image from "next/image";
 import { Card } from "components/card";
 import { ChooseValidatorLeftExplanation } from "components/reth/choose-validator/ChooseValidatorLeftExplanation";
 import { ChooseValidatorType } from "components/reth/choose-validator/ChooseValidatorType";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import { useRouter } from "next/router";
+import React from "react";
+import { MyLayoutContext } from "components/layout";
 
 const ChooseValidator = () => {
+  const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
 
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "Token Stake", path: "/reth/token-stake" },
+      { name: "New Deposit" },
+    ]);
+  }, [setNavigation]);
+
   return (
-    <div className="pt-[.56rem]">
-      <div
-        className="inline-flex items-center cursor-pointer"
-        onClick={() => {
-          router.push("/reth/token-stake");
-        }}
-      >
-        <div className="w-[.27rem] h-[.18rem] relative">
-          <Image src={leftArrowIcon} layout="fill" alt="back" />
-        </div>
-
-        <div className="ml-[.16rem] text-link text-[.32rem]">Token Stake</div>
-      </div>
-
-      <Card mt=".56rem" backgroundColor="#0A131B">
+    <div>
+      <Card backgroundColor="#0A131B">
         <div className="flex h-[10.13rem] items-stretch">
           <ChooseValidatorLeftExplanation />
 
