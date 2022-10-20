@@ -9,9 +9,5 @@ export function createWeb3() {
 }
 
 export function connectMetaMask(metaMask: MetaMask) {
-  if (isDev()) {
-    metaMask.activate(getMetaMaskStafiTestnetConfig());
-  } else {
-    metaMask.activate(getMetamaskChainId());
-  }
+  metaMask.activate(getMetamaskChainId());
 }

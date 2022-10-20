@@ -3,7 +3,8 @@ import { isDev } from "./env";
 
 export function getMetamaskChainId() {
   if (isDev()) {
-    return 1338;
+    // return getMetaMaskStafiTestnetConfig();
+    return 5;
   }
   return 1;
 }
