@@ -70,7 +70,14 @@ export const Layout = (props: LayoutProps) => {
         </HideOnScroll>
 
         <main className="flex flex-col items-center pt-[1.3rem]">
-          <div className="w-[14.88rem] flex items-center py-[.56rem]">
+          <div
+            className={classNames(
+              "w-[14.88rem] flex items-center py-[.56rem]",
+              {
+                invisible: !navigation || navigation.length <= 1,
+              }
+            )}
+          >
             {navigation?.map((item, index) => (
               <div
                 key={item.name}
@@ -78,17 +85,18 @@ export const Layout = (props: LayoutProps) => {
                   "flex items-center text-text2 text-[.24rem]"
                 )}
               >
-                <div className="rotate-[180deg]">
-                  <Icomoon icon="right" size=".16rem" />
-                </div>
-
-                <div className="mx-[.2rem]">
+                <div>
                   {!!item.path ? (
                     <Link href={item.path}>{item.name}</Link>
                   ) : (
                     item.name
                   )}
                 </div>
+                {index !== navigation.length - 1 && (
+                  <div className="mx-[.2rem] rotate-[180deg]">
+                    <Icomoon icon="right" size=".16rem" />
+                  </div>
+                )}
               </div>
             ))}
           </div>

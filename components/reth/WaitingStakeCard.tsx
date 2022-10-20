@@ -118,11 +118,9 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
             depositItem.status === "9" ? "rgba(0, 243, 171, 0.1)" : "#55362a",
         }}
       >
-        <div className="mr-[.06rem]">
-          {getStatusDescription(depositItem.status)}
-        </div>
         <MyTooltip
           title={getStatusDescriptionDetail(depositItem.status)}
+          text={getStatusDescription(depositItem.status)}
           color="#ffffff"
         />
       </div>

@@ -1,20 +1,17 @@
-import { Dialog, DialogContent, Modal } from "@mui/material";
+import { Dialog, DialogContent } from "@mui/material";
 import classNames from "classnames";
 import { Card } from "components/card";
 import { CollapseCard } from "components/CollapseCard";
 import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
-import { RethLayout } from "components/layout_reth";
 import { MyTooltip } from "components/MyTooltip";
 import { EthRewardChart } from "components/reth/EthRewardChart";
-import { hooks } from "connectors/metaMask";
 import { useEthPubkeyDetail } from "hooks/useEthPubkeyDetail";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import ethIcon from "public/eth_type_green.svg";
 import arrowPath from "public/path_arrow.svg";
 import rectangle from "public/rectangle1.svg";
-import { ReactElement, useState } from "react";
+import { useState } from "react";
 import { getEthPubkeyStatusText } from "utils/eth";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
@@ -301,8 +298,10 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
 
                 <div className="flex-1 flex flex-col items-center">
                   <div className="text-text2 text-[.24rem] flex items-center">
-                    <div className="mr-[.08rem]">Deposit Balance</div>
-                    <MyTooltip title="Overall deposited ETH amount" />
+                    <MyTooltip
+                      title="Overall deposited ETH amount"
+                      text="Deposit Balance"
+                    />
                   </div>
 
                   <div className="mt-[.23rem] text-primary text-[.32rem]">
@@ -428,8 +427,10 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                     )}
                   >
                     <div className="text-text2 text-[.24rem] flex items-center">
-                      <div className="mr-[.08rem]">APR</div>
-                      <MyTooltip title="APR estimated based on the last 7 days" />
+                      <MyTooltip
+                        title="APR estimated based on the last 7 days"
+                        text="APR"
+                      />
                     </div>
 
                     <div className="flex items-center mt-[.23rem]">

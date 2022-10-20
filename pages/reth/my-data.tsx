@@ -58,8 +58,10 @@ const MyData = () => {
 
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.14rem]">Total Managed ETH</div>
-              <MyTooltip title="Your self deposit + delegated ETH amount" />
+              <MyTooltip
+                title="Your self deposit + delegated ETH amount"
+                text="Total Managed ETH"
+              />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">
@@ -73,8 +75,7 @@ const MyData = () => {
 
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.14rem]">My Reward</div>
-              <MyTooltip title="Rewards for validator" />
+              <MyTooltip title="Rewards for validator" text="My Reward" />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">

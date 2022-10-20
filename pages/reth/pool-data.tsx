@@ -61,8 +61,7 @@ const PoolData = () => {
 
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.14rem]">Minted rETH</div>
-              <MyTooltip title="Overall rETH generated" />
+              <MyTooltip title="Overall rETH generated" text="Minted rETH" />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">
@@ -76,8 +75,10 @@ const PoolData = () => {
 
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.14rem]">Staked ETH</div>
-              <MyTooltip title="Overall ETH staked, including restake ETH" />
+              <MyTooltip
+                title="Overall ETH staked, including restake ETH"
+                text="Staked ETH"
+              />
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">
@@ -118,8 +119,10 @@ const PoolData = () => {
 
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.14rem]">Unmatched rETH</div>
-              <MyTooltip title="The amount of ETH that is not being matched or staked" />
+              <MyTooltip
+                title="The amount of ETH that is not being matched or staked"
+                text="Unmatched rETH"
+              />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">
@@ -133,8 +136,10 @@ const PoolData = () => {
 
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.14rem]">Matched Validators</div>
-              <MyTooltip title="StaFi registered validators overall amount" />
+              <MyTooltip
+                title="StaFi registered validators overall amount"
+                text="Matched Validators"
+              />
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">
@@ -167,8 +172,10 @@ const PoolData = () => {
 
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.14rem]">Validator APR</div>
-              <MyTooltip title="Validator APR: current network OV(s) annualized rewards. APR is denominated in terms of rETH, not USD and is not a guaranteed or promised return or profit" />
+              <MyTooltip
+                text="Validator APR"
+                title="Validator APR: current network OV(s) annualized rewards. APR is denominated in terms of rETH, not USD and is not a guaranteed or promised return or profit"
+              />
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">

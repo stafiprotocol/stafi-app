@@ -10,6 +10,7 @@ import { RequestStatus } from "interfaces";
 import Link from "next/link";
 import { useState } from "react";
 import { formatNumber } from "utils/number";
+import { openLink } from "utils/common";
 import Web3 from "web3";
 import styles from "../../../styles/reth/MyData.module.scss";
 
@@ -29,17 +30,22 @@ export const MyRewardList = (props: MyRewardListProps) => {
 
       <div className="mx-[.56rem] flex items-center mt-[.76rem]">
         <div className="text-white text-[.32rem]">Reward Details</div>
-        <div className="text-text2 text-[.24rem] ml-[.26rem] mr-[.06rem]">
-          (Epoch updated every 8 hours)
+
+        <div
+          className="text-text2 text-[.24rem] ml-[.16rem] cursor-pointer"
+          onClick={() => {
+            openLink("https://www.google.com");
+          }}
+        >
+          <Icomoon icon="question" size="0.16rem" color="#5B6872" />
         </div>
-        <Icomoon icon="question" size="0.16rem" color="#5B6872" />
       </div>
 
       {requestStatus !== RequestStatus.loading && totalCount === 0 && (
         <div className="flex flex-col items-center">
           <Link href="/reth/choose-validator">
             <div className="flex flex-col items-center cursor-pointer">
-              <EmptyContent mt="0.2rem" size=".8rem" />
+              <EmptyContent mt="0.76rem" size=".8rem" />
               <div className="mt-[.3rem] flex items-center">
                 <div className="text-text1 text-[.24rem] mr-[.1rem]">
                   Make a deposit
@@ -61,31 +67,43 @@ export const MyRewardList = (props: MyRewardListProps) => {
           <div className="flex justify-center">
             <section className="flex-1 flex justify-center items-center">
               <div className="mr-[.07rem] text-[.2rem] text-text2">Time</div>
-              <MyTooltip title="The time stamp that counts all the rewards and value, time reflects each era’s real time." />
             </section>
           </div>
           <div className="flex justify-center">
-            <section className="flex-1 flex justify-center items-center">
-              <div className="mr-[.07rem] text-[.2rem] text-text2">
-                Total-staked &amp; Self-staked ETH
-              </div>
-              <MyTooltip title="Total staked ETH value includes validator own stakes, while self-staked ETH stands for the ETH validators themselves staked." />
+            <section className="flex-1 flex justify-center items-center text-text2 text-[.2rem]">
+              <MyTooltip
+                text="Total-staked ETH"
+                title="Total staked ETH value includes validator own stakes"
+              />
             </section>
           </div>
           <div className="flex justify-center">
-            <section className="flex-1 flex justify-center items-center">
-              <div className="mr-[.07rem] text-[.2rem] text-text2">
-                Commission
-              </div>
-              <MyTooltip title="Commission Fee" />
+            <section className="flex-1 flex justify-center items-center text-text2 text-[.2rem]">
+              <MyTooltip
+                text="Self-staked ETH"
+                title="Self-staked ETH stands for the ETH validators themselves staked."
+              />
+            </section>
+          </div>
+          {/* <div className="flex justify-center">
+            <section className="flex-1 flex justify-center items-center text-[.2rem] text-text2">
+              <MyTooltip title="Commission Fee" text="Commission" />
+            </section>
+          </div> */}
+          <div className="flex justify-center">
+            <section className="flex-1 flex justify-center items-center text-[.2rem] text-text2">
+              <MyTooltip
+                text="Total-staked Reward"
+                title="Total staked rewards includes validator own stakes, counted in ETH"
+              />
             </section>
           </div>
           <div className="flex justify-center">
-            <section className="flex-1 flex justify-center items-center">
-              <div className="mr-[.07rem] text-[.2rem] text-text2">
-                Total-staked &amp; Self-staked Reward
-              </div>
-              <MyTooltip title="Total staked rewards includes validator own stakes, counted in ETH, while self-staked reward stands for the ETH validators themselves staked." />
+            <section className="flex-1 flex justify-center items-center text-[.2rem] text-text2">
+              <MyTooltip
+                text="Self-staked Reward"
+                title="Self-staked reward stands for the ETH validators themselves staked"
+              />
             </section>
           </div>
         </div>
@@ -108,23 +126,34 @@ export const MyRewardList = (props: MyRewardListProps) => {
           <div className="flex justify-center">
             <section className="flex-1 flex justify-center items-center">
               <div className="mr-[.07rem] text-[.2rem] text-text1">
-                {formatNumber(Web3.utils.fromWei(rewardInfo.totalStakedEth))} :{" "}
-                {formatNumber(Web3.utils.fromWei(rewardInfo.selfStakedEth))}
+                {formatNumber(Web3.utils.fromWei(rewardInfo.totalStakedEth))}
               </div>
             </section>
           </div>
           <div className="flex justify-center">
             <section className="flex-1 flex justify-center items-center">
               <div className="mr-[.07rem] text-[.2rem] text-text1">
+                {formatNumber(Web3.utils.fromWei(rewardInfo.selfStakedEth))}
+              </div>
+            </section>
+          </div>
+          {/* <div className="flex justify-center">
+            <section className="flex-1 flex justify-center items-center">
+              <div className="mr-[.07rem] text-[.2rem] text-text1">
                 {rewardInfo.commission}%
+              </div>
+            </section>
+          </div> */}
+          <div className="flex justify-center">
+            <section className="flex-1 flex justify-center items-center">
+              <div className="mr-[.07rem] text-[.2rem] text-primary">
+                {formatNumber(Web3.utils.fromWei(rewardInfo.totalEraRewardEth))}
               </div>
             </section>
           </div>
           <div className="flex justify-center">
             <section className="flex-1 flex justify-center items-center">
-              <div className="mr-[.07rem] text-[.2rem] text-primary">
-                {formatNumber(Web3.utils.fromWei(rewardInfo.totalEraRewardEth))}{" "}
-                :{" "}
+              <div className="mr-[.07rem] text-[.2rem] text-text1">
                 {formatNumber(Web3.utils.fromWei(rewardInfo.selfEraRewardEth))}
               </div>
             </section>
@@ -141,6 +170,10 @@ export const MyRewardList = (props: MyRewardListProps) => {
           />
         </div>
       )}
+
+      <div className="text-center text-text2 mt-[.56rem] text-[.2rem]">
+        Rewards data updates every 8 hours
+      </div>
     </div>
   );
 };

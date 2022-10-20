@@ -181,8 +181,10 @@ export const MyReward = () => {
             )}
           >
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.08rem]">Total Staked Value</div>
-              <MyTooltip title="Total staked ETH value, includes validator own stakes." />
+              <MyTooltip
+                title="Total staked ETH value, includes validator own stakes."
+                text="Total Staked Value"
+              />
             </div>
 
             <div className="flex items-center mt-[.23rem]">
@@ -196,8 +198,10 @@ export const MyReward = () => {
             </div>
 
             <div className="mt-[.4rem] text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.08rem]">Reward in last Era</div>
-              <MyTooltip title="rTokens will continuously generate staking rewards even when deposited in farms, mines or other yield generation methods, however, it will not be visible in the Est. Reward column as calculations are limited." />
+              <MyTooltip
+                text="Reward in last Era"
+                title="rTokens will continuously generate staking rewards even when deposited in farms, mines or other yield generation methods, however, it will not be visible in the Est. Reward column as calculations are limited."
+              />
             </div>
 
             <div className="flex items-center mt-[.23rem]">

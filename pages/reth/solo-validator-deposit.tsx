@@ -315,13 +315,13 @@ const SoloValidatorDeposit = () => {
                   </div>
 
                   <div
-                    className="ml-[.24rem] rounded-[.16rem] h-[.57rem] px-[.16rem] flex items-center"
+                    className="ml-[.24rem] rounded-[.16rem] h-[.57rem] px-[.16rem] flex items-center text-[.24rem] text-text2"
                     style={{ border: "1px solid rgba(0, 243, 171, 0.2)" }}
                   >
-                    <div className="mr-[.08rem] text-[.24rem] text-text2">
-                      Estimated APR
-                    </div>
-                    <MyTooltip title="Validator APR: current network OV(s) annualized rewards. APR is denominated in terms of rETH, not USD and is not a guaranteed or promised return or profit." />
+                    <MyTooltip
+                      text="Estimated APR"
+                      title="Validator APR: current network OV(s) annualized rewards. APR is denominated in terms of rETH, not USD and is not a guaranteed or promised return or profit."
+                    />
                     <div className="ml-[.16rem] text-[.28rem] font-[700] text-primary">
                       {formatNumber(validatorApr, { decimals: 2 })}%
                     </div>

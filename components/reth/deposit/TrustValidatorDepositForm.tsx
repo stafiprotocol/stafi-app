@@ -127,7 +127,12 @@ export const TrustValidatorDepositForm = () => {
 
       <div className="self-stretch mx-[.75rem] mt-[1rem]">
         <Button
-          disabled={(!!account && validatorKeys.length === 0) || ethTxLoading}
+          disabled={
+            (!!account && validatorKeys.length === 0) ||
+            ethTxLoading ||
+            isNaN(Number(unmatchedEth)) ||
+            Number(unmatchedEth) < validatorKeys.length
+          }
           height="1.3rem"
           onClick={() => {
             if (!account || chainId !== getMetamaskChainId()) {
@@ -178,6 +183,9 @@ export const TrustValidatorDepositForm = () => {
             ? "Please Upload 1 json file"
             : ethTxLoading
             ? "Depositing, please wait for a moment..."
+            : !isNaN(Number(unmatchedEth)) &&
+              Number(unmatchedEth) < validatorKeys.length
+            ? "Insufficient ETH in pool"
             : "Deposit"}
         </Button>
       </div>

@@ -2,8 +2,11 @@ import { getApiHost } from "config/env";
 import { RequestStatus } from "interfaces";
 import { useCallback, useEffect, useState } from "react";
 import Web3 from "web3";
+import { useAppSlice } from "./selector";
 
 export function useEthPoolData() {
+  const { updateFlag15s } = useAppSlice();
+
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(
     RequestStatus.loading
   );
@@ -20,6 +23,9 @@ export function useEthPoolData() {
   const [validatorApr, setValidatorApr] = useState("");
 
   const udpatePoolData = useCallback(async () => {
+    if (!updateFlag15s) {
+      return;
+    }
     try {
       const response = await fetch(`${getApiHost()}/reth/v1/poolData`, {
         method: "GET",
@@ -59,7 +65,7 @@ export function useEthPoolData() {
     } catch {
       setRequestStatus(RequestStatus.error);
     }
-  }, []);
+  }, [updateFlag15s]);
 
   useEffect(() => {
     udpatePoolData();
