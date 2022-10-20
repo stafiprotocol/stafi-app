@@ -318,7 +318,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                     fontSize="0.32rem"
                     onClick={() => {
                       props.onClose();
-                      router.push("/reth/token-stake");
+                      router.push("/reth/token-stake?tab=staked");
                     }}
                   >
                     Go Check My Stake

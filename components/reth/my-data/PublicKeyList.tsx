@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { CollapseCard } from "components/CollapseCard";
 import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
+import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
 import { EthRunNodesModal } from "components/modal/EthRunNodesModal";
 import { CustomPagination } from "components/pagination";
 import { useEthPubkeyList } from "hooks/useEthPubkeyList";
@@ -23,6 +24,9 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
   );
   const [page, setPage] = useState(1);
   const [runNodesModalVisible, setRunNodesModalVisible] = useState(false);
+  const [pubkeyDetailModalVisible, setPubkeyDetailModalVisible] =
+    useState(false);
+  const [displayPubkey, setDisplayPubkey] = useState("");
 
   const { requestStatus, pubkeyList, totalCount, tabTotalCounts } =
     useEthPubkeyList(
@@ -160,7 +164,8 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
               <section
                 className="flex-1 flex justify-center items-center cursor-pointer"
                 onClick={() => {
-                  router.push(`/reth/pubkey-detail/${item.pubkey}`);
+                  setDisplayPubkey(item.pubkey);
+                  setPubkeyDetailModalVisible(true);
                 }}
               >
                 <div
@@ -210,6 +215,12 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
       <EthRunNodesModal
         visible={runNodesModalVisible}
         onClose={() => setRunNodesModalVisible(false)}
+      />
+
+      <EthPubkeyDetailModal
+        visible={pubkeyDetailModalVisible}
+        onClose={() => setPubkeyDetailModalVisible(false)}
+        pubkey={displayPubkey}
       />
     </CollapseCard>
   );

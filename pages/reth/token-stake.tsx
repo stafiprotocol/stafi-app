@@ -36,6 +36,22 @@ const TokenStake = (props: any) => {
     ]);
   }, [setNavigation]);
 
+  useEffect(() => {
+    const { tab: queryTab } = router.query;
+
+    if (queryTab) {
+      if (queryTab === "staked") {
+        setTab("staked");
+      } else if (queryTab === "others") {
+        setTab("others");
+      } else {
+        setTab("unmatched");
+      }
+    } else {
+      setTab("unmatched");
+    }
+  }, [router]);
+
   const [displayList, stakableList] = useMemo(() => {
     const newList = depositList.sort((a, b) => {
       if (a.status === "2" && b.status !== "2") {
@@ -103,7 +119,12 @@ const TokenStake = (props: any) => {
       </div>
 
       <div className="mt-[.55rem]">
-        <TokenStakeTabs selectedTab={tab} onChange={setTab} />
+        <TokenStakeTabs
+          selectedTab={tab}
+          onChange={(tab) => {
+            router.push("/reth/token-stake?tab=" + tab);
+          }}
+        />
       </div>
 
       <div className="mt-[.75rem] flex justify-start flex-wrap px-[1.6rem] min-h-[3rem] relative">
