@@ -54,9 +54,13 @@ interface StafiEthContractConfig {
 
 export function getStafiEthContractConfig(): StafiEthContractConfig {
   return {
-    stafiLightNode: "0x4FEEA697bE14596c672681b92B1dfA41b654955b",
-    stafiSuperNode: "0xfa052FB4D0C530bDCBA7bF0C675515d3f12313b6",
-    stafiNodeManager: "0xC495018a16A9cF1b3659C1AcCbf1ddE50FD1b1A0",
-    stafiNetworkSettings: "0x430CB4F814EaA5816E3845f31A5EC3803bDa5B9F",
+    stafiLightNode: "0xde47f4f9cb723a3edb528d3e613d0dc3a195579f",
+    stafiSuperNode: "0x8dd57da9dc83efcebaf449df8f3c1c2c5846d0e2",
+    stafiNodeManager: "0x2af9751446306ddc211698be5bf26d4d011a1b40",
+    stafiNetworkSettings: "0x10d4c871b3568ac9ad3df57ecf21e0e298e75c2f",
+    // stafiLightNode: "0x4FEEA697bE14596c672681b92B1dfA41b654955b",
+    // stafiSuperNode: "0xfa052FB4D0C530bDCBA7bF0C675515d3f12313b6",
+    // stafiNodeManager: "0xC495018a16A9cF1b3659C1AcCbf1ddE50FD1b1A0",
+    // stafiNetworkSettings: "0x430CB4F814EaA5816E3845f31A5EC3803bDa5B9F",
   };
 }
