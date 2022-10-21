@@ -18,7 +18,7 @@ export const TokenStakeTabs = (props: TokenStakeTabsProps) => {
         )}
         onClick={() => onChange("unmatched")}
       >
-        Unmatched
+        Unstaked
       </div>
 
       <div
