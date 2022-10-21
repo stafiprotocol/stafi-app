@@ -6,7 +6,7 @@ export function getApiHost() {
   if (isDev()) {
     return "https://test-drop-api.stafi.io";
   }
-  return "https://test-drop-api.stafi.io";
+  return "https://drop-api.stafi.io";
 }
 
 export function getrTokenApiHost() {
