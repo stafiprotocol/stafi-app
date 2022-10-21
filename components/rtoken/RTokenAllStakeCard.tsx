@@ -10,7 +10,7 @@ import { formatNumber } from "utils/number";
 
 export const RTokenAllStakeCard = () => {
   const router = useRouter();
-  const { stakeApr, stakedEth, stakedEthValue } = useEthPoolData();
+  const { validatorApr, stakedEth, stakedEthValue } = useEthPoolData();
 
   return (
     <div className={styles["all-stakes-card"]}>
@@ -33,7 +33,7 @@ export const RTokenAllStakeCard = () => {
           <Icomoon icon="question" size=".16rem" color="#5B6872" />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
-          {formatNumber(stakeApr, { decimals: 2 })}%
+          {formatNumber(validatorApr, { decimals: 2 })}%
         </div>
       </div>
 
