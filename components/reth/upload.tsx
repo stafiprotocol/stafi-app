@@ -21,11 +21,11 @@ export const ValidatorKeyUpload = (props: ValidatorKeyUploadProps) => {
             try {
               let validatorKeys = JSON.parse(fileContent);
               if (!Array.isArray(validatorKeys)) {
-                throw new Error("Json content must be array!");
+                throw new Error("Json content must be array");
               }
 
               if (validatorKeys.length === 0) {
-                throw new Error("Please upload at least only one key");
+                throw new Error("Please upload at least one key");
               }
 
               validatorKeys.forEach((validatorKey) => {
