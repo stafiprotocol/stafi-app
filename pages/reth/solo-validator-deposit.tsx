@@ -8,10 +8,11 @@ import { RethLayout } from "components/layout_reth";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { MyTooltip } from "components/MyTooltip";
 import { ValidatorKeyUpload } from "components/reth/upload";
-import { getApiHost } from "config/env";
+import { getApiHost, isDev } from "config/env";
 import {
   getMetamaskChainId,
   getStafiEthContractConfig,
+  getStafiEthWithdrawalCredentials,
   getStafiLightNodeAbi,
 } from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
@@ -232,7 +233,23 @@ const SoloValidatorDeposit = () => {
                         );
                       }
                       if (validatorKey.amount !== 4000000000) {
-                        throw new Error("Deposit amount must be 4");
+                        throw new Error(
+                          "Please use solo validator file to deposit"
+                        );
+                      }
+                      if (
+                        validatorKey.withdrawal_credentials !==
+                        getStafiEthWithdrawalCredentials()
+                      ) {
+                        throw new Error(
+                          `Incorrect withdrawal_credentials value`
+                        );
+                      }
+                      const networkName = isDev() ? "goerli" : "mainnet";
+                      if (validatorKey.eth2_network_name !== networkName) {
+                        throw new Error(
+                          `Please use ${networkName} validator file to deposit`
+                        );
                       }
                     }}
                     onSuccess={(validatorKeys, fileName) => {

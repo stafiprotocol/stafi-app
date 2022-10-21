@@ -4,7 +4,11 @@ import { Icomoon } from "components/Icomoon";
 import { MyLayoutContext } from "components/layout";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
-import { getMetamaskChainId } from "config/eth";
+import { isDev } from "config/env";
+import {
+  getMetamaskChainId,
+  getStafiEthWithdrawalCredentials,
+} from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
@@ -82,12 +86,24 @@ export const StakeForm = () => {
             throw new Error("Miss deposit_data_root or signature or pubkey");
           }
           if (depositType === "trust" && validatorKey.amount !== 31000000000) {
-            throw new Error("Stake amount must be 31");
+            throw new Error("Please use trust validator file to stake");
           } else if (
             depositType === "solo" &&
             validatorKey.amount !== 28000000000
           ) {
-            throw new Error("Stake amount must be 28");
+            throw new Error("Please use solo validator file to stake");
+          }
+          if (
+            validatorKey.withdrawal_credentials !==
+            getStafiEthWithdrawalCredentials()
+          ) {
+            throw new Error(`Incorrect withdrawal_credentials value`);
+          }
+          const networkName = isDev() ? "goerli" : "mainnet";
+          if (validatorKey.eth2_network_name !== networkName) {
+            throw new Error(
+              `Please use ${networkName} validator file to deposit`
+            );
           }
         }}
         onSuccess={(newValidatorKeys) => {

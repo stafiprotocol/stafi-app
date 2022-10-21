@@ -3,7 +3,11 @@ import { Icomoon } from "components/Icomoon";
 import { MyLayoutContext } from "components/layout";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
-import { getMetamaskChainId } from "config/eth";
+import { isDev } from "config/env";
+import {
+  getMetamaskChainId,
+  getStafiEthWithdrawalCredentials,
+} from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
@@ -102,7 +106,19 @@ export const TrustValidatorDepositForm = () => {
                 );
               }
               if (validatorKey.amount !== 1000000000) {
-                throw new Error("Deposit amount must be 1");
+                throw new Error("Please use trust validator file to deposit");
+              }
+              if (
+                validatorKey.withdrawal_credentials !==
+                getStafiEthWithdrawalCredentials()
+              ) {
+                throw new Error(`Incorrect withdrawal_credentials value`);
+              }
+              const networkName = isDev() ? "goerli" : "mainnet";
+              if (validatorKey.eth2_network_name !== networkName) {
+                throw new Error(
+                  `Please use ${networkName} validator file to deposit`
+                );
               }
             }}
             onSuccess={(validatorKeys, fileName) => {

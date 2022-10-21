@@ -8,6 +8,13 @@ export function getMetamaskChainId() {
   return 1;
 }
 
+export function getMetaMaskConnectConfig() {
+  if (isDev()) {
+    return getMetaMaskStafiTestnetConfig();
+  }
+  return 1;
+}
+
 export function getMetaMaskStafiTestnetConfig(): AddEthereumChainParameter {
   return {
     chainId: 1338,
@@ -59,4 +66,11 @@ export function getStafiEthContractConfig(): StafiEthContractConfig {
     stafiNodeManager: "0xC495018a16A9cF1b3659C1AcCbf1ddE50FD1b1A0",
     stafiNetworkSettings: "0x430CB4F814EaA5816E3845f31A5EC3803bDa5B9F",
   };
+}
+
+export function getStafiEthWithdrawalCredentials() {
+  if (isDev()) {
+    return "00325b04539edc57dfb7d0e3f414ae51f1a601608fa05c79a1660f531084d7ee";
+  }
+  return "003cd051a5757b82bf2c399d7476d1636473969af698377434af1d6c54f2bee9";
 }

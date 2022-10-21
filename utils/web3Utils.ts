@@ -1,6 +1,6 @@
 import { MetaMask } from "@web3-react/metamask";
 import { isDev } from "config/env";
-import { getMetamaskChainId, getMetaMaskStafiTestnetConfig } from "config/eth";
+import { getMetamaskChainId, getMetaMaskConnectConfig } from "config/eth";
 import Web3 from "web3";
 
 export function createWeb3() {
@@ -9,9 +9,5 @@ export function createWeb3() {
 }
 
 export function connectMetaMask(metaMask: MetaMask) {
-  if (isDev()) {
-    metaMask.activate(getMetaMaskStafiTestnetConfig());
-  } else {
-    metaMask.activate(getMetamaskChainId());
-  }
+  metaMask.activate(getMetaMaskConnectConfig());
 }
