@@ -34,7 +34,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
         <div
           className="text-text2 text-[.24rem] ml-[.16rem] cursor-pointer"
           onClick={() => {
-            openLink("https://www.google.com");
+            openLink("https://docs.stafi.io/rtoken-app/reth-solution/faq");
           }}
         >
           <Icomoon icon="question" size="0.16rem" color="#5B6872" />
