@@ -4,7 +4,7 @@ const nextConfig = {
   swcMinify: true,
   env: {
     // environment: "production",
-    environment: "development",
+    // environment: "development",
   },
   images: {
     unoptimized: true,

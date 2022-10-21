@@ -1,7 +1,7 @@
 declare const window: any;
 
 export function isDev() {
-  return process.env.environment !== "production";
+  return process.env.NEXT_APP_ENV !== "production";
 }
 
 export function getApiHost() {
