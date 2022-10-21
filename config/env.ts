@@ -1,5 +1,7 @@
+declare const window: any;
+
 export function isDev() {
-  return true;
+  return process.env.environment !== "production";
 }
 
 export function getApiHost() {

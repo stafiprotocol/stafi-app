@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  env: {
+    // environment: "production",
+    environment: "development",
+  },
   images: {
     unoptimized: true,
   },
