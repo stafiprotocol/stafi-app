@@ -60,11 +60,20 @@ interface StafiEthContractConfig {
 }
 
 export function getStafiEthContractConfig(): StafiEthContractConfig {
+  if (isDev()) {
+    return {
+      stafiLightNode: "0x4FEEA697bE14596c672681b92B1dfA41b654955b",
+      stafiSuperNode: "0xfa052FB4D0C530bDCBA7bF0C675515d3f12313b6",
+      stafiNodeManager: "0xC495018a16A9cF1b3659C1AcCbf1ddE50FD1b1A0",
+      stafiNetworkSettings: "0x430CB4F814EaA5816E3845f31A5EC3803bDa5B9F",
+    };
+  }
+
   return {
-    stafiLightNode: "0x4FEEA697bE14596c672681b92B1dfA41b654955b",
-    stafiSuperNode: "0xfa052FB4D0C530bDCBA7bF0C675515d3f12313b6",
-    stafiNodeManager: "0xC495018a16A9cF1b3659C1AcCbf1ddE50FD1b1A0",
-    stafiNetworkSettings: "0x430CB4F814EaA5816E3845f31A5EC3803bDa5B9F",
+    stafiLightNode: "0x1c906685384df71e3fafa6f3b21bd884e9d44f4b",
+    stafiSuperNode: "0x588e859cb38fecf2d56925c0512471ab47aa9ff1",
+    stafiNodeManager: "0xd8575c32bbc1ea9d33856a6de74be258712307a8",
+    stafiNetworkSettings: "0xc59ff0c05de52347b2d7bf38eebdc994d97cea8f",
   };
 }
 
