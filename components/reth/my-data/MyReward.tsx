@@ -96,8 +96,7 @@ export const MyReward = () => {
           <div className="ml-[.12rem] text-[.2rem] font-[400] text-warning">
             Holding rTokens still keeps generating staking reward while you
             depositing them to farm, mine and other yield generation protocols,
-            but it can&apos;t be shown in the est.Reward as the calculation
-            limits.
+            but it can&apos;t be shown in the reward as the calculation limits.
           </div>
         </div>
       )}

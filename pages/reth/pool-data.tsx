@@ -121,7 +121,7 @@ const PoolData = () => {
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
                 title="The amount of ETH that is not being matched or staked"
-                text="Unmatched rETH"
+                text="Unmatched ETH"
               />
             </div>
 

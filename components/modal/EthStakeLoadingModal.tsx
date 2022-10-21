@@ -208,7 +208,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
               className={classNames(
                 "mt-[.3rem] text-[.24rem]",
                 ethStakeParams?.status === "active"
-                  ? "text-primary"
+                  ? "text-primary hidden"
                   : ethStakeParams?.status === "error"
                   ? "text-error"
                   : "text-text2"
