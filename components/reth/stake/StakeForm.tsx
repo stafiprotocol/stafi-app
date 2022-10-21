@@ -92,8 +92,10 @@ export const StakeForm = () => {
         }}
         onSuccess={(newValidatorKeys) => {
           const oldValidatorKeys = [...validatorKeys];
+          let hasUnmatched = false;
           newValidatorKeys.forEach((validatorKey) => {
             if (stakePubkeys.indexOf("0x" + validatorKey.pubkey) < 0) {
+              hasUnmatched = true;
               return;
             }
             const exist = oldValidatorKeys.find(
@@ -105,6 +107,9 @@ export const StakeForm = () => {
           });
 
           setValidatorKeys([...oldValidatorKeys]);
+          if (hasUnmatched) {
+            snackbarUtil.error("Unmatched Pubkey");
+          }
         }}
       >
         <div>
