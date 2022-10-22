@@ -5,7 +5,7 @@ import leftArrowIcon from "public/icon_arrow_left.png";
 import rectangle from "public/rectangle1.svg";
 import rTokenImage from "public/rToken.svg";
 import React, { useEffect } from "react";
-import styles from "../styles/rTokenPage.module.scss";
+// import styles from "../styles/rTokenPage.module.scss";
 
 const RTokenPage = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -16,7 +16,15 @@ const RTokenPage = () => {
 
   return (
     <div>
-      <div className={styles["head-banner"]}>
+      <div
+        // className={styles["head-banner"]}
+        className="h-[2.68rem] rounded-[.16rem] flex"
+        style={{
+          background: "rgba(23, 38, 54, 0.2)",
+          border: "1px solid #1a2835",
+          backdropFilter: "blur(0.67rem)",
+        }}
+      >
         <div className="self-center relative w-[2.4rem] h-[.9rem] -rotate-90 ml-[-.75rem]">
           <Image src={rectangle} layout="fill" alt="rectangle" />
         </div>

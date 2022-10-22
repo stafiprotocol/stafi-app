@@ -1,5 +1,4 @@
 import Image from "next/image";
-import styles from "../../styles/rTokenPage.module.scss";
 import ethLogo from "../../public/eth_token.svg";
 import ETH from "../../public/tokenName/ETH.svg";
 import { Icomoon } from "components/Icomoon";
@@ -7,13 +6,22 @@ import { Button } from "components/button";
 import { useRouter } from "next/router";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { formatNumber } from "utils/number";
+// import styles from "../../styles/rTokenPage.module.scss";
 
 export const RTokenOverviewCard = () => {
   const router = useRouter();
   const { validatorApr, allEth, allEthValue } = useEthPoolData();
 
   return (
-    <div className={styles["all-stakes-card"]}>
+    <div
+      // className={styles["all-stakes-card"]}
+      className="py-[0] px-[.24rem] h-[4.05rem] w-[3.35rem]"
+      style={{
+        background: "rgba(23, 38, 54, 0.2)",
+        border: "1px solid #1a2835",
+        backdropFilter: "blur(0.67rem)",
+      }}
+    >
       <div className="mt-[.36rem] flex items-center justify-between">
         <div className="w-[.76rem] h-[.76rem] relative">
           <Image src={ethLogo} layout="fill" alt="logo" />
