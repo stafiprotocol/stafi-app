@@ -12,6 +12,7 @@ import {
   updateEthBalance,
 } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
+import { isServer } from "utils/common";
 import { HideOnScroll } from "./HideOnScroll";
 import { Icomoon } from "./Icomoon";
 import { EthStakeLoadingModal } from "./modal/EthStakeLoadingModal";
@@ -51,6 +52,10 @@ export const Layout = (props: LayoutProps) => {
       metaMask.connectEagerly();
     }
   }, [metaMaskAccount]);
+
+  if (isServer()) {
+    return null;
+  }
 
   return (
     <MyLayoutContext.Provider

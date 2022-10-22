@@ -20,7 +20,7 @@ const PoolData = () => {
     depositedEthValue,
     mintedREth,
     mintedREthValue,
-    stakedEth,
+    allEth,
     poolEth,
     unmatchedEth,
     matchedValidators,
@@ -65,7 +65,7 @@ const PoolData = () => {
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">
-              {formatNumber(mintedREth)} ETH
+              {formatNumber(mintedREth)} rETH
             </div>
 
             <div className="mt-[.16rem] text-text2 text-[.24rem]">
@@ -77,12 +77,12 @@ const PoolData = () => {
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
                 title="Overall ETH staked, including restake ETH"
-                text="Staked ETH"
+                text="Total ETH Staked"
               />
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">
-              {formatNumber(stakedEth)}
+              {formatNumber(allEth)}
             </div>
           </div>
         </div>

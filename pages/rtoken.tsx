@@ -1,5 +1,5 @@
 import { MyLayoutContext } from "components/layout";
-import { RTokenAllStakeCard } from "components/rtoken/RTokenAllStakeCard";
+import { RTokenOverviewCard } from "components/rtoken/RTokenOverviewCard";
 import Image from "next/image";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import rectangle from "public/rectangle1.svg";
@@ -42,7 +42,7 @@ const RTokenPage = () => {
       <div className="mt-[.56rem] text-white text-[.32rem]">All Stakes</div>
 
       <div className="mt-[.35rem]">
-        <RTokenAllStakeCard />
+        <RTokenOverviewCard />
       </div>
     </div>
   );

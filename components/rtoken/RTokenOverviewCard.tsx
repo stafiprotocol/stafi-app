@@ -8,9 +8,9 @@ import { useRouter } from "next/router";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { formatNumber } from "utils/number";
 
-export const RTokenAllStakeCard = () => {
+export const RTokenOverviewCard = () => {
   const router = useRouter();
-  const { validatorApr, stakedEth, stakedEthValue } = useEthPoolData();
+  const { validatorApr, allEth, allEthValue } = useEthPoolData();
 
   return (
     <div className={styles["all-stakes-card"]}>
@@ -45,7 +45,7 @@ export const RTokenAllStakeCard = () => {
           <Icomoon icon="question" size=".16rem" color="#5B6872" />
         </div>
         <div className="text-text2 text-[.16rem]">
-          ${formatNumber(stakedEthValue, { decimals: 2 })}
+          ${formatNumber(allEthValue, { decimals: 2 })}
         </div>
       </div>
 
@@ -57,7 +57,7 @@ export const RTokenAllStakeCard = () => {
           <Icomoon icon="question" size=".16rem" color="#5B6872" />
         </div>
         <div className="text-text2 text-[.16rem]">
-          {formatNumber(stakedEth)}
+          {formatNumber(allEth, { decimals: 2 })}
         </div>
       </div>
 

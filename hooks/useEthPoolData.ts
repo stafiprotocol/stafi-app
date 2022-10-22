@@ -16,6 +16,8 @@ export function useEthPoolData() {
   const [mintedREthValue, setMintedREthValue] = useState("");
   const [stakedEth, setStakedEth] = useState("");
   const [stakedEthValue, setStakedEthValue] = useState("");
+  const [allEth, setAllEth] = useState("");
+  const [allEthValue, setAllEthValue] = useState("");
   const [poolEth, setPoolEth] = useState("");
   const [unmatchedEth, setUnmatchedEth] = useState("");
   const [matchedValidators, setMatchedValidators] = useState("");
@@ -39,6 +41,7 @@ export function useEthPoolData() {
         const depositedEth = Web3.utils.fromWei(resJson.data.depositedEth);
         const mintedREth = Web3.utils.fromWei(resJson.data.mintedREth);
         const stakedEth = Web3.utils.fromWei(resJson.data.stakedEth);
+        const allEth = Web3.utils.fromWei(resJson.data.allEth);
 
         setDepositedEth(depositedEth);
         setDepositedEthValue(
@@ -52,6 +55,8 @@ export function useEthPoolData() {
         setStakedEthValue(
           Number(stakedEth) * Number(resJson.data.ethPrice) + ""
         );
+        setAllEth(allEth);
+        setAllEthValue(Number(allEth) * Number(resJson.data.ethPrice) + "");
 
         setPoolEth(Web3.utils.fromWei(resJson.data.poolEth));
         setUnmatchedEth(Web3.utils.fromWei(resJson.data.unmatchedEth));
@@ -79,6 +84,8 @@ export function useEthPoolData() {
     mintedREthValue,
     stakedEth,
     stakedEthValue,
+    allEth,
+    allEthValue,
     poolEth,
     unmatchedEth,
     matchedValidators,

@@ -8,3 +8,7 @@ export function openLink(url: string | undefined | null) {
     otherWindow.location = url;
   }
 }
+
+export function isServer() {
+  return typeof window === undefined;
+}
