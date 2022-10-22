@@ -24,8 +24,10 @@ export function useEthMyReward(chartDuSeconds: number) {
 
   const updateMyReward = useCallback(async () => {
     if (!account) {
+      setRequestStatus(RequestStatus.success);
       return;
     }
+    setRequestStatus(RequestStatus.loading);
     try {
       const params = {
         nodeAddress: account,

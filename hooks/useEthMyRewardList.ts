@@ -25,8 +25,10 @@ export function useEthMyRewardList(page: number) {
 
   const updateMyReward = useCallback(async () => {
     if (!account) {
+      setRequestStatus(RequestStatus.success);
       return;
     }
+    setRequestStatus(RequestStatus.loading);
     try {
       const params = {
         nodeAddress: account,
