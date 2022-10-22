@@ -10,7 +10,7 @@ export const ChooseValidatorLeftExplanation = () => {
 
   const text =
     page === 1
-      ? "Deposit 4 ETH to register as a delegated validator on StaFi; StaFi will match 28 ETH to your node so that it can meet the validator conditions of  ETH2.0. If you are a trust validator, you don’t need to deposit."
+      ? "Deposit 4 ETH to register as a delegated validator on StaFi; StaFi will match 28 ETH to your node so that it can meet the validator conditions of  ETH2.0. If you are a trusted validator, you don’t need to deposit."
       : page === 2
       ? "Once your node reaches 32ETH, you can stake these 32ETH to the deposit contract of ETH1.0. After that, please wait for validating progress on ETH2.0."
       : "There is nothing we can do in this step, once you stake, we should wait for the queue, check the status on the dashboard.";

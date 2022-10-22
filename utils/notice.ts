@@ -62,13 +62,13 @@ export interface NoticeUnbondData {
 }
 
 export interface NoticeEthDepositData {
-  type: "solo" | "trust";
+  type: "solo" | "trusted";
   amount: string;
   pubkeys: string[];
 }
 
 export interface NoticeEthDepositData {
-  type: "solo" | "trust";
+  type: "solo" | "trusted";
   amount: string;
   pubkeys: string[];
 }

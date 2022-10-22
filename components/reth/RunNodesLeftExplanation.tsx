@@ -10,7 +10,7 @@ export const RunNodesLeftExplanation = () => {
 
   const text =
     page === 1 ? (
-      "If you are the trust validator or solo validator pro, only after you upload your files and stake, you could check if the 32 ETH is matched in the pubkey."
+      "If you are the trusted validator or solo validator pro, only after you upload your files and stake, you could check if the 32 ETH is matched in the pubkey."
     ) : page === 2 ? (
       <div>
         Please upload the deposit_data-*.json file, then click the

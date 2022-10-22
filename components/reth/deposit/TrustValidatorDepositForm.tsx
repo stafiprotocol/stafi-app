@@ -106,7 +106,7 @@ export const TrustValidatorDepositForm = () => {
                 );
               }
               if (validatorKey.amount !== 1000000000) {
-                throw new Error("Please use trust validator file to deposit");
+                throw new Error("Please use trusted validator file to deposit");
               }
               if (
                 validatorKey.withdrawal_credentials !==
@@ -165,7 +165,7 @@ export const TrustValidatorDepositForm = () => {
               handleEthDeposit(
                 account,
                 validatorKeys,
-                "trust",
+                "trusted",
                 (success, result) => {
                   updateEthBalance();
 
@@ -181,7 +181,7 @@ export const TrustValidatorDepositForm = () => {
                         pathname: "/reth/check-file",
                         query: {
                           pubkeys,
-                          type: "trust",
+                          type: "trusted",
                           txHash: result.transactionHash,
                         },
                       },

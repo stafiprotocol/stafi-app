@@ -20,7 +20,7 @@ import styles from "../../../styles/reth/ChooseValidator.module.scss";
 export const ChooseValidatorType = () => {
   const router = useRouter();
   const [selectedType, setSelectedType] = useState<
-    "solo" | "trust" | undefined
+    "solo" | "trusted" | undefined
   >();
   const { useAccount, useChainId } = hooks;
   const account = useAccount();
@@ -82,11 +82,11 @@ export const ChooseValidatorType = () => {
           className={classNames(
             "ml-[.55rem]",
             styles["validator-type-container"],
-            selectedType === "trust"
+            selectedType === "trusted"
               ? styles["validator-type-container-selected"]
               : ""
           )}
-          onClick={() => setSelectedType("trust")}
+          onClick={() => setSelectedType("trusted")}
         >
           <div className="w-[1.59rem] h-[.91rem] absolute right-[-1.5px] top-[-1px]">
             <Image src={permissioned} layout="fill" alt="permissioned" />
@@ -95,7 +95,7 @@ export const ChooseValidatorType = () => {
           <div className="w-[.44rem] h-[.44rem] mt-[.48rem] relative">
             <Image
               src={
-                selectedType === "trust"
+                selectedType === "trusted"
                   ? validatorSelected
                   : validatorUnselected
               }
@@ -119,7 +119,7 @@ export const ChooseValidatorType = () => {
         disabled={
           !(
             !account ||
-            (selectedType === "trust" && !isTrust) ||
+            (selectedType === "trusted" && !isTrust) ||
             !!selectedType
           )
         }
@@ -129,11 +129,11 @@ export const ChooseValidatorType = () => {
             connectMetaMask(metaMask);
             return;
           }
-          if (selectedType === "trust" && !isTrust) {
+          if (selectedType === "trusted" && !isTrust) {
             openLink("https://www.google.com");
             return;
           }
-          if (selectedType === "trust") {
+          if (selectedType === "trusted") {
             router.push("/reth/trust-validator-deposit");
           } else {
             router.push("/reth/solo-validator-deposit");
@@ -142,8 +142,8 @@ export const ChooseValidatorType = () => {
       >
         {!account
           ? "Connect Wallet"
-          : selectedType === "trust" && !isTrust
-          ? "Apply for trust validator"
+          : selectedType === "trusted" && !isTrust
+          ? "Apply for trusted validator"
           : "Next Step"}
       </Button>
     </div>

@@ -12,7 +12,7 @@ import { useAppSelector } from "./common";
 import { useAppSlice } from "./selector";
 
 export interface EthDepositItem {
-  type: "solo" | "trust";
+  type: "solo" | "trusted";
   index: number;
   pubkey: string;
   status: string;
@@ -109,7 +109,7 @@ export function useEthStakeList() {
         }
 
         resList.push({
-          type: "trust",
+          type: "trusted",
           index,
           pubkey,
           status,

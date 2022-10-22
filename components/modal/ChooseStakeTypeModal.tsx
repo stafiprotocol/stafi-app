@@ -43,7 +43,7 @@ export const ChooseStakeTypeModal = (props: ChooseStakeTypeModalProps) => {
 
         <div className="mt-[.5rem]">
           <Button onClick={props.onConfirm} fontSize="0.24rem">
-            Stake trust deposits({props.trustDepositNumber})
+            Stake trusted deposits({props.trustDepositNumber})
           </Button>
         </div>
 

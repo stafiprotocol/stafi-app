@@ -9,7 +9,7 @@ export const TrustDepositLeftExplanation = () => {
   const [page, setPage] = useState(1);
 
   const text =
-    "As the trust validator, there is no need for the ETH deposit, while you should deposit 1 json file here that includes all the pubkeys needed. Click [learn more] for the detailed deposit file generating instructions.";
+    "As the trusted validator, there is no need for the ETH deposit, while you should deposit 1 json file here that includes all the pubkeys needed. Click [learn more] for the detailed deposit file generating instructions.";
 
   return (
     <div className={classNames(styles["left-container"], "flex flex-col")}>

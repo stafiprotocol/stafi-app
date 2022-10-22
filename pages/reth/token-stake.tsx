@@ -56,7 +56,7 @@ const TokenStake = (props: any) => {
     const newList = depositList.sort((a, b) => {
       if (a.status === "2" && b.status !== "2") {
         return -1;
-      } else if (a.type === "trust" && b.type !== "trust") {
+      } else if (a.type === "trusted" && b.type !== "trusted") {
         return -1;
       }
       return 0;
@@ -81,7 +81,7 @@ const TokenStake = (props: any) => {
 
   const trustDepositNumber = useMemo(() => {
     const trustStakableList = stakableList.filter(
-      (item) => item.type === "trust" && item.status !== "3"
+      (item) => item.type === "trusted" && item.status !== "3"
     );
     return Math.min(
       trustStakableList.length,
@@ -96,7 +96,7 @@ const TokenStake = (props: any) => {
     let length = 0;
     let remainingEth = unmatchedEth;
     list.forEach((item) => {
-      if (item.type === "trust") {
+      if (item.type === "trusted") {
         if (item.status === "2" && Number(remainingEth) > 31) {
           length++;
           remainingEth = Number(unmatchedEth) - 31 + "";
@@ -146,7 +146,7 @@ const TokenStake = (props: any) => {
           </div>
         )}
 
-        {loading && (
+        {loading && displayList.length === 0 && (
           <div className="flex justify-center absolute left-0 right-0 top-[.8rem]">
             <PrimaryLoading size="1rem" />
           </div>
@@ -157,7 +157,7 @@ const TokenStake = (props: any) => {
             key={depositItem.type + depositItem.index}
             depositItem={depositItem}
             hasEnoughEth={
-              depositItem.type === "trust"
+              depositItem.type === "trusted"
                 ? Number(unmatchedEth) >= 31
                 : Number(unmatchedEth) >= 28
             }
@@ -175,7 +175,7 @@ const TokenStake = (props: any) => {
           disabled={stakableLength <= 0}
           onClick={() => {
             const trustList = stakableList.filter(
-              (item) => item.type === "trust"
+              (item) => item.type === "trusted"
             );
             const soloList = stakableList.filter(
               (item) => item.type === "solo"
@@ -192,7 +192,7 @@ const TokenStake = (props: any) => {
                 pathname: "/reth/stake",
                 query: {
                   pubkeys: pubkeys,
-                  depositType: trustList.length > 0 ? "trust" : "solo",
+                  depositType: trustList.length > 0 ? "trusted" : "solo",
                 },
               },
               "/reth/stake"
@@ -212,7 +212,7 @@ const TokenStake = (props: any) => {
         onConfirm={() => {
           setChooseStakeTypeModalVisible(false);
           const trustList = stakableList.filter(
-            (item) => item.type === "trust"
+            (item) => item.type === "trusted"
           );
           const pubkeys = trustList
             .slice(0, trustDepositNumber)
@@ -220,7 +220,7 @@ const TokenStake = (props: any) => {
           router.push(
             {
               pathname: "/reth/stake",
-              query: { pubkeys: pubkeys, depositType: "trust" },
+              query: { pubkeys: pubkeys, depositType: "trusted" },
             },
             "/reth/stake"
           );

@@ -44,7 +44,7 @@ export const StakeForm = () => {
     if (
       !pubkeys ||
       (Array.isArray(pubkeys) && pubkeys.length === 0) ||
-      (depositType !== "solo" && depositType !== "trust")
+      (depositType !== "solo" && depositType !== "trusted")
     ) {
       router.push("/reth/token-stake");
     }
@@ -85,8 +85,11 @@ export const StakeForm = () => {
           ) {
             throw new Error("Miss deposit_data_root or signature or pubkey");
           }
-          if (depositType === "trust" && validatorKey.amount !== 31000000000) {
-            throw new Error("Please use trust validator file to stake");
+          if (
+            depositType === "trusted" &&
+            validatorKey.amount !== 31000000000
+          ) {
+            throw new Error("Please use trusted validator file to stake");
           } else if (
             depositType === "solo" &&
             validatorKey.amount !== 28000000000
@@ -229,7 +232,7 @@ export const StakeForm = () => {
               return;
             }
             if (
-              depositType === "trust" &&
+              depositType === "trusted" &&
               Number(unmatchedEth) < validatorKeys.length * 31
             ) {
               snackbarUtil.error("Insufficient ETH in pool");
@@ -240,7 +243,7 @@ export const StakeForm = () => {
               handleEthStake(
                 account,
                 validatorKeys,
-                depositType as "solo" | "trust",
+                depositType as "solo" | "trusted",
                 (success, result) => {
                   updateEthBalance();
                   if (success) {

@@ -16,7 +16,7 @@ import Web3 from "web3";
 import { addNotice, setUnreadNoticeFlag } from "./AppSlice";
 
 interface EthStakeParams {
-  type: "solo" | "trust";
+  type: "solo" | "trusted";
   pubkeys: string[];
   txHash: string;
   status: "staking" | "staked" | "waiting" | "active" | "exit" | "error";
@@ -91,7 +91,7 @@ export const handleEthDeposit =
   (
     address: string,
     validatorKeys: any[],
-    type: "solo" | "trust",
+    type: "solo" | "trusted",
     callback?: (success: boolean, result: any) => void
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -162,14 +162,14 @@ export const handleEthDeposit =
           .getSuperNodeExists(address)
           .call();
         if (!exist) {
-          throw Error("Invalid trust node");
+          throw Error("Invalid trusted node");
         }
 
         const depositEnabled = await contract.methods
           .getSuperNodeDepositEnabled()
           .call();
         if (!depositEnabled) {
-          throw Error("Trust node deposits are currently disabled");
+          throw Error("Trusted node deposits are currently disabled");
         }
 
         const statusRequests = pubkeys.map((pubkey) => {
@@ -244,7 +244,7 @@ export const handleEthStake =
   (
     address: string,
     validatorKeys: any[],
-    type: "solo" | "trust",
+    type: "solo" | "trusted",
     callback?: (success: boolean, result: any) => void
   ): AppThunk =>
   async (dispatch, getState) => {

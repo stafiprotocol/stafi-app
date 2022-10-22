@@ -10,10 +10,3 @@ export function getApiHost() {
   }
   return "https://drop-api.stafi.io";
 }
-
-export function getrTokenApiHost() {
-  if (isDev()) {
-    return "https://rtoken-api.stafi.io";
-  }
-  return "https://rtoken-api.stafi.io";
-}
