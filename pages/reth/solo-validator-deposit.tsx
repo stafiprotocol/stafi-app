@@ -36,6 +36,7 @@ import { handleEthDeposit } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { openLink } from "utils/common";
 import { formatNumber } from "utils/number";
+import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask, createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
@@ -57,6 +58,7 @@ const SoloValidatorDeposit = () => {
   const [stakeFee, setStakeFee] = useState("--");
   const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
     useState(false);
+  const [showInsufficientFunds, setShowInsufficientFunds] = useState(false);
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -96,6 +98,7 @@ const SoloValidatorDeposit = () => {
       validatorKeys.length === 0 ||
       isNaN(Number(gasPrice))
     ) {
+      setShowInsufficientFunds(false);
       return;
     }
     const ethContractConfig = getStafiEthContractConfig();
@@ -139,7 +142,22 @@ const SoloValidatorDeposit = () => {
       setStakeFee(
         Web3.utils.fromWei(216485 + 61060 * validatorKeys.length + "", "gwei")
       );
-    } catch {}
+    } catch (err: unknown) {
+      if ((err as Error).message.startsWith("err: insufficient funds for")) {
+        setShowInsufficientFunds(true);
+        setDepositFee(
+          Web3.utils.fromWei(
+            125895 + 155965 * validatorKeys.length + "",
+            "gwei"
+          )
+        );
+        setStakeFee(
+          Web3.utils.fromWei(216485 + 61060 * validatorKeys.length + "", "gwei")
+        );
+      } else {
+        snackbarUtil.error((err as Error).message);
+      }
+    }
   }, [validatorKeys, account, gasPrice]);
 
   useEffect(() => {
@@ -167,7 +185,9 @@ const SoloValidatorDeposit = () => {
                 <div
                   className="ml-[.34rem] flex items-center cursor-pointer"
                   onClick={() => {
-                    openLink("https://www.google.com");
+                    openLink(
+                      "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide#2.-use-deposit-cli-to-generate-a-key-file"
+                    );
                   }}
                 >
                   <div className=" text-text2 text-[.24rem]">Instruction</div>
@@ -270,19 +290,6 @@ const SoloValidatorDeposit = () => {
                     </div>
                   </ValidatorKeyUpload>
                 )}
-              </div>
-
-              <div className="mt-[.32rem] mb-[.3rem] text-[.24rem] text-text1">
-                Please follow the
-                <a
-                  className="text-link underline mx-[.06rem]"
-                  href="https://www.google.com"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  instruction
-                </a>
-                and combine public keys into single file.
               </div>
             </div>
           </CollapseCard>
@@ -389,7 +396,11 @@ const SoloValidatorDeposit = () => {
           </div>
 
           <Button
-            disabled={(!!account && validatorKeys.length === 0) || ethTxLoading}
+            disabled={
+              (!!account && validatorKeys.length === 0) ||
+              ethTxLoading ||
+              showInsufficientFunds
+            }
             mt=".32rem"
             height="1.3rem"
             onClick={() => {
@@ -435,6 +446,8 @@ const SoloValidatorDeposit = () => {
               ? "Please Upload 1 json file"
               : ethTxLoading
               ? "Depositing, please wait for a moment..."
+              : showInsufficientFunds
+              ? "Insufficient Funds"
               : "Deposit"}
           </Button>
         </div>

@@ -5,6 +5,7 @@ import leftArrowIcon from "public/icon_arrow_left.png";
 import rectangle from "public/rectangle1.svg";
 import rTokenImage from "public/rToken.svg";
 import React, { useEffect } from "react";
+import { openLink } from "utils/common";
 // import styles from "../styles/rTokenPage.module.scss";
 
 const RTokenPage = () => {
@@ -37,7 +38,12 @@ const RTokenPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center self-end mr-[.56rem] mb-[.65rem] cursor-pointer">
+        <div
+          className="flex items-center self-end mr-[.56rem] mb-[.65rem] cursor-pointer"
+          onClick={() => {
+            openLink("https://docs.stafi.io/stafi-whitepaper/rtoken-paper");
+          }}
+        >
           <div className="text-primary text-[.24rem] mr-[.18rem]">
             Learn More
           </div>

@@ -15,10 +15,10 @@ export const RunNodesLeftExplanation = () => {
       <div>
         Please upload the deposit_data-*.json file, then click the
         &quot;Stake&quot; button. As for the deposit_data-*.json file generation
-        you can refer the folllowing{" "}
+        you can refer the{" "}
         <a
           className="text-link underline"
-          href="https://www.google.com"
+          href="https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide#2.-use-deposit-cli-to-generate-a-key-file"
           target="_blank"
           rel="noreferrer"
         >
@@ -27,7 +27,20 @@ export const RunNodesLeftExplanation = () => {
         .
       </div>
     ) : (
-      ""
+      <div>
+        Please upload the stake_data-*.json file if your deposit progress is
+        successful, then click the &quot;Stake&quot; button. As for the
+        stake_data-*.json file generation you can refer the{" "}
+        <a
+          className="text-link underline"
+          href="https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide#2.-use-deposit-cli-to-generate-a-key-file"
+          target="_blank"
+          rel="noreferrer"
+        >
+          instruction
+        </a>
+        .
+      </div>
     );
 
   return (
@@ -46,8 +59,8 @@ export const RunNodesLeftExplanation = () => {
             {page === 1
               ? "Please Notice"
               : page === 2
-              ? "Deposit_data-*.json file"
-              : "Status"}
+              ? "deposit_data-*.json file"
+              : "stake_data-*.json file"}
           </div>
         </div>
 
@@ -56,12 +69,12 @@ export const RunNodesLeftExplanation = () => {
         </div>
 
         <div className="ml-[-.1rem]">
-          <CustomPagination totalCount={20} page={page} onChange={setPage} />
+          <CustomPagination totalCount={30} page={page} onChange={setPage} />
         </div>
 
         <div className="mt-[1rem] text-white text-[.22rem] opacity-40 underline">
           <a
-            href="https://docs.stafi.io/stafi-chain/network/participants/validator-sv/run-a-node?q=nodes"
+            href="https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide"
             target="_blank"
             rel="noreferrer"
           >

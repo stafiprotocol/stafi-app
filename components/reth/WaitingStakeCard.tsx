@@ -16,6 +16,7 @@ import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
 import { useState } from "react";
 import { MyTooltip } from "components/MyTooltip";
 import styles from "../../styles/reth/WaitingStakeCard.module.scss";
+import { openLink } from "utils/common";
 
 interface WaitingStakeCardProps {
   depositItem: EthDepositItem;
@@ -54,18 +55,18 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       return "32 ETH may be matched or not, please click the stake button to confirm and stake";
     }
     if (status === "3" || status === "8" || status === "20") {
-      return "32 ETH is successfully staked, deposit now is in the validating process";
+      return "32 ETH is waiting to be staked in Ethereum, please wait for a moment";
     }
     if (status === "4") {
-      return "Check file failed";
+      return "Your deposit/stake was failed because of the invalid file";
     }
     if (status === "9") {
-      return "Active";
+      return "Your node is active now";
     }
     if (status === "10") {
       return "Exited";
     }
-    return "32 ETH is waiting to be staked in Ethereum, please wait for a moment";
+    return "32 ETH is waiting to be matched, please wait for a moment";
   };
 
   const getStatusText = (status: string) => {
@@ -126,11 +127,11 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       </div>
 
       <div className="mt-[.24rem] flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="mr-[.06rem] text-text2 text-[.16rem]">
-            Stake Amount
-          </div>
-          <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
+        <div className="flex items-center text-text2 text-[.16rem]">
+          <MyTooltip
+            text="Stake Amount"
+            title="The combination of your ETH stake amount and user delegated "
+          />
         </div>
 
         <div className="text-text1 text-[.16rem]">
@@ -141,9 +142,8 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       <div
         className={classNames("mt-[.24rem] flex items-center justify-between")}
       >
-        <div className="flex items-center">
-          <div className="mr-[.06rem] text-text2 text-[.16rem]">Pubkey</div>
-          <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
+        <div className="flex items-center text-text2 text-[.16rem]">
+          <MyTooltip text="Pubkey" title="Your validator public key address" />
         </div>
 
         <div className="text-text1 text-[.16rem]">
@@ -192,9 +192,8 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
           router.push(`/reth/my-data`);
         }}
       >
-        <div className="flex items-center">
-          <div className="mr-[.06rem] text-text2 text-[.16rem]">Node Addr</div>
-          <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
+        <div className="flex items-center text-text2 text-[.16rem]">
+          <MyTooltip title="Your Ethereum account" text="Node Addr" />
         </div>
 
         <div className="ml-[.12rem] flex items-center cursor-pointer">
@@ -209,7 +208,16 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       <div className="mt-[.24rem] flex items-center justify-between">
         <div className="flex items-center">
           <div className="mr-[.06rem] text-text2 text-[.16rem]">Status</div>
-          <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
+          <div
+            className="cursor-pointer"
+            onClick={() =>
+              openLink(
+                "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide"
+              )
+            }
+          >
+            <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
+          </div>
         </div>
 
         <div className="text-text1 text-[.16rem]">

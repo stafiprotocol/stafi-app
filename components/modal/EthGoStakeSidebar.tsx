@@ -18,7 +18,7 @@ export const EthGoStakeSidebar = () => {
         backdropFilter: "blur(.13rem)",
       }}
       onClick={() => {
-        openLink("https://www.google.com");
+        openLink("https://app.stafi.io/rETH/staker/index");
       }}
     >
       <div className={classNames("ml-[.16rem] relative w-[.33rem] h-[.28rem]")}>

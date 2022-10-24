@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getEthPubkeyStatusText } from "utils/eth";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
+import { openLink } from "utils/common";
 import styles from "../../../styles/reth/MyData.module.scss";
 
 interface PublicKeyListProps {}
@@ -112,21 +113,29 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
 
       <div className="mt-[.56rem] min-h-[2rem]">
         {totalCount > 0 && (
-          <div className="flex">
-            <div className="flex justify-center flex-grow-[2]">
+          <div className={styles["public-key-item"]} style={{ height: "auto" }}>
+            <div className="flex justify-center">
               <section className="flex-1 flex justify-center items-center">
                 <div className="mr-[.07rem] text-[.2rem] text-text2">
-                  Public Key
+                  Validator Public Key
                 </div>
-                <Icomoon icon="question" size="0.16rem" color="#5B6872" />
               </section>
             </div>
-            <div className="flex justify-center flex-grow-[1]">
+            <div className="flex justify-center">
               <section className="flex-1 flex justify-center items-center">
                 <div className="mr-[.07rem] text-[.2rem] text-text2">
                   Status
                 </div>
-                <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+                <div
+                  className="cursor-pointer"
+                  onClick={() =>
+                    openLink(
+                      "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-faq#8.what-are-the-reasons-for-staking-failure "
+                    )
+                  }
+                >
+                  <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+                </div>
               </section>
             </div>
           </div>
@@ -141,7 +150,7 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
                 : styles["public-key-item-even"]
             }
           >
-            <div className="flex justify-center flex-grow-[2]">
+            <div className="flex justify-center">
               <section className="flex-1 flex justify-center items-center">
                 <div
                   className="cursor-pointer"
@@ -160,22 +169,20 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
               </section>
             </div>
 
-            <div className="flex justify-center flex-grow-[1]">
-              <section
-                className="flex-1 flex justify-center items-center cursor-pointer"
-                onClick={() => {
-                  setDisplayPubkey(item.pubkey);
-                  setPubkeyDetailModalVisible(true);
-                }}
-              >
+            <div className="flex justify-center">
+              <section className="flex-1 flex justify-center items-center ">
                 <div
                   className={classNames(
-                    "mr-[.07rem] text-[.2rem]",
+                    "mr-[.07rem] text-[.2rem] cursor-pointer",
                     getEthPubkeyStatusText(item.status + "") === "Failed" ||
                       getEthPubkeyStatusText(item.status + "") === "Unmatched"
                       ? "text-error"
                       : "text-primary"
                   )}
+                  onClick={() => {
+                    setDisplayPubkey(item.pubkey);
+                    setPubkeyDetailModalVisible(true);
+                  }}
                 >
                   {getEthPubkeyStatusText(item.status + "")}
                 </div>

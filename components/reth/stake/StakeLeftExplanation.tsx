@@ -18,7 +18,7 @@ export const StakeLeftExplanation = () => {
         you can refer the folllowing{" "}
         <a
           className="text-link underline"
-          href="https://www.google.com"
+          href="https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide"
           target="_blank"
           rel="noreferrer"
         >
@@ -60,7 +60,11 @@ export const StakeLeftExplanation = () => {
         </div>
 
         <div className="mt-[1rem] text-white text-[.22rem] opacity-40 underline">
-          <a href="https://www.google.com" target="_blank" rel="noreferrer">
+          <a
+            href="https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide"
+            target="_blank"
+            rel="noreferrer"
+          >
             Learn More
           </a>
         </div>

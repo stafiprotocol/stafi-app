@@ -73,7 +73,11 @@ export const EthRunNodesModal = (props: EthRunNodesModalProps) => {
                   <Button
                     height="0.64rem"
                     fontSize="0.24rem"
-                    onClick={() => openLink("https://www.google.com")}
+                    onClick={() =>
+                      openLink(
+                        "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide#3.join-eth2-mainnet-by-running-prysm"
+                      )
+                    }
                   >
                     Instruction
                   </Button>

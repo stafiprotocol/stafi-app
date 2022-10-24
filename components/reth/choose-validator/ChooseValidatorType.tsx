@@ -35,7 +35,14 @@ export const ChooseValidatorType = () => {
       </div>
 
       <div className="mt-[.3rem] inline-flex items-center cursor-pointer">
-        <div className="text-link text-[.24rem]">Comparison</div>
+        <div
+          className="text-link text-[.24rem]"
+          onClick={() =>
+            openLink("https://docs.stafi.io/rtoken-app/reth-solution#532d")
+          }
+        >
+          Comparison
+        </div>
 
         <div className="ml-[.16rem] w-[.27rem] h-[.18rem] relative rotate-180">
           <Image src={leftArrowIcon} layout="fill" alt="back" />

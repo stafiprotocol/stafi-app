@@ -313,8 +313,10 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
 
                 <div className="flex-1 flex flex-col items-center">
                   <div className="text-text2 text-[.24rem] flex items-center">
-                    <div className="mr-[.08rem]">Effective Balance</div>
-                    <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+                    <MyTooltip
+                      title="The effective balance is used to calculate the size of rewards and penalties given to that validator"
+                      text="Effective Balance"
+                    />
                   </div>
 
                   <div className="mt-[.23rem] text-primary text-[.32rem]">
@@ -442,8 +444,10 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                     </div>
 
                     <div className="mt-[.4rem] text-text2 text-[.24rem] flex items-center">
-                      <div className="mr-[.08rem]">Income in last 24hr</div>
-                      <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+                      <MyTooltip
+                        title="Estimated validator total income in last 24 hours"
+                        text="Income in last 24hr"
+                      />
                     </div>
 
                     <div className="flex items-center mt-[.23rem]">

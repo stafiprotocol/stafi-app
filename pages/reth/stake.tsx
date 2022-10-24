@@ -1,6 +1,7 @@
 import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
 import { RethStakeLayout } from "components/layout_reth_stake";
+import { RunNodesLeftExplanation } from "components/reth/RunNodesLeftExplanation";
 import { StakeForm } from "components/reth/stake/StakeForm";
 import { StakeLeftExplanation } from "components/reth/stake/StakeLeftExplanation";
 import Image from "next/image";
@@ -25,7 +26,7 @@ const EthStake = () => {
     <div>
       <Card>
         <div className="flex h-[10.13rem] items-stretch">
-          <StakeLeftExplanation />
+          <RunNodesLeftExplanation />
 
           <StakeForm />
         </div>

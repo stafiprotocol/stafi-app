@@ -13,7 +13,7 @@ export const StakingLeftExplanation = () => {
       After Staking, please join in the ETH2 mainnet network, kindly read{" "}
       <a
         className="text-link underline"
-        href="https://www.google.com"
+        href="https://docs.prylabs.network/docs/install/install-with-script"
         target="_blank"
         rel="noreferrer"
       >
@@ -53,8 +53,12 @@ export const StakingLeftExplanation = () => {
         </div>
 
         <div className="mt-[1rem] text-white text-[.22rem] opacity-40 underline">
-          <a href="https://www.google.com" target="_blank" rel="noreferrer">
-            Learn More
+          <a
+            href="https://discord.com/invite/jB77etn"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Go for community help
           </a>
         </div>
       </div>

@@ -34,7 +34,9 @@ export const MyRewardList = (props: MyRewardListProps) => {
         <div
           className="text-text2 text-[.24rem] ml-[.16rem] cursor-pointer"
           onClick={() => {
-            openLink("https://docs.stafi.io/rtoken-app/reth-solution/faq");
+            openLink(
+              "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-faq#1.ov-commission-and-reward-related-reth"
+            );
           }}
         >
           <Icomoon icon="question" size="0.16rem" color="#5B6872" />
@@ -73,7 +75,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
             <section className="flex-1 flex justify-center items-center text-text2 text-[.2rem]">
               <MyTooltip
                 text="Total-staked ETH"
-                title="Total staked ETH value includes validator own stakes"
+                title="The amount of validators staked ETH and stakers staked ETH"
               />
             </section>
           </div>
@@ -81,7 +83,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
             <section className="flex-1 flex justify-center items-center text-text2 text-[.2rem]">
               <MyTooltip
                 text="Self-staked ETH"
-                title="Self-staked ETH stands for the ETH validators themselves staked."
+                title="The amount of validators staked ETH"
               />
             </section>
           </div>
@@ -94,7 +96,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
             <section className="flex-1 flex justify-center items-center text-[.2rem] text-text2">
               <MyTooltip
                 text="Total-staked Reward"
-                title="Total staked rewards includes validator own stakes, counted in ETH"
+                title="The reward that includes validators staked ETH and stakers staked ETH"
               />
             </section>
           </div>
@@ -102,7 +104,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
             <section className="flex-1 flex justify-center items-center text-[.2rem] text-text2">
               <MyTooltip
                 text="Self-staked Reward"
-                title="Self-staked reward stands for the ETH validators themselves staked"
+                title="The reward that includes validators staked ETH only"
               />
             </section>
           </div>

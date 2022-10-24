@@ -28,7 +28,7 @@ export const MyTooltip = (props: MyTooltipProps) => {
       }}
     >
       <div className="flex items-center cursor-default">
-        <div className="mr-[.1rem]">{props.text}</div>
+        <div className="mr-[.08rem]">{props.text}</div>
 
         <Icomoon
           icon="question"
