@@ -9,7 +9,7 @@ import { PrimaryLoading } from "components/PrimaryLoading";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthStakeList } from "hooks/useEthStakeList";
 import { cloneDeep } from "lodash";
-import { GetStaticProps } from "next";
+import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
@@ -238,7 +238,7 @@ TokenStake.getLayout = (page: ReactElement) => {
   );
 };
 
-// export const getStaticProps: GetStaticProps = async (context) => {
+// export const getServerSideProps: GetServerSideProps = async (context) => {
 //   return {
 //     props: {
 //       navigations: [{ name: "rToken List", path: "/rtoken" }],

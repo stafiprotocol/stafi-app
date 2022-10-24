@@ -6,11 +6,29 @@ import { Button } from "components/button";
 import { useRouter } from "next/router";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { formatNumber } from "utils/number";
+import { hooks, metaMask } from "connectors/metaMask";
+import { connectMetaMask } from "utils/web3Utils";
+import { useEthMyData } from "hooks/useEthMyData";
 // import styles from "../../styles/rTokenPage.module.scss";
 
 export const RTokenOverviewCard = () => {
+  const { useAccount: useMetaMaskAccount } = hooks;
+  const account = useMetaMaskAccount();
   const router = useRouter();
   const { validatorApr, allEth, allEthValue } = useEthPoolData();
+  const { totalCount } = useEthMyData();
+
+  const clickStake = () => {
+    if (!account) {
+      connectMetaMask();
+      return;
+    }
+    if (!totalCount) {
+      router.push("/reth/choose-validator");
+    } else {
+      router.push("/reth/token-stake");
+    }
+  };
 
   return (
     <div
@@ -73,9 +91,7 @@ export const RTokenOverviewCard = () => {
         mt="0.5rem"
         height="0.65rem"
         fontSize="0.24rem"
-        onClick={() => {
-          router.push("/reth/token-stake");
-        }}
+        onClick={clickStake}
       >
         Stake
       </Button>

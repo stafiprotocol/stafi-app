@@ -152,7 +152,7 @@ export const TrustValidatorDepositForm = () => {
           height="1.3rem"
           onClick={() => {
             if (!account || chainId !== getMetamaskChainId()) {
-              connectMetaMask(metaMask);
+              connectMetaMask();
               return;
             }
 

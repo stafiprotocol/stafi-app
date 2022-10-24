@@ -14,6 +14,7 @@ export function useEthMyData() {
     RequestStatus.loading
   );
 
+  const [totalCount, setTotalCount] = useState(0);
   const [selfDepositedEth, setSelfDepositedEth] = useState("");
   const [selfDepositedEthValue, setSelfDepositedEthValue] = useState("");
   const [totalManagedEth, setTotalManagedEth] = useState("");
@@ -53,6 +54,7 @@ export function useEthMyData() {
           resJson.data.totalManagedEth
         );
 
+        setTotalCount(resJson.data.totalCount);
         setSelfDepositedEth(selfDepositedEth);
         setSelfDepositedEthValue(
           Number(selfDepositedEth) * Number(resJson.data.ethPrice) + ""
@@ -79,6 +81,7 @@ export function useEthMyData() {
 
   return {
     requestStatus,
+    totalCount,
     selfDepositedEth,
     selfDepositedEthValue,
     selfRewardEth,

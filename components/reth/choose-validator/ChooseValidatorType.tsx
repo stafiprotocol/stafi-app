@@ -126,7 +126,7 @@ export const ChooseValidatorType = () => {
         mt=".76rem"
         onClick={() => {
           if (!account || chainId !== getMetamaskChainId()) {
-            connectMetaMask(metaMask);
+            connectMetaMask();
             return;
           }
           if (selectedType === "trusted" && !isTrust) {

@@ -63,7 +63,7 @@ export const Navbar = () => {
 
   const clickAccountLeftArea = () => {
     if (showWrongNetwork) {
-      connectMetaMask(metaMask);
+      connectMetaMask();
     }
   };
 
@@ -141,7 +141,7 @@ export const Navbar = () => {
             <div
               className={styles["connect-wallet-container"]}
               onClick={() => {
-                connectMetaMask(metaMask);
+                connectMetaMask();
               }}
             >
               <div>Connect Wallet</div>

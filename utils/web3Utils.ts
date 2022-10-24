@@ -1,6 +1,5 @@
-import { MetaMask } from "@web3-react/metamask";
-import { isDev } from "config/env";
-import { getMetamaskChainId, getMetaMaskConnectConfig } from "config/eth";
+import { getMetaMaskConnectConfig } from "config/eth";
+import { metaMask } from "connectors/metaMask";
 import Web3 from "web3";
 
 export function createWeb3() {
@@ -8,6 +7,6 @@ export function createWeb3() {
   return web3;
 }
 
-export function connectMetaMask(metaMask: MetaMask) {
+export function connectMetaMask() {
   metaMask.activate(getMetaMaskConnectConfig());
 }

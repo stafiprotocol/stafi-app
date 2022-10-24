@@ -221,7 +221,7 @@ export const StakeForm = () => {
           height="1.3rem"
           onClick={() => {
             if (!account || chainId !== getMetamaskChainId()) {
-              connectMetaMask(metaMask);
+              connectMetaMask();
               return;
             }
             if (
