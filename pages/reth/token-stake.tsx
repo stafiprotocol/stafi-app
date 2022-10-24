@@ -66,10 +66,14 @@ const TokenStake = (props: any) => {
       newList.filter((item) => {
         return (
           (tab === "unmatched" && item.status === "2") ||
-          (tab === "staked" && (item.status === "3" || item.status === "9")) ||
+          (tab === "staked" &&
+            (item.status === "3" ||
+              item.status === "8" ||
+              item.status === "9")) ||
           (tab === "others" &&
             item.status !== "2" &&
             item.status !== "3" &&
+            item.status !== "8" &&
             item.status !== "9")
         );
       }),

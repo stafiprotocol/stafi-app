@@ -138,6 +138,8 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                 ? "error"
                 : Number(newStatus) < 3
                 ? "staking"
+                : Number(newStatus) === 3
+                ? "active"
                 : Number(newStatus) < 8
                 ? "staked"
                 : Number(newStatus) === 8
@@ -349,14 +351,11 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                     <div
                       className={classNames(
                         "ml-[.32rem] mt-[.14rem] text-active text-[.16rem]",
-                        ethStakeParams?.status === "staking"
-                          ? "text-text1"
-                          : "text-active"
+                        ethStakeParams?.txHash ? "" : "hidden"
                       )}
                     >
                       <div>Broadcasting...</div>
                       <div className="mt-[.08rem]">Packing...</div>
-                      <div className="mt-[.08rem]">Finalizing...</div>
                       <div className="mt-[.08rem]">
                         Check Tx{" "}
                         <a
@@ -373,10 +372,21 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
 
                   <div className={styles["detail-item"]}>
                     <div className="flex items-center">
-                      <div className={styles["detail-indicator-dot"]} />
+                      <div
+                        className={styles["detail-indicator-dot"]}
+                        style={{
+                          border:
+                            ethStakeParams?.status !== "staking"
+                              ? "solid 1px #0095eb"
+                              : "solid 1px #ffffff",
+                        }}
+                      />
                       <div
                         className={classNames(
-                          "text-active text-[.2rem] font-[700] ml-[.08rem]"
+                          "text-[.2rem] font-[700] ml-[.08rem]",
+                          ethStakeParams?.status !== "staking"
+                            ? "text-active"
+                            : "text-white"
                         )}
                       >
                         Wait
@@ -403,7 +413,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                     </div>
                   </div>
 
-                  <div className={styles["detail-item"]}>
+                  <div className={classNames(styles["detail-item"], "hidden")}>
                     <div className="flex items-center">
                       <div
                         className={styles["detail-indicator-dot"]}

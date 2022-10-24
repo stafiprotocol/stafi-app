@@ -276,6 +276,16 @@ export const handleEthStake =
       // console.log("signatures", signatures);
       // console.log("depositDataRoots", depositDataRoots);
 
+      dispatch(
+        setEthStakeParams({
+          pubkeys,
+          type,
+          status: "staking",
+          txHash: "",
+        })
+      );
+      dispatch(setEthStakeModalVisible(true));
+
       const result = await contract.methods
         .stake(pubkeys, signatures, depositDataRoots)
         .send();
@@ -291,7 +301,6 @@ export const handleEthStake =
           status: "staking",
         })
       );
-      dispatch(setEthStakeModalVisible(true));
       callback && callback(true, result);
 
       dispatch(
@@ -316,6 +325,8 @@ export const handleEthStake =
         snackbarUtil.error(err.message);
       } else if ((err as any).code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
+        dispatch(setEthStakeModalVisible(false));
+        dispatch(setEthStakeParams(undefined));
       } else {
         snackbarUtil.error((err as any).message);
       }

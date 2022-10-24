@@ -119,7 +119,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
               className={
                 Number(status) === 9
                   ? styles["active-status"]
-                  : Number(status) === 8 || Number(status) === 4
+                  : Number(status) === 4
                   ? styles["exit-status"]
                   : styles["pending-status"]
               }
@@ -128,7 +128,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                 icon={
                   Number(status) === 9
                     ? "active"
-                    : Number(status) === 8 || Number(status) === 4
+                    : Number(status) === 4
                     ? "exit"
                     : "pending"
                 }
@@ -214,7 +214,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                 <div className="flex flex-col items-center">
                   <div
                     className={classNames(
-                      Number(status) === 8 || Number(status) === 9
+                      Number(status) === 9
                         ? styles["status-dot-active"]
                         : styles["status-dot"]
                     )}
@@ -222,9 +222,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                   <div
                     className={classNames(
                       "text-[.24rem] mt-[.16rem]",
-                      Number(status) === 8 || Number(status) === 9
-                        ? "text-active"
-                        : "text-text2"
+                      Number(status) === 9 ? "text-active" : "text-text2"
                     )}
                   >
                     Active
@@ -238,7 +236,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                 <div className="flex flex-col items-center">
                   <div
                     className={classNames(
-                      Number(status) === 8
+                      Number(status) === 10
                         ? styles["status-dot-active"]
                         : styles["status-dot"]
                     )}
@@ -246,7 +244,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                   <div
                     className={classNames(
                       "text-[.24rem] mt-[.16rem]",
-                      Number(status) === 8 ? "text-active" : "text-text2"
+                      Number(status) === 10 ? "text-active" : "text-text2"
                     )}
                   >
                     Exit
