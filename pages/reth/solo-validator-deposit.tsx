@@ -171,7 +171,7 @@ const SoloValidatorDeposit = () => {
                   }}
                 >
                   <div className=" text-text2 text-[.24rem]">Instruction</div>
-                  <div className="ml-[.09rem]">
+                  <div className="ml-[.09rem] flex items-center">
                     <Icomoon icon="right" size="0.18rem" color={"#5B6872"} />
                   </div>
                 </div>

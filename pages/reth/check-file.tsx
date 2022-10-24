@@ -302,15 +302,15 @@ const CheckFile = () => {
                     </div>
 
                     {status === "loading" && (
-                      <div className="ml-[.26rem]">
+                      <span className="ml-[.26rem]">
                         <CircularLoading color="info" size=".24rem" />
-                      </div>
+                      </span>
                     )}
 
                     {status === "success" && (
-                      <div className="ml-[.26rem]">
+                      <span className="ml-[.26rem]">
                         <Icomoon icon="nike" size=".27rem" color="#0095EB" />
-                      </div>
+                      </span>
                     )}
                   </div>
 
