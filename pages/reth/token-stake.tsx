@@ -6,6 +6,8 @@ import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { PrimaryLoading } from "components/PrimaryLoading";
+import { hooks } from "connectors/metaMask";
+import { useEthMyData } from "hooks/useEthMyData";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthStakeList } from "hooks/useEthStakeList";
 import { cloneDeep } from "lodash";
@@ -18,6 +20,8 @@ import { TokenStakeTabs } from "../../components/reth/TokenStakeTabs";
 import { WaitingStakeCard } from "../../components/reth/WaitingStakeCard";
 
 const TokenStake = (props: any) => {
+  const { useAccount } = hooks;
+  const account = useAccount();
   const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
   const [tab, setTab] = useState<"unmatched" | "staked" | "others">(
@@ -28,10 +32,17 @@ const TokenStake = (props: any) => {
 
   const { depositList, loading } = useEthStakeList();
   const { unmatchedEth } = useEthPoolData();
+  const { totalCount } = useEthMyData();
+
+  useEffect(() => {
+    if (router.query.checkNewUser && totalCount <= 0) {
+      router.replace("/reth/choose-validator");
+    }
+  }, [totalCount, router]);
 
   useEffect(() => {
     setNavigation([
-      { name: "rToken List", path: "/rtoken" },
+      // { name: "rToken List", path: "/rtoken" },
       { name: "Token Stake" },
     ]);
   }, [setNavigation]);

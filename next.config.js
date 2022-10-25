@@ -9,22 +9,16 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // exportPathMap: async function (
-  //   defaultPathMap,
-  //   { dev, dir, outDir, distDir, buildId }
-  // ) {
-  //   return {
-  //     "/": { page: "/rtoken" },
-  //     "/rtoken": { page: "/rtoken" },
-  //     "/reth/check-file": { page: "/check-file" },
-  //     "/reth/token-stake": { page: "/rtoken" },
-  //   };
-  // },
   async redirects() {
     return [
       {
         source: "/",
-        destination: "/rtoken",
+        destination: "/reth/token-stake",
+        permanent: true,
+      },
+      {
+        source: "/rtoken",
+        destination: "/reth/token-stake",
         permanent: true,
       },
     ];

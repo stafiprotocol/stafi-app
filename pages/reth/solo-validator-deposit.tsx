@@ -68,7 +68,7 @@ const SoloValidatorDeposit = () => {
 
   useEffect(() => {
     setNavigation([
-      { name: "rToken List", path: "/rtoken" },
+      // { name: "rToken List", path: "/rtoken" },
       { name: "Token Stake", path: "/reth/token-stake" },
       { name: "New Deposit", path: "/reth/choose-validator" },
       { name: "Solo Validator Deposit" },

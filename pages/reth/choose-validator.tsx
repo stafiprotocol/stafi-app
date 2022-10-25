@@ -16,7 +16,7 @@ const ChooseValidator = () => {
 
   useEffect(() => {
     setNavigation([
-      { name: "rToken List", path: "/rtoken" },
+      // { name: "rToken List", path: "/rtoken" },
       { name: "Token Stake", path: "/reth/token-stake" },
       { name: "New Deposit" },
     ]);

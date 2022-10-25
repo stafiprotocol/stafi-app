@@ -27,7 +27,7 @@ const MyData = () => {
 
   useEffect(() => {
     setNavigation([
-      { name: "rToken List", path: "/rtoken" },
+      // { name: "rToken List", path: "/rtoken" },
       { name: "My Data" },
     ]);
   }, [setNavigation]);

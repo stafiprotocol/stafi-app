@@ -73,11 +73,11 @@ export const Navbar = () => {
         <div className="w-[.28rem] h-[.28rem] relative">
           <Image src={stafiLogo} alt="logo" layout="fill" />
         </div>
-        <Link href="/rtoken">
-          <div className={classNames(styles["rtoken-button"], "text-white")}>
-            rToken
-          </div>
-        </Link>
+        {/* <Link href="/rtoken"> */}
+        <div className={classNames(styles["rtoken-button"], "text-white")}>
+          rToken
+        </div>
+        {/* </Link> */}
       </div>
 
       <div className="flex items-center pr-[.85rem]">
