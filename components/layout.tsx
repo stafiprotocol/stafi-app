@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthStakeCheckInterval } from "hooks/useEthStakeCheckInterval";
 import { useInit } from "hooks/useInit";
 import { NavigationItem } from "interfaces";
+import Head from "next/head";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import {
@@ -28,7 +29,7 @@ export const MyLayoutContext = React.createContext<{
 }>({
   navigation: undefined,
   setNavigation: undefined,
-  updateEthBalance: () => {},
+  updateEthBalance: () => { },
 });
 
 export const Layout = (props: LayoutProps) => {
@@ -68,6 +69,11 @@ export const Layout = (props: LayoutProps) => {
       }}
     >
       <div className="">
+        <Head>
+          <title>StaFi rETH</title>
+          <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        </Head>
+
         <HideOnScroll>
           <AppBar position="fixed" color="darkBg">
             <Navbar />
