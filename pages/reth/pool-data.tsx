@@ -157,8 +157,10 @@ const PoolData = () => {
         <div className="mt-[.4rem] mb-[.23rem] flex">
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
-              <div className="mr-[.14rem]">Staker APR</div>
-              <Icomoon icon="question" size="0.16rem" color="#5B6872" />
+              <MyTooltip 
+              title='Annual Percentage Rate - Estimated yearly return based on the last 7 days'
+              text='Staker APR'
+              />
             </div>
 
             <div className="mt-[.23rem] text-primary text-[.32rem]">

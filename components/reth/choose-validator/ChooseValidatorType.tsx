@@ -137,7 +137,7 @@ export const ChooseValidatorType = () => {
             return;
           }
           if (selectedType === "trusted" && !isTrust) {
-            openLink("https://www.google.com");
+            openLink("https://forms.gle/W2E8kczfdnybKYL97");
             return;
           }
           if (selectedType === "trusted") {

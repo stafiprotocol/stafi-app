@@ -2,13 +2,11 @@ import { getApiHost } from "config/env";
 import {
   getStafiEthContractConfig,
   getStafiLightNodeAbi,
-  getStafiSuperNodeAbi,
+  getStafiSuperNodeAbi
 } from "config/eth";
 import { hooks } from "connectors/metaMask";
 import { useCallback, useEffect, useState } from "react";
-import { RootState } from "redux/store";
 import { createWeb3 } from "utils/web3Utils";
-import { useAppSelector } from "./common";
 import { useAppSlice } from "./selector";
 
 export interface EthDepositItem {
@@ -21,6 +19,7 @@ export interface EthDepositItem {
 export function useEthStakeList() {
   const { useAccount } = hooks;
   const account = useAccount();
+  const [firstLoading, setFirstLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [depositList, setDepositList] = useState<EthDepositItem[]>([]);
 
@@ -141,6 +140,7 @@ export function useEthStakeList() {
 
       setDepositList(resList);
       setLoading(false);
+      setFirstLoading(false);
     } catch (err: unknown) {
       setLoading(false);
       if (err instanceof Error) {
@@ -153,5 +153,5 @@ export function useEthStakeList() {
     updateEthStakeList();
   }, [updateEthStakeList]);
 
-  return { depositList, loading };
+  return { depositList, loading, firstLoading };
 }

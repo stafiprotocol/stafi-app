@@ -30,7 +30,7 @@ const TokenStake = (props: any) => {
   const [chooseStakeTypeModalVisible, setChooseStakeTypeModalVisible] =
     useState(false);
 
-  const { depositList, loading } = useEthStakeList();
+  const { depositList, loading, firstLoading } = useEthStakeList();
   const { unmatchedEth } = useEthPoolData();
   const { totalCount } = useEthMyData();
 
@@ -143,7 +143,7 @@ const TokenStake = (props: any) => {
       </div>
 
       <div className="mt-[.75rem] flex justify-start flex-wrap px-[1.6rem] min-h-[3rem] relative">
-        {!loading && displayList.length === 0 && (
+        {!firstLoading && displayList.length === 0 && (
           <div className="flex-1">
             <div className="flex flex-col items-center">
               <Link href="/reth/choose-validator">
@@ -161,7 +161,7 @@ const TokenStake = (props: any) => {
           </div>
         )}
 
-        {loading && displayList.length === 0 && (
+        {loading && firstLoading && displayList.length === 0 && (
           <div className="flex justify-center absolute left-0 right-0 top-[.8rem]">
             <PrimaryLoading size="1rem" />
           </div>
