@@ -111,10 +111,6 @@ const PoolData = () => {
             <div className="mt-[.23rem] text-white text-[.32rem]">
               {formatNumber(poolEth)}
             </div>
-
-            <div className="mt-[.16rem] text-text2 text-[.24rem]">
-              23 Contracts Now
-            </div>
           </div>
 
           <div className="flex-1 flex flex-col items-center">

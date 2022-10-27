@@ -143,7 +143,7 @@ const TokenStake = (props: any) => {
       </div>
 
       <div className="mt-[.75rem] flex justify-start flex-wrap px-[1.6rem] min-h-[3rem] relative">
-        {!firstLoading && displayList.length === 0 && (
+        {(!firstLoading || !account) && displayList.length === 0 && (
           <div className="flex-1">
             <div className="flex flex-col items-center">
               <Link href="/reth/choose-validator">
