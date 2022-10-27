@@ -1,6 +1,6 @@
-import styles from "../styles/Button.module.scss";
 import classNames from "classnames";
-import { CircularLoading } from "components/CircularLoading";
+import { CircularLoading } from "components/common/CircularLoading";
+import styles from "styles/Button.module.scss";
 
 type ButtonProps = React.PropsWithChildren<{
   disabled?: boolean;
@@ -46,8 +46,8 @@ export const Button = (props: ButtonProps) => {
                 ? "#5b6872"
                 : "#5b6872"
               : props.stroke
-              ? "#00f3ab"
-              : "#1a2835",
+                ? "#00f3ab"
+                : "#1a2835",
           }}
         >
           <CircularLoading color="inherit" size={props.fontSize || "0.32rem"} />

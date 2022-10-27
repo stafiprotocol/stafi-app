@@ -2,7 +2,7 @@ import classNames from "classnames";
 import Image from "next/image";
 import { useState } from "react";
 import rectangle from "public/rectangle1.svg";
-import { CustomPagination } from "../pagination";
+import { CustomPagination } from "../common/pagination";
 import styles from "../../styles/reth/ChooseValidator.module.scss";
 
 export const RunNodesLeftExplanation = () => {
@@ -59,8 +59,8 @@ export const RunNodesLeftExplanation = () => {
             {page === 1
               ? "Please Notice"
               : page === 2
-              ? "deposit_data-*.json file"
-              : "stake_data-*.json file"}
+                ? "deposit_data-*.json file"
+                : "stake_data-*.json file"}
           </div>
         </div>
 

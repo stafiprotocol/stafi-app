@@ -19,7 +19,6 @@ module.exports = {
       active: "#0095EB",
       error: "#FF52C4",
     },
-    extend: {},
     fontFamily: {
       helvetica: [
         "Helvetica",
@@ -35,6 +34,22 @@ module.exports = {
         "Helvetica Neue",
         "sans-serif",
       ],
+    },
+    extend: {
+      keyframes: {
+        beeScale: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.4)' }
+        },
+        beeLight: {
+          '0%, 100%': { opacity: 0 },
+          '50%': { opacity: 1 }
+        }
+      },
+      animation: {
+        beeScale: 'beeScale 1.5s linear infinite',
+        beeLight: 'beeLight 1.5s linear infinite'
+      }
     },
   },
   plugins: [],

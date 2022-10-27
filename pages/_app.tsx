@@ -2,7 +2,7 @@ import { Fade, ThemeProvider } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { Web3ReactHooks } from "@web3-react/core";
 import { MetaMask } from "@web3-react/metamask";
-import { Layout } from "components/layout";
+import { Layout } from "components/layout/layout";
 import { hooks as metaMaskHooks, metaMask } from "connectors/metaMask";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";

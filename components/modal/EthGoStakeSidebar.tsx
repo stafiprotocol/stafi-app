@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Icomoon } from "components/Icomoon";
+import { Icomoon } from "components/icon/Icomoon";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import Image from "next/image";
 import diamond from "public/diamond.svg";

@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import Image from "next/image";
 import loading from "public/loading.png";
-import commonStyles from "../styles/Common.module.scss";
+import commonStyles from "styles/Common.module.scss";
 
 interface PrimaryLoadingProps {
   size: string;

@@ -14,10 +14,10 @@ import {
 } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { isServer } from "utils/common";
-import { HideOnScroll } from "./HideOnScroll";
-import { Icomoon } from "./Icomoon";
-import { EthStakeLoadingModal } from "./modal/EthStakeLoadingModal";
-import { EthStakeSidebar } from "./modal/EthStakeSidebar";
+import { HideOnScroll } from "../common/HideOnScroll";
+import { Icomoon } from "../icon/Icomoon";
+import { EthStakeLoadingModal } from "../modal/EthStakeLoadingModal";
+import { EthStakeSidebar } from "../modal/EthStakeSidebar";
 import { Navbar } from "./navbar";
 
 type LayoutProps = React.PropsWithChildren<{}>;

@@ -1,4 +1,4 @@
-import { MyLayoutContext } from "components/layout";
+import { MyLayoutContext } from "components/layout/layout";
 import { RTokenOverviewCard } from "components/rtoken/RTokenOverviewCard";
 import Image from "next/image";
 import leftArrowIcon from "public/icon_arrow_left.png";

@@ -1,6 +1,6 @@
-import { Card } from "components/card";
-import { MyLayoutContext } from "components/layout";
-import { RethLayout } from "components/layout_reth";
+import { Card } from "components/common/card";
+import { MyLayoutContext } from "components/layout/layout";
+import { ValidatorLayout } from "components/layout/layout_validator";
 import { ChooseValidatorLeftExplanation } from "components/reth/choose-validator/ChooseValidatorLeftExplanation";
 import { ChooseValidatorType } from "components/reth/choose-validator/ChooseValidatorType";
 import { useRouter } from "next/router";
@@ -32,7 +32,7 @@ const ChooseValidator = () => {
 };
 
 ChooseValidator.getLayout = (page: ReactElement) => {
-  return <RethLayout>{page}</RethLayout>;
+  return <ValidatorLayout>{page}</ValidatorLayout>;
 };
 
 export default ChooseValidator;

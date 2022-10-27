@@ -1,32 +1,29 @@
 import { Popover } from "@mui/material";
 import classNames from "classnames";
-import { Icomoon } from "components/Icomoon";
+import { Icomoon } from "components/icon/Icomoon";
 import { NoticeList } from "components/notice/NoticeList";
 import { getMetamaskChainId } from "config/eth";
-import { hooks, metaMask } from "connectors/metaMask";
+import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import {
   bindPopover,
   bindTrigger,
-  usePopupState,
+  usePopupState
 } from "material-ui-popup-state/hooks";
 import Image from "next/image";
-import Link from "next/link";
 import ethereumLogo from "public/eth_logo.png";
 import downIcon from "public/icon_down.png";
 import notificationIcon from "public/icon_notification.svg";
 import stafiLogo from "public/stafi_logo.svg";
 import React, { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { setEthBalance, updateEthBalance } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask } from "utils/web3Utils";
-import Web3 from "web3";
-import styles from "../styles/Navbar.module.scss";
-import { MyLayoutContext } from "./layout";
+import styles from "styles/Navbar.module.scss";
+import { MyLayoutContext } from "components/layout/layout";
 
 export const Navbar = () => {
   const { updateEthBalance } = React.useContext(MyLayoutContext);

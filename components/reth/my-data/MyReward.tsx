@@ -1,8 +1,8 @@
 import classNames from "classnames";
-import { CollapseCard } from "components/CollapseCard";
-import { EmptyContent } from "components/EmptyContent";
-import { Icomoon } from "components/Icomoon";
-import { MyTooltip } from "components/MyTooltip";
+import { CollapseCard } from "components/common/CollapseCard";
+import { EmptyContent } from "components/common/EmptyContent";
+import { Icomoon } from "components/icon/Icomoon";
+import { MyTooltip } from "components/common/MyTooltip";
 import { useEthMyReward } from "hooks/useEthMyReward";
 import { RequestStatus } from "interfaces";
 import Image from "next/image";

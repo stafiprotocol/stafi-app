@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Button } from "components/button";
+import { Button } from "components/common/button";
 import { getMetamaskChainId } from "config/eth";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useEthValidatorType } from "hooks/useEthValidatorType";

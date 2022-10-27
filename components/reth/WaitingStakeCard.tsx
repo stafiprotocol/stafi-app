@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import { Button } from "components/button";
-import { Icomoon } from "components/Icomoon";
+import { Button } from "components/common/button";
+import { Icomoon } from "components/icon/Icomoon";
 import { hooks } from "connectors/metaMask";
 import { EthDepositItem } from "hooks/useEthStakeList";
 import Image from "next/image";
@@ -14,7 +14,7 @@ import { getShortAddress } from "utils/string";
 import commonStyles from "../../styles/Common.module.scss";
 import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
 import { useState } from "react";
-import { MyTooltip } from "components/MyTooltip";
+import { MyTooltip } from "components/common/MyTooltip";
 import styles from "../../styles/reth/WaitingStakeCard.module.scss";
 import { openLink } from "utils/common";
 

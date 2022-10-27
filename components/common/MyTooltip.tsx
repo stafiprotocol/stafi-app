@@ -1,5 +1,5 @@
 import { Tooltip } from "@mui/material";
-import { Icomoon } from "./Icomoon";
+import { Icomoon } from "components/icon/Icomoon";
 
 interface MyTooltipProps {
   title: string;

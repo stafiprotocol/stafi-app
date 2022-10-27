@@ -1,10 +1,10 @@
 import { Dialog, DialogContent } from "@mui/material";
 import classNames from "classnames";
-import { Card } from "components/card";
-import { CollapseCard } from "components/CollapseCard";
-import { EmptyContent } from "components/EmptyContent";
-import { Icomoon } from "components/Icomoon";
-import { MyTooltip } from "components/MyTooltip";
+import { Card } from "components/common/card";
+import { CollapseCard } from "components/common/CollapseCard";
+import { EmptyContent } from "components/common/EmptyContent";
+import { Icomoon } from "components/icon/Icomoon";
+import { MyTooltip } from "components/common/MyTooltip";
 import { EthRewardChart } from "components/reth/EthRewardChart";
 import { useEthPubkeyDetail } from "hooks/useEthPubkeyDetail";
 import Image from "next/image";
@@ -120,8 +120,8 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                 Number(status) === 9
                   ? styles["active-status"]
                   : Number(status) === 4
-                  ? styles["exit-status"]
-                  : styles["pending-status"]
+                    ? styles["exit-status"]
+                    : styles["pending-status"]
               }
             >
               <Icomoon
@@ -129,8 +129,8 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                   Number(status) === 9
                     ? "active"
                     : Number(status) === 4
-                    ? "exit"
-                    : "pending"
+                      ? "exit"
+                      : "pending"
                 }
                 size="0.36rem"
               />

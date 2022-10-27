@@ -1,9 +1,9 @@
 import classNames from "classnames";
-import { EmptyContent } from "components/EmptyContent";
-import { Icomoon } from "components/Icomoon";
-import { MyTooltip } from "components/MyTooltip";
-import { CustomPagination } from "components/pagination";
-import { PrimaryLoading } from "components/PrimaryLoading";
+import { EmptyContent } from "components/common/EmptyContent";
+import { Icomoon } from "components/icon/Icomoon";
+import { MyTooltip } from "components/common/MyTooltip";
+import { CustomPagination } from "components/common/pagination";
+import { PrimaryLoading } from "components/common/PrimaryLoading";
 import dayjs from "dayjs";
 import { useEthMyRewardList } from "hooks/useEthMyRewardList";
 import { RequestStatus } from "interfaces";
@@ -23,7 +23,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
   return (
     <div className="relative">
       {requestStatus === RequestStatus.loading && (
-        <div className="flex justify-center absolute left-0 right-0 top-[1.8rem]">
+        <div className="flex justify-center absolute left-0 right-0 top-[1.2rem]">
           <PrimaryLoading size="1rem" />
         </div>
       )}
@@ -43,7 +43,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
         </div>
       </div>
 
-      {requestStatus !== RequestStatus.loading && totalCount === 0 && (
+      {totalCount === 0 && (
         <div className="flex flex-col items-center">
           <Link href="/validator/reth/choose-validator">
             <div className="flex flex-col items-center cursor-pointer">

@@ -1,6 +1,6 @@
 import { Box, Modal } from "@mui/material";
-import { Button } from "components/button";
-import { Icomoon } from "components/Icomoon";
+import { Button } from "components/common/button";
+import { Icomoon } from "components/icon/Icomoon";
 import { useAppDispatch } from "hooks/common";
 
 interface ConfirmModalProps {

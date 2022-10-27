@@ -1,10 +1,10 @@
 import classNames from "classnames";
-import { Button } from "components/button";
-import { Card } from "components/card";
-import { CircularLoading } from "components/CircularLoading";
-import { Icomoon } from "components/Icomoon";
-import { MyLayoutContext } from "components/layout";
-import { RethLayout } from "components/layout_reth";
+import { Button } from "components/common/button";
+import { Card } from "components/common/card";
+import { CircularLoading } from "components/common/CircularLoading";
+import { Icomoon } from "components/icon/Icomoon";
+import { MyLayoutContext } from "components/layout/layout";
+import { ValidatorLayout } from "components/layout/layout_validator";
 import {
   getStafiEthContractConfig,
   getStafiLightNodeAbi,
@@ -24,6 +24,7 @@ import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import styles from "styles/reth/CheckFile.module.scss";
+import { AnimateBee } from "components/common/AnimateBee";
 
 const CheckFile = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -44,7 +45,9 @@ const CheckFile = () => {
 
   const depositPubkeys = useMemo(() => {
     const { pubkeys } = router.query;
-    if (!Array.isArray(pubkeys)) {
+    if (!pubkeys) {
+      return []
+    } else if (!Array.isArray(pubkeys)) {
       return [pubkeys];
     }
     return pubkeys;
@@ -197,18 +200,7 @@ const CheckFile = () => {
           </div>
 
           <div className="self-stretch relative flex flex-col items-center">
-            <div
-              className={classNames("relative flex justify-center w-[3rem]", {
-                hidden: status !== "loading",
-              })}
-            >
-              <div className={styles["bee-light"]}>
-                <Image src={beeLight} layout="fill" alt="beeLight" />
-              </div>
-              <div className={styles.bee}>
-                <Image src={bee} layout="fill" alt="bee" />
-              </div>
-            </div>
+            {status === 'loading' && <AnimateBee />}
 
             {status === "success" && (
               <div className="mt-[.56rem] w-[1.8rem] h-[1.8rem] relative">
@@ -327,7 +319,7 @@ const CheckFile = () => {
 };
 
 CheckFile.getLayout = (page: ReactElement) => {
-  return <RethLayout>{page}</RethLayout>;
+  return <ValidatorLayout>{page}</ValidatorLayout>;
 };
 
 export default CheckFile;

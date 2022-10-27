@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Icomoon } from "components/Icomoon";
+import { Icomoon } from "components/icon/Icomoon";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import Image from "next/image";
 import loading from "public/loading.png";
@@ -49,8 +49,8 @@ export const EthStakeSidebar = () => {
             ethStakeParams?.status === "active"
               ? checkFileSuccess
               : ethStakeParams?.status === "error"
-              ? checkFileError
-              : loading
+                ? checkFileError
+                : loading
           }
           layout="fill"
           alt="loading"
@@ -63,8 +63,8 @@ export const EthStakeSidebar = () => {
           ethStakeParams?.status === "active"
             ? "text-primary"
             : ethStakeParams?.status === "error"
-            ? "text-error"
-            : "text-text1"
+              ? "text-error"
+              : "text-text1"
         )}
       >
         Staking
@@ -72,8 +72,8 @@ export const EthStakeSidebar = () => {
         {ethStakeParams?.status === "active"
           ? "Succeed"
           : ethStakeParams?.status === "error"
-          ? "Failed"
-          : "Operating"}
+            ? "Failed"
+            : "Operating"}
       </div>
 
       <div className="ml-[.2rem] rotate-90">

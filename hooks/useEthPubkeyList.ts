@@ -62,25 +62,30 @@ export function useEthPubkeyList(status: EthPubkeyStatus, pageIndex: number) {
 
     const requests = statusList.map((status) => {
       return (async () => {
-        const params = {
-          nodeAddress: account,
-          status,
-          pageIndex: 1,
-          pageCount: 1,
-        };
-        const response = await fetch(`${getApiHost()}/reth/v1/nodeInfo`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(params),
-        });
-        const resJson = await response.json();
-        if (resJson && resJson.status === "80000") {
-          return resJson.data.totalCount + "";
-        } else {
-          return "0";
+        try {
+          const params = {
+            nodeAddress: account,
+            status,
+            pageIndex: 1,
+            pageCount: 1,
+          };
+          const response = await fetch(`${getApiHost()}/reth/v1/nodeInfo`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(params),
+          });
+          const resJson = await response.json();
+          if (resJson && resJson.status === "80000") {
+            return resJson.data.totalCount + "";
+          } else {
+            return "0";
+          }
+        } catch {
+          return '0'
         }
+
       })();
     });
 

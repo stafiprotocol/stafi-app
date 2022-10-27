@@ -1,12 +1,12 @@
 import classNames from "classnames";
-import { Button } from "components/button";
-import { EmptyContent } from "components/EmptyContent";
-import { Icomoon } from "components/Icomoon";
-import { MyLayoutContext } from "components/layout";
-import { RethLayout } from "components/layout_reth";
-import { RethStakeLayout } from "components/layout_reth_stake";
+import { Button } from "components/common/button";
+import { EmptyContent } from "components/common/EmptyContent";
+import { Icomoon } from "components/icon/Icomoon";
+import { MyLayoutContext } from "components/layout/layout";
+import { ValidatorLayout } from "components/layout/layout_validator";
+import { ValidatorTokenStakeLayout } from "components/layout/layout_validator_token_stake";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
-import { PrimaryLoading } from "components/PrimaryLoading";
+import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { TokenStakeTabs } from "components/reth/TokenStakeTabs";
 import { WaitingStakeCard } from "components/reth/WaitingStakeCard";
 import { hooks } from "connectors/metaMask";
@@ -246,9 +246,9 @@ const TokenStake = (props: any) => {
 
 TokenStake.getLayout = (page: ReactElement) => {
   return (
-    <RethLayout>
-      <RethStakeLayout>{page}</RethStakeLayout>
-    </RethLayout>
+    <ValidatorLayout>
+      <ValidatorTokenStakeLayout>{page}</ValidatorTokenStakeLayout>
+    </ValidatorLayout>
   );
 };
 

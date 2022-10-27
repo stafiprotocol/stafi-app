@@ -1,10 +1,10 @@
 import classNames from "classnames";
-import { CollapseCard } from "components/CollapseCard";
-import { EmptyContent } from "components/EmptyContent";
-import { Icomoon } from "components/Icomoon";
+import { CollapseCard } from "components/common/CollapseCard";
+import { EmptyContent } from "components/common/EmptyContent";
+import { Icomoon } from "components/icon/Icomoon";
 import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
 import { EthRunNodesModal } from "components/modal/EthRunNodesModal";
-import { CustomPagination } from "components/pagination";
+import { CustomPagination } from "components/common/pagination";
 import { useEthPubkeyList } from "hooks/useEthPubkeyList";
 import { EthPubkeyStatus } from "interfaces";
 import Link from "next/link";

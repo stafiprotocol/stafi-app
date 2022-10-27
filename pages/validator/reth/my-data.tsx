@@ -1,13 +1,13 @@
-import { CollapseCard } from "components/CollapseCard";
-import { MyLayoutContext } from "components/layout";
-import { RethLayout } from "components/layout_reth";
-import { MyTooltip } from "components/MyTooltip";
+import { CollapseCard } from "components/common/CollapseCard";
+import { MyLayoutContext } from "components/layout/layout";
+import { ValidatorLayout } from "components/layout/layout_validator";
+import { MyTooltip } from "components/common/MyTooltip";
 import { MyReward } from "components/reth/my-data/MyReward";
 import { PublicKeyList } from "components/reth/my-data/PublicKeyList";
 import { useEthMyData } from "hooks/useEthMyData";
 import React, { ReactElement, useEffect } from "react";
 import { formatNumber } from "utils/number";
-import { RethStakeLayout } from "components/layout_reth_stake";
+import { ValidatorTokenStakeLayout } from "components/layout/layout_validator_token_stake";
 
 const MyData = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -95,9 +95,9 @@ const MyData = () => {
 
 MyData.getLayout = (page: ReactElement) => {
   return (
-    <RethLayout>
-      <RethStakeLayout>{page}</RethStakeLayout>
-    </RethLayout>
+    <ValidatorLayout>
+      <ValidatorTokenStakeLayout>{page}</ValidatorTokenStakeLayout>
+    </ValidatorLayout>
   );
 };
 

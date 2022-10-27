@@ -1,9 +1,9 @@
-import { CollapseCard } from "components/CollapseCard";
-import { Icomoon } from "components/Icomoon";
-import { MyLayoutContext } from "components/layout";
-import { RethLayout } from "components/layout_reth";
-import { RethStakeLayout } from "components/layout_reth_stake";
-import { MyTooltip } from "components/MyTooltip";
+import { CollapseCard } from "components/common/CollapseCard";
+import { Icomoon } from "components/icon/Icomoon";
+import { MyLayoutContext } from "components/layout/layout";
+import { ValidatorLayout } from "components/layout/layout_validator";
+import { ValidatorTokenStakeLayout } from "components/layout/layout_validator_token_stake";
+import { MyTooltip } from "components/common/MyTooltip";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import Link from "next/link";
 import React, { ReactElement, useEffect } from "react";
@@ -19,7 +19,7 @@ const PoolData = () => {
     depositedEthValue,
     mintedREth,
     mintedREthValue,
-    allEth,
+    stakedEth,
     poolEth,
     unmatchedEth,
     matchedValidators,
@@ -81,7 +81,7 @@ const PoolData = () => {
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">
-              {formatNumber(allEth)}
+              {formatNumber(stakedEth)} ETH
             </div>
           </div>
         </div>
@@ -191,9 +191,9 @@ const PoolData = () => {
 
 PoolData.getLayout = (page: ReactElement) => {
   return (
-    <RethLayout>
-      <RethStakeLayout>{page}</RethStakeLayout>
-    </RethLayout>
+    <ValidatorLayout>
+      <ValidatorTokenStakeLayout>{page}</ValidatorTokenStakeLayout>
+    </ValidatorLayout>
   );
 };
 

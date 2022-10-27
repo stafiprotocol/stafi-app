@@ -1,8 +1,8 @@
 import { Box, Modal } from "@mui/material";
 import classNames from "classnames";
-import { Button } from "components/button";
-import { CircularLoading } from "components/CircularLoading";
-import { Icomoon } from "components/Icomoon";
+import { Button } from "components/common/button";
+import { CircularLoading } from "components/common/CircularLoading";
+import { Icomoon } from "components/icon/Icomoon";
 import { StakingLeftExplanation } from "components/reth/stake/StakingLeftExplanation";
 import { getApiHost } from "config/env";
 import {

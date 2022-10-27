@@ -1,6 +1,6 @@
 import { Box, Modal } from "@mui/material";
-import { Button } from "components/button";
-import { Icomoon } from "components/Icomoon";
+import { Button } from "components/common/button";
+import { Icomoon } from "components/icon/Icomoon";
 import { RunNodesLeftExplanation } from "components/reth/RunNodesLeftExplanation";
 import Image from "next/image";
 import thirdPartyService from "public/3rd_party_service.svg";

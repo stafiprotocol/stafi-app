@@ -13,7 +13,7 @@ import { openLink } from "utils/common";
 import { getNoticeList } from "utils/notice";
 import { removeStorage, STORAGE_KEY_UNREAD_NOTICE } from "utils/storage";
 import { formatDate } from "utils/time";
-import { EmptyContent } from "components/EmptyContent";
+import { EmptyContent } from "components/common/EmptyContent";
 import classNames from "classnames";
 
 export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
@@ -50,17 +50,15 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
       }
       if (notice.type === "ETH Deposit") {
         data = notice.data as NoticeEthDepositData;
-        return `Deposit ${data.amount} ETH as ${data.type} validator, with ${
-          data.pubkeys.length
-        } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
+        return `Deposit ${data.amount} ETH as ${data.type} validator, with ${data.pubkeys.length
+          } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
       }
       if (notice.type === "ETH Stake") {
         data = notice.data as NoticeEthDepositData;
-        return `Stake ${data.amount} ETH as ${data.type} validator, with ${
-          data.pubkeys.length
-        } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
+        return `Stake ${data.amount} ETH as ${data.type} validator, with ${data.pubkeys.length
+          } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
       }
-    } catch (err: unknown) {}
+    } catch (err: unknown) { }
 
     return "";
   };
@@ -78,7 +76,7 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
       // } else {
       //   return `${notice.explorerUrl}/tx/${notice.txDetail.transactionHash}`;
       // }
-    } catch (err: unknown) {}
+    } catch (err: unknown) { }
 
     return "";
   };
@@ -117,8 +115,8 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
                   notice.status === "Confirmed"
                     ? "text-primary"
                     : notice.status === "Pending"
-                    ? "text-text1"
-                    : "text-error"
+                      ? "text-text1"
+                      : "text-error"
                 )}
                 onClick={() => {
                   props.onClose();

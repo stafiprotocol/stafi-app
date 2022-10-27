@@ -1,9 +1,8 @@
-import { hooks, metaMask } from "connectors/metaMask";
-import { useEffect } from "react";
+import { hooks } from "connectors/metaMask";
 
-type RethLayoutProps = React.PropsWithChildren<{}>;
+type ValidatorLayoutProps = React.PropsWithChildren<{}>;
 
-export const RethLayout = (props: RethLayoutProps) => {
+export const ValidatorLayout = (props: ValidatorLayoutProps) => {
   const { useChainId, useAccount } = hooks;
   const chainId = useChainId();
   const account = useAccount();

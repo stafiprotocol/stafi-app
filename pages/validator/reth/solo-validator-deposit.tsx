@@ -1,12 +1,12 @@
 import classNames from "classnames";
-import { Button } from "components/button";
-import { Card } from "components/card";
-import { CollapseCard } from "components/CollapseCard";
-import { Icomoon } from "components/Icomoon";
-import { MyLayoutContext } from "components/layout";
-import { RethLayout } from "components/layout_reth";
+import { Button } from "components/common/button";
+import { Card } from "components/common/card";
+import { CollapseCard } from "components/common/CollapseCard";
+import { Icomoon } from "components/icon/Icomoon";
+import { MyLayoutContext } from "components/layout/layout";
+import { ValidatorLayout } from "components/layout/layout_validator";
 import { ConfirmModal } from "components/modal/ConfirmModal";
-import { MyTooltip } from "components/MyTooltip";
+import { MyTooltip } from "components/common/MyTooltip";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { getApiHost, isDev } from "config/env";
 import {
@@ -469,7 +469,7 @@ const SoloValidatorDeposit = () => {
 };
 
 SoloValidatorDeposit.getLayout = (page: ReactElement) => {
-  return <RethLayout>{page}</RethLayout>;
+  return <ValidatorLayout>{page}</ValidatorLayout>;
 };
 
 export default SoloValidatorDeposit;

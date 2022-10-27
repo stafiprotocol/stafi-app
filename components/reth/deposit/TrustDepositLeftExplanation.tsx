@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import rectangle from "public/rectangle1.svg";
 import styles from "../../../styles/reth/ChooseValidator.module.scss";
-import { CustomPagination } from "components/pagination";
+import { CustomPagination } from "components/common/pagination";
 
 export const TrustDepositLeftExplanation = () => {
   const [page, setPage] = useState(1);

@@ -1,7 +1,7 @@
 import classNames from "classnames";
-import { Button } from "components/button";
-import { Icomoon } from "components/Icomoon";
-import { MyLayoutContext } from "components/layout";
+import { Button } from "components/common/button";
+import { Icomoon } from "components/icon/Icomoon";
+import { MyLayoutContext } from "components/layout/layout";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { isDev } from "config/env";

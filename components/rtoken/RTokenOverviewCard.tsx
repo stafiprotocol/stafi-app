@@ -1,8 +1,8 @@
 import Image from "next/image";
-import ethLogo from "../../public/eth_token.svg";
-import ETH from "../../public/tokenName/ETH.svg";
-import { Icomoon } from "components/Icomoon";
-import { Button } from "components/button";
+import ethLogo from "public/eth_token.svg";
+import ETH from "public/tokenName/ETH.svg";
+import { Icomoon } from "components/icon/Icomoon";
+import { Button } from "components/common/button";
 import { useRouter } from "next/router";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { formatNumber } from "utils/number";

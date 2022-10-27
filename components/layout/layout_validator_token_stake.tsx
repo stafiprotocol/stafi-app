@@ -1,18 +1,14 @@
-import { Breadcrumbs } from "@mui/material";
 import classNames from "classnames";
-import Image from "next/image";
-import Link from "next/link";
+import { Button } from "components/common/button";
+import { Card } from "components/common/card";
+import { Icomoon } from "components/icon/Icomoon";
+import { EthGoStakeSidebar } from "components/modal/EthGoStakeSidebar";
 import { useRouter } from "next/router";
-import leftArrowIcon from "public/icon_arrow_left.png";
-import styles from "../styles/reth/RethLayout.module.scss";
-import { Button } from "./button";
-import { Card } from "./card";
-import { Icomoon } from "./Icomoon";
-import { EthGoStakeSidebar } from "./modal/EthGoStakeSidebar";
+import styles from "styles/reth/RethLayout.module.scss";
 
-type RethStakeLayoutProps = React.PropsWithChildren<{}>;
+type ValidatorTokenStakeLayoutProps = React.PropsWithChildren<{}>;
 
-export const RethStakeLayout = (props: RethStakeLayoutProps) => {
+export const ValidatorTokenStakeLayout = (props: ValidatorTokenStakeLayoutProps) => {
   const router = useRouter();
   const isTokenStake = router.pathname.endsWith("token-stake");
   const isMyData = router.pathname.endsWith("my-data");
