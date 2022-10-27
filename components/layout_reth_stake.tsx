@@ -27,7 +27,7 @@ export const RethStakeLayout = (props: RethStakeLayoutProps) => {
               <div
                 className="ml-[1rem] flex items-center relative cursor-pointer"
                 onClick={() => {
-                  router.push("/reth/token-stake");
+                  router.push("/validator/reth/token-stake");
                 }}
               >
                 <div className="mt-[.05rem] flex items-center">
@@ -54,7 +54,7 @@ export const RethStakeLayout = (props: RethStakeLayoutProps) => {
               <div
                 className="ml-[.76rem] flex items-center relative cursor-pointer"
                 onClick={() => {
-                  router.push("/reth/my-data");
+                  router.push("/validator/reth/my-data");
                 }}
               >
                 <div className="mt-[.05rem] flex items-center">
@@ -81,7 +81,7 @@ export const RethStakeLayout = (props: RethStakeLayoutProps) => {
               <div
                 className="ml-[.76rem] flex items-center relative cursor-pointer"
                 onClick={() => {
-                  router.push("/reth/pool-data");
+                  router.push("/validator/reth/pool-data");
                 }}
               >
                 <div className="mt-[.05rem] flex items-center">
@@ -113,7 +113,7 @@ export const RethStakeLayout = (props: RethStakeLayoutProps) => {
                 width="2.18rem"
                 height=".65rem"
                 fontSize=".24rem"
-                onClick={() => router.push("/reth/choose-validator")}
+                onClick={() => router.push("/validator/reth/choose-validator")}
               >
                 New Deposit
               </Button>

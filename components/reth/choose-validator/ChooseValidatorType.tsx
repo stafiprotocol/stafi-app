@@ -141,17 +141,17 @@ export const ChooseValidatorType = () => {
             return;
           }
           if (selectedType === "trusted") {
-            router.push("/reth/trust-validator-deposit");
+            router.push("/validator/reth/trust-validator-deposit");
           } else {
-            router.push("/reth/solo-validator-deposit");
+            router.push("/validator/reth/solo-validator-deposit");
           }
         }}
       >
         {!account
           ? "Connect Wallet"
           : selectedType === "trusted" && !isTrust
-          ? "Apply for trusted validator"
-          : "Next Step"}
+            ? "Apply for trusted validator"
+            : "Next Step"}
       </Button>
     </div>
   );

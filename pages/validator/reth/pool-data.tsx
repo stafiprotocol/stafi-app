@@ -1,15 +1,14 @@
-import classNames from "classnames";
 import { CollapseCard } from "components/CollapseCard";
 import { Icomoon } from "components/Icomoon";
 import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
+import { RethStakeLayout } from "components/layout_reth_stake";
 import { MyTooltip } from "components/MyTooltip";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import Link from "next/link";
 import React, { ReactElement, useEffect } from "react";
+import styles from "styles/reth/PoolData.module.scss";
 import { formatNumber } from "utils/number";
-import { RethStakeLayout } from "../../components/layout_reth_stake";
-import styles from "../../styles/reth/PoolData.module.scss";
 
 const PoolData = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -95,7 +94,7 @@ const PoolData = () => {
           <div className="flex items-center">
             <div className="text-white text-[.32rem]">Pool Status</div>
 
-            <Link href="/reth/my-data">
+            <Link href="/validator/reth/my-data">
               <div className={styles["my-pool"]}>
                 <div>My Pool</div>
                 <Icomoon icon="right" size="0.19rem" color="#00F3AB" />

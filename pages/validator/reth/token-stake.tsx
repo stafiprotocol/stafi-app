@@ -4,20 +4,19 @@ import { EmptyContent } from "components/EmptyContent";
 import { Icomoon } from "components/Icomoon";
 import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
+import { RethStakeLayout } from "components/layout_reth_stake";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { PrimaryLoading } from "components/PrimaryLoading";
+import { TokenStakeTabs } from "components/reth/TokenStakeTabs";
+import { WaitingStakeCard } from "components/reth/WaitingStakeCard";
 import { hooks } from "connectors/metaMask";
 import { useEthMyData } from "hooks/useEthMyData";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthStakeList } from "hooks/useEthStakeList";
 import { cloneDeep } from "lodash";
-import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
-import { RethStakeLayout } from "../../components/layout_reth_stake";
-import { TokenStakeTabs } from "../../components/reth/TokenStakeTabs";
-import { WaitingStakeCard } from "../../components/reth/WaitingStakeCard";
 
 const TokenStake = (props: any) => {
   const { useAccount } = hooks;
@@ -36,7 +35,7 @@ const TokenStake = (props: any) => {
 
   useEffect(() => {
     if (router.query.checkNewUser && totalCount <= 0) {
-      router.replace("/reth/choose-validator");
+      router.replace("/validator/reth/choose-validator");
     }
   }, [totalCount, router]);
 
@@ -137,7 +136,7 @@ const TokenStake = (props: any) => {
         <TokenStakeTabs
           selectedTab={tab}
           onChange={(tab) => {
-            router.push("/reth/token-stake?tab=" + tab);
+            router.push("/validator/reth/token-stake?tab=" + tab);
           }}
         />
       </div>
@@ -146,7 +145,7 @@ const TokenStake = (props: any) => {
         {(!firstLoading || !account) && displayList.length === 0 && (
           <div className="flex-1">
             <div className="flex flex-col items-center">
-              <Link href="/reth/choose-validator">
+              <Link href="/validator/reth/choose-validator">
                 <div className="flex flex-col items-center cursor-pointer">
                   <EmptyContent mt="0.2rem" size=".8rem" />
                   <div className="mt-[.3rem] flex items-center">
@@ -204,13 +203,13 @@ const TokenStake = (props: any) => {
               .map((item) => item.pubkey);
             router.push(
               {
-                pathname: "/reth/stake",
+                pathname: "/validator/reth/stake",
                 query: {
                   pubkeys: pubkeys,
                   depositType: trustList.length > 0 ? "trusted" : "solo",
                 },
               },
-              "/reth/stake"
+              "/validator/reth/stake"
             );
           }}
         >
@@ -234,10 +233,10 @@ const TokenStake = (props: any) => {
             .map((item) => item.pubkey);
           router.push(
             {
-              pathname: "/reth/stake",
+              pathname: "/validator/reth/stake",
               query: { pubkeys: pubkeys, depositType: "trusted" },
             },
-            "/reth/stake"
+            "/validator/reth/stake"
           );
         }}
       />

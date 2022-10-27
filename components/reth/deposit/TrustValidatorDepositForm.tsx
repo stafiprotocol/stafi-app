@@ -59,7 +59,7 @@ export const TrustValidatorDepositForm = () => {
           is waiting to be staked
         </div>
 
-        <Link href="/reth/pool-data">
+        <Link href="/validator/reth/pool-data">
           <div className="flex items-center cursor-pointer">
             <div className="ml-[.16rem] text-primary text-[.24rem]">
               check pool status
@@ -178,14 +178,14 @@ export const TrustValidatorDepositForm = () => {
 
                     router.push(
                       {
-                        pathname: "/reth/check-file",
+                        pathname: "/validator/reth/check-deposit-file",
                         query: {
                           pubkeys,
                           type: "trusted",
                           txHash: result.transactionHash,
                         },
                       },
-                      "/reth/check-file"
+                      "/validator/reth/check-deposit-file"
                     );
                   }
                 }
@@ -196,13 +196,13 @@ export const TrustValidatorDepositForm = () => {
           {!account
             ? "Connect Wallet"
             : validatorKeys.length === 0
-            ? "Please Upload 1 json file"
-            : ethTxLoading
-            ? "Depositing, please wait for a moment..."
-            : !isNaN(Number(unmatchedEth)) &&
-              Number(unmatchedEth) < validatorKeys.length
-            ? "Insufficient ETH in pool"
-            : "Deposit"}
+              ? "Please Upload 1 json file"
+              : ethTxLoading
+                ? "Depositing, please wait for a moment..."
+                : !isNaN(Number(unmatchedEth)) &&
+                  Number(unmatchedEth) < validatorKeys.length
+                  ? "Insufficient ETH in pool"
+                  : "Deposit"}
         </Button>
       </div>
 

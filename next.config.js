@@ -13,12 +13,12 @@ const nextConfig = {
     return [
       {
         source: "/",
-        destination: "/reth/token-stake",
+        destination: "/validator/reth/token-stake",
         permanent: true,
       },
       {
-        source: "/rtoken",
-        destination: "/reth/token-stake",
+        source: "/reth/token-stake",
+        destination: "/validator/reth/token-stake",
         permanent: true,
       },
     ];

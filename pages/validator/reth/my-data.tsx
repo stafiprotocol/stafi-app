@@ -1,6 +1,4 @@
-import classNames from "classnames";
 import { CollapseCard } from "components/CollapseCard";
-import { Icomoon } from "components/Icomoon";
 import { MyLayoutContext } from "components/layout";
 import { RethLayout } from "components/layout_reth";
 import { MyTooltip } from "components/MyTooltip";
@@ -9,8 +7,7 @@ import { PublicKeyList } from "components/reth/my-data/PublicKeyList";
 import { useEthMyData } from "hooks/useEthMyData";
 import React, { ReactElement, useEffect } from "react";
 import { formatNumber } from "utils/number";
-import { RethStakeLayout } from "../../components/layout_reth_stake";
-import styles from "../../styles/reth/MyData.module.scss";
+import { RethStakeLayout } from "components/layout_reth_stake";
 
 const MyData = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);

@@ -14,7 +14,7 @@ import { openLink } from "utils/common";
 import Web3 from "web3";
 import styles from "../../../styles/reth/MyData.module.scss";
 
-interface MyRewardListProps {}
+interface MyRewardListProps { }
 
 export const MyRewardList = (props: MyRewardListProps) => {
   const [page, setPage] = useState(1);
@@ -45,7 +45,7 @@ export const MyRewardList = (props: MyRewardListProps) => {
 
       {requestStatus !== RequestStatus.loading && totalCount === 0 && (
         <div className="flex flex-col items-center">
-          <Link href="/reth/choose-validator">
+          <Link href="/validator/reth/choose-validator">
             <div className="flex flex-col items-center cursor-pointer">
               <EmptyContent mt="0.76rem" size=".8rem" />
               <div className="mt-[.3rem] flex items-center">

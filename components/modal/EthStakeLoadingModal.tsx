@@ -137,20 +137,20 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
               Number(newStatus) === 4
                 ? "error"
                 : Number(newStatus) < 3
-                ? "staking"
-                : Number(newStatus) === 3
-                ? "active"
-                : Number(newStatus) < 8
-                ? "staked"
-                : Number(newStatus) === 8
-                ? "waiting"
-                : Number(newStatus) === 9
-                ? "active"
-                : "exit",
+                  ? "staking"
+                  : Number(newStatus) === 3
+                    ? "active"
+                    : Number(newStatus) < 8
+                      ? "staked"
+                      : Number(newStatus) === 8
+                        ? "waiting"
+                        : Number(newStatus) === 9
+                          ? "active"
+                          : "exit",
           })
         );
       }
-    } catch {}
+    } catch { }
   }, [dispatch, ethStakeParams]);
 
   useInterval(fetchStatus, 8000);
@@ -191,18 +191,16 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                 ethStakeParams?.status === "active"
                   ? "text-primary"
                   : ethStakeParams?.status === "error"
-                  ? "text-error"
-                  : "text-white"
+                    ? "text-error"
+                    : "text-white"
               )}
             >
               {ethStakeParams?.status === "active"
-                ? `${
-                    Number(ethStakeParams?.pubkeys.length) * 32
-                  } ETH staked successfully!`
+                ? `${Number(ethStakeParams?.pubkeys.length) * 32
+                } ETH staked successfully!`
                 : ethStakeParams?.status === "error"
-                ? "Transaction Failed"
-                : `You are now staking ${
-                    Number(ethStakeParams?.pubkeys.length) * 32
+                  ? "Transaction Failed"
+                  : `You are now staking ${Number(ethStakeParams?.pubkeys.length) * 32
                   } ETH`}
             </div>
 
@@ -212,16 +210,15 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                 ethStakeParams?.status === "active"
                   ? "text-primary hidden"
                   : ethStakeParams?.status === "error"
-                  ? "text-error"
-                  : "text-text2"
+                    ? "text-error"
+                    : "text-text2"
               )}
             >
               {ethStakeParams?.status === "active"
                 ? "You are now onboard"
                 : ethStakeParams?.status === "error"
-                ? "File check failed"
-                : `File is uploading onchain, ${
-                    Number(ethStakeParams?.pubkeys.length) * 32
+                  ? "File check failed"
+                  : `File is uploading onchain, ${Number(ethStakeParams?.pubkeys.length) * 32
                   } ETH is being staked in your account`}
             </div>
 
@@ -289,7 +286,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
               )}
 
               {ethStakeParams?.status === "error" && (
-                <Link href="/reth/choose-validator">
+                <Link href="/validator/reth/choose-validator">
                   <div className="mt-[.56rem] flex items-center text-[.24rem] text-text1 font-[400] cursor-pointer">
                     Reupload file now
                     <div className="ml-[.12rem]">
@@ -320,7 +317,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                     fontSize="0.32rem"
                     onClick={() => {
                       props.onClose();
-                      router.push("/reth/token-stake?tab=staked");
+                      router.push("/validator/reth/token-stake?tab=staked");
                     }}
                   >
                     Go Check My Stake
@@ -394,10 +391,10 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
 
                       {(ethStakeParams?.status === "staked" ||
                         ethStakeParams?.status === "waiting") && (
-                        <div className="ml-[.26rem]">
-                          <CircularLoading color="info" size=".24rem" />
-                        </div>
-                      )}
+                          <div className="ml-[.26rem]">
+                            <CircularLoading color="info" size=".24rem" />
+                          </div>
+                        )}
 
                       {ethStakeParams?.status === "active" && (
                         <div className="ml-[.26rem]">

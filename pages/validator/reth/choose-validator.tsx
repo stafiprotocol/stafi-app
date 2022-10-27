@@ -1,14 +1,10 @@
-import { RethLayout } from "components/layout_reth";
-import { RethStakeLayout } from "components/layout_reth_stake";
-import { ReactElement, useEffect } from "react";
-import Image from "next/image";
 import { Card } from "components/card";
+import { MyLayoutContext } from "components/layout";
+import { RethLayout } from "components/layout_reth";
 import { ChooseValidatorLeftExplanation } from "components/reth/choose-validator/ChooseValidatorLeftExplanation";
 import { ChooseValidatorType } from "components/reth/choose-validator/ChooseValidatorType";
-import leftArrowIcon from "public/icon_arrow_left.png";
 import { useRouter } from "next/router";
-import React from "react";
-import { MyLayoutContext } from "components/layout";
+import React, { ReactElement, useEffect } from "react";
 
 const ChooseValidator = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -17,7 +13,7 @@ const ChooseValidator = () => {
   useEffect(() => {
     setNavigation([
       // { name: "rToken List", path: "/rtoken" },
-      { name: "Token Stake", path: "/reth/token-stake" },
+      { name: "Token Stake", path: "/validator/reth/token-stake" },
       { name: "New Deposit" },
     ]);
   }, [setNavigation]);

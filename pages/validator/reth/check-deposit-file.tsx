@@ -8,7 +8,7 @@ import { RethLayout } from "components/layout_reth";
 import {
   getStafiEthContractConfig,
   getStafiLightNodeAbi,
-  getStafiSuperNodeAbi,
+  getStafiSuperNodeAbi
 } from "config/eth";
 import { getEtherScanTxUrl } from "config/explorer";
 import { useInterval } from "hooks/useInterval";
@@ -19,14 +19,11 @@ import bee from "public/bee.png";
 import beeLight from "public/bee_light.png";
 import checkFileError from "public/check_file_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
-import leftArrowIcon from "public/icon_arrow_left.png";
-import downIcon from "public/icon_down_gray.png";
 import rectangle from "public/rectangle1.svg";
-import React, { useEffect } from "react";
-import { ReactElement, useCallback, useState, useMemo } from "react";
+import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
-import styles from "../../styles/reth/CheckFile.module.scss";
+import styles from "styles/reth/CheckFile.module.scss";
 
 const CheckFile = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -40,7 +37,7 @@ const CheckFile = () => {
   useEffect(() => {
     setNavigation([
       // { name: "rToken List", path: "/rtoken" },
-      { name: "Token Stake", path: "/reth/token-stake" },
+      { name: "Token Stake", path: "/validator/reth/token-stake" },
       { name: "Check File" },
     ]);
   }, [setNavigation]);
@@ -60,7 +57,7 @@ const CheckFile = () => {
 
     const type = router.query?.type;
     if (Array.isArray(type) || depositPubkeys.length === 0) {
-      router.push("/reth/token-stake");
+      router.push("/validator/reth/token-stake");
       return;
     }
 
@@ -115,7 +112,7 @@ const CheckFile = () => {
           setStatus("success");
         }
       }
-    } catch {}
+    } catch { }
   }, [router, status, depositPubkeys]);
 
   useInterval(fetchStatus, 8000);
@@ -134,17 +131,17 @@ const CheckFile = () => {
               status === "loading"
                 ? "text-white"
                 : status === "success"
-                ? "text-primary"
-                : "text-error"
+                  ? "text-primary"
+                  : "text-error"
             )}
           >
             {status === "loading"
               ? "File Submitted, wait for checking…"
               : status === "success"
-              ? (router.query.type as string) === "solo"
-                ? `${depositPubkeys.length * 4} ETH deposited successfully!`
-                : "Deposited successfully!"
-              : "Transaction Failed"}
+                ? (router.query.type as string) === "solo"
+                  ? `${depositPubkeys.length * 4} ETH deposited successfully!`
+                  : "Deposited successfully!"
+                : "Transaction Failed"}
           </div>
 
           <div
@@ -153,15 +150,15 @@ const CheckFile = () => {
               status === "loading"
                 ? "text-text2"
                 : status === "success"
-                ? "text-primary"
-                : "text-error"
+                  ? "text-primary"
+                  : "text-error"
             )}
           >
             {status === "loading"
               ? "It may take 5 minutes, please wait for a moment"
               : status === "success"
-              ? "You are now onboard"
-              : "File check failed"}
+                ? "You are now onboard"
+                : "File check failed"}
           </div>
 
           <a
@@ -226,7 +223,7 @@ const CheckFile = () => {
             )}
 
             {status === "error" && (
-              <Link href="/reth/choose-validator">
+              <Link href="/validator/reth/choose-validator">
                 <div className="mt-[.56rem] flex items-center text-[.24rem] text-text1 font-[400] cursor-pointer">
                   Reupload file now
                   <div className="ml-[.12rem]">
@@ -251,7 +248,7 @@ const CheckFile = () => {
               <div className="self-stretch mx-[.75rem] mt-[.56rem]">
                 <Button
                   fontSize="0.32rem"
-                  onClick={() => router.push("/reth/token-stake")}
+                  onClick={() => router.push("/validator/reth/token-stake")}
                 >
                   Go Check My Stake
                 </Button>

@@ -166,9 +166,6 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
                 className="ml-[.12rem] flex items-center cursor-pointer"
                 onClick={() => {
                   if (props.depositItem.pubkey) {
-                    // router.push(
-                    //   `/reth/pubkey-detail/${props.depositItem.pubkey}`
-                    // );
                     setPubkeyDetailModalVisible(true);
                   }
                 }}
@@ -189,7 +186,7 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       <div
         className="mt-[.24rem] flex items-center justify-between"
         onClick={() => {
-          router.push(`/reth/my-data`);
+          router.push(`/validator/reth/my-data`);
         }}
       >
         <div className="flex items-center text-text2 text-[.16rem]">
@@ -237,13 +234,13 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
           onClick={() => {
             router.push(
               {
-                pathname: "/reth/stake",
+                pathname: "/validator/reth/stake",
                 query: {
                   pubkeys: [depositItem.pubkey],
                   depositType: depositItem.type,
                 },
               },
-              "/reth/stake"
+              "/validator/reth/stake"
             );
           }}
         >

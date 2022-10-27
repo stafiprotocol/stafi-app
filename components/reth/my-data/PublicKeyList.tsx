@@ -16,7 +16,7 @@ import { getShortAddress } from "utils/string";
 import { openLink } from "utils/common";
 import styles from "../../../styles/reth/MyData.module.scss";
 
-interface PublicKeyListProps {}
+interface PublicKeyListProps { }
 
 export const PublicKeyList = (props: PublicKeyListProps) => {
   const router = useRouter();
@@ -34,10 +34,10 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
       tab === "active"
         ? EthPubkeyStatus.active
         : tab === "pending"
-        ? EthPubkeyStatus.pending
-        : tab === "exited"
-        ? EthPubkeyStatus.exited
-        : EthPubkeyStatus.all,
+          ? EthPubkeyStatus.pending
+          : tab === "exited"
+            ? EthPubkeyStatus.exited
+            : EthPubkeyStatus.all,
       page
     );
 
@@ -194,7 +194,7 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
 
         {totalCount === 0 && (
           <div className="flex flex-col items-center">
-            <Link href="/reth/choose-validator">
+            <Link href="/validator/reth/choose-validator">
               <div className="flex flex-col items-center cursor-pointer">
                 <EmptyContent mt="0.2rem" size=".8rem" />
                 <div className="mt-[.3rem] flex items-center">

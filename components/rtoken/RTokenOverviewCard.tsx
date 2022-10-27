@@ -24,9 +24,9 @@ export const RTokenOverviewCard = () => {
       return;
     }
     if (!totalCount) {
-      router.push("/reth/choose-validator");
+      router.push("/validator/reth/choose-validator");
     } else {
-      router.push("/reth/token-stake");
+      router.push("/validator/reth/token-stake");
     }
   };
 

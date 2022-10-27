@@ -2,7 +2,6 @@ import { Box, Modal } from "@mui/material";
 import { Button } from "components/button";
 import { Icomoon } from "components/Icomoon";
 import { RunNodesLeftExplanation } from "components/reth/RunNodesLeftExplanation";
-import { StakeLeftExplanation } from "components/reth/stake/StakeLeftExplanation";
 import Image from "next/image";
 import thirdPartyService from "public/3rd_party_service.svg";
 import ownServer from "public/own_server.svg";

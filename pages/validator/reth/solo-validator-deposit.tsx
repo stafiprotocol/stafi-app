@@ -13,9 +13,9 @@ import {
   getMetamaskChainId,
   getStafiEthContractConfig,
   getStafiEthWithdrawalCredentials,
-  getStafiLightNodeAbi,
+  getStafiLightNodeAbi
 } from "config/eth";
-import { hooks, metaMask } from "connectors/metaMask";
+import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import Image from "next/image";
@@ -34,13 +34,13 @@ import uploadIcon from "public/upload.svg";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { handleEthDeposit } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
+import styles from "styles/reth/SoloValidatorDeposit.module.scss";
 import { openLink } from "utils/common";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask, createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
-import styles from "../../styles/reth/SoloValidatorDeposit.module.scss";
 
 const SoloValidatorDeposit = () => {
   const { setNavigation, updateEthBalance } = React.useContext(MyLayoutContext);
@@ -69,8 +69,8 @@ const SoloValidatorDeposit = () => {
   useEffect(() => {
     setNavigation([
       // { name: "rToken List", path: "/rtoken" },
-      { name: "Token Stake", path: "/reth/token-stake" },
-      { name: "New Deposit", path: "/reth/choose-validator" },
+      { name: "Token Stake", path: "/validator/reth/token-stake" },
+      { name: "New Deposit", path: "/validator/reth/choose-validator" },
       { name: "Solo Validator Deposit" },
     ]);
   }, [setNavigation]);
@@ -206,7 +206,7 @@ const SoloValidatorDeposit = () => {
                 <div className="ml-[.1rem] text-text1 text-[.24rem]">
                   is waiting to be staked
                 </div>
-                <Link href="/reth/pool-data">
+                <Link href="/validator/reth/pool-data">
                   <div className="flex items-center cursor-pointer">
                     <div className="ml-[.16rem] text-primary text-[.24rem]">
                       check pool status
@@ -425,14 +425,14 @@ const SoloValidatorDeposit = () => {
 
                       router.push(
                         {
-                          pathname: "/reth/check-file",
+                          pathname: "/validator/reth/check-deposit-file",
                           query: {
                             pubkeys,
                             type: "solo",
                             txHash: result.transactionHash,
                           },
                         },
-                        "/reth/check-file"
+                        "/validator/reth/check-deposit-file"
                       );
                     }
                   }
@@ -443,12 +443,12 @@ const SoloValidatorDeposit = () => {
             {!account
               ? "Connect Wallet"
               : validatorKeys.length === 0
-              ? "Please Upload 1 json file"
-              : ethTxLoading
-              ? "Depositing, please wait for a moment..."
-              : showInsufficientFunds
-              ? "Insufficient Funds"
-              : "Deposit"}
+                ? "Please Upload 1 json file"
+                : ethTxLoading
+                  ? "Depositing, please wait for a moment..."
+                  : showInsufficientFunds
+                    ? "Insufficient Funds"
+                    : "Deposit"}
           </Button>
         </div>
       </Card>

@@ -54,7 +54,7 @@ export const MyReward = () => {
         title={<div className="text-white text-[.32rem]">My Reward</div>}
       >
         <div className="flex flex-col items-center">
-          <Link href="/reth/choose-validator">
+          <Link href="/validator/reth/choose-validator">
             <div className="flex flex-col items-center cursor-pointer">
               <EmptyContent mt="0.2rem" size=".8rem" />
               <div className="mt-[.3rem] flex items-center">
