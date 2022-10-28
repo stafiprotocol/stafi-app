@@ -1,22 +1,37 @@
 import classNames from "classnames";
 import { Button } from "components/common/button";
 import { EmptyContent } from "components/common/EmptyContent";
+import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
 import { ValidatorLayout } from "components/layout/layout_validator";
 import { ValidatorTokenStakeLayout } from "components/layout/layout_validator_token_stake";
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
-import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { TokenStakeTabs } from "components/reth/TokenStakeTabs";
 import { WaitingStakeCard } from "components/reth/WaitingStakeCard";
+import {
+  getStafiEthSVFeeRecipient,
+  getStafiEthTVFeeRecipient,
+} from "config/eth";
+import { getEtherScanAccountUrl } from "config/explorer";
 import { hooks } from "connectors/metaMask";
 import { useEthMyData } from "hooks/useEthMyData";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthStakeList } from "hooks/useEthStakeList";
 import { cloneDeep } from "lodash";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import warningIcon from "public/icon_warning.svg";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
+import { openLink } from "utils/common";
+import {
+  getStorage,
+  removeStorage,
+  saveStorage,
+  STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP,
+} from "utils/storage";
+import { getShortAddress } from "utils/string";
 
 const TokenStake = (props: any) => {
   const { useAccount } = hooks;
@@ -28,6 +43,7 @@ const TokenStake = (props: any) => {
   );
   const [chooseStakeTypeModalVisible, setChooseStakeTypeModalVisible] =
     useState(false);
+  const [showFeeWarning, setShowWarning] = useState(false);
 
   const { depositList, loading, firstLoading } = useEthStakeList();
   const { unmatchedEth } = useEthPoolData();
@@ -38,6 +54,11 @@ const TokenStake = (props: any) => {
       router.replace("/validator/reth/choose-validator");
     }
   }, [totalCount, router]);
+
+  useEffect(() => {
+    const temp = getStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP);
+    setShowWarning(!temp);
+  }, []);
 
   useEffect(() => {
     setNavigation([
@@ -127,8 +148,71 @@ const TokenStake = (props: any) => {
   }, [stakableList, unmatchedEth]);
 
   return (
-    <div className="pt-[.76rem] flex flex-col items-stretch">
-      <div className="self-center text-[.42rem] text-white font-[700]">
+    <div className="flex flex-col items-stretch">
+      <div
+        className={classNames("px-[.56rem] py-[.32rem] bg-[#0095EB1A]", {
+          hidden: !showFeeWarning,
+        })}
+      >
+        <div className="flex justify-between">
+          <div className="flex">
+            <div className="relative w-[.24rem] h-[.24rem] min-w-[.24rem]">
+              <Image src={warningIcon} layout="fill" alt="warning" />
+            </div>
+            <div className="text-warning text-[.2rem] ml-[.12rem]">
+              Please configure your Priority Fee recipient address for Solo
+              Validator(SV) and Trusted Validator(TV), <br />
+              otherwise you may be slashed by StaFi protocol.
+            </div>
+          </div>
+
+          <div
+            className="flex items-center mt-[-0.12rem] cursor-pointer"
+            onClick={() => {
+              openLink(
+                "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide#3.join-eth2-mainnet-by-running-prysm"
+              );
+            }}
+          >
+            <div className="text-warning text-[.24rem] mr-[.16rem]">
+              Learn More
+            </div>
+            <Icomoon size=".26rem" icon="arrow-right" color="#0095EB" />
+          </div>
+        </div>
+
+        <div className="mt-[.32rem] flex">
+          <div
+            className="border-[1px] border-solid border-[#0095EB80] rounded-[.12rem] flex items-center justify-center h-[.48rem] w-[3.4rem] text-warning text-[.2rem] cursor-pointer"
+            onClick={() => {
+              openLink(getEtherScanAccountUrl(getStafiEthSVFeeRecipient()));
+            }}
+          >
+            For SV: {getShortAddress(getStafiEthSVFeeRecipient(), 4)}
+          </div>
+
+          <div
+            className="ml-[.24rem] border-[1px] border-solid border-[#0095EB80] rounded-[.12rem] flex items-center justify-center h-[.48rem] w-[3.4rem] text-warning text-[.2rem] cursor-pointer"
+            onClick={() => {
+              openLink(getEtherScanAccountUrl(getStafiEthTVFeeRecipient()));
+            }}
+          >
+            For TV: {getShortAddress(getStafiEthTVFeeRecipient(), 4)}
+          </div>
+
+          <div
+            className="ml-[.24rem] bg-[#0095EB1A] rounded-[.12rem] flex items-center justify-center h-[.48rem] w-[3.4rem] text-warning text-[.2rem] cursor-pointer"
+            onClick={() => {
+              saveStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP, "1");
+              setShowWarning(false);
+            }}
+          >
+            Completed
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-[.56rem] self-center text-[.42rem] text-white font-[700]">
         Token Stake
       </div>
 

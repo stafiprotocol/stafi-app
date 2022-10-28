@@ -8,12 +8,16 @@ import {
 } from "config/eth";
 import { getEtherScanTxUrl } from "config/explorer";
 import { AppThunk } from "redux/store";
-import { CANCELLED_MESSAGE, COMMON_ERROR_MESSAGE } from "utils/constants";
+import { CANCELLED_MESSAGE } from "utils/constants";
 import snackbarUtil from "utils/snackbarUtils";
+import {
+  removeStorage,
+  STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP,
+} from "utils/storage";
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
-import { addNotice, setUnreadNoticeFlag } from "./AppSlice";
+import { addNotice } from "./AppSlice";
 
 interface EthStakeParams {
   type: "solo" | "trusted";
@@ -34,11 +38,12 @@ const initialState: EthState = {
   balance: "",
   ethStakeModalVisible: false,
   // ethStakeParams: {
-  //   type: "trust",
+  //   type: "trusted",
   //   pubkeys: [
   //     "0x920b903c9bbca7982e245db9888c4d0c092325f1b96bf41d532d161e9713834f9787eee0cbc508ab9465c63de254265e",
   //   ],
   //   txHash: "0x123",
+  //   status: 'waiting'
   // },
   ethStakeParams: undefined,
 };
@@ -292,6 +297,7 @@ export const handleEthStake =
 
       // console.log("result", result);
 
+      removeStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP);
       dispatch(setEthTxLoading(false));
       dispatch(
         setEthStakeParams({

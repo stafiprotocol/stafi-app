@@ -257,16 +257,18 @@ export const StakeForm = () => {
           {!account
             ? "Connect Wallet"
             : validatorKeys.length < stakePubkeys.length
-              ? `Please Upload ${stakePubkeys.length} ${stakePubkeys.length <= 1 ? "Pubkey" : "Pubkeys"
+            ? `Please Upload ${stakePubkeys.length} ${
+                stakePubkeys.length <= 1 ? "Pubkey" : "Pubkeys"
               }`
-              : `Stake (${validatorKeys.length} Uploaded)`}
+            : `Stake (${validatorKeys.length} Uploaded)`}
         </Button>
       </div>
 
       <ConfirmModal
         visible={deleteConfirmModalVisible}
-        content={`Sure want to delete all of those ${validatorKeys.length} ${validatorKeys.length <= 1 ? "Pubkey" : "Pubkeys"
-          }`}
+        content={`Sure want to delete all of those ${validatorKeys.length} ${
+          validatorKeys.length <= 1 ? "Pubkey" : "Pubkeys"
+        }`}
         confirmText="Yes, Delete"
         onClose={() => setDeleteConfirmModalVisible(false)}
         onConfirm={() => {

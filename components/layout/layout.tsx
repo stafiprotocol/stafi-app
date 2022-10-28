@@ -4,7 +4,7 @@ import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthStakeCheckInterval } from "hooks/useEthStakeCheckInterval";
 import { useInit } from "hooks/useInit";
-import { NavigationItem } from "interfaces";
+import { NavigationItem } from "interfaces/common";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ export const MyLayoutContext = React.createContext<{
 }>({
   navigation: undefined,
   setNavigation: undefined,
-  updateEthBalance: () => { },
+  updateEthBalance: () => {},
 });
 
 export const Layout = (props: LayoutProps) => {
@@ -71,7 +71,10 @@ export const Layout = (props: LayoutProps) => {
       <div className="">
         <Head>
           <title>StaFi rETH</title>
-          <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+          />
         </Head>
 
         <HideOnScroll>
@@ -96,7 +99,7 @@ export const Layout = (props: LayoutProps) => {
                   "flex items-center text-text2 text-[.24rem]"
                 )}
               >
-                <div>
+                <div className="cursor-default">
                   {!!item.path ? (
                     <Link href={item.path}>{item.name}</Link>
                   ) : (

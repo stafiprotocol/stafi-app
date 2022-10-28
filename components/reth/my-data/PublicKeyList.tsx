@@ -6,7 +6,7 @@ import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
 import { EthRunNodesModal } from "components/modal/EthRunNodesModal";
 import { CustomPagination } from "components/common/pagination";
 import { useEthPubkeyList } from "hooks/useEthPubkeyList";
-import { EthPubkeyStatus } from "interfaces";
+import { EthPubkeyStatus } from "interfaces/common";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";

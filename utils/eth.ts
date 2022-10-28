@@ -1,4 +1,4 @@
-import { EthPubkeyStatus } from "interfaces";
+import { EthPubkeyStatus } from "interfaces/common";
 
 export const getEthPubkeyStatusText = (status: string | number) => {
   if (Number(status) === EthPubkeyStatus.deposited) {

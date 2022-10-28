@@ -1,6 +1,6 @@
 import { getApiHost } from "config/env";
 import { hooks } from "connectors/metaMask";
-import { RequestStatus } from "interfaces";
+import { RequestStatus } from "interfaces/common";
 import { useCallback, useEffect, useState } from "react";
 import { PAGE_SIZE } from "utils/constants";
 

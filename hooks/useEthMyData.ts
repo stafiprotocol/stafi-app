@@ -1,6 +1,6 @@
 import { getApiHost } from "config/env";
 import { hooks } from "connectors/metaMask";
-import { RequestStatus } from "interfaces";
+import { RequestStatus } from "interfaces/common";
 import { useCallback, useState } from "react";
 import { useEffect } from "react";
 import Web3 from "web3";

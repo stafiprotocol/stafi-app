@@ -1,6 +1,6 @@
 import { getApiHost } from "config/env";
 import { hooks } from "connectors/metaMask";
-import { EthPubkey, EthPubkeyStatus, RequestStatus } from "interfaces";
+import { EthPubkey, EthPubkeyStatus, RequestStatus } from "interfaces/common";
 import { useCallback, useEffect, useState } from "react";
 import { PAGE_SIZE } from "utils/constants";
 

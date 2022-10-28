@@ -1,5 +1,5 @@
 import { getApiHost } from "config/env";
-import { RequestStatus } from "interfaces";
+import { RequestStatus } from "interfaces/common";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import Web3 from "web3";

@@ -4,7 +4,7 @@ import { EmptyContent } from "components/common/EmptyContent";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyTooltip } from "components/common/MyTooltip";
 import { useEthMyReward } from "hooks/useEthMyReward";
-import { RequestStatus } from "interfaces";
+import { RequestStatus } from "interfaces/common";
 import Image from "next/image";
 import Link from "next/link";
 import ethIcon from "public/eth_type_green.svg";

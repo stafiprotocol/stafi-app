@@ -83,3 +83,11 @@ export function getStafiEthWithdrawalCredentials() {
   }
   return "003cd051a5757b82bf2c399d7476d1636473969af698377434af1d6c54f2bee9";
 }
+
+export function getStafiEthSVFeeRecipient() {
+  return "0x6fb2aa2443564d9430b9483b1a5eea13a522df45";
+}
+
+export function getStafiEthTVFeeRecipient() {
+  return "0xdc5a28885a1800b1435982954ee9b51d2a8d3bf0";
+}

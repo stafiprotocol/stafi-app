@@ -24,3 +24,8 @@ export interface NavigationItem {
   name: string;
   path?: string;
 }
+
+export enum RTokenName {
+  rETH = "rETH",
+  rDOT = "rDOT",
+}

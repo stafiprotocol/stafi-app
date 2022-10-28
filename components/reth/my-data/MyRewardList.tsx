@@ -6,7 +6,7 @@ import { CustomPagination } from "components/common/pagination";
 import { PrimaryLoading } from "components/common/PrimaryLoading";
 import dayjs from "dayjs";
 import { useEthMyRewardList } from "hooks/useEthMyRewardList";
-import { RequestStatus } from "interfaces";
+import { RequestStatus } from "interfaces/common";
 import Link from "next/link";
 import { useState } from "react";
 import { formatNumber } from "utils/number";
