@@ -159,7 +159,7 @@ const TokenStake = (props: any) => {
             <div className="relative w-[.24rem] h-[.24rem] min-w-[.24rem]">
               <Image src={warningIcon} layout="fill" alt="warning" />
             </div>
-            <div className="text-warning text-[.2rem] ml-[.12rem]">
+            <div className="text-warning text-[.2rem] ml-[.12rem] leading-normal mt-[-.02rem]">
               Please configure your Priority Fee recipient address for Solo
               Validator(SV) and Trusted Validator(TV), <br />
               otherwise you may be slashed by StaFi protocol.
@@ -167,7 +167,7 @@ const TokenStake = (props: any) => {
           </div>
 
           <div
-            className="flex items-center mt-[-0.12rem] cursor-pointer"
+            className="flex items-center mt-[-0.3rem] cursor-pointer"
             onClick={() => {
               openLink(
                 "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide#3.join-eth2-mainnet-by-running-prysm"
