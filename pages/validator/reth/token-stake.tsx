@@ -12,7 +12,7 @@ import { WaitingStakeCard } from "components/reth/WaitingStakeCard";
 import {
   getStafiEthSVFeeRecipient,
   getStafiEthTVFeeRecipient,
-} from "config/eth";
+} from "config/metaMask";
 import { getEtherScanAccountUrl } from "config/explorer";
 import { hooks } from "connectors/metaMask";
 import { useEthMyData } from "hooks/useEthMyData";

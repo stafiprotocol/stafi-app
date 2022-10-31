@@ -1,22 +1,24 @@
 import ReactEcharts from "echarts-for-react";
 import React from "react";
 import { graphic } from "echarts";
+import { height } from "@mui/system";
 
-interface EthRewardChartProps {
+interface CustomChartProps {
   xData: string[];
   yData: string[];
   width: string;
   height: string;
 }
 
-export const EthRewardChart = (props: EthRewardChartProps) => {
+export const CustomChart = (props: CustomChartProps) => {
   const getChartOption = () => {
     return {
+      height: props.height,
       animation: false,
       color: ["#14494E"],
-      // lenend: {
-      //   height: "320px",
-      // },
+      lenend: {
+        // height: props.height,
+      },
       tooltip: {
         trigger: "axis",
         axisPointer: {

@@ -6,28 +6,32 @@ import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { isDev } from "config/env";
 import {
-  getMetamaskChainId,
+  getMetamaskValidatorChainId,
   getStafiEthWithdrawalCredentials,
-} from "config/eth";
+} from "config/metaMask";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
-import { handleEthStake } from "redux/reducers/EthSlice";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import {
+  handleEthValidatorStake,
+  updateEthBalance,
+} from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask } from "utils/web3Utils";
 
 export const StakeForm = () => {
-  const { updateEthBalance } = React.useContext(MyLayoutContext);
+  const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
   const router = useRouter();
   const { depositType } = router.query;
   const dispatch = useAppDispatch();
-  const { useAccount, useChainId } = hooks;
+  const { useAccount, useChainId, useProvider } = hooks;
   const account = useAccount();
   const chainId = useChainId();
+  const provider = useProvider();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
   const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
     useState(false);
@@ -220,8 +224,8 @@ export const StakeForm = () => {
           disabled={!!account && validatorKeys.length < stakePubkeys.length}
           height="1.3rem"
           onClick={() => {
-            if (!account || chainId !== getMetamaskChainId()) {
-              connectMetaMask();
+            if (!account || isWrongMetaMaskNetwork) {
+              connectMetaMask(getMetamaskValidatorChainId());
               return;
             }
             if (
@@ -240,12 +244,12 @@ export const StakeForm = () => {
             }
 
             dispatch(
-              handleEthStake(
+              handleEthValidatorStake(
                 account,
                 validatorKeys,
                 depositType as "solo" | "trusted",
                 (success, result) => {
-                  updateEthBalance();
+                  dispatch(updateEthBalance(provider));
                   if (success) {
                     router.push("/validator/reth/token-stake");
                   }

@@ -2,31 +2,36 @@ import { Popover } from "@mui/material";
 import classNames from "classnames";
 import { Icomoon } from "components/icon/Icomoon";
 import { NoticeList } from "components/notice/NoticeList";
-import { getMetamaskChainId } from "config/eth";
+import {
+  getMetamaskEthChainId,
+  getMetamaskValidatorChainId,
+} from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import {
   bindPopover,
   bindTrigger,
-  usePopupState
+  usePopupState,
 } from "material-ui-popup-state/hooks";
 import Image from "next/image";
 import ethereumLogo from "public/eth_logo.png";
 import downIcon from "public/icon_down.png";
 import notificationIcon from "public/icon_notification.svg";
 import stafiLogo from "public/stafi_logo.svg";
-import React, { useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import { connectMetaMask } from "utils/web3Utils";
+import { connectMetaMask, MetaMaskConnectType } from "utils/web3Utils";
 import styles from "styles/Navbar.module.scss";
-import { MyLayoutContext } from "components/layout/layout";
+import { updateEthBalance } from "redux/reducers/EthSlice";
+import { MyLayoutContext } from "./layout";
 
 export const Navbar = () => {
-  const { updateEthBalance } = React.useContext(MyLayoutContext);
+  const { isWrongMetaMaskNetwork, targetMetaMaskChainId } =
+    useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
 
   const {
@@ -38,6 +43,10 @@ export const Navbar = () => {
   const metaMaskChainId = useMetaMaskChainId();
   const metaMaskProvider = useMetaMaskProvider();
 
+  useEffect(() => {
+    dispatch(updateEthBalance(metaMaskProvider));
+  }, [dispatch, metaMaskProvider]);
+
   const { unreadNoticeFlag, ethBalance } = useSelector((state: RootState) => {
     return {
       ethBalance: state.eth.balance,
@@ -45,22 +54,14 @@ export const Navbar = () => {
     };
   });
 
-  const showWrongNetwork = useMemo(() => {
-    return metaMaskChainId !== getMetamaskChainId();
-  }, [metaMaskChainId]);
-
-  useEffect(() => {
-    updateEthBalance();
-  }, [updateEthBalance]);
-
   const noticePopupState = usePopupState({
     variant: "popover",
     popupId: "notice",
   });
 
   const clickAccountLeftArea = () => {
-    if (showWrongNetwork) {
-      connectMetaMask();
+    if (isWrongMetaMaskNetwork) {
+      connectMetaMask(targetMetaMaskChainId);
     }
   };
 
@@ -82,11 +83,11 @@ export const Navbar = () => {
           className={styles.account}
           style={{
             background:
-              showWrongNetwork && metaMaskAccount
+              isWrongMetaMaskNetwork && metaMaskAccount
                 ? "rgba(255, 82, 196, 0.05)"
                 : "rgba(25, 38, 52, 0.35)",
             border:
-              showWrongNetwork && metaMaskAccount
+              isWrongMetaMaskNetwork && metaMaskAccount
                 ? "1px solid rgba(255, 82, 196, 0.2)"
                 : "1px solid #1a2835",
           }}
@@ -97,7 +98,7 @@ export const Navbar = () => {
                 className="flex items-center cursor-pointer"
                 onClick={clickAccountLeftArea}
               >
-                {showWrongNetwork && (
+                {isWrongMetaMaskNetwork && (
                   <div className="flex items-center">
                     <div className="bg-error w-[.12rem] h-[.12rem] rounded-full" />
                     <div className="ml-[.12rem] text-error text-[.24rem]">
@@ -108,7 +109,7 @@ export const Navbar = () => {
                 )}
 
                 <div className="text-text1">
-                  {showWrongNetwork ? "--" : formatNumber(ethBalance)} ETH
+                  {isWrongMetaMaskNetwork ? "--" : formatNumber(ethBalance)} ETH
                 </div>
               </div>
               <div
@@ -138,7 +139,7 @@ export const Navbar = () => {
             <div
               className={styles["connect-wallet-container"]}
               onClick={() => {
-                connectMetaMask();
+                connectMetaMask(getMetamaskEthChainId());
               }}
             >
               <div>Connect Wallet</div>

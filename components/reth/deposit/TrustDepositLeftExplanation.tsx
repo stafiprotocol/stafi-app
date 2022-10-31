@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import Image from "next/image";
 import { useState } from "react";
-import rectangle from "public/rectangle1.svg";
+import rectangle from "public/rectangle_h.svg";
 import styles from "../../../styles/reth/ChooseValidator.module.scss";
 import { CustomPagination } from "components/common/pagination";
 

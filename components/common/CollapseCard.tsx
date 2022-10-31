@@ -7,7 +7,7 @@ type CollapseCardProps = React.PropsWithChildren<{
   title?: ReactNode | undefined;
   mt?: string;
   mx?: string;
-  backgroundColor?: string;
+  background?: string;
 }>;
 
 export const CollapseCard = (props: CollapseCardProps) => {
@@ -20,7 +20,8 @@ export const CollapseCard = (props: CollapseCardProps) => {
         marginTop: props.mt || "0",
         marginLeft: props.mx || "0",
         marginRight: props.mx || "0",
-        backgroundColor: props.backgroundColor || "transparent",
+        background: props.background || "transparent",
+        backdropFilter: "blur(.7rem)",
       }}
     >
       <div className="p-[.56rem] flex flex-col items-center">

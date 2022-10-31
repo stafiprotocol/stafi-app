@@ -5,12 +5,12 @@ import { CollapseCard } from "components/common/CollapseCard";
 import { EmptyContent } from "components/common/EmptyContent";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyTooltip } from "components/common/MyTooltip";
-import { EthRewardChart } from "components/reth/EthRewardChart";
+import { CustomChart } from "components/data/CustomChart";
 import { useEthPubkeyDetail } from "hooks/useEthPubkeyDetail";
 import Image from "next/image";
 import ethIcon from "public/eth_type_green.svg";
 import arrowPath from "public/path_arrow.svg";
-import rectangle from "public/rectangle1.svg";
+import rectangle from "public/rectangle_h.svg";
 import { useState } from "react";
 import { getEthPubkeyStatusText } from "utils/eth";
 import { formatNumber } from "utils/number";
@@ -98,7 +98,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
         }}
       > */}
       <DialogContent sx={{ width: "14.88rem" }}>
-        <Card mt=".56rem" mb=".56rem" backgroundColor="#0A131B">
+        <Card mt=".56rem" mb=".56rem" background="#0A131B">
           <div className="flex flex-col items-stretch px-[.56rem] pb-[1rem] overflow-auto relative">
             <div className="self-center relative w-[2.4rem] h-[.9rem]">
               <Image src={rectangle} layout="fill" alt="rectangle" />
@@ -120,8 +120,8 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                 Number(status) === 9
                   ? styles["active-status"]
                   : Number(status) === 4
-                    ? styles["exit-status"]
-                    : styles["pending-status"]
+                  ? styles["exit-status"]
+                  : styles["pending-status"]
               }
             >
               <Icomoon
@@ -129,8 +129,8 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                   Number(status) === 9
                     ? "active"
                     : Number(status) === 4
-                      ? "exit"
-                      : "pending"
+                    ? "exit"
+                    : "pending"
                 }
                 size="0.36rem"
               />
@@ -254,7 +254,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
             </div>
 
             <CollapseCard
-              backgroundColor="rgba(26, 40, 53, 0.2)"
+              background="rgba(26, 40, 53, 0.2)"
               mt=".36rem"
               title={
                 <div className="flex items-center">
@@ -346,7 +346,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                     </div>
                   )}
 
-                  <EthRewardChart
+                  <CustomChart
                     width="340px"
                     height="330px"
                     xData={chartXData}
@@ -417,7 +417,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                 </div>
 
                 <div className="ml-[1.8rem] mr-[.56rem] mt-[35px] flex-1 h-[253px] flex flex-col">
-                  <div className="w-[36px] h-[36px] self-center relative z-10">
+                  <div className="w-[72px] h-[72px] self-center relative z-10">
                     <Image src={ethIcon} alt="eth" layout="fill" />
                   </div>
                   <div
@@ -465,7 +465,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
             </div>
 
             <CollapseCard
-              backgroundColor="rgba(26, 40, 53, 0.2)"
+              background="rgba(26, 40, 53, 0.2)"
               mt=".36rem"
               title={<div className="text-white text-[.32rem]">History</div>}
             >

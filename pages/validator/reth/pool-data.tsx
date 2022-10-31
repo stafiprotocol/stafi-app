@@ -41,7 +41,7 @@ const PoolData = () => {
       </div>
 
       <CollapseCard
-        backgroundColor="rgba(26, 40, 53, 0.2)"
+        background="rgba(26, 40, 53, 0.2)"
         mt=".75rem"
         title={<div className="text-white text-[.32rem]">Token Overview</div>}
       >
@@ -88,7 +88,7 @@ const PoolData = () => {
       </CollapseCard>
 
       <CollapseCard
-        backgroundColor="rgba(26, 40, 53, 0.2)"
+        background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={
           <div className="flex items-center">
@@ -145,7 +145,7 @@ const PoolData = () => {
       </CollapseCard>
 
       <CollapseCard
-        backgroundColor="rgba(26, 40, 53, 0.2)"
+        background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={<div className="text-white text-[.32rem]">APR</div>}
       >
@@ -153,8 +153,8 @@ const PoolData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
-                title='Moving average of APR for 7 days period'
-                text='Staker APR'
+                title="Moving average of APR for 7 days period"
+                text="Staker APR"
               />
             </div>
 

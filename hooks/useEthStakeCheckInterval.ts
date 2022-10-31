@@ -1,10 +1,6 @@
+import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
 import { getApiHost } from "config/env";
-import {
-  getStafiEthContractConfig,
-  getStafiLightNodeAbi,
-  getStafiSuperNodeAbi,
-} from "config/eth";
-import { useEffect } from "react";
+import { getStafiEthContractConfig } from "config/metaMask";
 import { useCallback } from "react";
 import { setEthStakeParams } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";

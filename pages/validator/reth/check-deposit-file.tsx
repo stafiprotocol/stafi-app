@@ -1,30 +1,31 @@
 import classNames from "classnames";
+import { AnimateBee } from "components/common/AnimateBee";
 import { Button } from "components/common/button";
 import { Card } from "components/common/card";
 import { CircularLoading } from "components/common/CircularLoading";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
 import { ValidatorLayout } from "components/layout/layout_validator";
-import {
-  getStafiEthContractConfig,
-  getStafiLightNodeAbi,
-  getStafiSuperNodeAbi
-} from "config/eth";
+import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
 import { getEtherScanTxUrl } from "config/explorer";
+import { getStafiEthContractConfig } from "config/metaMask";
 import { useInterval } from "hooks/useInterval";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import bee from "public/bee.png";
-import beeLight from "public/bee_light.png";
 import checkFileError from "public/check_file_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
-import rectangle from "public/rectangle1.svg";
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
+import rectangle from "public/rectangle_h.svg";
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import styles from "styles/reth/CheckFile.module.scss";
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
-import styles from "styles/reth/CheckFile.module.scss";
-import { AnimateBee } from "components/common/AnimateBee";
 
 const CheckFile = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -46,7 +47,7 @@ const CheckFile = () => {
   const depositPubkeys = useMemo(() => {
     const { pubkeys } = router.query;
     if (!pubkeys) {
-      return []
+      return [];
     } else if (!Array.isArray(pubkeys)) {
       return [pubkeys];
     }
@@ -115,7 +116,7 @@ const CheckFile = () => {
           setStatus("success");
         }
       }
-    } catch { }
+    } catch {}
   }, [router, status, depositPubkeys]);
 
   useInterval(fetchStatus, 8000);
@@ -134,17 +135,17 @@ const CheckFile = () => {
               status === "loading"
                 ? "text-white"
                 : status === "success"
-                  ? "text-primary"
-                  : "text-error"
+                ? "text-primary"
+                : "text-error"
             )}
           >
             {status === "loading"
               ? "File Submitted, wait for checking…"
               : status === "success"
-                ? (router.query.type as string) === "solo"
-                  ? `${depositPubkeys.length * 4} ETH deposited successfully!`
-                  : "Deposited successfully!"
-                : "Transaction Failed"}
+              ? (router.query.type as string) === "solo"
+                ? `${depositPubkeys.length * 4} ETH deposited successfully!`
+                : "Deposited successfully!"
+              : "Transaction Failed"}
           </div>
 
           <div
@@ -153,15 +154,15 @@ const CheckFile = () => {
               status === "loading"
                 ? "text-text2"
                 : status === "success"
-                  ? "text-primary"
-                  : "text-error"
+                ? "text-primary"
+                : "text-error"
             )}
           >
             {status === "loading"
               ? "It may take 5 minutes, please wait for a moment"
               : status === "success"
-                ? "You are now onboard"
-                : "File check failed"}
+              ? "You are now onboard"
+              : "File check failed"}
           </div>
 
           <a
@@ -200,7 +201,7 @@ const CheckFile = () => {
           </div>
 
           <div className="self-stretch relative flex flex-col items-center">
-            {status === 'loading' && <AnimateBee />}
+            {status === "loading" && <AnimateBee />}
 
             {status === "success" && (
               <div className="mt-[.56rem] w-[1.8rem] h-[1.8rem] relative">

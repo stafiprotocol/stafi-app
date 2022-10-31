@@ -1,9 +1,6 @@
+import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
 import { getApiHost } from "config/env";
-import {
-  getStafiEthContractConfig,
-  getStafiLightNodeAbi,
-  getStafiSuperNodeAbi
-} from "config/eth";
+import { getStafiEthContractConfig } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useCallback, useEffect, useState } from "react";
 import { createWeb3 } from "utils/web3Utils";

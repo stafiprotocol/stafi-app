@@ -10,6 +10,7 @@ type ButtonProps = React.PropsWithChildren<{
   width?: string;
   height?: string;
   fontSize?: string;
+  radius?: string;
   onClick?: () => void;
 }>;
 
@@ -31,6 +32,7 @@ export const Button = (props: ButtonProps) => {
         marginTop: props.mt || "0",
         fontSize: props.fontSize || "0.32rem",
         cursor: props.loading || props.disabled ? "default" : "pointer",
+        borderRadius: props.radius || (props.stroke ? ".12rem" : ".32rem"),
       }}
       onClick={() => {
         if (!props.disabled && !props.loading) {
@@ -46,8 +48,8 @@ export const Button = (props: ButtonProps) => {
                 ? "#5b6872"
                 : "#5b6872"
               : props.stroke
-                ? "#00f3ab"
-                : "#1a2835",
+              ? "#00f3ab"
+              : "#1a2835",
           }}
         >
           <CircularLoading color="inherit" size={props.fontSize || "0.32rem"} />

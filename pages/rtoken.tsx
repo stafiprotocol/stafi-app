@@ -2,11 +2,10 @@ import { MyLayoutContext } from "components/layout/layout";
 import { RTokenOverviewCard } from "components/rtoken/RTokenOverviewCard";
 import Image from "next/image";
 import leftArrowIcon from "public/icon_arrow_left.png";
-import rectangle from "public/rectangle1.svg";
+import rectangle from "public/rectangle_h.svg";
 import rTokenImage from "public/rToken.svg";
 import React, { useEffect } from "react";
 import { openLink } from "utils/common";
-// import styles from "../styles/rTokenPage.module.scss";
 
 const RTokenPage = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);

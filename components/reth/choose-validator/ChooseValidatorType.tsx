@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { Button } from "components/common/button";
-import { getMetamaskChainId } from "config/eth";
+import { MyLayoutContext } from "components/layout/layout";
+import { getMetamaskValidatorChainId } from "config/metaMask";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useEthValidatorType } from "hooks/useEthValidatorType";
 import Image from "next/image";
@@ -12,12 +13,13 @@ import soloValidatorText from "public/soloValidator_text.svg";
 import trustValidatorText from "public/trustValidator_text.svg";
 import validatorSelected from "public/validator_selected.svg";
 import validatorUnselected from "public/validator_unselected.svg";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { openLink } from "utils/common";
 import { connectMetaMask } from "utils/web3Utils";
 import styles from "../../../styles/reth/ChooseValidator.module.scss";
 
 export const ChooseValidatorType = () => {
+  const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
   const router = useRouter();
   const [selectedType, setSelectedType] = useState<
     "solo" | "trusted" | undefined
@@ -132,8 +134,8 @@ export const ChooseValidatorType = () => {
         }
         mt=".76rem"
         onClick={() => {
-          if (!account || chainId !== getMetamaskChainId()) {
-            connectMetaMask();
+          if (!account || isWrongMetaMaskNetwork) {
+            connectMetaMask(getMetamaskValidatorChainId());
             return;
           }
           if (selectedType === "trusted" && !isTrust) {
@@ -150,8 +152,8 @@ export const ChooseValidatorType = () => {
         {!account
           ? "Connect Wallet"
           : selectedType === "trusted" && !isTrust
-            ? "Apply for trusted validator"
-            : "Next Step"}
+          ? "Apply for trusted validator"
+          : "Next Step"}
       </Button>
     </div>
   );

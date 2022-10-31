@@ -36,7 +36,7 @@ const MyData = () => {
       </div>
 
       <CollapseCard
-        backgroundColor="rgba(26, 40, 53, 0.2)"
+        background="rgba(26, 40, 53, 0.2)"
         mt=".75rem"
         title={<div className="text-white text-[.32rem]">Managed ETH</div>}
       >

@@ -1,4 +1,7 @@
-import { getStafiEthContractConfig, getStafiNodeManagerAbi } from "config/eth";
+import {
+  getStafiEthContractConfig,
+  getStafiNodeManagerAbi,
+} from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useState } from "react";
 import { useEffect, useCallback } from "react";

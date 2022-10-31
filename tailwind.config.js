@@ -6,6 +6,7 @@ module.exports = {
   ],
   theme: {
     colors: {
+      transparent: "transparent",
       white: "#ffffff",
       primary: "#00F3AB",
       navbarBg: "transparent",
@@ -38,18 +39,18 @@ module.exports = {
     extend: {
       keyframes: {
         beeScale: {
-          '0%, 100%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(1.4)' }
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.4)" },
         },
         beeLight: {
-          '0%, 100%': { opacity: 0 },
-          '50%': { opacity: 1 }
-        }
+          "0%, 100%": { opacity: 0 },
+          "50%": { opacity: 1 },
+        },
       },
       animation: {
-        beeScale: 'beeScale 1.5s linear infinite',
-        beeLight: 'beeLight 1.5s linear infinite'
-      }
+        beeScale: "beeScale 1.5s linear infinite",
+        beeLight: "beeLight 1.5s linear infinite",
+      },
     },
   },
   plugins: [],

@@ -13,7 +13,7 @@ import warningIcon from "public/icon_warning.svg";
 import { useState } from "react";
 import { formatNumber } from "utils/number";
 import styles from "../../../styles/reth/MyData.module.scss";
-import { EthRewardChart } from "../EthRewardChart";
+import { CustomChart } from "../../data/CustomChart";
 import { MyRewardList } from "./MyRewardList";
 
 export const MyReward = () => {
@@ -49,7 +49,7 @@ export const MyReward = () => {
   if (requestStatus === RequestStatus.success && totalCount === 0) {
     return (
       <CollapseCard
-        backgroundColor="rgba(26, 40, 53, 0.2)"
+        background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={<div className="text-white text-[.32rem]">My Reward</div>}
       >
@@ -76,7 +76,7 @@ export const MyReward = () => {
 
   return (
     <CollapseCard
-      backgroundColor="rgba(26, 40, 53, 0.2)"
+      background="rgba(26, 40, 53, 0.2)"
       mt=".36rem"
       title={<div className="text-white text-[.32rem]">My Rewards</div>}
     >
@@ -109,7 +109,7 @@ export const MyReward = () => {
             </div>
           )}
 
-          <EthRewardChart
+          <CustomChart
             width="340px"
             height="330px"
             xData={chartXData}
@@ -170,7 +170,7 @@ export const MyReward = () => {
         </div>
 
         <div className="ml-[1.8rem] mr-[.56rem] mt-[35px] flex-1 h-[253px] flex flex-col">
-          <div className="w-[36px] h-[36px] self-center relative z-10">
+          <div className="w-[72px] h-[72px] self-center relative z-10">
             <Image src={ethIcon} alt="eth" layout="fill" />
           </div>
           <div

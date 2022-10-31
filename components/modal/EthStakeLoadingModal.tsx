@@ -5,11 +5,8 @@ import { CircularLoading } from "components/common/CircularLoading";
 import { Icomoon } from "components/icon/Icomoon";
 import { StakingLeftExplanation } from "components/reth/stake/StakingLeftExplanation";
 import { getApiHost } from "config/env";
-import {
-  getStafiEthContractConfig,
-  getStafiLightNodeAbi,
-  getStafiSuperNodeAbi,
-} from "config/eth";
+import { getStafiEthContractConfig } from "config/metaMask";
+import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
 import { getEtherScanTxUrl } from "config/explorer";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useInterval } from "hooks/useInterval";
@@ -137,20 +134,20 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
               Number(newStatus) === 4
                 ? "error"
                 : Number(newStatus) < 3
-                  ? "staking"
-                  : Number(newStatus) === 3
-                    ? "active"
-                    : Number(newStatus) < 8
-                      ? "staked"
-                      : Number(newStatus) === 8
-                        ? "waiting"
-                        : Number(newStatus) === 9
-                          ? "active"
-                          : "exit",
+                ? "staking"
+                : Number(newStatus) === 3
+                ? "active"
+                : Number(newStatus) < 8
+                ? "staked"
+                : Number(newStatus) === 8
+                ? "waiting"
+                : Number(newStatus) === 9
+                ? "active"
+                : "exit",
           })
         );
       }
-    } catch { }
+    } catch {}
   }, [dispatch, ethStakeParams]);
 
   useInterval(fetchStatus, 8000);
@@ -191,16 +188,18 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                 ethStakeParams?.status === "active"
                   ? "text-primary"
                   : ethStakeParams?.status === "error"
-                    ? "text-error"
-                    : "text-white"
+                  ? "text-error"
+                  : "text-white"
               )}
             >
               {ethStakeParams?.status === "active"
-                ? `${Number(ethStakeParams?.pubkeys.length) * 32
-                } ETH staked successfully!`
+                ? `${
+                    Number(ethStakeParams?.pubkeys.length) * 32
+                  } ETH staked successfully!`
                 : ethStakeParams?.status === "error"
-                  ? "Transaction Failed"
-                  : `You are now staking ${Number(ethStakeParams?.pubkeys.length) * 32
+                ? "Transaction Failed"
+                : `You are now staking ${
+                    Number(ethStakeParams?.pubkeys.length) * 32
                   } ETH`}
             </div>
 
@@ -210,15 +209,16 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                 ethStakeParams?.status === "active"
                   ? "text-primary hidden"
                   : ethStakeParams?.status === "error"
-                    ? "text-error"
-                    : "text-text2"
+                  ? "text-error"
+                  : "text-text2"
               )}
             >
               {ethStakeParams?.status === "active"
                 ? "You are now onboard"
                 : ethStakeParams?.status === "error"
-                  ? "File check failed"
-                  : `File is uploading onchain, ${Number(ethStakeParams?.pubkeys.length) * 32
+                ? "File check failed"
+                : `File is uploading onchain, ${
+                    Number(ethStakeParams?.pubkeys.length) * 32
                   } ETH is being staked in your account`}
             </div>
 
@@ -391,10 +391,10 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
 
                       {(ethStakeParams?.status === "staked" ||
                         ethStakeParams?.status === "waiting") && (
-                          <div className="ml-[.26rem]">
-                            <CircularLoading color="info" size=".24rem" />
-                          </div>
-                        )}
+                        <div className="ml-[.26rem]">
+                          <CircularLoading color="info" size=".24rem" />
+                        </div>
+                      )}
 
                       {ethStakeParams?.status === "active" && (
                         <div className="ml-[.26rem]">

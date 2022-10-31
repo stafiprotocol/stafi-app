@@ -8,7 +8,9 @@ import styles from "styles/reth/RethLayout.module.scss";
 
 type ValidatorTokenStakeLayoutProps = React.PropsWithChildren<{}>;
 
-export const ValidatorTokenStakeLayout = (props: ValidatorTokenStakeLayoutProps) => {
+export const ValidatorTokenStakeLayout = (
+  props: ValidatorTokenStakeLayoutProps
+) => {
   const router = useRouter();
   const isTokenStake = router.pathname.endsWith("token-stake");
   const isMyData = router.pathname.endsWith("my-data");
@@ -16,7 +18,7 @@ export const ValidatorTokenStakeLayout = (props: ValidatorTokenStakeLayoutProps)
 
   return (
     <div>
-      <Card backgroundColor="#0A131B">
+      <Card background="#0A131B">
         <div>
           <div className="h-[1.33rem] border-solid border-b-[1px] border-b-text3 flex items-center justify-between">
             <div className="self-stretch flex items-stretch">

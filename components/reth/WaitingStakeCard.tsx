@@ -1,22 +1,21 @@
 import classNames from "classnames";
 import { Button } from "components/common/button";
+import { GradientText } from "components/common/GradientText";
+import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
+import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
 import { hooks } from "connectors/metaMask";
 import { EthDepositItem } from "hooks/useEthStakeList";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import ethGreenIcon from "public/eth_type_green.svg";
 import ethYellowIcon from "public/eth_type_yellow.svg";
 import copyIcon from "public/icon_copy.svg";
+import { useState } from "react";
+import { openLink } from "utils/common";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import commonStyles from "../../styles/Common.module.scss";
-import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
-import { useState } from "react";
-import { MyTooltip } from "components/common/MyTooltip";
 import styles from "../../styles/reth/WaitingStakeCard.module.scss";
-import { openLink } from "utils/common";
 
 interface WaitingStakeCardProps {
   depositItem: EthDepositItem;
@@ -102,14 +101,9 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
           />
         </div>
 
-        <div
-          className={classNames(
-            commonStyles["gradient-text"],
-            "font-bold text-[.4rem]"
-          )}
-        >
+        <GradientText size=".4rem" fontWeight="bold">
           32 ETH
-        </div>
+        </GradientText>
       </div>
 
       <div

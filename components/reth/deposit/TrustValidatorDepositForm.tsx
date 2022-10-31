@@ -5,9 +5,9 @@ import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { isDev } from "config/env";
 import {
-  getMetamaskChainId,
+  getMetamaskValidatorChainId,
   getStafiEthWithdrawalCredentials,
-} from "config/eth";
+} from "config/metaMask";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
@@ -17,8 +17,11 @@ import { useRouter } from "next/router";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import closeIcon from "public/icon_close.svg";
 import uploadIcon from "public/upload.svg";
-import React, { useEffect, useState } from "react";
-import { handleEthDeposit, updateEthBalance } from "redux/reducers/EthSlice";
+import React, { useContext, useState } from "react";
+import {
+  handleEthValidatorDeposit,
+  updateEthBalance,
+} from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
@@ -27,12 +30,13 @@ import { connectMetaMask } from "utils/web3Utils";
 import styles from "../../../styles/reth/TrustValidatorDeposit.module.scss";
 
 export const TrustValidatorDepositForm = () => {
-  const { updateEthBalance } = React.useContext(MyLayoutContext);
+  const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { useAccount, useChainId } = hooks;
+  const { useAccount, useChainId, useProvider } = hooks;
   const account = useAccount();
   const chainId = useChainId();
+  const provider = useProvider();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
   const [fileName, setFileName] = useState<string>("");
   const { unmatchedEth } = useEthPoolData();
@@ -151,8 +155,8 @@ export const TrustValidatorDepositForm = () => {
           }
           height="1.3rem"
           onClick={() => {
-            if (!account || chainId !== getMetamaskChainId()) {
-              connectMetaMask();
+            if (!account || isWrongMetaMaskNetwork) {
+              connectMetaMask(getMetamaskValidatorChainId());
               return;
             }
 
@@ -162,13 +166,12 @@ export const TrustValidatorDepositForm = () => {
             }
 
             dispatch(
-              handleEthDeposit(
+              handleEthValidatorDeposit(
                 account,
                 validatorKeys,
                 "trusted",
                 (success, result) => {
-                  updateEthBalance();
-
+                  dispatch(updateEthBalance(provider));
                   if (success) {
                     const pubkeys: string[] = [];
 
@@ -182,7 +185,7 @@ export const TrustValidatorDepositForm = () => {
                         query: {
                           pubkeys,
                           type: "trusted",
-                          txHash: result.transactionHash,
+                          txHash: result?.transactionHash,
                         },
                       },
                       "/validator/reth/check-deposit-file"
@@ -196,13 +199,13 @@ export const TrustValidatorDepositForm = () => {
           {!account
             ? "Connect Wallet"
             : validatorKeys.length === 0
-              ? "Please Upload 1 json file"
-              : ethTxLoading
-                ? "Depositing, please wait for a moment..."
-                : !isNaN(Number(unmatchedEth)) &&
-                  Number(unmatchedEth) < validatorKeys.length
-                  ? "Insufficient ETH in pool"
-                  : "Deposit"}
+            ? "Please Upload 1 json file"
+            : ethTxLoading
+            ? "Depositing, please wait for a moment..."
+            : !isNaN(Number(unmatchedEth)) &&
+              Number(unmatchedEth) < validatorKeys.length
+            ? "Insufficient ETH in pool"
+            : "Deposit"}
         </Button>
       </div>
 

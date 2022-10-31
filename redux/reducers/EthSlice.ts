@@ -1,14 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  getStafiEthContractConfig,
   getStafiLightNodeAbi,
   getStafiNetworkSettingsAbi,
   getStafiNodeManagerAbi,
   getStafiSuperNodeAbi,
-} from "config/eth";
+  getStafiUserDepositAbi,
+} from "config/abi";
 import { getEtherScanTxUrl } from "config/explorer";
+import { getStafiEthContractConfig } from "config/metaMask";
 import { AppThunk } from "redux/store";
-import { CANCELLED_MESSAGE } from "utils/constants";
+import { CANCELLED_MESSAGE, COMMON_ERROR_MESSAGE } from "utils/constants";
 import snackbarUtil from "utils/snackbarUtils";
 import {
   removeStorage,
@@ -83,8 +84,9 @@ export const {
 export default ethSlice.reducer;
 
 export const updateEthBalance =
-  (provider: any, account: string | undefined): AppThunk =>
+  (provider: any): AppThunk =>
   async (dispatch, getState) => {
+    const account = getState().wallet.metaMaskAccount;
     if (!provider || !account) {
       return;
     }
@@ -92,7 +94,7 @@ export const updateEthBalance =
     dispatch(setEthBalance(Web3.utils.fromWei(balance.toString())));
   };
 
-export const handleEthDeposit =
+export const handleEthValidatorDeposit =
   (
     address: string,
     validatorKeys: any[],
@@ -216,22 +218,26 @@ export const handleEthDeposit =
       console.log("result", result);
 
       dispatch(setEthTxLoading(false));
-      callback && callback(true, result);
+      callback && callback(result?.status, result);
 
-      dispatch(
-        addNotice(
-          result.transactionHash,
-          "ETH Deposit",
-          { transactionHash: result.transactionHash, sender: address },
-          {
-            type,
-            amount: (type === "solo" ? 4 * pubkeys.length : 0) + "",
-            pubkeys,
-          },
-          getEtherScanTxUrl(result.transactionHash),
-          "Confirmed"
-        )
-      );
+      if (result?.status) {
+        dispatch(
+          addNotice(
+            result.transactionHash,
+            "ETH Deposit",
+            { transactionHash: result.transactionHash, sender: address },
+            {
+              type,
+              amount: (type === "solo" ? 4 * pubkeys.length : 0) + "",
+              pubkeys,
+            },
+            getEtherScanTxUrl(result.transactionHash),
+            "Confirmed"
+          )
+        );
+      } else {
+        throw new Error(COMMON_ERROR_MESSAGE);
+      }
     } catch (err: unknown) {
       dispatch(setEthTxLoading(false));
       // console.log(err);
@@ -245,7 +251,8 @@ export const handleEthDeposit =
       }
     }
   };
-export const handleEthStake =
+
+export const handleEthValidatorStake =
   (
     address: string,
     validatorKeys: any[],
@@ -297,35 +304,97 @@ export const handleEthStake =
 
       // console.log("result", result);
 
-      removeStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP);
       dispatch(setEthTxLoading(false));
-      dispatch(
-        setEthStakeParams({
-          pubkeys,
-          type,
-          txHash: result.transactionHash,
-          status: "staking",
-        })
-      );
-      callback && callback(true, result);
+      callback && callback(result?.status, result);
 
-      dispatch(
-        addNotice(
-          result.transactionHash,
-          "ETH Stake",
-          { transactionHash: result.transactionHash, sender: address },
-          {
-            type,
-            amount: 32 * pubkeys.length + "",
+      if (result?.status) {
+        removeStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP);
+        dispatch(
+          setEthStakeParams({
             pubkeys,
-          },
-          getEtherScanTxUrl(result.transactionHash),
-          "Confirmed"
-        )
-      );
-    } catch (err: unknown) {
-      console.log(err);
+            type,
+            txHash: result.transactionHash,
+            status: "staking",
+          })
+        );
 
+        dispatch(
+          addNotice(
+            result.transactionHash,
+            "ETH Stake",
+            { transactionHash: result.transactionHash, sender: address },
+            {
+              type,
+              amount: 32 * pubkeys.length + "",
+              pubkeys,
+            },
+            getEtherScanTxUrl(result.transactionHash),
+            "Confirmed"
+          )
+        );
+      } else {
+        throw new Error(COMMON_ERROR_MESSAGE);
+      }
+    } catch (err: unknown) {
+      dispatch(setEthTxLoading(false));
+      if (err instanceof Error) {
+        snackbarUtil.error(err.message);
+      } else if ((err as any).code === 4001) {
+        snackbarUtil.error(CANCELLED_MESSAGE);
+        dispatch(setEthStakeModalVisible(false));
+        dispatch(setEthStakeParams(undefined));
+      } else {
+        snackbarUtil.error((err as any).message);
+      }
+    }
+  };
+
+export const handleEthTokenStake =
+  (
+    stakeAmount: string,
+    callback?: (success: boolean, result: any) => void
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const web3 = createWeb3();
+      const metaMaskAccount = getState().wallet.metaMaskAccount;
+      const contractConfig = getStafiEthContractConfig();
+      let contract = new web3.eth.Contract(
+        getStafiUserDepositAbi(),
+        contractConfig.userDeposit,
+        {
+          from: metaMaskAccount,
+        }
+      );
+
+      const stakeAmountInWei = web3.utils.toWei(stakeAmount.toString());
+      const result = await contract.methods
+        .deposit()
+        .send({ value: stakeAmountInWei });
+      console.log("stake result", result);
+
+      if (result && result.status) {
+        snackbarUtil.success("Deposit successfully");
+        const txHash = result.transactionHash;
+        // dispatch(
+        //   add_ETH_Staker_stake_Notice(
+        //     stafi_uuid(),
+        //     value.toString(),
+        //     noticeStatus.Confirmed,
+        //     { address, txHash }
+        //   )
+        // );
+      } else {
+        // dispatch(
+        //   add_ETH_Staker_stake_Notice(
+        //     stafi_uuid(),
+        //     value.toString(),
+        //     noticeStatus.Error
+        //   )
+        // );
+        snackbarUtil.error("Error! Please try again");
+      }
+    } catch (err: unknown) {
       dispatch(setEthTxLoading(false));
       if (err instanceof Error) {
         snackbarUtil.error(err.message);

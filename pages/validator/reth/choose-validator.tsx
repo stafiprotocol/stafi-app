@@ -20,7 +20,7 @@ const ChooseValidator = () => {
 
   return (
     <div>
-      <Card backgroundColor="#0A131B">
+      <Card background="#0A131B">
         <div className="flex h-[10.13rem] items-stretch">
           <ChooseValidatorLeftExplanation />
 

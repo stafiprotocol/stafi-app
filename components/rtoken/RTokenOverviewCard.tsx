@@ -1,38 +1,31 @@
-import Image from "next/image";
-import ethLogo from "public/eth_token.svg";
-import ETH from "public/tokenName/ETH.svg";
-import { Icomoon } from "components/icon/Icomoon";
 import { Button } from "components/common/button";
-import { useRouter } from "next/router";
+import { GradientText } from "components/common/GradientText";
+import { Icomoon } from "components/icon/Icomoon";
+import { getMetamaskEthChainId } from "config/metaMask";
+import { hooks } from "connectors/metaMask";
 import { useEthPoolData } from "hooks/useEthPoolData";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import ethLogo from "public/eth_token.svg";
 import { formatNumber } from "utils/number";
-import { hooks, metaMask } from "connectors/metaMask";
 import { connectMetaMask } from "utils/web3Utils";
-import { useEthMyData } from "hooks/useEthMyData";
-// import styles from "../../styles/rTokenPage.module.scss";
 
 export const RTokenOverviewCard = () => {
   const { useAccount: useMetaMaskAccount } = hooks;
   const account = useMetaMaskAccount();
   const router = useRouter();
   const { validatorApr, allEth, allEthValue } = useEthPoolData();
-  const { totalCount } = useEthMyData();
 
   const clickStake = () => {
     if (!account) {
-      connectMetaMask();
+      connectMetaMask(getMetamaskEthChainId());
       return;
     }
-    if (!totalCount) {
-      router.push("/validator/reth/choose-validator");
-    } else {
-      router.push("/validator/reth/token-stake");
-    }
+    router.push("/rtoken/stake/ETH");
   };
 
   return (
     <div
-      // className={styles["all-stakes-card"]}
       className="py-[0] px-[.24rem] h-[4.05rem] w-[3.35rem]"
       style={{
         background: "rgba(23, 38, 54, 0.2)",
@@ -47,8 +40,8 @@ export const RTokenOverviewCard = () => {
 
         <div className="flex flex-col items-end">
           <div className="mt-[.1rem] text-text1 text-[.12rem]">Ethereum</div>
-          <div className="mt-[.12rem] h-[.32rem] w-[.54rem] relative">
-            <Image src={ETH} alt="token name" layout="fill" />
+          <div className="mt-[.12rem]">
+            <GradientText size=".4rem">ETH</GradientText>
           </div>
         </div>
       </div>

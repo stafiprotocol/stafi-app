@@ -2,19 +2,19 @@ import classNames from "classnames";
 import { Button } from "components/common/button";
 import { Card } from "components/common/card";
 import { CollapseCard } from "components/common/CollapseCard";
+import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
 import { ValidatorLayout } from "components/layout/layout_validator";
 import { ConfirmModal } from "components/modal/ConfirmModal";
-import { MyTooltip } from "components/common/MyTooltip";
 import { ValidatorKeyUpload } from "components/reth/upload";
+import { getStafiLightNodeAbi } from "config/abi";
 import { getApiHost, isDev } from "config/env";
 import {
-  getMetamaskChainId,
+  getMetamaskValidatorChainId,
   getStafiEthContractConfig,
   getStafiEthWithdrawalCredentials,
-  getStafiLightNodeAbi
-} from "config/eth";
+} from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
@@ -29,10 +29,19 @@ import warningIcon from "public/icon_warning.svg";
 import nodeNumberCircle from "public/node_number_circle.svg";
 import arrowDownPath from "public/path_arrow_down.svg";
 import dotLinePath from "public/path_dot_line.svg";
-import rectangle from "public/rectangle1.svg";
+import rectangle from "public/rectangle_h.svg";
 import uploadIcon from "public/upload.svg";
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
-import { handleEthDeposit } from "redux/reducers/EthSlice";
+import {
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import {
+  handleEthValidatorDeposit,
+  updateEthBalance,
+} from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import styles from "styles/reth/SoloValidatorDeposit.module.scss";
 import { openLink } from "utils/common";
@@ -43,11 +52,12 @@ import { connectMetaMask, createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
 
 const SoloValidatorDeposit = () => {
-  const { setNavigation, updateEthBalance } = React.useContext(MyLayoutContext);
+  const { setNavigation, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
   const router = useRouter();
-  const { useAccount, useChainId } = hooks;
+  const { useAccount, useChainId, useProvider } = hooks;
   const account = useAccount();
   const chainId = useChainId();
+  const provider = useProvider();
   const dispatch = useAppDispatch();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
   const [fileName, setFileName] = useState<string>("");
@@ -166,7 +176,7 @@ const SoloValidatorDeposit = () => {
 
   return (
     <div>
-      <Card backgroundColor="#0A131B">
+      <Card background="#0A131B">
         <div className="flex flex-col items-stretch px-[.56rem] pb-[.56rem]">
           <div className="self-center relative w-[2.4rem] h-[.9rem]">
             <Image src={rectangle} layout="fill" alt="rectangle" />
@@ -178,7 +188,7 @@ const SoloValidatorDeposit = () => {
 
           <CollapseCard
             mt=".76rem"
-            backgroundColor="rgba(26, 40, 53, 0.2)"
+            background="rgba(26, 40, 53, 0.2)"
             title={
               <div className="flex items-center">
                 <div className="text-white text-[.32rem]">Upload Files</div>
@@ -294,7 +304,7 @@ const SoloValidatorDeposit = () => {
             </div>
           </CollapseCard>
 
-          <Card mt=".56rem" backgroundColor="rgba(26, 40, 53, 0.2)">
+          <Card mt=".56rem" background="rgba(26, 40, 53, 0.2)">
             <div className="p-[.56rem] pb-[.76rem]">
               <div className="text-white text-[.32rem]">Deposit ETH</div>
 
@@ -404,18 +414,18 @@ const SoloValidatorDeposit = () => {
             mt=".32rem"
             height="1.3rem"
             onClick={() => {
-              if (!account || chainId !== getMetamaskChainId()) {
-                connectMetaMask();
+              if (!account || isWrongMetaMaskNetwork) {
+                connectMetaMask(getMetamaskValidatorChainId());
                 return;
               }
 
               dispatch(
-                handleEthDeposit(
+                handleEthValidatorDeposit(
                   account,
                   validatorKeys,
                   "solo",
                   (success, result) => {
-                    updateEthBalance();
+                    dispatch(updateEthBalance(provider));
                     if (success) {
                       const pubkeys: string[] = [];
 
@@ -429,7 +439,7 @@ const SoloValidatorDeposit = () => {
                           query: {
                             pubkeys,
                             type: "solo",
-                            txHash: result.transactionHash,
+                            txHash: result?.transactionHash,
                           },
                         },
                         "/validator/reth/check-deposit-file"
@@ -443,12 +453,12 @@ const SoloValidatorDeposit = () => {
             {!account
               ? "Connect Wallet"
               : validatorKeys.length === 0
-                ? "Please Upload 1 json file"
-                : ethTxLoading
-                  ? "Depositing, please wait for a moment..."
-                  : showInsufficientFunds
-                    ? "Insufficient Funds"
-                    : "Deposit"}
+              ? "Please Upload 1 json file"
+              : ethTxLoading
+              ? "Depositing, please wait for a moment..."
+              : showInsufficientFunds
+              ? "Insufficient Funds"
+              : "Deposit"}
           </Button>
         </div>
       </Card>

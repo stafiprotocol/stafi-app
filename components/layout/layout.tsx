@@ -7,11 +7,9 @@ import { useInit } from "hooks/useInit";
 import { NavigationItem } from "interfaces/common";
 import Head from "next/head";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import {
-  setEthStakeModalVisible,
-  updateEthBalance,
-} from "redux/reducers/EthSlice";
+import React, { useEffect, useMemo, useState } from "react";
+import { setEthStakeModalVisible } from "redux/reducers/EthSlice";
+import { setMetaMaskAccount } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import { isServer } from "utils/common";
 import { HideOnScroll } from "../common/HideOnScroll";
@@ -22,25 +20,41 @@ import { Navbar } from "./navbar";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
+export type WalletType = "MetaMask" | "Polkadot" | "Phantom";
+
 export const MyLayoutContext = React.createContext<{
   navigation: NavigationItem[] | undefined;
   setNavigation: any;
-  updateEthBalance: () => void;
+  targetMetaMaskChainId: number | undefined;
+  setTargetMetaMaskChainId: any;
+  isWrongMetaMaskNetwork: boolean;
+  walletType: WalletType;
+  setWalletType: any;
 }>({
   navigation: undefined,
   setNavigation: undefined,
-  updateEthBalance: () => {},
+  targetMetaMaskChainId: undefined,
+  setTargetMetaMaskChainId: undefined,
+  isWrongMetaMaskNetwork: false,
+  walletType: "MetaMask",
+  setWalletType: undefined,
 });
 
 export const Layout = (props: LayoutProps) => {
   useInit();
   useEthStakeCheckInterval();
   const dispatch = useAppDispatch();
-  const { useAccount: useMetaMaskAccount, useProvider: useMetaMaskProvider } =
-    hooks;
+  const {
+    useAccount: useMetaMaskAccount,
+    useChainId: useMetaMaskChainId,
+    useProvider: useMetaMaskProvider,
+  } = hooks;
   const metaMaskAccount = useMetaMaskAccount();
+  const metaMaskChainId = useMetaMaskChainId();
   const metaMaskProvider = useMetaMaskProvider();
   const [navigation, setNavigation] = useState<NavigationItem[]>([]);
+  const [targetMetaMaskChainId, setTargetMetaMaskChainId] = useState();
+  const [walletType, setWalletType] = useState<WalletType>("MetaMask");
 
   const { ethStakeModalVisible } = useAppSelector((state: RootState) => {
     return {
@@ -48,11 +62,16 @@ export const Layout = (props: LayoutProps) => {
     };
   });
 
+  const isWrongMetaMaskNetwork = useMemo(() => {
+    return metaMaskChainId !== targetMetaMaskChainId;
+  }, [metaMaskChainId, targetMetaMaskChainId]);
+
   useEffect(() => {
     if (!metaMaskAccount) {
       metaMask.connectEagerly();
     }
-  }, [metaMaskAccount]);
+    dispatch(setMetaMaskAccount(metaMaskAccount));
+  }, [dispatch, metaMaskAccount]);
 
   if (isServer()) {
     return null;
@@ -63,9 +82,11 @@ export const Layout = (props: LayoutProps) => {
       value={{
         navigation,
         setNavigation,
-        updateEthBalance: () => {
-          dispatch(updateEthBalance(metaMaskProvider, metaMaskAccount));
-        },
+        targetMetaMaskChainId,
+        setTargetMetaMaskChainId,
+        isWrongMetaMaskNetwork,
+        walletType,
+        setWalletType,
       }}
     >
       <div className="">
