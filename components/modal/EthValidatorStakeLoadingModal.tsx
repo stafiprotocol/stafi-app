@@ -18,65 +18,76 @@ import beeLight from "public/bee_light.png";
 import checkFileError from "public/check_file_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
 import { useCallback, useEffect, useState } from "react";
-import { setEthStakeParams } from "redux/reducers/EthSlice";
+import {
+  setEthValiatorStakeModalVisible,
+  setEthValidatorStakeParams,
+} from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import styles from "../../styles/reth/CheckFile.module.scss";
+import { useEthStakeCheckInterval } from "hooks/useEthStakeCheckInterval";
 
-interface EthStakeLoadingModalProps {
-  visible: boolean;
-  onClose: () => void;
-}
+interface EthStakeLoadingModalProps {}
 
-export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
+export const EthValidatorStakeLoadingModal = (
+  props: EthStakeLoadingModalProps
+) => {
+  useEthStakeCheckInterval();
+
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [showDetail, setShowDetail] = useState(false);
 
-  const { ethStakeParams } = useAppSelector((state: RootState) => {
-    return {
-      ethStakeParams: state.eth.ethStakeParams,
-    };
-  });
+  const { ethValidatorStakeParams, ethValidatorStakeModalVisible } =
+    useAppSelector((state: RootState) => {
+      return {
+        ethValidatorStakeParams: state.eth.ethValidatorStakeParams,
+        ethValidatorStakeModalVisible: state.eth.ethValidatorStakeModalVisible,
+      };
+    });
 
   useEffect(() => {
     if (
-      (ethStakeParams?.status === "active" ||
-        ethStakeParams?.status === "error") &&
-      !props.visible
+      (ethValidatorStakeParams?.status === "active" ||
+        ethValidatorStakeParams?.status === "error") &&
+      !ethValidatorStakeModalVisible
     ) {
-      dispatch(setEthStakeParams(undefined));
+      dispatch(setEthValidatorStakeParams(undefined));
     }
-  }, [dispatch, props.visible, ethStakeParams?.status]);
+  }, [
+    dispatch,
+    ethValidatorStakeModalVisible,
+    ethValidatorStakeParams?.status,
+  ]);
 
   const fetchStatus = useCallback(async () => {
     if (
-      ethStakeParams?.status === "active" ||
-      ethStakeParams?.status === "error"
+      ethValidatorStakeParams?.status === "active" ||
+      ethValidatorStakeParams?.status === "error"
     ) {
       return;
     }
 
-    if (!ethStakeParams) {
+    if (!ethValidatorStakeParams) {
       return;
     }
 
     const web3 = createWeb3();
     const ethContractConfig = getStafiEthContractConfig();
     let contract = new web3.eth.Contract(
-      ethStakeParams.type === "solo"
+      ethValidatorStakeParams.type === "solo"
         ? getStafiLightNodeAbi()
         : getStafiSuperNodeAbi(),
-      ethStakeParams.type === "solo"
+      ethValidatorStakeParams.type === "solo"
         ? ethContractConfig.stafiLightNode
         : ethContractConfig.stafiSuperNode
     );
 
-    const requests = ethStakeParams.pubkeys.map((pubkey) => {
+    const requests = ethValidatorStakeParams.pubkeys.map((pubkey) => {
       return (async () => {
         const method =
-          ethStakeParams.type === "solo"
+          ethValidatorStakeParams.type === "solo"
             ? contract.methods.getLightNodePubkeyStatus
             : contract.methods.getSuperNodePubkeyStatus;
         const status = await method(pubkey).call();
@@ -128,8 +139,8 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
       console.log("prev", newStatus);
       if (changeStatus) {
         dispatch(
-          setEthStakeParams({
-            ...ethStakeParams,
+          setEthValidatorStakeParams({
+            ...ethValidatorStakeParams,
             status:
               Number(newStatus) === 4
                 ? "error"
@@ -148,12 +159,12 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
         );
       }
     } catch {}
-  }, [dispatch, ethStakeParams]);
+  }, [dispatch, ethValidatorStakeParams]);
 
   useInterval(fetchStatus, 8000);
 
   return (
-    <Modal open={props.visible}>
+    <Modal open={ethValidatorStakeModalVisible}>
       <Box
         pt="0"
         pl="0"
@@ -177,7 +188,9 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
           <div className="flex-1 flex flex-col items-center">
             <div
               className="self-end mr-[.56rem] mt-[.56rem] cursor-pointer"
-              onClick={props.onClose}
+              onClick={() => {
+                dispatch(setEthValiatorStakeModalVisible(false));
+              }}
             >
               <Icomoon icon="close" size=".22rem" />
             </div>
@@ -185,46 +198,46 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
             <div
               className={classNames(
                 "mt-[.12rem] font-[700] text-[.42rem]",
-                ethStakeParams?.status === "active"
+                ethValidatorStakeParams?.status === "active"
                   ? "text-primary"
-                  : ethStakeParams?.status === "error"
+                  : ethValidatorStakeParams?.status === "error"
                   ? "text-error"
                   : "text-white"
               )}
             >
-              {ethStakeParams?.status === "active"
+              {ethValidatorStakeParams?.status === "active"
                 ? `${
-                    Number(ethStakeParams?.pubkeys.length) * 32
+                    Number(ethValidatorStakeParams?.pubkeys.length) * 32
                   } ETH staked successfully!`
-                : ethStakeParams?.status === "error"
+                : ethValidatorStakeParams?.status === "error"
                 ? "Transaction Failed"
                 : `You are now staking ${
-                    Number(ethStakeParams?.pubkeys.length) * 32
+                    Number(ethValidatorStakeParams?.pubkeys.length) * 32
                   } ETH`}
             </div>
 
             <div
               className={classNames(
                 "mt-[.3rem] text-[.24rem]",
-                ethStakeParams?.status === "active"
+                ethValidatorStakeParams?.status === "active"
                   ? "text-primary hidden"
-                  : ethStakeParams?.status === "error"
+                  : ethValidatorStakeParams?.status === "error"
                   ? "text-error"
                   : "text-text2"
               )}
             >
-              {ethStakeParams?.status === "active"
+              {ethValidatorStakeParams?.status === "active"
                 ? "You are now onboard"
-                : ethStakeParams?.status === "error"
+                : ethValidatorStakeParams?.status === "error"
                 ? "File check failed"
                 : `File is uploading onchain, ${
-                    Number(ethStakeParams?.pubkeys.length) * 32
+                    Number(ethValidatorStakeParams?.pubkeys.length) * 32
                   } ETH is being staked in your account`}
             </div>
 
             <a
               className="mt-[.57rem] text-warning text-[.24rem]"
-              href={getEtherScanTxUrl(ethStakeParams?.txHash || "")}
+              href={getEtherScanTxUrl(ethValidatorStakeParams?.txHash || "")}
               target="_blank"
               rel="noreferrer"
             >
@@ -261,8 +274,8 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
               <div
                 className={classNames("relative flex justify-center w-[3rem]", {
                   hidden:
-                    ethStakeParams?.status === "active" ||
-                    ethStakeParams?.status === "error",
+                    ethValidatorStakeParams?.status === "active" ||
+                    ethValidatorStakeParams?.status === "error",
                 })}
               >
                 <div className={styles["bee-light"]}>
@@ -273,19 +286,19 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                 </div>
               </div>
 
-              {ethStakeParams?.status === "active" && (
+              {ethValidatorStakeParams?.status === "active" && (
                 <div className="mt-[.56rem] w-[1.8rem] h-[1.8rem] relative">
                   <Image src={checkFileSuccess} layout="fill" alt="success" />
                 </div>
               )}
 
-              {ethStakeParams?.status === "error" && (
+              {ethValidatorStakeParams?.status === "error" && (
                 <div className="mt-[.56rem] w-[1.8rem] h-[1.8rem] relative">
                   <Image src={checkFileError} layout="fill" alt="error" />
                 </div>
               )}
 
-              {ethStakeParams?.status === "error" && (
+              {ethValidatorStakeParams?.status === "error" && (
                 <Link href="/validator/reth/choose-validator">
                   <div className="mt-[.56rem] flex items-center text-[.24rem] text-text1 font-[400] cursor-pointer">
                     Reupload file now
@@ -300,7 +313,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                 </Link>
               )}
 
-              {ethStakeParams?.status !== "active" && (
+              {ethValidatorStakeParams?.status !== "active" && (
                 <a
                   className="mt-[.8rem] text-link underline text-[.24rem]"
                   href="https://discord.com/invite/jB77etn"
@@ -311,12 +324,12 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                 </a>
               )}
 
-              {ethStakeParams?.status === "active" && (
+              {ethValidatorStakeParams?.status === "active" && (
                 <div className="self-stretch mx-[.75rem] mt-[.56rem]">
                   <Button
                     fontSize="0.32rem"
                     onClick={() => {
-                      props.onClose();
+                      dispatch(setEthValiatorStakeModalVisible(false));
                       router.push("/validator/reth/token-stake?tab=staked");
                     }}
                   >
@@ -334,7 +347,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                         Stake
                       </div>
 
-                      {ethStakeParams?.status === "staking" ? (
+                      {ethValidatorStakeParams?.status === "staking" ? (
                         <div className="ml-[.26rem]">
                           <CircularLoading color="info" size=".24rem" />
                         </div>
@@ -348,7 +361,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                     <div
                       className={classNames(
                         "ml-[.32rem] mt-[.14rem] text-active text-[.16rem]",
-                        ethStakeParams?.txHash ? "" : "hidden"
+                        ethValidatorStakeParams?.txHash ? "" : "hidden"
                       )}
                     >
                       <div>Broadcasting...</div>
@@ -357,11 +370,13 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                         Check Tx{" "}
                         <a
                           className="underline"
-                          href={getEtherScanTxUrl(ethStakeParams?.txHash || "")}
+                          href={getEtherScanTxUrl(
+                            ethValidatorStakeParams?.txHash || ""
+                          )}
                           target="_blank"
                           rel="noreferrer"
                         >
-                          {getShortAddress(ethStakeParams?.txHash, 4)}
+                          {getShortAddress(ethValidatorStakeParams?.txHash, 4)}
                         </a>
                       </div>
                     </div>
@@ -373,7 +388,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                         className={styles["detail-indicator-dot"]}
                         style={{
                           border:
-                            ethStakeParams?.status !== "staking"
+                            ethValidatorStakeParams?.status !== "staking"
                               ? "solid 1px #0095eb"
                               : "solid 1px #ffffff",
                         }}
@@ -381,7 +396,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                       <div
                         className={classNames(
                           "text-[.2rem] font-[700] ml-[.08rem]",
-                          ethStakeParams?.status !== "staking"
+                          ethValidatorStakeParams?.status !== "staking"
                             ? "text-active"
                             : "text-white"
                         )}
@@ -389,14 +404,14 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                         Wait
                       </div>
 
-                      {(ethStakeParams?.status === "staked" ||
-                        ethStakeParams?.status === "waiting") && (
+                      {(ethValidatorStakeParams?.status === "staked" ||
+                        ethValidatorStakeParams?.status === "waiting") && (
                         <div className="ml-[.26rem]">
                           <CircularLoading color="info" size=".24rem" />
                         </div>
                       )}
 
-                      {ethStakeParams?.status === "active" && (
+                      {ethValidatorStakeParams?.status === "active" && (
                         <div className="ml-[.26rem]">
                           <Icomoon icon="nike" size=".27rem" color="#0095EB" />
                         </div>
@@ -416,7 +431,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                         className={styles["detail-indicator-dot"]}
                         style={{
                           border:
-                            ethStakeParams?.status === "active"
+                            ethValidatorStakeParams?.status === "active"
                               ? "solid 1px #0095eb"
                               : "solid 1px #ffffff",
                         }}
@@ -424,7 +439,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                       <div
                         className={classNames(
                           "text-[.2rem] font-[700] ml-[.08rem]",
-                          ethStakeParams?.status === "active"
+                          ethValidatorStakeParams?.status === "active"
                             ? "text-active"
                             : "text-white"
                         )}
@@ -438,7 +453,7 @@ export const EthStakeLoadingModal = (props: EthStakeLoadingModalProps) => {
                         </div>
                       )} */}
 
-                      {ethStakeParams?.status === "active" && (
+                      {ethValidatorStakeParams?.status === "active" && (
                         <div className="ml-[.26rem]">
                           <Icomoon icon="nike" size=".27rem" color="#0095EB" />
                         </div>

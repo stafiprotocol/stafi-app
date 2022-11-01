@@ -3,28 +3,27 @@ import { Icomoon } from "components/icon/Icomoon";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import Image from "next/image";
 import loading from "public/loading.png";
-import { setEthStakeModalVisible } from "redux/reducers/EthSlice";
+import { setEthValiatorStakeModalVisible } from "redux/reducers/EthSlice";
 import checkFileError from "public/check_file_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
 import { RootState } from "redux/store";
 import commonStyles from "../../styles/Common.module.scss";
 
-export const EthStakeSidebar = () => {
+export const EthValidatorStakeSidebar = () => {
   const dispatch = useAppDispatch();
-  const { ethStakeModalVisible, ethStakeParams } = useAppSelector(
-    (state: RootState) => {
+  const { ethValidatorStakeModalVisible, ethValidatorStakeParams } =
+    useAppSelector((state: RootState) => {
       return {
-        ethStakeModalVisible: state.eth.ethStakeModalVisible,
-        ethStakeParams: state.eth.ethStakeParams,
+        ethValidatorStakeModalVisible: state.eth.ethValidatorStakeModalVisible,
+        ethValidatorStakeParams: state.eth.ethValidatorStakeParams,
       };
-    }
-  );
+    });
 
   return (
     <div
       className={classNames(
         "fixed right-0 top-[4rem] rounded-l-[.16rem] h-[.8rem] w-[2.2rem] flex items-center cursor-pointer",
-        { hidden: ethStakeModalVisible || !ethStakeParams }
+        { hidden: ethValidatorStakeModalVisible || !ethValidatorStakeParams }
       )}
       style={{
         background: "rgba(26, 40, 53, 0.35)",
@@ -32,25 +31,25 @@ export const EthStakeSidebar = () => {
         backdropFilter: "blur(.13rem)",
       }}
       onClick={() => {
-        dispatch(setEthStakeModalVisible(true));
+        dispatch(setEthValiatorStakeModalVisible(true));
       }}
     >
       <div
         className={classNames(
           "ml-[.16rem] relative w-[.32rem] h-[.32rem]",
-          ethStakeParams?.status !== "active" &&
-            ethStakeParams?.status !== "error"
+          ethValidatorStakeParams?.status !== "active" &&
+            ethValidatorStakeParams?.status !== "error"
             ? commonStyles.loading
             : ""
         )}
       >
         <Image
           src={
-            ethStakeParams?.status === "active"
+            ethValidatorStakeParams?.status === "active"
               ? checkFileSuccess
-              : ethStakeParams?.status === "error"
-                ? checkFileError
-                : loading
+              : ethValidatorStakeParams?.status === "error"
+              ? checkFileError
+              : loading
           }
           layout="fill"
           alt="loading"
@@ -60,20 +59,20 @@ export const EthStakeSidebar = () => {
       <div
         className={classNames(
           "ml-[.16rem] text-[.2rem] leading-normal",
-          ethStakeParams?.status === "active"
+          ethValidatorStakeParams?.status === "active"
             ? "text-primary"
-            : ethStakeParams?.status === "error"
-              ? "text-error"
-              : "text-text1"
+            : ethValidatorStakeParams?.status === "error"
+            ? "text-error"
+            : "text-text1"
         )}
       >
         Staking
         <br />
-        {ethStakeParams?.status === "active"
+        {ethValidatorStakeParams?.status === "active"
           ? "Succeed"
-          : ethStakeParams?.status === "error"
-            ? "Failed"
-            : "Operating"}
+          : ethValidatorStakeParams?.status === "error"
+          ? "Failed"
+          : "Operating"}
       </div>
 
       <div className="ml-[.2rem] rotate-90">

@@ -12,7 +12,7 @@ import { useContext, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
 import { useAppDispatch } from "hooks/common";
-import { handleEthTokenStake } from "redux/reducers/EthSlice";
+import { handleEthTokenStake, updateEthBalance } from "redux/reducers/EthSlice";
 import { formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
 

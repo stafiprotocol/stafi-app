@@ -8,6 +8,7 @@ import {
 } from "config/abi";
 import { getEtherScanTxUrl } from "config/explorer";
 import { getStafiEthContractConfig } from "config/metaMask";
+import { TokenName } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import { CANCELLED_MESSAGE, COMMON_ERROR_MESSAGE } from "utils/constants";
 import snackbarUtil from "utils/snackbarUtils";
@@ -30,14 +31,14 @@ interface EthStakeParams {
 export interface EthState {
   txLoading: boolean;
   balance: string;
-  ethStakeModalVisible: boolean;
-  ethStakeParams: EthStakeParams | undefined;
+  ethValidatorStakeModalVisible: boolean;
+  ethValidatorStakeParams: EthStakeParams | undefined;
 }
 
 const initialState: EthState = {
   txLoading: false,
   balance: "",
-  ethStakeModalVisible: false,
+  ethValidatorStakeModalVisible: false,
   // ethStakeParams: {
   //   type: "trusted",
   //   pubkeys: [
@@ -46,7 +47,7 @@ const initialState: EthState = {
   //   txHash: "0x123",
   //   status: 'waiting'
   // },
-  ethStakeParams: undefined,
+  ethValidatorStakeParams: undefined,
 };
 
 export const ethSlice = createSlice({
@@ -59,17 +60,17 @@ export const ethSlice = createSlice({
     setEthBalance: (state: EthState, action: PayloadAction<string>) => {
       state.balance = action.payload;
     },
-    setEthStakeModalVisible: (
+    setEthValiatorStakeModalVisible: (
       state: EthState,
       action: PayloadAction<boolean>
     ) => {
-      state.ethStakeModalVisible = action.payload;
+      state.ethValidatorStakeModalVisible = action.payload;
     },
-    setEthStakeParams: (
+    setEthValidatorStakeParams: (
       state: EthState,
       action: PayloadAction<EthStakeParams | undefined>
     ) => {
-      state.ethStakeParams = action.payload;
+      state.ethValidatorStakeParams = action.payload;
     },
   },
 });
@@ -77,22 +78,28 @@ export const ethSlice = createSlice({
 export const {
   setEthTxLoading,
   setEthBalance,
-  setEthStakeModalVisible,
-  setEthStakeParams,
+  setEthValiatorStakeModalVisible,
+  setEthValidatorStakeParams,
 } = ethSlice.actions;
 
+declare const window: any;
 export default ethSlice.reducer;
 
-export const updateEthBalance =
-  (provider: any): AppThunk =>
-  async (dispatch, getState) => {
-    const account = getState().wallet.metaMaskAccount;
-    if (!provider || !account) {
-      return;
-    }
-    const balance = await provider.getBalance(account);
+export const updateEthBalance = (): AppThunk => async (dispatch, getState) => {
+  const account = getState().wallet.metaMaskAccount;
+  if (!account) {
+    return;
+  }
+
+  try {
+    const balance = await window.ethereum.request({
+      method: "eth_getBalance",
+      params: [account, "latest"],
+    });
+
     dispatch(setEthBalance(Web3.utils.fromWei(balance.toString())));
-  };
+  } catch {}
+};
 
 export const handleEthValidatorDeposit =
   (
@@ -289,14 +296,14 @@ export const handleEthValidatorStake =
       // console.log("depositDataRoots", depositDataRoots);
 
       dispatch(
-        setEthStakeParams({
+        setEthValidatorStakeParams({
           pubkeys,
           type,
           status: "staking",
           txHash: "",
         })
       );
-      dispatch(setEthStakeModalVisible(true));
+      dispatch(setEthValiatorStakeModalVisible(true));
 
       const result = await contract.methods
         .stake(pubkeys, signatures, depositDataRoots)
@@ -310,7 +317,7 @@ export const handleEthValidatorStake =
       if (result?.status) {
         removeStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP);
         dispatch(
-          setEthStakeParams({
+          setEthValidatorStakeParams({
             pubkeys,
             type,
             txHash: result.transactionHash,
@@ -341,8 +348,8 @@ export const handleEthValidatorStake =
         snackbarUtil.error(err.message);
       } else if ((err as any).code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
-        dispatch(setEthStakeModalVisible(false));
-        dispatch(setEthStakeParams(undefined));
+        dispatch(setEthValiatorStakeModalVisible(false));
+        dispatch(setEthValidatorStakeParams(undefined));
       } else {
         snackbarUtil.error((err as any).message);
       }
@@ -358,6 +365,9 @@ export const handleEthTokenStake =
     try {
       const web3 = createWeb3();
       const metaMaskAccount = getState().wallet.metaMaskAccount;
+      if (!metaMaskAccount) {
+        throw new Error("Please connect MetaMask");
+      }
       const contractConfig = getStafiEthContractConfig();
       let contract = new web3.eth.Contract(
         getStafiUserDepositAbi(),
@@ -373,25 +383,36 @@ export const handleEthTokenStake =
         .send({ value: stakeAmountInWei });
       console.log("stake result", result);
 
+      dispatch(updateEthBalance());
+      callback && callback(result.status, result);
       if (result && result.status) {
         snackbarUtil.success("Deposit successfully");
         const txHash = result.transactionHash;
-        // dispatch(
-        //   add_ETH_Staker_stake_Notice(
-        //     stafi_uuid(),
-        //     value.toString(),
-        //     noticeStatus.Confirmed,
-        //     { address, txHash }
-        //   )
-        // );
+        addNotice(
+          txHash,
+          "rToken Stake",
+          { transactionHash: txHash, sender: metaMaskAccount },
+          {
+            tokenName: TokenName.ETH,
+            amount: stakeAmount,
+          },
+          getEtherScanTxUrl(result.transactionHash),
+          "Confirmed"
+        );
       } else {
-        // dispatch(
-        //   add_ETH_Staker_stake_Notice(
-        //     stafi_uuid(),
-        //     value.toString(),
-        //     noticeStatus.Error
-        //   )
-        // );
+        const txHash = result.transactionHash;
+
+        addNotice(
+          txHash,
+          "rToken Stake",
+          { transactionHash: txHash, sender: metaMaskAccount },
+          {
+            tokenName: TokenName.ETH,
+            amount: stakeAmount,
+          },
+          getEtherScanTxUrl(result.transactionHash),
+          "Error"
+        );
         snackbarUtil.error("Error! Please try again");
       }
     } catch (err: unknown) {
@@ -400,8 +421,8 @@ export const handleEthTokenStake =
         snackbarUtil.error(err.message);
       } else if ((err as any).code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
-        dispatch(setEthStakeModalVisible(false));
-        dispatch(setEthStakeParams(undefined));
+        dispatch(setEthValiatorStakeModalVisible(false));
+        dispatch(setEthValidatorStakeParams(undefined));
       } else {
         snackbarUtil.error((err as any).message);
       }

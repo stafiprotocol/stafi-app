@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { TokenName } from "interfaces/common";
 import {
   addNoticeInternal,
   NoticeDataType,
@@ -13,16 +14,26 @@ import {
 } from "utils/storage";
 import { AppThunk } from "../store";
 
+interface StakeLoadingParams {
+  modalVisible: boolean;
+  tokenName: TokenName;
+  amount: string;
+  willReceiveAmount: string;
+  status: "loading" | "success" | "error";
+}
+
 export interface AppState {
   isLoading: boolean;
   unreadNoticeFlag: boolean;
   updateFlag15s: number;
+  stakeLoadingParams: StakeLoadingParams | undefined;
 }
 
 const initialState: AppState = {
   isLoading: false,
   unreadNoticeFlag: false,
   updateFlag15s: 0,
+  stakeLoadingParams: undefined,
 };
 
 export const appSlice = createSlice({

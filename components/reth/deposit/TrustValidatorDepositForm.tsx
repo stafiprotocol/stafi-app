@@ -11,6 +11,7 @@ import {
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
+import { useWalletAccount } from "hooks/useWalletAccount";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -33,15 +34,13 @@ export const TrustValidatorDepositForm = () => {
   const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { useAccount, useChainId, useProvider } = hooks;
-  const account = useAccount();
-  const chainId = useChainId();
-  const provider = useProvider();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
   const [fileName, setFileName] = useState<string>("");
   const { unmatchedEth } = useEthPoolData();
   const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
     useState(false);
+
+  const { metaMaskAccount } = useWalletAccount();
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -148,14 +147,14 @@ export const TrustValidatorDepositForm = () => {
       <div className="self-stretch mx-[.75rem] mt-[1rem]">
         <Button
           disabled={
-            (!!account && validatorKeys.length === 0) ||
+            (!!metaMaskAccount && validatorKeys.length === 0) ||
             ethTxLoading ||
             isNaN(Number(unmatchedEth)) ||
             Number(unmatchedEth) < validatorKeys.length
           }
           height="1.3rem"
           onClick={() => {
-            if (!account || isWrongMetaMaskNetwork) {
+            if (!metaMaskAccount || isWrongMetaMaskNetwork) {
               connectMetaMask(getMetamaskValidatorChainId());
               return;
             }
@@ -167,11 +166,11 @@ export const TrustValidatorDepositForm = () => {
 
             dispatch(
               handleEthValidatorDeposit(
-                account,
+                metaMaskAccount,
                 validatorKeys,
                 "trusted",
                 (success, result) => {
-                  dispatch(updateEthBalance(provider));
+                  dispatch(updateEthBalance());
                   if (success) {
                     const pubkeys: string[] = [];
 
@@ -196,7 +195,7 @@ export const TrustValidatorDepositForm = () => {
             );
           }}
         >
-          {!account
+          {!metaMaskAccount
             ? "Connect Wallet"
             : validatorKeys.length === 0
             ? "Please Upload 1 json file"

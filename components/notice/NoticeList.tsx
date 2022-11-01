@@ -5,9 +5,7 @@ import { setUnreadNoticeFlag } from "redux/reducers/AppSlice";
 import {
   LocalNotice,
   NoticeEthDepositData,
-  NoticeFeeStationData,
-  NoticeStakeData,
-  NoticeUnbondData,
+  NoticeRTokenStakeData,
 } from "utils/notice";
 import { openLink } from "utils/common";
 import { getNoticeList } from "utils/notice";
@@ -36,29 +34,23 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
   const getNoticeContent = (notice: LocalNotice): string => {
     try {
       let data;
-      if (notice.type === "Fee Station") {
-        data = notice.data as NoticeFeeStationData;
-        return `Swap ${data.inputAmount} ${data.inputTokenName} for ${data.outputAmount} ${data.outputTokenName}.`;
-      }
-      if (notice.type === "Stake") {
-        data = notice.data as NoticeStakeData;
-        return `Stake ${data.stakeAmount} ${data.tokenName}.`;
-      }
-      if (notice.type === "Unbond") {
-        data = notice.data as NoticeUnbondData;
-        return `Unbond ${data.willGetAmount || "--"} ${data.tokenName}.`;
+      if (notice.type === "rToken Stake") {
+        data = notice.data as NoticeRTokenStakeData;
+        return `Stake ${data.amount} ${data.tokenName} from your Wallet to StaFi Validator Pool Contract.`;
       }
       if (notice.type === "ETH Deposit") {
         data = notice.data as NoticeEthDepositData;
-        return `Deposit ${data.amount} ETH as ${data.type} validator, with ${data.pubkeys.length
-          } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
+        return `Deposit ${data.amount} ETH as ${data.type} validator, with ${
+          data.pubkeys.length
+        } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
       }
       if (notice.type === "ETH Stake") {
         data = notice.data as NoticeEthDepositData;
-        return `Stake ${data.amount} ETH as ${data.type} validator, with ${data.pubkeys.length
-          } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
+        return `Stake ${data.amount} ETH as ${data.type} validator, with ${
+          data.pubkeys.length
+        } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
       }
-    } catch (err: unknown) { }
+    } catch (err: unknown) {}
 
     return "";
   };
@@ -76,7 +68,7 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
       // } else {
       //   return `${notice.explorerUrl}/tx/${notice.txDetail.transactionHash}`;
       // }
-    } catch (err: unknown) { }
+    } catch (err: unknown) {}
 
     return "";
   };
@@ -115,24 +107,11 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
                   notice.status === "Confirmed"
                     ? "text-primary"
                     : notice.status === "Pending"
-                      ? "text-text1"
-                      : "text-error"
+                    ? "text-text1"
+                    : "text-error"
                 )}
                 onClick={() => {
                   props.onClose();
-                  if (notice.type === "Stake") {
-                    const stakeData = notice.data as NoticeStakeData;
-                    return;
-                  }
-                  if (
-                    notice.type === "Fee Station" &&
-                    notice.status === "Pending"
-                  ) {
-                    const feeStationData = notice.data as NoticeFeeStationData;
-                    if (feeStationData.uuid) {
-                      return;
-                    }
-                  }
                   openLink(getNoticeUrl(notice));
                 }}
               >

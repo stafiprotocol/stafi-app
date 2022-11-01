@@ -6,6 +6,7 @@ import {
 } from "./storage";
 import * as _ from "lodash";
 import dayjs from "dayjs";
+import { TokenName } from "interfaces/common";
 
 export interface LocalNotice {
   id: string;
@@ -22,7 +23,8 @@ export type NoticeType =
   | "Stake"
   | "Unbond"
   | "ETH Deposit"
-  | "ETH Stake";
+  | "ETH Stake"
+  | "rToken Stake";
 
 export type NoticeStatus = "Pending" | "Error" | "Confirmed";
 
@@ -31,35 +33,7 @@ export interface NoticeTxDetail {
   transactionHash: string;
 }
 
-export type NoticeDataType =
-  | NoticeFeeStationData
-  | NoticeStakeData
-  | NoticeUnbondData
-  | NoticeEthDepositData;
-
-export interface NoticeFeeStationData {
-  inputTokenName: string;
-  outputTokenName: string;
-  inputAmount: string;
-  outputAmount: string;
-  uuid: string;
-  payTxHash?: string;
-}
-
-export interface NoticeStakeData {
-  tokenName: string;
-  stakeAmount: string;
-  eraNumber: number;
-}
-
-export interface NoticeUnbondData {
-  tokenName: string;
-  rTokenName: string;
-  rTokenDenom: string;
-  unstakeAmount: string;
-  willGetAmount: string;
-  completeTimestamp: number;
-}
+export type NoticeDataType = NoticeEthDepositData | NoticeRTokenStakeData;
 
 export interface NoticeEthDepositData {
   type: "solo" | "trusted";
@@ -71,6 +45,11 @@ export interface NoticeEthDepositData {
   type: "solo" | "trusted";
   amount: string;
   pubkeys: string[];
+}
+
+export interface NoticeRTokenStakeData {
+  amount: string;
+  tokenName: TokenName;
 }
 
 export function addNoticeInternal(

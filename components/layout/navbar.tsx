@@ -28,24 +28,18 @@ import { connectMetaMask, MetaMaskConnectType } from "utils/web3Utils";
 import styles from "styles/Navbar.module.scss";
 import { updateEthBalance } from "redux/reducers/EthSlice";
 import { MyLayoutContext } from "./layout";
+import { useWalletAccount } from "hooks/useWalletAccount";
 
 export const Navbar = () => {
   const { isWrongMetaMaskNetwork, targetMetaMaskChainId } =
     useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
 
-  const {
-    useAccount: useMetaMaskAccount,
-    useChainId: useMetaMaskChainId,
-    useProvider: useMetaMaskProvider,
-  } = hooks;
-  const metaMaskAccount = useMetaMaskAccount();
-  const metaMaskChainId = useMetaMaskChainId();
-  const metaMaskProvider = useMetaMaskProvider();
+  const { metaMaskAccount } = useWalletAccount();
 
   useEffect(() => {
-    dispatch(updateEthBalance(metaMaskProvider));
-  }, [dispatch, metaMaskProvider]);
+    dispatch(updateEthBalance());
+  }, [dispatch, metaMaskAccount]);
 
   const { unreadNoticeFlag, ethBalance } = useSelector((state: RootState) => {
     return {

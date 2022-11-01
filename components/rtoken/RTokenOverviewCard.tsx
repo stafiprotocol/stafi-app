@@ -4,6 +4,7 @@ import { Icomoon } from "components/icon/Icomoon";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useEthPoolData } from "hooks/useEthPoolData";
+import { useWalletAccount } from "hooks/useWalletAccount";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ethLogo from "public/eth_token.svg";
@@ -11,13 +12,12 @@ import { formatNumber } from "utils/number";
 import { connectMetaMask } from "utils/web3Utils";
 
 export const RTokenOverviewCard = () => {
-  const { useAccount: useMetaMaskAccount } = hooks;
-  const account = useMetaMaskAccount();
+  const { metaMaskAccount } = useWalletAccount();
   const router = useRouter();
   const { validatorApr, allEth, allEthValue } = useEthPoolData();
 
   const clickStake = () => {
-    if (!account) {
+    if (!metaMaskAccount) {
       connectMetaMask(getMetamaskEthChainId());
       return;
     }

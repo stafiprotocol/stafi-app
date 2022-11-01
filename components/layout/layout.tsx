@@ -2,20 +2,19 @@ import { AppBar } from "@mui/material";
 import classNames from "classnames";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
-import { useEthStakeCheckInterval } from "hooks/useEthStakeCheckInterval";
 import { useInit } from "hooks/useInit";
 import { NavigationItem } from "interfaces/common";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
-import { setEthStakeModalVisible } from "redux/reducers/EthSlice";
+import { setEthValiatorStakeModalVisible } from "redux/reducers/EthSlice";
 import { setMetaMaskAccount } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import { isServer } from "utils/common";
 import { HideOnScroll } from "../common/HideOnScroll";
 import { Icomoon } from "../icon/Icomoon";
-import { EthStakeLoadingModal } from "../modal/EthStakeLoadingModal";
-import { EthStakeSidebar } from "../modal/EthStakeSidebar";
+import { EthValidatorStakeLoadingModal } from "../modal/EthValidatorStakeLoadingModal";
+import { EthValidatorStakeSidebar } from "../modal/EthValidatorStakeSidebar";
 import { Navbar } from "./navbar";
 
 type LayoutProps = React.PropsWithChildren<{}>;
@@ -42,36 +41,16 @@ export const MyLayoutContext = React.createContext<{
 
 export const Layout = (props: LayoutProps) => {
   useInit();
-  useEthStakeCheckInterval();
   const dispatch = useAppDispatch();
-  const {
-    useAccount: useMetaMaskAccount,
-    useChainId: useMetaMaskChainId,
-    useProvider: useMetaMaskProvider,
-  } = hooks;
-  const metaMaskAccount = useMetaMaskAccount();
+  const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
-  const metaMaskProvider = useMetaMaskProvider();
   const [navigation, setNavigation] = useState<NavigationItem[]>([]);
   const [targetMetaMaskChainId, setTargetMetaMaskChainId] = useState();
   const [walletType, setWalletType] = useState<WalletType>("MetaMask");
 
-  const { ethStakeModalVisible } = useAppSelector((state: RootState) => {
-    return {
-      ethStakeModalVisible: state.eth.ethStakeModalVisible,
-    };
-  });
-
   const isWrongMetaMaskNetwork = useMemo(() => {
     return metaMaskChainId !== targetMetaMaskChainId;
   }, [metaMaskChainId, targetMetaMaskChainId]);
-
-  useEffect(() => {
-    if (!metaMaskAccount) {
-      metaMask.connectEagerly();
-    }
-    dispatch(setMetaMaskAccount(metaMaskAccount));
-  }, [dispatch, metaMaskAccount]);
 
   if (isServer()) {
     return null;
@@ -139,12 +118,9 @@ export const Layout = (props: LayoutProps) => {
           <div className="w-[14.88rem] mb-[.3rem]">{props.children}</div>
         </main>
 
-        <EthStakeLoadingModal
-          visible={ethStakeModalVisible}
-          onClose={() => dispatch(setEthStakeModalVisible(false))}
-        />
+        <EthValidatorStakeLoadingModal />
 
-        <EthStakeSidebar />
+        <EthValidatorStakeSidebar />
       </div>
     </MyLayoutContext.Provider>
   );

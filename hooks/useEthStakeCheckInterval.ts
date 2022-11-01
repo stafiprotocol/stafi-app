@@ -2,7 +2,7 @@ import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
 import { getApiHost } from "config/env";
 import { getStafiEthContractConfig } from "config/metaMask";
 import { useCallback } from "react";
-import { setEthStakeParams } from "redux/reducers/EthSlice";
+import { setEthValidatorStakeParams } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import { createWeb3 } from "utils/web3Utils";
 import { useAppDispatch, useAppSelector } from "./common";
@@ -14,8 +14,8 @@ export function useEthStakeCheckInterval() {
   const { ethStakeParams, ethStakeModalVisible } = useAppSelector(
     (state: RootState) => {
       return {
-        ethStakeParams: state.eth.ethStakeParams,
-        ethStakeModalVisible: state.eth.ethStakeModalVisible,
+        ethStakeParams: state.eth.ethValidatorStakeParams,
+        ethStakeModalVisible: state.eth.ethValidatorStakeModalVisible,
       };
     }
   );
@@ -95,7 +95,7 @@ export function useEthStakeCheckInterval() {
       console.log("prev", newStatus);
       if (changeStatus) {
         dispatch(
-          setEthStakeParams({
+          setEthValidatorStakeParams({
             ...ethStakeParams,
             status:
               Number(newStatus) === 4

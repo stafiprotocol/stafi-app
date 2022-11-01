@@ -18,6 +18,7 @@ import {
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
+import { useWalletAccount } from "hooks/useWalletAccount";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -54,10 +55,6 @@ import Web3 from "web3";
 const SoloValidatorDeposit = () => {
   const { setNavigation, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
   const router = useRouter();
-  const { useAccount, useChainId, useProvider } = hooks;
-  const account = useAccount();
-  const chainId = useChainId();
-  const provider = useProvider();
   const dispatch = useAppDispatch();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
   const [fileName, setFileName] = useState<string>("");
@@ -69,6 +66,8 @@ const SoloValidatorDeposit = () => {
   const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
     useState(false);
   const [showInsufficientFunds, setShowInsufficientFunds] = useState(false);
+
+  const { metaMaskAccount } = useWalletAccount();
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -103,6 +102,9 @@ const SoloValidatorDeposit = () => {
   }, []);
 
   const estimateFee = useCallback(async () => {
+    if (!metaMaskAccount) {
+      return;
+    }
     if (
       !validatorKeys ||
       validatorKeys.length === 0 ||
@@ -133,7 +135,7 @@ const SoloValidatorDeposit = () => {
       const estimateSoloDepositGas = await contract.methods
         .deposit(pubkeys, signatures, depositDataRoots)
         .estimateGas({
-          from: account,
+          from: metaMaskAccount,
           value: Web3.utils.toWei(4 * validatorKeys.length + ""),
         });
 
@@ -168,7 +170,7 @@ const SoloValidatorDeposit = () => {
         snackbarUtil.error((err as Error).message);
       }
     }
-  }, [validatorKeys, account, gasPrice]);
+  }, [validatorKeys, metaMaskAccount, gasPrice]);
 
   useEffect(() => {
     estimateFee();
@@ -389,7 +391,7 @@ const SoloValidatorDeposit = () => {
 
           <div
             className={classNames("mt-[.76rem] flex items-center", {
-              invisible: !validatorKeys.length || !account,
+              invisible: !validatorKeys.length || !metaMaskAccount,
             })}
           >
             <div className="text-[.32rem] text-primary">
@@ -407,25 +409,25 @@ const SoloValidatorDeposit = () => {
 
           <Button
             disabled={
-              (!!account && validatorKeys.length === 0) ||
+              (!!metaMaskAccount && validatorKeys.length === 0) ||
               ethTxLoading ||
               showInsufficientFunds
             }
             mt=".32rem"
             height="1.3rem"
             onClick={() => {
-              if (!account || isWrongMetaMaskNetwork) {
+              if (!metaMaskAccount || isWrongMetaMaskNetwork) {
                 connectMetaMask(getMetamaskValidatorChainId());
                 return;
               }
 
               dispatch(
                 handleEthValidatorDeposit(
-                  account,
+                  metaMaskAccount,
                   validatorKeys,
                   "solo",
                   (success, result) => {
-                    dispatch(updateEthBalance(provider));
+                    dispatch(updateEthBalance());
                     if (success) {
                       const pubkeys: string[] = [];
 
@@ -450,7 +452,7 @@ const SoloValidatorDeposit = () => {
               );
             }}
           >
-            {!account
+            {!metaMaskAccount
               ? "Connect Wallet"
               : validatorKeys.length === 0
               ? "Please Upload 1 json file"

@@ -12,6 +12,7 @@ import {
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
+import { useWalletAccount } from "hooks/useWalletAccount";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
@@ -28,14 +29,12 @@ export const StakeForm = () => {
   const router = useRouter();
   const { depositType } = router.query;
   const dispatch = useAppDispatch();
-  const { useAccount, useChainId, useProvider } = hooks;
-  const account = useAccount();
-  const chainId = useChainId();
-  const provider = useProvider();
   const [validatorKeys, setValidatorKeys] = useState<any[]>([]);
   const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
     useState(false);
   const { unmatchedEth } = useEthPoolData();
+
+  const { metaMaskAccount } = useWalletAccount();
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -61,11 +60,6 @@ export const StakeForm = () => {
     }
     return pubkeys;
   }, [router]);
-
-  useEffect(() => {
-    // console.log("account", account);
-    // console.log("chainId", chainId);
-  }, [account, chainId]);
 
   return (
     <div className="flex-1 flex flex-col items-center">
@@ -221,10 +215,12 @@ export const StakeForm = () => {
       <div className="self-stretch mx-[.75rem] mt-[.1rem]">
         <Button
           loading={ethTxLoading}
-          disabled={!!account && validatorKeys.length < stakePubkeys.length}
+          disabled={
+            !!metaMaskAccount && validatorKeys.length < stakePubkeys.length
+          }
           height="1.3rem"
           onClick={() => {
-            if (!account || isWrongMetaMaskNetwork) {
+            if (!metaMaskAccount || isWrongMetaMaskNetwork) {
               connectMetaMask(getMetamaskValidatorChainId());
               return;
             }
@@ -245,11 +241,11 @@ export const StakeForm = () => {
 
             dispatch(
               handleEthValidatorStake(
-                account,
+                metaMaskAccount,
                 validatorKeys,
                 depositType as "solo" | "trusted",
                 (success, result) => {
-                  dispatch(updateEthBalance(provider));
+                  dispatch(updateEthBalance());
                   if (success) {
                     router.push("/validator/reth/token-stake");
                   }
@@ -258,7 +254,7 @@ export const StakeForm = () => {
             );
           }}
         >
-          {!account
+          {!metaMaskAccount
             ? "Connect Wallet"
             : validatorKeys.length < stakePubkeys.length
             ? `Please Upload ${stakePubkeys.length} ${
