@@ -56,8 +56,9 @@ const RMaticStakePage = () => {
 	return (
 		<div>
 			<StakeOverview
-				tokeName={TokenName.MATIC}
+				tokenName={TokenName.MATIC}
 				onClickStake={onClickStake}
+				onClickConnectWallet={() => {}}
 			/>
 
 			<CollapseCard
