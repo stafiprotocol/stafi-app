@@ -60,3 +60,9 @@ export enum ChartDu {
   "3M" = "3M",
   "6M" = "6M",
 }
+
+export enum WalletType {
+  MetaMask = "MetaMask",
+  Polkadot = "Polkadot",
+  Phantom = "Phantom",
+}

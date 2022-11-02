@@ -1,16 +1,14 @@
 import { AppBar } from "@mui/material";
 import classNames from "classnames";
 import { RTokenStakeLoadingModal } from "components/modal/RTokenStakeLoadingModal";
-import { hooks, metaMask } from "connectors/metaMask";
-import { useAppDispatch, useAppSelector } from "hooks/common";
+import { hooks } from "connectors/metaMask";
+import { useAppDispatch } from "hooks/common";
 import { useInit } from "hooks/useInit";
-import { NavigationItem } from "interfaces/common";
+import { useWalletAccount } from "hooks/useWalletAccount";
+import { NavigationItem, WalletType } from "interfaces/common";
 import Head from "next/head";
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
-import { setEthValiatorStakeModalVisible } from "redux/reducers/EthSlice";
-import { setMetaMaskAccount } from "redux/reducers/WalletSlice";
-import { RootState } from "redux/store";
+import React, { useMemo, useState } from "react";
 import { isServer } from "utils/common";
 import { HideOnScroll } from "../common/HideOnScroll";
 import { Icomoon } from "../icon/Icomoon";
@@ -20,24 +18,29 @@ import { Navbar } from "./navbar";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
-export type WalletType = "MetaMask" | "Polkadot" | "Phantom";
-
 export const MyLayoutContext = React.createContext<{
   navigation: NavigationItem[] | undefined;
   setNavigation: any;
   targetMetaMaskChainId: number | undefined;
   setTargetMetaMaskChainId: any;
-  isWrongMetaMaskNetwork: boolean;
   walletType: WalletType;
   setWalletType: any;
+  // MetaMask wrong network flag.
+  isWrongMetaMaskNetwork: boolean;
+  // All wallet wrong network flag, including MetaMask, Phantom, Keplr, etc.
+  isWrongNetwork: boolean;
+  // Will change through pages, depending on which wallet to connect.
+  walletNotConnected: boolean;
 }>({
   navigation: undefined,
   setNavigation: undefined,
   targetMetaMaskChainId: undefined,
   setTargetMetaMaskChainId: undefined,
-  isWrongMetaMaskNetwork: false,
-  walletType: "MetaMask",
+  walletType: WalletType.MetaMask,
   setWalletType: undefined,
+  isWrongMetaMaskNetwork: false,
+  isWrongNetwork: false,
+  walletNotConnected: false,
 });
 
 export const Layout = (props: LayoutProps) => {
@@ -47,11 +50,27 @@ export const Layout = (props: LayoutProps) => {
   const metaMaskChainId = useMetaMaskChainId();
   const [navigation, setNavigation] = useState<NavigationItem[]>([]);
   const [targetMetaMaskChainId, setTargetMetaMaskChainId] = useState();
-  const [walletType, setWalletType] = useState<WalletType>("MetaMask");
+  const [walletType, setWalletType] = useState<WalletType>(WalletType.MetaMask);
+
+  const { metaMaskAccount } = useWalletAccount();
 
   const isWrongMetaMaskNetwork = useMemo(() => {
     return metaMaskChainId !== targetMetaMaskChainId;
   }, [metaMaskChainId, targetMetaMaskChainId]);
+
+  const isWrongNetwork = useMemo(() => {
+    if (walletType === WalletType.MetaMask) {
+      return isWrongMetaMaskNetwork;
+    }
+    return false;
+  }, [walletType, isWrongMetaMaskNetwork]);
+
+  const walletNotConnected = useMemo(() => {
+    if (walletType === WalletType.MetaMask) {
+      return !!metaMaskAccount;
+    }
+    return false;
+  }, [walletType, metaMaskAccount]);
 
   if (isServer()) {
     return null;
@@ -64,9 +83,11 @@ export const Layout = (props: LayoutProps) => {
         setNavigation,
         targetMetaMaskChainId,
         setTargetMetaMaskChainId,
-        isWrongMetaMaskNetwork,
         walletType,
         setWalletType,
+        isWrongMetaMaskNetwork,
+        isWrongNetwork,
+        walletNotConnected,
       }}
     >
       <div className="">

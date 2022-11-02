@@ -3,11 +3,12 @@ import { Card } from "components/common/card";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
-import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
-import { TokenName, TokenStandard } from "interfaces/common";
+import { MyLayoutContext } from "components/layout/layout";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_v.svg";
-import { useState } from "react";
+import rectangleError from "public/rectangle_v_error.svg";
+import { useContext, useState, useMemo } from "react";
 import { openLink } from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
 import { TokenStandardSelector } from "./TokenStandardSelector";
@@ -18,6 +19,12 @@ interface StakeOverviewProps {
 }
 
 export const StakeOverview = (props: StakeOverviewProps) => {
+  const {
+    walletType,
+    isWrongNetwork,
+    walletNotConnected,
+    targetMetaMaskChainId,
+  } = useContext(MyLayoutContext);
   const [selectedStandard, setSelectedStandard] = useState(
     TokenStandard.Native
   );
@@ -27,14 +34,19 @@ export const StakeOverview = (props: StakeOverviewProps) => {
       <div
         className="rounded-t-[.16rem] h-[3rem] flex items-center justify-between"
         style={{
-          background:
-            "linear-gradient(153.03deg, rgba(50, 220, 218, 0.282752) 2.46%, rgba(43, 122, 211, 0.270214) 86.13%)",
+          background: isWrongNetwork
+            ? "linear-gradient(164.58deg, rgba(255, 122, 220, 0.218887) 45.57%, rgba(43, 122, 211, 0.270214) 319.15%)"
+            : "linear-gradient(153.03deg, rgba(50, 220, 218, 0.282752) 2.46%, rgba(43, 122, 211, 0.270214) 86.13%)",
           backdropFilter: "blur(.7rem)",
         }}
       >
         <div className="flex items-center">
           <div className="h-[2.2rem] w-[1rem] relative">
-            <Image src={rectangle} alt="rectangle" layout="fill" />
+            <Image
+              src={isWrongNetwork ? rectangleError : rectangle}
+              alt="rectangle"
+              layout="fill"
+            />
           </div>
 
           <div>
@@ -47,8 +59,8 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 />
               </div>
 
-              <GradientText size=".72rem" ml=".24rem">
-                r{props.tokeName}
+              <GradientText size=".72rem" ml=".24rem" isError={isWrongNetwork}>
+                {isWrongNetwork ? "Wrong Network" : `r${props.tokeName}`}
               </GradientText>
             </div>
 

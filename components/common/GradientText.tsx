@@ -5,13 +5,16 @@ type GradientTextProps = React.PropsWithChildren<{
   size: string;
   fontWeight?: string;
   ml?: string;
+  isError?: boolean;
 }>;
 
 export const GradientText = (props: GradientTextProps) => {
   return (
     <div
       className={classNames(
-        commonStyles["gradient-text"],
+        props.isError
+          ? commonStyles["gradient-text-error"]
+          : commonStyles["gradient-text"],
         "ml-.24rem text-[.72rem] tracking-normal"
       )}
       style={{

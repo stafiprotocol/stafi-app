@@ -7,13 +7,13 @@ import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { useAppSelector } from "hooks/common";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { ChartDu, TokenName } from "interfaces/common";
+import { ChartDu, TokenName, WalletType } from "interfaces/common";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { RootState } from "redux/store";
 
 const RTokenStakePage = () => {
-  const { setNavigation, setTargetMetaMaskChainId } =
+  const { setNavigation, setTargetMetaMaskChainId, setWalletType } =
     React.useContext(MyLayoutContext);
   const router = useRouter();
   const [chartDu, setChartDu] = useState(ChartDu.ALL);
@@ -33,7 +33,8 @@ const RTokenStakePage = () => {
 
   useEffect(() => {
     setTargetMetaMaskChainId(getMetamaskEthChainId());
-  }, [setTargetMetaMaskChainId]);
+    setWalletType(WalletType.MetaMask);
+  }, [setTargetMetaMaskChainId, setWalletType]);
 
   return (
     <div>
