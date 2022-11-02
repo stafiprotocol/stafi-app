@@ -5,6 +5,7 @@ interface MyTooltipProps {
   title: string;
   text: string;
   color?: string;
+  hideQuestionIcon?: boolean;
 }
 
 export const MyTooltip = (props: MyTooltipProps) => {
@@ -28,13 +29,17 @@ export const MyTooltip = (props: MyTooltipProps) => {
       }}
     >
       <div className="flex items-center cursor-default">
-        <div className="mr-[.08rem]">{props.text}</div>
+        <div>{props.text}</div>
 
-        <Icomoon
-          icon="question"
-          size="0.16rem"
-          color={props.color || "#5B6872"}
-        />
+        {!props.hideQuestionIcon && (
+          <div className="flex items-center ml-[.08rem]">
+            <Icomoon
+              icon="question"
+              size="0.16rem"
+              color={props.color || "#5B6872"}
+            />
+          </div>
+        )}
       </div>
     </Tooltip>
   );

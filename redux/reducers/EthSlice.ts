@@ -19,7 +19,7 @@ import {
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
-import { addNotice } from "./AppSlice";
+import { addNotice, setIsLoading, setStakeLoadingParams } from "./AppSlice";
 
 interface EthStakeParams {
   type: "solo" | "trusted";
@@ -247,11 +247,7 @@ export const handleEthValidatorDeposit =
       }
     } catch (err: unknown) {
       dispatch(setEthTxLoading(false));
-      // console.log(err);
-
-      if (err instanceof Error) {
-        snackbarUtil.error(err.message);
-      } else if ((err as any).code === 4001) {
+      if ((err as any).code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
       } else {
         snackbarUtil.error((err as any).message);
@@ -344,9 +340,7 @@ export const handleEthValidatorStake =
       }
     } catch (err: unknown) {
       dispatch(setEthTxLoading(false));
-      if (err instanceof Error) {
-        snackbarUtil.error(err.message);
-      } else if ((err as any).code === 4001) {
+      if ((err as any).code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
         dispatch(setEthValiatorStakeModalVisible(false));
         dispatch(setEthValidatorStakeParams(undefined));
@@ -363,6 +357,22 @@ export const handleEthTokenStake =
   ): AppThunk =>
   async (dispatch, getState) => {
     try {
+      dispatch(setIsLoading(true));
+      dispatch(
+        setStakeLoadingParams({
+          modalVisible: true,
+          status: "loading",
+          tokenName: TokenName.ETH,
+          amount: stakeAmount,
+          willReceiveAmount: stakeAmount,
+          progressDetail: {
+            sending: {
+              totalStatus: "loading",
+            },
+          },
+        })
+      );
+
       const web3 = createWeb3();
       const metaMaskAccount = getState().wallet.metaMaskAccount;
       if (!metaMaskAccount) {
@@ -383,48 +393,70 @@ export const handleEthTokenStake =
         .send({ value: stakeAmountInWei });
       console.log("stake result", result);
 
-      dispatch(updateEthBalance());
       callback && callback(result.status, result);
       if (result && result.status) {
         snackbarUtil.success("Deposit successfully");
         const txHash = result.transactionHash;
-        addNotice(
-          txHash,
-          "rToken Stake",
-          { transactionHash: txHash, sender: metaMaskAccount },
-          {
-            tokenName: TokenName.ETH,
-            amount: stakeAmount,
-          },
-          getEtherScanTxUrl(result.transactionHash),
-          "Confirmed"
+        dispatch(
+          addNotice(
+            txHash,
+            "rToken Stake",
+            { transactionHash: txHash, sender: metaMaskAccount },
+            {
+              tokenName: TokenName.ETH,
+              amount: stakeAmount,
+            },
+            getEtherScanTxUrl(result.transactionHash),
+            "Confirmed"
+          )
+        );
+        dispatch(
+          setStakeLoadingParams({
+            status: "success",
+            txHash: txHash,
+            scanUrl: getEtherScanTxUrl(txHash),
+            progressDetail: {
+              sending: {
+                totalStatus: "success",
+                broadcastStatus: "success",
+                packStatus: "success",
+                finalizeStatus: "success",
+              },
+            },
+          })
         );
       } else {
         const txHash = result.transactionHash;
 
-        addNotice(
-          txHash,
-          "rToken Stake",
-          { transactionHash: txHash, sender: metaMaskAccount },
-          {
-            tokenName: TokenName.ETH,
-            amount: stakeAmount,
-          },
-          getEtherScanTxUrl(result.transactionHash),
-          "Error"
+        dispatch(
+          addNotice(
+            txHash,
+            "rToken Stake",
+            { transactionHash: txHash, sender: metaMaskAccount },
+            {
+              tokenName: TokenName.ETH,
+              amount: stakeAmount,
+            },
+            getEtherScanTxUrl(result.transactionHash),
+            "Error"
+          )
         );
         snackbarUtil.error("Error! Please try again");
       }
     } catch (err: unknown) {
-      dispatch(setEthTxLoading(false));
-      if (err instanceof Error) {
-        snackbarUtil.error(err.message);
-      } else if ((err as any).code === 4001) {
+      if ((err as any).code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
-        dispatch(setEthValiatorStakeModalVisible(false));
-        dispatch(setEthValidatorStakeParams(undefined));
+        dispatch(setStakeLoadingParams(undefined));
       } else {
         snackbarUtil.error((err as any).message);
+        dispatch(
+          setStakeLoadingParams({
+            status: "error",
+          })
+        );
       }
+    } finally {
+      dispatch(setIsLoading(false));
+      dispatch(updateEthBalance());
     }
   };

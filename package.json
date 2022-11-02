@@ -36,7 +36,9 @@
     "sass": "^1.54.8",
     "tailwindcss": "^3.1.8",
     "web3": "^1.7.5",
-    "web3-utils": "^1.7.5"
+    "web3-utils": "^1.7.5",
+    "@polkadot/util": "10.1.11",
+    "@polkadot/util-crypto": "10.1.11"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.185",

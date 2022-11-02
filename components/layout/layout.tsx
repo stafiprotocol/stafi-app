@@ -1,5 +1,6 @@
 import { AppBar } from "@mui/material";
 import classNames from "classnames";
+import { RTokenStakeLoadingModal } from "components/modal/RTokenStakeLoadingModal";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useInit } from "hooks/useInit";
@@ -121,6 +122,8 @@ export const Layout = (props: LayoutProps) => {
         <EthValidatorStakeLoadingModal />
 
         <EthValidatorStakeSidebar />
+
+        <RTokenStakeLoadingModal />
       </div>
     </MyLayoutContext.Provider>
   );

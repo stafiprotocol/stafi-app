@@ -15,11 +15,28 @@ import {
 import { AppThunk } from "../store";
 
 interface StakeLoadingParams {
-  modalVisible: boolean;
-  tokenName: TokenName;
-  amount: string;
-  willReceiveAmount: string;
-  status: "loading" | "success" | "error";
+  modalVisible?: boolean;
+  status?: "loading" | "success" | "error";
+  tokenName?: TokenName;
+  amount?: string;
+  willReceiveAmount?: string;
+  scanUrl?: string;
+  txHash?: string;
+  progressDetail?: StakeLoadingProgressDetail;
+}
+
+interface StakeLoadingProgressDetail {
+  sending?: StakeLoadingProgressDetailItem;
+  staking?: StakeLoadingProgressDetailItem;
+  minting?: StakeLoadingProgressDetailItem;
+  swapping?: StakeLoadingProgressDetailItem;
+}
+
+export interface StakeLoadingProgressDetailItem {
+  totalStatus?: "loading" | "success" | "error";
+  broadcastStatus?: "loading" | "success" | "error";
+  packStatus?: "loading" | "success" | "error";
+  finalizeStatus?: "loading" | "success" | "error";
 }
 
 export interface AppState {
@@ -54,11 +71,29 @@ export const appSlice = createSlice({
     setUpdateFlag15s: (state: AppState, action: PayloadAction<number>) => {
       state.updateFlag15s = action.payload;
     },
+    setStakeLoadingParams: (
+      state: AppState,
+      action: PayloadAction<StakeLoadingParams | undefined>
+    ) => {
+      if (!action.payload) {
+        state.stakeLoadingParams = undefined;
+      } else {
+        const newParams = {
+          ...state.stakeLoadingParams,
+          ...action.payload,
+        };
+        state.stakeLoadingParams = newParams;
+      }
+    },
   },
 });
 
-export const { setIsLoading, setUnreadNoticeFlag, setUpdateFlag15s } =
-  appSlice.actions;
+export const {
+  setIsLoading,
+  setUnreadNoticeFlag,
+  setUpdateFlag15s,
+  setStakeLoadingParams,
+} = appSlice.actions;
 
 export default appSlice.reducer;
 

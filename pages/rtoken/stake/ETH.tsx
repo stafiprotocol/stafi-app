@@ -6,6 +6,7 @@ import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { useAppSelector } from "hooks/common";
+import { useWalletAccount } from "hooks/useWalletAccount";
 import { ChartDu, TokenName } from "interfaces/common";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -18,6 +19,7 @@ const RTokenStakePage = () => {
   const [chartDu, setChartDu] = useState(ChartDu.ALL);
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
+  const { metaMaskAccount } = useWalletAccount();
   const { balance } = useAppSelector((state: RootState) => {
     return { balance: state.eth.balance };
   });
@@ -62,6 +64,7 @@ const RTokenStakePage = () => {
 
       <RTokenStakeModal
         tokenName={TokenName.ETH}
+        defaultReceivingAddress={metaMaskAccount}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         balance={balance}

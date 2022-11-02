@@ -8,17 +8,22 @@ import { TokenName, TokenStandard } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
 import { useAppDispatch } from "hooks/common";
 import { handleEthTokenStake, updateEthBalance } from "redux/reducers/EthSlice";
 import { formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
+import { getShortAddress } from "utils/string";
+import { checkMetaMaskAddress } from "utils/common";
+import { useAppSlice } from "hooks/selector";
 
 interface RTokenStakeModalProps {
   visible: boolean;
   tokenName: TokenName;
+  defaultReceivingAddress: string | undefined;
+  editAddressDisabled?: boolean;
   onClose: () => void;
   balance: string;
 }
@@ -26,10 +31,36 @@ interface RTokenStakeModalProps {
 export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const { walletType, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
-  const { tokenName, balance } = props;
+  const {
+    visible,
+    tokenName,
+    balance,
+    defaultReceivingAddress,
+    editAddressDisabled,
+  } = props;
   const [tokenStandard, setTokenStandard] = useState(TokenStandard.Native);
+  const [editAddress, setEditAddress] = useState(false);
   const [targetAddress, setTargetAddress] = useState("");
   const [stakeAmount, setStakeAmount] = useState("");
+
+  const { isLoading } = useAppSlice();
+
+  const addressCorrect = useMemo(() => {
+    if (tokenName === TokenName.ETH) {
+      return checkMetaMaskAddress(targetAddress);
+    }
+    return true;
+  }, [targetAddress, tokenName]);
+
+  useEffect(() => {
+    if (visible) {
+      setTargetAddress(defaultReceivingAddress || "");
+    }
+  }, [visible, defaultReceivingAddress]);
+
+  useEffect(() => {
+    resetState();
+  }, [visible]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
@@ -41,12 +72,32 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     if (Number(stakeAmount) > Number(balance)) {
       return [true, "Insufficient Balance"];
     }
+    if (!addressCorrect) {
+      return [true, "Invalid Receiving Address"];
+    }
     return [false, "Stake"];
-  }, [walletType, isWrongMetaMaskNetwork, balance, stakeAmount]);
+  }, [
+    walletType,
+    isWrongMetaMaskNetwork,
+    balance,
+    stakeAmount,
+    addressCorrect,
+  ]);
+
+  const resetState = () => {
+    setEditAddress(false);
+    setStakeAmount("");
+  };
 
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
-      dispatch(handleEthTokenStake(stakeAmount));
+      dispatch(
+        handleEthTokenStake(stakeAmount, (success) => {
+          if (success) {
+            resetState();
+          }
+        })
+      );
     }
   };
 
@@ -102,20 +153,65 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     onSelect={setTokenStandard}
                   />
 
-                  <Card
-                    background="rgba(25, 38, 52, 0.35)"
-                    borderColor="#1A2835"
-                    ml=".24rem"
-                  >
-                    <div className="h-[.68rem] w-[5.3rem] flex items-center px-[.24rem]">
-                      <CustomInput
-                        fontSize=".18rem"
-                        placeholder="Receiving Address"
-                        value={targetAddress}
-                        handleValueChange={setTargetAddress}
-                      />
+                  {editAddress || !targetAddress ? (
+                    <div className="flex items-center">
+                      <Card
+                        background="rgba(25, 38, 52, 0.35)"
+                        borderColor="#1A2835"
+                        ml=".24rem"
+                      >
+                        <div className="h-[.68rem] w-[5.3rem] flex items-center px-[.24rem]">
+                          <CustomInput
+                            fontSize=".18rem"
+                            placeholder="Receiving Address"
+                            value={targetAddress}
+                            handleValueChange={setTargetAddress}
+                          />
+                        </div>
+                      </Card>
+                      {addressCorrect && (
+                        <div className="ml-[.32rem]">
+                          <Icomoon
+                            icon="complete-outline"
+                            size=".38rem"
+                            color="#00F3AB"
+                          />
+                        </div>
+                      )}
                     </div>
-                  </Card>
+                  ) : (
+                    <Card
+                      background="rgba(25, 38, 52, 0.35)"
+                      borderColor="#1A2835"
+                      ml=".24rem"
+                    >
+                      <div className="h-[.68rem] flex items-center px-[.24rem] text-white">
+                        <div>
+                          <MyTooltip
+                            hideQuestionIcon
+                            title={targetAddress || ""}
+                            text={getShortAddress(targetAddress, 4) || ""}
+                          />
+                        </div>
+
+                        {!editAddressDisabled && (
+                          <div
+                            className="flex items-center ml-[.25rem] cursor-pointer"
+                            onClick={() => {
+                              setEditAddress(true);
+                              setTargetAddress("");
+                            }}
+                          >
+                            <Icomoon
+                              icon="edit"
+                              size=".26rem"
+                              color="#5B6872"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  )}
                 </div>
               </div>
 
@@ -179,6 +275,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
             <Button
               disabled={buttonDisabled}
+              loading={isLoading}
               mt=".36rem"
               fontSize=".32rem"
               height="1.3rem"
