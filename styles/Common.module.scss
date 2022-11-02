@@ -20,3 +20,14 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+.gradient-text-error {
+  background: linear-gradient(
+    168.12deg,
+    rgba(203, 119, 255, 0.64587) -168.74%,
+    #ff0858 230.23%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
