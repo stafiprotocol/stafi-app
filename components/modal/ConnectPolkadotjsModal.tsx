@@ -20,6 +20,7 @@ export const ConnectPolkadotjsModal = (props: Props) => {
 				const accounts = await web3Enable('stafi/rtoken').then(async () => await web3Accounts());
 				console.log(accounts)
 				dispatch(setFisAccounts(accounts as FisAccount[]));
+				props.onClose();
 			}
 			conn();
 		}

@@ -1,7 +1,7 @@
 import { CollapseCard } from "components/common/CollapseCard";
 import { RewardChartPanel } from "components/data/RewardChartPanel";
 import { MyLayoutContext } from "components/layout/layout";
-import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
+import { RMaticStakeModal } from "components/modal/RMaticStakeModal";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskEthChainId } from "config/metaMask";
@@ -11,11 +11,14 @@ import React, { useEffect, useState } from "react";
 import { RootState } from "redux/store";
 import { usePolkadotAccount } from 'hooks/usePolkadotAccount';
 import { ConnectPolkadotjsModal } from "components/modal/ConnectPolkadotjsModal";
+import { useAppDispatch } from "hooks/common";
+import { updateMaticBalance } from "redux/reducers/MaticSlice";
 
 const RMaticStakePage = () => {
 	const { setNavigation, setTargetMetaMaskChainId } =
 		React.useContext(MyLayoutContext);
-
+	
+	const dispatch = useAppDispatch();
 
 	const [chartDu, setChartDu] = useState(ChartDu.ALL);
 	const [stakeModalVisible, setStakeModalVisible] = useState(false);
@@ -43,6 +46,7 @@ const RMaticStakePage = () => {
 		// if polkadotAccount is valid
 		console.log(fisAccounts)
 		if (fisAccounts.length > 0) {
+			dispatch(updateMaticBalance());
 			setStakeModalVisible(true);
 		} else {
 			setConnectPolkadotjsModalVisible(true);
@@ -76,7 +80,7 @@ const RMaticStakePage = () => {
 
 			<StakeMyHistory />
 
-			<RTokenStakeModal
+			<RMaticStakeModal
 				defaultReceivingAddress={fisAccounts[0] ? fisAccounts[0].address : undefined}
 				tokenName={TokenName.MATIC}
 				visible={stakeModalVisible}
