@@ -177,7 +177,6 @@ export const handleMaticStake =
 const sleep = (ms: number) => {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
-
 export const getPools = 
 	(cb?: Function): AppThunk => 
 	async (dispatch, getState) => {
