@@ -67,7 +67,7 @@ export const Layout = (props: LayoutProps) => {
 
   const walletNotConnected = useMemo(() => {
     if (walletType === WalletType.MetaMask) {
-      return !!metaMaskAccount;
+      return !metaMaskAccount;
     }
     return false;
   }, [walletType, metaMaskAccount]);

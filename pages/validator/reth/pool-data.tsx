@@ -132,7 +132,7 @@ const PoolData = () => {
           <div className="flex-1 flex flex-col items-center">
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
-                title="StaFi registered validators overall amount"
+                title="StaFi registered validators overall count"
                 text="Matched Validators"
               />
             </div>

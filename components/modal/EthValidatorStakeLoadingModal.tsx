@@ -5,8 +5,8 @@ import { CircularLoading } from "components/common/CircularLoading";
 import { Icomoon } from "components/icon/Icomoon";
 import { StakingLeftExplanation } from "components/reth/stake/StakingLeftExplanation";
 import { getApiHost } from "config/env";
-import { getStafiEthContractConfig } from "config/metaMask";
-import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
+import { getErc20ContractConfig } from "config/erc20Contract";
+import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/erc20Abi";
 import { getEtherScanTxUrl } from "config/explorer";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useInterval } from "hooks/useInterval";
@@ -74,7 +74,7 @@ export const EthValidatorStakeLoadingModal = (
     }
 
     const web3 = createWeb3();
-    const ethContractConfig = getStafiEthContractConfig();
+    const ethContractConfig = getErc20ContractConfig();
     let contract = new web3.eth.Contract(
       ethValidatorStakeParams.type === "solo"
         ? getStafiLightNodeAbi()

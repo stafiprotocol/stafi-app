@@ -1,34 +1,16 @@
 import { Box, Modal } from "@mui/material";
 import classNames from "classnames";
-import { Button } from "components/common/button";
-import { CircularLoading } from "components/common/CircularLoading";
+import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { Icomoon } from "components/icon/Icomoon";
-import { StakingLeftExplanation } from "components/reth/stake/StakingLeftExplanation";
-import { getApiHost } from "config/env";
-import { getStafiEthContractConfig } from "config/metaMask";
-import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
-import { getEtherScanTxUrl } from "config/explorer";
+import { StakeLoadingProgressItem } from "components/rtoken/StakeLoadingProgressItem";
 import { useAppDispatch, useAppSelector } from "hooks/common";
-import { useInterval } from "hooks/useInterval";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import bee from "public/bee.png";
-import beeLight from "public/bee_light.png";
 import checkFileError from "public/check_file_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
-import { useCallback, useEffect, useState } from "react";
-import {
-  setEthValiatorStakeModalVisible,
-  setEthValidatorStakeParams,
-} from "redux/reducers/EthSlice";
-import { RootState } from "redux/store";
-import { getShortAddress } from "utils/string";
-import { createWeb3 } from "utils/web3Utils";
-import styles from "../../styles/reth/CheckFile.module.scss";
+import { useEffect, useState } from "react";
 import { setStakeLoadingParams } from "redux/reducers/AppSlice";
-import { PrimaryLoading } from "components/common/PrimaryLoading";
-import { StakeLoadingProgressItem } from "components/rtoken/StakeLoadingProgressItem";
+import { RootState } from "redux/store";
 
 export const RTokenStakeLoadingModal = () => {
   const dispatch = useAppDispatch();

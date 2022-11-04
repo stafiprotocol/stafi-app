@@ -2,6 +2,7 @@ import { hooks, metaMask } from "connectors/metaMask";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 import { setUnreadNoticeFlag, setUpdateFlag15s } from "redux/reducers/AppSlice";
+import { updateRTokenPriceList } from "redux/reducers/RTokenSlice";
 import { setMetaMaskAccount } from "redux/reducers/WalletSlice";
 import { getStorage, STORAGE_KEY_UNREAD_NOTICE } from "utils/storage";
 import { useAppDispatch } from "./common";
@@ -14,8 +15,11 @@ export function useInit() {
   const metaMaskAccount = useMetaMaskAccount();
 
   useEffect(() => {
+    // Init notice.
     const unreadNotice = getStorage(STORAGE_KEY_UNREAD_NOTICE);
     dispatch(setUnreadNoticeFlag(!!unreadNotice));
+    // Query priceList.
+    dispatch(updateRTokenPriceList());
   }, [dispatch]);
 
   useInterval(() => {

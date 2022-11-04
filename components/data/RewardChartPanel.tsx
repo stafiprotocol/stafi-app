@@ -1,13 +1,14 @@
 import classNames from "classnames";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
-import { ChartDu } from "interfaces/common";
+import { ChartDu, TokenName } from "interfaces/common";
 import Image from "next/image";
 import { formatNumber } from "utils/number";
 import { CustomChart } from "./CustomChart";
 import ethIcon from "public/eth_type_green.svg";
 import { Card } from "components/common/card";
 import { useEffect, useState } from "react";
+import { useEraReward } from "hooks/useRTokenReward";
 
 interface RewardChartPanelProps {
   chartXData: string[];
@@ -24,6 +25,8 @@ interface RewardChartPanelProps {
 export const RewardChartPanel = (props: RewardChartPanelProps) => {
   const [chartWidth, setChartWidth] = useState("");
   const [chartHeight, setChartHeight] = useState("");
+
+  const {} = useEraReward(TokenName.ETH);
 
   const resizeListener = () => {
     // 1rem:100px

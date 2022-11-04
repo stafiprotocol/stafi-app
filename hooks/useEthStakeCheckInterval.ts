@@ -1,6 +1,6 @@
-import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
+import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/erc20Abi";
 import { getApiHost } from "config/env";
-import { getStafiEthContractConfig } from "config/metaMask";
+import { getErc20ContractConfig } from "config/erc20Contract";
 import { useCallback } from "react";
 import { setEthValidatorStakeParams } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
@@ -30,7 +30,7 @@ export function useEthStakeCheckInterval() {
     }
 
     const web3 = createWeb3();
-    const ethContractConfig = getStafiEthContractConfig();
+    const ethContractConfig = getErc20ContractConfig();
     let contract = new web3.eth.Contract(
       ethStakeParams.type === "solo"
         ? getStafiLightNodeAbi()

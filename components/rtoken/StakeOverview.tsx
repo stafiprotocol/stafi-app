@@ -4,30 +4,61 @@ import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
+import { useRTokenRatio } from "hooks/useRTokenRatio";
+import { useSelectedTokenStandard } from "hooks/useSelectedTokenStandard";
+import { useTokenPrice } from "hooks/useTokenPrice";
 import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import rectangle from "public/rectangle_v.svg";
 import rectangleError from "public/rectangle_v_error.svg";
-import { useContext, useState, useMemo } from "react";
+import { useContext, useState, useMemo, useEffect } from "react";
 import { openLink } from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
+import { formatNumber } from "utils/number";
+import { getSupportedTokenStandards } from "utils/rToken";
+import { connectMetaMask } from "utils/web3Utils";
 import { TokenStandardSelector } from "./TokenStandardSelector";
 
 interface StakeOverviewProps {
-  tokeName: TokenName;
+  tokenName: TokenName;
   onClickStake: () => void;
+  onClickConnectWallet: () => void;
 }
 
 export const StakeOverview = (props: StakeOverviewProps) => {
   const {
     walletType,
     isWrongNetwork,
+    isWrongMetaMaskNetwork,
     walletNotConnected,
     targetMetaMaskChainId,
   } = useContext(MyLayoutContext);
-  const [selectedStandard, setSelectedStandard] = useState(
-    TokenStandard.Native
-  );
+
+  const router = useRouter();
+
+  const selectedStandard = useSelectedTokenStandard(props.tokenName);
+  const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
+  const rTokenRatio = useRTokenRatio(props.tokenName);
+  const rTokenPrice = useTokenPrice("r" + props.tokenName);
+  // console.log("xxx", rTokenBalance, rTokenRatio);
+
+  // User staked token amount.
+  const stakedAmount = useMemo(() => {
+    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenRatio))) {
+      return "--";
+    }
+    return Number(rTokenBalance) * Number(rTokenRatio);
+  }, [rTokenBalance, rTokenRatio]);
+
+  // User staked token value.
+  const stakedValue = useMemo(() => {
+    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenPrice))) {
+      return "--";
+    }
+    return Number(rTokenBalance) * Number(rTokenPrice);
+  }, [rTokenBalance, rTokenPrice]);
 
   return (
     <div>
@@ -49,30 +80,68 @@ export const StakeOverview = (props: StakeOverviewProps) => {
             />
           </div>
 
-          <div>
+          <div className="flex flex-col">
             <div className="flex items-center">
               <div className="h-[.72rem] w-[.72rem] relative">
                 <Image
-                  src={getWhiteTokenIcon(props.tokeName)}
+                  src={getWhiteTokenIcon(props.tokenName)}
                   alt="icon"
                   layout="fill"
                 />
               </div>
 
               <GradientText size=".72rem" ml=".24rem" isError={isWrongNetwork}>
-                {isWrongNetwork ? "Wrong Network" : `r${props.tokeName}`}
+                {walletNotConnected
+                  ? "Wallet Unconnected"
+                  : isWrongNetwork
+                  ? "Wrong Network"
+                  : `r${props.tokenName}`}
               </GradientText>
             </div>
 
-            <div className="text-text1 text-[.24rem] mt-[.4rem]">
-              Stake {props.tokeName} and receive r{props.tokeName} in return
-            </div>
+            {walletNotConnected ? (
+              <div
+                className="mt-[.24rem] ml-[1rem] h-[.6rem] self-start flex items-center justify-center px-[.24rem] rounded-[.16rem] cursor-pointer"
+                style={{
+                  border: "1px solid rgba(91, 104, 114, 0.5)",
+                  background: "rgba(26, 40, 53, 0.15)",
+                }}
+                onClick={props.onClickConnectWallet}
+              >
+                <div className="text-white text-[.24rem] mr-[.14rem]">
+                  Connect {walletType}
+                </div>
+                <Icomoon icon="arrow-right" size=".26rem" color="#9DAFBE" />
+              </div>
+            ) : isWrongNetwork ? (
+              <div
+                className="mt-[.24rem] ml-[1rem] h-[.6rem] self-start flex items-center justify-center px-[.24rem] rounded-[.16rem] cursor-pointer"
+                style={{
+                  border: "1px solid rgba(91, 104, 114, 0.5)",
+                  background: "rgba(26, 40, 53, 0.15)",
+                }}
+                onClick={() => {
+                  if (isWrongMetaMaskNetwork) {
+                    connectMetaMask(targetMetaMaskChainId);
+                  }
+                }}
+              >
+                <div className="text-white text-[.24rem] mr-[.14rem]">
+                  Switch to Ethereum Network
+                </div>
+                <Icomoon icon="arrow-right" size=".26rem" color="#9DAFBE" />
+              </div>
+            ) : (
+              <div className="text-text1 text-[.24rem] mt-[.4rem]">
+                Stake {props.tokenName} and receive r{props.tokenName} in return
+              </div>
+            )}
           </div>
         </div>
         <div className="flex items-end mr-[.7rem]">
           <div className="w-[.8rem] h-[1.3rem] relative">
             <Image
-              src={getChainIcon(props.tokeName)}
+              src={getChainIcon(props.tokenName)}
               alt="chain"
               layout="fill"
             />
@@ -80,7 +149,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
           <div className="ml-[.24rem] w-[.33rem] h-[.53rem] relative">
             <Image
-              src={getChainIcon(props.tokeName)}
+              src={getChainIcon(props.tokenName)}
               alt="chain"
               layout="fill"
             />
@@ -96,9 +165,14 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   Current Token Standard
                 </div>
                 <TokenStandardSelector
+                  tokenName={props.tokenName}
                   selectedStandard={selectedStandard}
-                  onSelect={setSelectedStandard}
-                />{" "}
+                  onSelect={(standard) => {
+                    router.replace(
+                      `${router.pathname}?tokenStandard=${standard}`
+                    );
+                  }}
+                />
               </div>
 
               <div
@@ -122,11 +196,11 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  $ 293,923
+                  $ {formatNumber(stakedValue, { decimals: 2 })}
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  2837.4 ETH
+                  {formatNumber(stakedAmount)} {props.tokenName}
                 </div>
               </div>
 
@@ -143,7 +217,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  23.2 ETH
+                  {formatNumber(stakedAmount)} {props.tokenName}
                 </div>
               </div>
 
@@ -155,7 +229,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   />
                 </div>
 
-                <div className="mt-[.23rem] text-white text-[.32rem]">1.46</div>
+                <div className="mt-[.23rem] text-white text-[.32rem]">
+                  {formatNumber(rTokenRatio, { decimals: 4 })}
+                </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
                   rETH/ETH
@@ -165,6 +241,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
             <div className="flex justify-between mt-[.8rem] mb-[.86rem]">
               <Button
+                disabled={isWrongNetwork}
                 height=".86rem"
                 width="4rem"
                 radius=".5rem"
@@ -174,6 +251,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 Stake
               </Button>
               <Button
+                disabled={isWrongNetwork}
                 height=".86rem"
                 width="4rem"
                 radius=".5rem"
@@ -182,6 +260,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 Trade
               </Button>
               <Button
+                disabled={isWrongNetwork}
                 height=".86rem"
                 width="4rem"
                 stroke

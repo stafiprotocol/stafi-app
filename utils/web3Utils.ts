@@ -3,10 +3,13 @@ import {
   getMetaMaskEthConnectConfig,
   getMetamaskValidatorChainId,
   getMetaMaskValidatorConnectConfig,
+  getWeb3ProviderUrlConfig,
 } from "config/metaMask";
 
 import { metaMask } from "connectors/metaMask";
+import { TokenName } from "interfaces/common";
 import Web3 from "web3";
+import { AbiItem } from "web3-utils";
 
 export function createWeb3(provider?: any) {
   var web3 = new Web3(provider || Web3.givenProvider);
@@ -22,5 +25,31 @@ export function connectMetaMask(targetChainId: number | undefined) {
     metaMask.activate(getMetaMaskValidatorConnectConfig());
   } else if (targetChainId === getMetamaskEthChainId()) {
     metaMask.activate(getMetaMaskEthConnectConfig());
+  }
+}
+
+export async function getErc20AssetBalance(
+  userAddress: string,
+  tokenAbi: AbiItem | AbiItem[],
+  tokenAddress: string | undefined
+) {
+  if (!tokenAbi || !tokenAddress) {
+    return "--";
+  }
+  try {
+    const web3 = createWeb3(
+      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+    );
+
+    let contract = new web3.eth.Contract(tokenAbi, tokenAddress, {
+      from: userAddress,
+    });
+
+    const result = await contract.methods.balanceOf(userAddress).call();
+
+    let balance = web3.utils.fromWei(result, "ether");
+    return balance;
+  } catch {
+    return "--";
   }
 }

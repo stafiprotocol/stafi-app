@@ -4,6 +4,7 @@ import walletReducer from "./reducers/WalletSlice";
 import ethReducer from "./reducers/EthSlice";
 import maticReducer from './reducers/MaticSlice';
 import polkadotjsSlice from './reducers/PolkadotjsSlice';
+import rTokenReducer from "./reducers/RTokenSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     eth: ethReducer,
 		matic: maticReducer,
 		polkadotjs: polkadotjsSlice,
+    rToken: rTokenReducer,
   },
 });
 

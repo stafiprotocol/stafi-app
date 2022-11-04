@@ -11,6 +11,7 @@ import { ChartDu, TokenName, WalletType } from "interfaces/common";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { RootState } from "redux/store";
+import { connectMetaMask } from "utils/web3Utils";
 
 const RTokenStakePage = () => {
   const { setNavigation, setTargetMetaMaskChainId, setWalletType } =
@@ -39,8 +40,9 @@ const RTokenStakePage = () => {
   return (
     <div>
       <StakeOverview
-        tokeName={TokenName.ETH}
+        tokenName={TokenName.ETH}
         onClickStake={() => setStakeModalVisible(true)}
+        onClickConnectWallet={() => connectMetaMask(getMetamaskEthChainId())}
       />
 
       <CollapseCard

@@ -4,10 +4,8 @@ import { MyLayoutContext } from "components/layout/layout";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { isDev } from "config/env";
-import {
-  getMetamaskValidatorChainId,
-  getStafiEthWithdrawalCredentials,
-} from "config/metaMask";
+import { getMetamaskValidatorChainId } from "config/metaMask";
+import { getEthValidatorWithdrawalCredentials } from "config/erc20Contract";
 import { hooks, metaMask } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
@@ -113,7 +111,7 @@ export const TrustValidatorDepositForm = () => {
               }
               if (
                 validatorKey.withdrawal_credentials !==
-                getStafiEthWithdrawalCredentials()
+                getEthValidatorWithdrawalCredentials()
               ) {
                 throw new Error(`Incorrect withdrawal_credentials value`);
               }
