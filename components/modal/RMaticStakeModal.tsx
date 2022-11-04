@@ -18,6 +18,7 @@ import { MyLayoutContext } from "components/layout/layout";
 import { getShortAddress } from "utils/string";
 import { checkMetaMaskAddress } from "utils/common";
 import { useAppSlice } from "hooks/selector";
+import { handleMaticStake } from "redux/reducers/MaticSlice";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -90,7 +91,10 @@ export const RMaticStakeModal = (props: RTokenStakeModalProps) => {
   };
 
   const clickStake = () => {
-		
+		// todo: chainId
+		dispatch(handleMaticStake(stakeAmount, 1, targetAddress, () => {
+
+		}));
     if (tokenName === TokenName.ETH) {
       dispatch(
         handleEthTokenStake(stakeAmount, (success) => {

@@ -86,7 +86,7 @@ export const handleMaticStake =
 		stakeAmount: string,
 		chainId: number,
 		targetAddress: string,
-		callback?: (success: boolean, result: any) => void
+		cb?: Function
 	): AppThunk => 
 	async (dispatch, getState) => {
 		dispatch(setIsLoading(true));
@@ -120,11 +120,16 @@ export const handleMaticStake =
 		);
 
 		const amount = web3.utils.toWei(stakeAmount);
-		// todo: pool
 
-		let selectedPool = null;
-		// todo: selectedPool.address
-		const sendTokens = await contract.methods.transfer(selectedPool, amount).send();
+		const validPools = getState().matic.validPools;
+		const poolLimit = getState().matic.poolLimit;
+
+		const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
+		console.log('selectedPool', selectedPool);
+		if (!selectedPool) return null;
+
+		const sendTokens = await contract.methods.transfer(selectedPool.address, amount).send();
+		console.log('sendTokens', sendTokens);
 		if (sendTokens && sendTokens.status) {
 			const txHash = sendTokens.transactionHash;
 			let txDetail;
@@ -144,6 +149,7 @@ export const handleMaticStake =
 				}
 			}
 
+			console.log('txDetail', txDetail);
 			const blockHash = txDetail && txDetail.blockHash;
 			if (!blockHash) {
 
@@ -171,14 +177,17 @@ export const handleMaticStake =
 const sleep = (ms: number) => {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 export const getPools = 
 	(cb?: Function): AppThunk => 
 	async (dispatch, getState) => {
 		commonSlice.getPools(rSymbol.Matic, Symbol.Matic, (data: any) => {
 			dispatch(setValidPools(data));
+			console.log('pools', data);
 			cb && cb();
 		});
 
 		const data = await commonSlice.poolBalanceLimit(rSymbol.Matic);
 		dispatch(setPoolLimit(data));
+		console.log('poolLimit', data);
 	}

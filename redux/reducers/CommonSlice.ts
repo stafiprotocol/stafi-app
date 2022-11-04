@@ -8,7 +8,7 @@ const stafiServer = new StafiServer();
 
 export default class CommonSlice {
 	async getPools(type: rSymbol, symbol: Symbol, cb?: Function) {
-		const stafiApi = stafiServer.createStafiApi();
+		const stafiApi = await stafiServer.createStafiApi();
 		const poolsData = await stafiApi.query.rTokenLedger.bondedPools(type);
 		let pools = poolsData.toJSON();
 
@@ -55,8 +55,32 @@ export default class CommonSlice {
 	}
 
 	async poolBalanceLimit(type: rSymbol) {
-		const stafiApi = stafiServer.createStafiApi();
+		const stafiApi = await stafiServer.createStafiApi();
 		const result = await stafiApi.query.rTokenSeries.poolBalanceLimit(type);
 		return result.toJSON();
+	}
+
+	async queryRBalance(fisAddress: string, rSymbol: rSymbol, cb?: Function) {
+		const stafiApi = await stafiServer.createStafiApi();
+		const accountData = await stafiApi.query.rBalances.account(rSymbol, fisAddress);
+		const data = accountData.toJSON();
+		console.log(data);
+		cb && cb(data);
+		return data;
+	}
+
+	getPool(tokenAmount: any, validPools: any[], poolLimit: any, errMsg?: string) {
+		const data = validPools.find((item: any) => {
+			if (Number(poolLimit) === 0 || Number(item.active) + Number(tokenAmount) <= Number(poolLimit)) {
+				return true;
+			}
+		});
+
+		if (data) {
+			return data;
+		} else {
+			console.error(errMsg || 'No Matching pool');
+			return null;
+		}
 	}
 }

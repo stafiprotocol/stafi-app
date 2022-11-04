@@ -9,10 +9,10 @@ import { useAppSelector } from "hooks/common";
 import { ChartDu, TokenName } from "interfaces/common";
 import React, { useEffect, useState } from "react";
 import { RootState } from "redux/store";
-import { usePolkadotAccount } from 'hooks/usePolkadotAccount';
-import { ConnectPolkadotjsModal } from "components/modal/ConnectPolkadotjsModal";
 import { useAppDispatch } from "hooks/common";
-import { updateMaticBalance } from "redux/reducers/MaticSlice";
+import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
+import { FisAccount, setAccounts, setFisAccount, updateFisBalance } from "redux/reducers/FisSlice";
+import { useFisAccount } from "hooks/useFisAccount";
 
 const RMaticStakePage = () => {
 	const { setNavigation, setTargetMetaMaskChainId } =
@@ -23,9 +23,7 @@ const RMaticStakePage = () => {
 	const [chartDu, setChartDu] = useState(ChartDu.ALL);
 	const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
-	const [connectPolkadotjsModalVisible, setConnectPolkadotjsModalVisible] = useState(false);
-
-	const { fisAccounts } = usePolkadotAccount();
+	const { fisAccounts, fisAccount, stakedAmount } = useFisAccount();
 
 	const { balance } = useAppSelector((state: RootState) => {
 		return { balance: state.matic.balance };
@@ -42,6 +40,33 @@ const RMaticStakePage = () => {
 		setTargetMetaMaskChainId(getMetamaskEthChainId());
 	}, [setTargetMetaMaskChainId]);
 
+	useEffect(() => {
+		const conn = async () => {
+			const { web3Enable, web3Accounts } = await import('@polkadot/extension-dapp');
+			const accounts = await web3Enable('stafi/rtoken').then(async () => await web3Accounts());
+			const fisAccounts: FisAccount[] = accounts.map(account => ({
+				name: account.meta.name,
+				address: account.address,
+				balance: '--',
+			}));
+			dispatch(setAccounts(fisAccounts));
+			if (fisAccounts.length > 1) {
+				dispatch(setFisAccount(fisAccounts[1]));
+			}
+		}
+		conn();
+	}, []);
+
+	useEffect(() => {
+		dispatch(getPools());
+	}, []);
+
+	useEffect(() => {
+		if (fisAccount.address) {
+			dispatch(updateFisBalance());
+		}
+	}, [fisAccount]);
+
 	const onClickStake = () => {
 		// if polkadotAccount is valid
 		console.log(fisAccounts)
@@ -49,7 +74,6 @@ const RMaticStakePage = () => {
 			dispatch(updateMaticBalance());
 			setStakeModalVisible(true);
 		} else {
-			setConnectPolkadotjsModalVisible(true);
 		}
 	}
 
@@ -87,11 +111,6 @@ const RMaticStakePage = () => {
 				visible={stakeModalVisible}
 				onClose={() => setStakeModalVisible(false)}
 				balance={balance}
-			/>
-
-			<ConnectPolkadotjsModal
-				visible={connectPolkadotjsModalVisible}
-				onClose={() => setConnectPolkadotjsModalVisible(false)}
 			/>
 		</div>
 	)

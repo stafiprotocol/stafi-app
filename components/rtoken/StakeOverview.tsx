@@ -241,7 +241,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
             <div className="flex justify-between mt-[.8rem] mb-[.86rem]">
               <Button
-                disabled={isWrongNetwork}
+                disabled={false}
                 height=".86rem"
                 width="4rem"
                 radius=".5rem"
