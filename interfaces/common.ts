@@ -4,6 +4,56 @@ export enum RequestStatus {
   error = 3,
 }
 
+export enum ChainId {
+  STAFI = 1,
+  ETH = 2,
+  BSC = 3,
+  SOL = 4,
+  STAFIHUB = 5,
+}
+
+export enum TokenStandard {
+  Native = "Native",
+  ERC20 = "ERC20",
+  BEP20 = "BEP20",
+  SPL = "SPL",
+}
+
+export enum TokenName {
+  FIS = "FIS",
+  ETH = "ETH",
+  DOT = "DOT",
+  KSM = "KSM",
+  MATIC = "MATIC",
+  BNB = "BNB",
+  SOL = "SOL",
+  ATOM = "ATOM",
+}
+
+export enum TokenSymbol {
+  StafiHub = -2,
+  Asset = -1,
+  FIS = 0,
+  DOT = 1,
+  KSM = 2,
+  ATOM = 3,
+  SOL = 4,
+  MATIC = 5,
+  BNB = 6,
+  ETH = 7,
+}
+
+export enum RTokenName {
+  rFIS = "rFIS",
+  rETH = "rETH",
+  rDOT = "rDOT",
+  rKSM = "rKSM",
+  rMATIC = "rMATIC",
+  rBNB = "rBNB",
+  rSOL = "rSOL",
+  rATOM = "rATOM",
+}
+
 export enum EthPubkeyStatus {
   all = 0,
   deposited = 2,
@@ -23,34 +73,6 @@ export interface EthPubkey {
 export interface NavigationItem {
   name: string;
   path?: string;
-}
-
-export enum RTokenName {
-  rFIS = "rFIS",
-  rETH = "rETH",
-  rDOT = "rDOT",
-  rKSM = "rKSM",
-  rMATIC = "rMATIC",
-  rBNB = "rBNB",
-  rSOL = "rSOL",
-  rATOM = "rATOM",
-}
-
-export enum TokenName {
-  FIS = "FIS",
-  ETH = "ETH",
-  DOT = "DOT",
-  KSM = "KSM",
-  MATIC = "MATIC",
-  BNB = "BNB",
-  SOL = "SOL",
-  ATOM = "ATOM",
-}
-
-export enum TokenStandard {
-  Native = "Native",
-  ERC20 = "ERC20",
-  BEP20 = "BEP20",
 }
 
 export enum ChartDu {

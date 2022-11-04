@@ -1,7 +1,6 @@
-import {
-  getStafiEthContractConfig,
-  getStafiNodeManagerAbi,
-} from "config/metaMask";
+import { getStafiNodeManagerAbi } from "config/erc20Abi";
+import { getErc20ContractConfig } from "config/erc20Contract";
+
 import { hooks } from "connectors/metaMask";
 import { useState } from "react";
 import { useEffect, useCallback } from "react";
@@ -19,7 +18,7 @@ export function useEthValidatorType() {
     }
     try {
       const web3 = createWeb3();
-      const ethContractConfig = getStafiEthContractConfig();
+      const ethContractConfig = getErc20ContractConfig();
 
       let nodeManagerContract = new web3.eth.Contract(
         getStafiNodeManagerAbi(),

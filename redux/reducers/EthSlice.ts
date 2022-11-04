@@ -5,9 +5,9 @@ import {
   getStafiNodeManagerAbi,
   getStafiSuperNodeAbi,
   getStafiUserDepositAbi,
-} from "config/abi";
+} from "config/erc20Abi";
 import { getEtherScanTxUrl } from "config/explorer";
-import { getStafiEthContractConfig } from "config/metaMask";
+import { getErc20ContractConfig } from "config/erc20Contract";
 import { TokenName } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import { CANCELLED_MESSAGE, COMMON_ERROR_MESSAGE } from "utils/constants";
@@ -112,7 +112,7 @@ export const handleEthValidatorDeposit =
     try {
       dispatch(setEthTxLoading(true));
       const web3 = createWeb3();
-      const ethContractConfig = getStafiEthContractConfig();
+      const ethContractConfig = getErc20ContractConfig();
       let contract = new web3.eth.Contract(
         type === "solo" ? getStafiLightNodeAbi() : getStafiSuperNodeAbi(),
         type === "solo"
@@ -266,7 +266,7 @@ export const handleEthValidatorStake =
     try {
       dispatch(setEthTxLoading(true));
       const web3 = createWeb3();
-      const ethContractConfig = getStafiEthContractConfig();
+      const ethContractConfig = getErc20ContractConfig();
       let contract = new web3.eth.Contract(
         type === "solo" ? getStafiLightNodeAbi() : getStafiSuperNodeAbi(),
         type === "solo"
@@ -378,7 +378,7 @@ export const handleEthTokenStake =
       if (!metaMaskAccount) {
         throw new Error("Please connect MetaMask");
       }
-      const contractConfig = getStafiEthContractConfig();
+      const contractConfig = getErc20ContractConfig();
       let contract = new web3.eth.Contract(
         getStafiUserDepositAbi(),
         contractConfig.userDeposit,

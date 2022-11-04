@@ -8,14 +8,13 @@ import { MyLayoutContext } from "components/layout/layout";
 import { ValidatorLayout } from "components/layout/layout_validator";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
-import { getStafiLightNodeAbi } from "config/abi";
 import { getApiHost, isDev } from "config/env";
+import { getStafiLightNodeAbi } from "config/erc20Abi";
+import { getMetamaskValidatorChainId } from "config/metaMask";
 import {
-  getMetamaskValidatorChainId,
-  getStafiEthContractConfig,
-  getStafiEthWithdrawalCredentials,
-} from "config/metaMask";
-import { hooks } from "connectors/metaMask";
+  getEthValidatorWithdrawalCredentials,
+  getErc20ContractConfig,
+} from "config/erc20Contract";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
@@ -113,7 +112,7 @@ const SoloValidatorDeposit = () => {
       setShowInsufficientFunds(false);
       return;
     }
-    const ethContractConfig = getStafiEthContractConfig();
+    const ethContractConfig = getErc20ContractConfig();
 
     const pubkeys: string[] = [];
     const signatures: string[] = [];
@@ -271,7 +270,7 @@ const SoloValidatorDeposit = () => {
                       }
                       if (
                         validatorKey.withdrawal_credentials !==
-                        getStafiEthWithdrawalCredentials()
+                        getEthValidatorWithdrawalCredentials()
                       ) {
                         throw new Error(
                           `Incorrect withdrawal_credentials value`

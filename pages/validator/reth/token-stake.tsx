@@ -10,9 +10,9 @@ import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { TokenStakeTabs } from "components/reth/TokenStakeTabs";
 import { WaitingStakeCard } from "components/reth/WaitingStakeCard";
 import {
-  getStafiEthSVFeeRecipient,
-  getStafiEthTVFeeRecipient,
-} from "config/metaMask";
+  getEthValidatorSVFeeRecipient,
+  getEthValidatorTVFeeRecipient,
+} from "config/erc20Contract";
 import { getEtherScanAccountUrl } from "config/explorer";
 import { hooks } from "connectors/metaMask";
 import { useEthMyData } from "hooks/useEthMyData";
@@ -185,19 +185,19 @@ const TokenStake = (props: any) => {
           <div
             className="border-[1px] border-solid border-[#0095EB80] rounded-[.12rem] flex items-center justify-center h-[.48rem] w-[3.4rem] text-warning text-[.2rem] cursor-pointer"
             onClick={() => {
-              openLink(getEtherScanAccountUrl(getStafiEthSVFeeRecipient()));
+              openLink(getEtherScanAccountUrl(getEthValidatorSVFeeRecipient()));
             }}
           >
-            For SV: {getShortAddress(getStafiEthSVFeeRecipient(), 4)}
+            For SV: {getShortAddress(getEthValidatorSVFeeRecipient(), 4)}
           </div>
 
           <div
             className="ml-[.24rem] border-[1px] border-solid border-[#0095EB80] rounded-[.12rem] flex items-center justify-center h-[.48rem] w-[3.4rem] text-warning text-[.2rem] cursor-pointer"
             onClick={() => {
-              openLink(getEtherScanAccountUrl(getStafiEthTVFeeRecipient()));
+              openLink(getEtherScanAccountUrl(getEthValidatorTVFeeRecipient()));
             }}
           >
-            For TV: {getShortAddress(getStafiEthTVFeeRecipient(), 4)}
+            For TV: {getShortAddress(getEthValidatorTVFeeRecipient(), 4)}
           </div>
 
           <div

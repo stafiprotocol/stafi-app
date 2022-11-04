@@ -6,9 +6,9 @@ import { CircularLoading } from "components/common/CircularLoading";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
 import { ValidatorLayout } from "components/layout/layout_validator";
-import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
+import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/erc20Abi";
 import { getEtherScanTxUrl } from "config/explorer";
-import { getStafiEthContractConfig } from "config/metaMask";
+import { getErc20ContractConfig } from "config/erc20Contract";
 import { useInterval } from "hooks/useInterval";
 import Image from "next/image";
 import Link from "next/link";
@@ -66,7 +66,7 @@ const CheckFile = () => {
     }
 
     const web3 = createWeb3();
-    const ethContractConfig = getStafiEthContractConfig();
+    const ethContractConfig = getErc20ContractConfig();
     let contract = new web3.eth.Contract(
       type === "solo" ? getStafiLightNodeAbi() : getStafiSuperNodeAbi(),
       type === "solo"

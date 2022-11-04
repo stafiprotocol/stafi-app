@@ -2,12 +2,14 @@ import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import appReducer from "./reducers/AppSlice";
 import walletReducer from "./reducers/WalletSlice";
 import ethReducer from "./reducers/EthSlice";
+import rTokenReducer from "./reducers/RTokenSlice";
 
 export const store = configureStore({
   reducer: {
     app: appReducer,
     wallet: walletReducer,
     eth: ethReducer,
+    rToken: rTokenReducer,
   },
 });
 

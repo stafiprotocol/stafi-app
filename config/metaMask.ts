@@ -42,47 +42,27 @@ export function getMetaMaskStafiTestnetConfig(): AddEthereumChainParameter {
   };
 }
 
-interface StafiEthContractConfig {
-  stafiLightNode: string;
-  stafiSuperNode: string;
-  stafiNodeManager: string;
-  stafiNetworkSettings: string;
-  userDeposit: string;
+interface Web3ProviderUrlConfig {
+  eth: string;
+  bsc: string;
+  polygon: string;
 }
 
-export function getStafiEthContractConfig(): StafiEthContractConfig {
+export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
   if (isDev()) {
-    // dev
     return {
-      stafiLightNode: "0x4FEEA697bE14596c672681b92B1dfA41b654955b",
-      stafiSuperNode: "0xfa052FB4D0C530bDCBA7bF0C675515d3f12313b6",
-      stafiNodeManager: "0xC495018a16A9cF1b3659C1AcCbf1ddE50FD1b1A0",
-      stafiNetworkSettings: "0x430CB4F814EaA5816E3845f31A5EC3803bDa5B9F",
-      userDeposit: "0x6b3d7a220b96f3be9ff48e6be36a7e16f46b1393",
+      // goerli
+      // eth: "wss://eth-goerli.alchemyapi.io/v2/O4w9rgihCPcRvH1IDF2BHLt5YSzSI9oJ",
+      // stafi testnet
+      eth: "wss://test-eth-node.stafi.io",
+      bsc: "wss://speedy-nodes-nyc.moralis.io/5a284cffde906505c6eb2af8/bsc/testnet/ws",
+      polygon: "wss://matic-testnet-archive-ws.bwarelabs.com",
     };
   }
 
-  // production
   return {
-    stafiLightNode: "0x1c906685384df71e3fafa6f3b21bd884e9d44f4b",
-    stafiSuperNode: "0x588e859cb38fecf2d56925c0512471ab47aa9ff1",
-    stafiNodeManager: "0xd8575c32bbc1ea9d33856a6de74be258712307a8",
-    stafiNetworkSettings: "0xc59ff0c05de52347b2d7bf38eebdc994d97cea8f",
-    userDeposit: "0x625b7fd68b35ee8dc2c9405a712fa450ccd357be",
+    eth: "wss://eth-mainnet.ws.alchemyapi.io/v2/bkdml_X06uuwFV4-KONSO3NoPHkIIv8Z",
+    bsc: "wss://speedy-nodes-nyc.moralis.io/5a284cffde906505c6eb2af8/bsc/mainnet/ws",
+    polygon: "wss://rpc-mainnet.matic.network",
   };
-}
-
-export function getStafiEthWithdrawalCredentials() {
-  if (isDev()) {
-    return "00325b04539edc57dfb7d0e3f414ae51f1a601608fa05c79a1660f531084d7ee";
-  }
-  return "003cd051a5757b82bf2c399d7476d1636473969af698377434af1d6c54f2bee9";
-}
-
-export function getStafiEthSVFeeRecipient() {
-  return "0x6fb2aa2443564d9430b9483b1a5eea13a522df45";
-}
-
-export function getStafiEthTVFeeRecipient() {
-  return "0xdc5a28885a1800b1435982954ee9b51d2a8d3bf0";
 }

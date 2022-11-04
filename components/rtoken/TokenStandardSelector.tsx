@@ -1,7 +1,7 @@
 import { Popover } from "@mui/material";
 import { Card } from "components/common/card";
 import { Icomoon } from "components/icon/Icomoon";
-import { TokenStandard } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import Image from "next/image";
 import { getTokenStandardIcon } from "utils/icon";
 import {
@@ -12,9 +12,11 @@ import {
 import { values } from "lodash";
 import { useMemo } from "react";
 import classNames from "classnames";
+import { getSupportedTokenStandards } from "utils/rToken";
 
 interface TokenStandardSelectorProps {
-  selectedStandard: TokenStandard;
+  tokenName: TokenName;
+  selectedStandard: TokenStandard | undefined;
   onSelect: (v: TokenStandard) => void;
 }
 
@@ -25,10 +27,10 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
   });
 
   const selectionList = useMemo(() => {
-    return values(TokenStandard).filter(
+    return getSupportedTokenStandards(props.tokenName).filter(
       (item) => item !== props.selectedStandard
     );
-  }, [props.selectedStandard]);
+  }, [props.selectedStandard, props.tokenName]);
 
   return (
     <>
@@ -41,14 +43,16 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
           {...bindTrigger(selectionPopupState)}
         >
           <div className="text-white text-[.24rem]">
-            {props.selectedStandard}
+            {props.selectedStandard || ""}
           </div>
           <div className="w-[.28rem] h-[.28rem] relative ml-[.16rem]">
-            <Image
-              alt="logo"
-              layout="fill"
-              src={getTokenStandardIcon(props.selectedStandard)}
-            />
+            {props.selectedStandard && (
+              <Image
+                alt="logo"
+                layout="fill"
+                src={getTokenStandardIcon(props.selectedStandard)}
+              />
+            )}
           </div>
 
           <div
@@ -92,7 +96,10 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
             <div key={item}>
               <div
                 className="flex items-center justify-center h-[.74rem] cursor-pointer"
-                onClick={() => props.onSelect(item)}
+                onClick={() => {
+                  props.onSelect(item);
+                  selectionPopupState.close();
+                }}
               >
                 <div className="text-white text-[.24rem]">{item}</div>
                 <div className="w-[.28rem] h-[.28rem] relative ml-[.16rem]">

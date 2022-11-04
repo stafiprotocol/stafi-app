@@ -19,6 +19,7 @@ export const GradientText = (props: GradientTextProps) => {
       )}
       style={{
         fontSize: props.size,
+        lineHeight: 1.2,
         marginLeft: props.ml || "0",
         fontWeight: props.fontWeight || "800",
       }}

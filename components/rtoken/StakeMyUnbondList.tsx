@@ -7,7 +7,7 @@ import { useState } from "react";
 export const StakeMyUnbondList = () => {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const list = [];
+  const list: any[] = [];
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">

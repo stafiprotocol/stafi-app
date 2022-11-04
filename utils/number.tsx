@@ -1,3 +1,6 @@
+import { TokenSymbol } from "interfaces/common";
+import Web3 from "web3";
+
 export function formatNumber(
   num: string | number | undefined,
   options: {
@@ -5,6 +8,7 @@ export function formatNumber(
     fixedDecimals?: boolean;
     withSplit?: boolean;
     toReadable?: boolean;
+    roundMode?: "round" | "floor" | "ceil";
   } = {}
 ) {
   if (num === undefined || num === "") {
@@ -20,6 +24,7 @@ export function formatNumber(
     options.fixedDecimals === undefined ? false : options.fixedDecimals;
   const toReadable =
     options.toReadable === undefined ? true : options.toReadable;
+  const roundMode = options.roundMode || "round";
   let suffix = "";
 
   let newNum = "0";
@@ -30,8 +35,15 @@ export function formatNumber(
     newNum = num + "";
   }
 
+  const roundMethod =
+    roundMode === "floor"
+      ? Math.floor
+      : roundMode === "ceil"
+      ? Math.ceil
+      : Math.round;
+
   newNum =
-    Math.floor(Number(newNum) * Math.pow(10, decimals)) /
+    roundMethod(Number(newNum) * Math.pow(10, decimals)) /
       Math.pow(10, decimals) +
     "";
 
@@ -46,4 +58,52 @@ export function formatNumber(
   } else {
     return newNum + suffix;
   }
+}
+
+export function chainAmountToHuman(
+  num: string,
+  tokenSymbol: TokenSymbol | undefined
+) {
+  if (isNaN(Number(num))) {
+    return "--";
+  }
+  let factor;
+  switch (tokenSymbol) {
+    case TokenSymbol.DOT:
+      factor = "10000000000";
+      break;
+    case TokenSymbol.ATOM:
+      factor = "1000000";
+      break;
+    case TokenSymbol.FIS:
+      factor = "1000000000000";
+      break;
+    case TokenSymbol.KSM:
+      factor = "1000000000000";
+      break;
+    case TokenSymbol.SOL:
+      factor = "1000000000";
+      break;
+    case TokenSymbol.ETH:
+      factor = "1000000000000000000";
+      break;
+    case TokenSymbol.MATIC:
+      factor = "1000000000000000000";
+      break;
+    case TokenSymbol.BNB:
+      factor = "100000000";
+      break;
+    case TokenSymbol.StafiHub:
+      factor = "1000000";
+      break;
+    default:
+      factor = "1000000000000";
+      break;
+  }
+
+  return Web3.utils.toBN(num).div(Web3.utils.toBN(factor)).toString();
+}
+
+export function rTokenRateToHuman(num: string | number) {
+  return Web3.utils.toBN(num).div(Web3.utils.toBN("1000000000000")).toString();
 }

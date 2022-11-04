@@ -1,6 +1,6 @@
-import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/abi";
+import { getStafiLightNodeAbi, getStafiSuperNodeAbi } from "config/erc20Abi";
 import { getApiHost } from "config/env";
-import { getStafiEthContractConfig } from "config/metaMask";
+import { getErc20ContractConfig } from "config/erc20Contract";
 import { hooks } from "connectors/metaMask";
 import { useCallback, useEffect, useState } from "react";
 import { createWeb3 } from "utils/web3Utils";
@@ -36,7 +36,7 @@ export function useEthStakeList() {
       setLoading(true);
       const resList: EthDepositItem[] = [];
       const web3 = createWeb3();
-      const ethContractConfig = getStafiEthContractConfig();
+      const ethContractConfig = getErc20ContractConfig();
 
       // Query solo deposit.
       let lightNodeContract = new web3.eth.Contract(

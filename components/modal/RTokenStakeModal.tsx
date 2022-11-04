@@ -149,6 +149,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
                 <div className="flex items-center mt-[.15rem]">
                   <TokenStandardSelector
+                    tokenName={props.tokenName}
                     selectedStandard={tokenStandard}
                     onSelect={setTokenStandard}
                   />
