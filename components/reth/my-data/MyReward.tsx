@@ -15,25 +15,13 @@ import { formatNumber } from "utils/number";
 import styles from "../../../styles/reth/MyData.module.scss";
 import { CustomChart } from "../../data/CustomChart";
 import { MyRewardList } from "./MyRewardList";
+import { getChartDuSeconds } from "utils/common";
 
 export const MyReward = () => {
   const [showWarning, setShowWarning] = useState(true);
   const [chartDu, setChartDu] = useState<"1W" | "1M" | "3M" | "6M" | "ALL">(
     "ALL"
   );
-
-  const getChartDuSeconds = () => {
-    if (chartDu === "1W") {
-      return 24 * 3600 * 7;
-    } else if (chartDu === "1M") {
-      return 24 * 3600 * 30;
-    } else if (chartDu === "3M") {
-      return 24 * 3600 * 90;
-    } else if (chartDu === "6M") {
-      return 24 * 3600 * 180;
-    }
-    return 0;
-  };
 
   const {
     requestStatus,
@@ -44,9 +32,9 @@ export const MyReward = () => {
     lastEraRewardEth,
     lastEraRewardEthValue,
     totalCount,
-  } = useEthMyReward(getChartDuSeconds());
+  } = useEthMyReward(getChartDuSeconds(chartDu));
 
-  if (requestStatus === RequestStatus.success && totalCount === 0) {
+  if (totalCount === 0) {
     return (
       <CollapseCard
         background="rgba(26, 40, 53, 0.2)"

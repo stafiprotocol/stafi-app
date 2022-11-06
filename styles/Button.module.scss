@@ -5,7 +5,24 @@
 
   cursor: pointer;
   font-weight: 700;
-  color: #1a2835;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-secondary {
+  background: linear-gradient(
+    0deg,
+    #090f17 40.28%,
+    #082c2b 166.52%,
+    #083330 214.39%
+  );
+  border: 1px solid rgba(56, 67, 79, 0.5);
+  backdrop-filter: blur(1.35px);
+
+  cursor: pointer;
+  font-weight: 700;
 
   display: flex;
   align-items: center;
@@ -15,14 +32,12 @@
 .button-disabled {
   cursor: default;
   background: #1a2835;
-  color: #5b6872;
 }
 
 .button-stroke {
   border: 1px solid rgba(0, 243, 171, 0.5);
 
   cursor: pointer;
-  color: #00f3ab;
   font-weight: 700;
 
   display: flex;
@@ -33,5 +48,4 @@
 .button-stroke-disabled {
   cursor: default;
   border: 1px solid #5b6872;
-  color: #5b6872;
 }

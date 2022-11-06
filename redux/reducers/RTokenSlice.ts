@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getDropHost } from "config/env";
+import { getApiHost, getDropHost } from "config/env";
 import { getErc20REthTokenAbi } from "config/erc20Abi";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
 import { getWeb3ProviderUrlConfig } from "config/metaMask";
@@ -20,6 +20,10 @@ export type RTokenRatioCollection = {
   [tokenName in TokenName]?: string;
 };
 
+export type RTokenStakerAprCollection = {
+  [tokenName in TokenName]?: string;
+};
+
 interface PriceItem {
   // rETH, ETH, rMATIC, etc.
   symbol: string;
@@ -27,12 +31,14 @@ interface PriceItem {
 }
 
 export interface RTokenState {
+  priceList: PriceItem[];
   rTokenBalanceStore: RTokenBalanceStore;
   rTokenRatioStore: RTokenRatioCollection;
-  priceList: PriceItem[];
+  rTokenStakerAprStore: RTokenStakerAprCollection;
 }
 
 const initialState: RTokenState = {
+  priceList: [],
   rTokenBalanceStore: {
     [TokenStandard.Native]: {},
     [TokenStandard.ERC20]: {},
@@ -40,13 +46,16 @@ const initialState: RTokenState = {
     [TokenStandard.SPL]: {},
   },
   rTokenRatioStore: {},
-  priceList: [],
+  rTokenStakerAprStore: {},
 };
 
 export const rTokenSlice = createSlice({
   name: "rToken",
   initialState,
   reducers: {
+    setPriceList: (state: RTokenState, action: PayloadAction<PriceItem[]>) => {
+      state.priceList = action.payload;
+    },
     setRTokenBalanceStore: (
       state: RTokenState,
       action: PayloadAction<RTokenBalanceStore>
@@ -59,14 +68,21 @@ export const rTokenSlice = createSlice({
     ) => {
       state.rTokenRatioStore = action.payload;
     },
-    setPriceList: (state: RTokenState, action: PayloadAction<PriceItem[]>) => {
-      state.priceList = action.payload;
+    setRTokenStakerAprStore: (
+      state: RTokenState,
+      action: PayloadAction<RTokenRatioCollection>
+    ) => {
+      state.rTokenStakerAprStore = action.payload;
     },
   },
 });
 
-export const { setRTokenBalanceStore, setRTokenRatioStore, setPriceList } =
-  rTokenSlice.actions;
+export const {
+  setPriceList,
+  setRTokenBalanceStore,
+  setRTokenRatioStore,
+  setRTokenStakerAprStore,
+} = rTokenSlice.actions;
 
 export default rTokenSlice.reducer;
 
@@ -156,5 +172,33 @@ export const updateRTokenRatio =
         [tokenName]: newRatio,
       };
       dispatch(setRTokenRatioStore(newValue));
+    } catch {}
+  };
+
+export const updateRTokenStakerApr =
+  (tokenName: TokenName): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      let newApr = "--";
+
+      if (tokenName === TokenName.ETH) {
+        const response = await fetch(`${getApiHost()}/reth/v1/poolData`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const resJson = await response.json();
+        if (resJson && resJson.status === "80000") {
+          newApr = resJson.data.stakeApr;
+        }
+      }
+
+      const rTokenStakerAprStore = getState().rToken.rTokenStakerAprStore;
+      const newValue = {
+        ...rTokenStakerAprStore,
+        [tokenName]: newApr,
+      };
+      dispatch(setRTokenStakerAprStore(newValue));
     } catch {}
   };

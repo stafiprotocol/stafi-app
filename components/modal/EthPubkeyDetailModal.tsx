@@ -17,6 +17,7 @@ import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import styles from "../../styles/reth/PubkeyDetail.module.scss";
+import { getChartDuSeconds } from "utils/common";
 
 interface EthPubkeyDetailModalProps {
   pubkey: string;
@@ -29,19 +30,6 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
   const [chartDu, setChartDu] = useState<"1W" | "1M" | "3M" | "6M" | "ALL">(
     "ALL"
   );
-
-  const getChartDuSeconds = () => {
-    if (chartDu === "1W") {
-      return 24 * 3600 * 7;
-    } else if (chartDu === "1M") {
-      return 24 * 3600 * 30;
-    } else if (chartDu === "3M") {
-      return 24 * 3600 * 90;
-    } else if (chartDu === "6M") {
-      return 24 * 3600 * 180;
-    }
-    return 0;
-  };
 
   const {
     status,
@@ -60,7 +48,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
     activeEpoch,
     chartXData,
     chartYData,
-  } = useEthPubkeyDetail(pubkey as string, getChartDuSeconds());
+  } = useEthPubkeyDetail(pubkey as string, getChartDuSeconds(chartDu));
 
   return (
     <Dialog

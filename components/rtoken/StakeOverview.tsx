@@ -4,9 +4,11 @@ import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
+import { TradeModal } from "components/modal/TradeModal";
+import { WarningModal } from "components/modal/WarningModal";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useRTokenRatio } from "hooks/useRTokenRatio";
-import { useSelectedTokenStandard } from "hooks/useSelectedTokenStandard";
+import { useTokenStandard } from "hooks/useTokenStandard";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
@@ -37,8 +39,11 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   } = useContext(MyLayoutContext);
 
   const router = useRouter();
+  const [tradeModalVisible, setTradeModalVisible] = useState(false);
+  const [ethRedeemWarningModalVisible, setEthRedeemWarningModalVisible] =
+    useState(false);
 
-  const selectedStandard = useSelectedTokenStandard(props.tokenName);
+  const selectedStandard = useTokenStandard(props.tokenName);
   const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
   const rTokenRatio = useRTokenRatio(props.tokenName);
   const rTokenPrice = useTokenPrice("r" + props.tokenName);
@@ -167,11 +172,6 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <TokenStandardSelector
                   tokenName={props.tokenName}
                   selectedStandard={selectedStandard}
-                  onSelect={(standard) => {
-                    router.replace(
-                      `${router.pathname}?tokenStandard=${standard}`
-                    );
-                  }}
                 />
               </div>
 
@@ -212,12 +212,10 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   />
                 </div>
 
-                <div className="mt-[.23rem] text-white text-[.32rem]">
-                  $ 1827.19
-                </div>
+                <div className="mt-[.23rem] text-white text-[.32rem]">$ --</div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {formatNumber(stakedAmount)} {props.tokenName}
+                  -- {props.tokenName}
                 </div>
               </div>
 
@@ -256,6 +254,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 width="4rem"
                 radius=".5rem"
                 fontSize=".24rem"
+                onClick={() => setTradeModalVisible(true)}
               >
                 Trade
               </Button>
@@ -266,6 +265,12 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 stroke
                 radius=".5rem"
                 fontSize=".24rem"
+                onClick={() => {
+                  if (props.tokenName === TokenName.ETH) {
+                    setEthRedeemWarningModalVisible(true);
+                    return;
+                  }
+                }}
               >
                 Redeem
               </Button>
@@ -273,6 +278,20 @@ export const StakeOverview = (props: StakeOverviewProps) => {
           </div>
         </Card>
       </div>
+
+      <TradeModal
+        visible={tradeModalVisible}
+        onClose={() => setTradeModalVisible(false)}
+        tokenName={props.tokenName}
+      />
+
+      <WarningModal
+        visible={ethRedeemWarningModalVisible}
+        onClose={() => {
+          setEthRedeemWarningModalVisible(false);
+        }}
+        content="Redemption will be supported once ETH2.0 Phase 1.5 is released"
+      />
     </div>
   );
 };

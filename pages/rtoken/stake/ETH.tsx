@@ -1,7 +1,8 @@
 import { CollapseCard } from "components/common/CollapseCard";
-import { RewardChartPanel } from "components/data/RewardChartPanel";
+import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { MyLayoutContext } from "components/layout/layout";
 import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
+import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskEthChainId } from "config/metaMask";
@@ -17,7 +18,6 @@ const RTokenStakePage = () => {
   const { setNavigation, setTargetMetaMaskChainId, setWalletType } =
     React.useContext(MyLayoutContext);
   const router = useRouter();
-  const [chartDu, setChartDu] = useState(ChartDu.ALL);
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
   const { metaMaskAccount } = useWalletAccount();
@@ -51,19 +51,37 @@ const RTokenStakePage = () => {
         title={<div className="text-white text-[.32rem]">rETH Rewards</div>}
       >
         <RewardChartPanel
-          chartXData={["0", "1", "2"]}
-          chartYData={["10", "11", "12"]}
-          chartDu={chartDu}
-          setChartDu={setChartDu}
-          lastEraReward="0.0001"
-          totalToken="11"
-          totalTokenValue="1827.19"
-          last24hToken="0.1"
-          last24hTokenValue="188.1"
+          tokenName={TokenName.ETH}
+          onClickStake={() => setStakeModalVisible(true)}
         />
       </CollapseCard>
 
-      <StakeMyHistory />
+      <StakeMyHistory tokenName={TokenName.ETH} />
+
+      <RTokenIntegrations tokenName={TokenName.ETH} />
+
+      <div className="mt-[.76rem] text-white text-[.32rem]">FAQs</div>
+
+      <CollapseCard
+        background="#0A131B"
+        mt=".55rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            FAQs the first question?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem]">
+          The answer for the first question, The answer for the first question,
+          The answer for the first question, The answer for the first question,
+          The answer for the first question, The answer for the first question,
+          The answer for the first question, The answer for the first question,
+          The answer for the first question, The answer for the first question,
+          The answer for the first question, The answer for the first question,
+          The answer for the first question, The answer for the first question,
+          The answer for the first question, The answer for the first question,
+        </div>
+      </CollapseCard>
 
       <RTokenStakeModal
         tokenName={TokenName.ETH}

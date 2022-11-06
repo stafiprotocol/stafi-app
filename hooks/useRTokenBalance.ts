@@ -11,6 +11,7 @@ export function useRTokenBalance(
 ) {
   const dispatch = useAppDispatch();
   const { metaMaskAccount } = useWalletAccount();
+
   const balance = useAppSelector((state: RootState) => {
     if (!tokenStandard) {
       return "--";
@@ -24,8 +25,10 @@ export function useRTokenBalance(
   });
 
   useEffect(() => {
-    dispatch(updateRTokenBalance(tokenStandard, tokenName));
-  }, [dispatch, metaMaskAccount, tokenStandard, tokenName]);
+    if (isNaN(Number(balance))) {
+      dispatch(updateRTokenBalance(tokenStandard, tokenName));
+    }
+  }, [dispatch, balance, metaMaskAccount, tokenStandard, tokenName]);
 
   return balance;
 }

@@ -12,8 +12,10 @@ export function useRTokenRatio(tokenName: TokenName) {
   });
 
   useEffect(() => {
-    dispatch(updateRTokenRatio(tokenName));
-  }, [dispatch, tokenName]);
+    if (isNaN(Number(ratio))) {
+      dispatch(updateRTokenRatio(tokenName));
+    }
+  }, [dispatch, tokenName, ratio]);
 
   return ratio;
 }

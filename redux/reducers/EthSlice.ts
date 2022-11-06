@@ -20,6 +20,7 @@ import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
 import { addNotice, setIsLoading, setStakeLoadingParams } from "./AppSlice";
+import { getApiHost } from "config/env";
 
 interface EthStakeParams {
   type: "solo" | "trusted";
@@ -33,6 +34,7 @@ export interface EthState {
   balance: string;
   ethValidatorStakeModalVisible: boolean;
   ethValidatorStakeParams: EthStakeParams | undefined;
+  gasPrice: string;
 }
 
 const initialState: EthState = {
@@ -48,6 +50,7 @@ const initialState: EthState = {
   //   status: 'waiting'
   // },
   ethValidatorStakeParams: undefined,
+  gasPrice: "--",
 };
 
 export const ethSlice = createSlice({
@@ -72,6 +75,9 @@ export const ethSlice = createSlice({
     ) => {
       state.ethValidatorStakeParams = action.payload;
     },
+    setGasPrice: (state: EthState, action: PayloadAction<string>) => {
+      state.gasPrice = action.payload;
+    },
   },
 });
 
@@ -80,6 +86,7 @@ export const {
   setEthBalance,
   setEthValiatorStakeModalVisible,
   setEthValidatorStakeParams,
+  setGasPrice,
 } = ethSlice.actions;
 
 declare const window: any;
@@ -99,6 +106,23 @@ export const updateEthBalance = (): AppThunk => async (dispatch, getState) => {
 
     dispatch(setEthBalance(Web3.utils.fromWei(balance.toString())));
   } catch {}
+};
+
+export const updateEthGasPrice = (): AppThunk => async (dispatch, getState) => {
+  const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const resJson = await response.json();
+  if (resJson && resJson.status === "80000") {
+    dispatch(
+      setGasPrice(
+        Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
+      )
+    );
+  }
 };
 
 export const handleEthValidatorDeposit =
@@ -353,6 +377,7 @@ export const handleEthValidatorStake =
 export const handleEthTokenStake =
   (
     stakeAmount: string,
+    willReceiveAmount: string,
     callback?: (success: boolean, result: any) => void
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -364,7 +389,7 @@ export const handleEthTokenStake =
           status: "loading",
           tokenName: TokenName.ETH,
           amount: stakeAmount,
-          willReceiveAmount: stakeAmount,
+          willReceiveAmount,
           progressDetail: {
             sending: {
               totalStatus: "loading",

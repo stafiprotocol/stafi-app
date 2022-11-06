@@ -50,6 +50,7 @@ import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask, createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
+import { useEthGasPrice } from "hooks/useEthGasPrice";
 
 const SoloValidatorDeposit = () => {
   const { setNavigation, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
@@ -59,7 +60,6 @@ const SoloValidatorDeposit = () => {
   const [fileName, setFileName] = useState<string>("");
   const { unmatchedEth, validatorApr } = useEthPoolData();
   const [showWarning, setShowWarning] = useState(true);
-  const [gasPrice, setGasPrice] = useState("--");
   const [depositFee, setDepositFee] = useState("--");
   const [stakeFee, setStakeFee] = useState("--");
   const [deleteConfirmModalVisible, setDeleteConfirmModalVisible] =
@@ -67,6 +67,7 @@ const SoloValidatorDeposit = () => {
   const [showInsufficientFunds, setShowInsufficientFunds] = useState(false);
 
   const { metaMaskAccount } = useWalletAccount();
+  const gasPrice = useEthGasPrice();
 
   const { ethTxLoading } = useAppSelector((state: RootState) => {
     return {
@@ -82,23 +83,6 @@ const SoloValidatorDeposit = () => {
       { name: "Solo Validator Deposit" },
     ]);
   }, [setNavigation]);
-
-  useEffect(() => {
-    (async () => {
-      const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const resJson = await response.json();
-      if (resJson && resJson.status === "80000") {
-        setGasPrice(
-          Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
-        );
-      }
-    })();
-  }, []);
 
   const estimateFee = useCallback(async () => {
     if (!metaMaskAccount) {

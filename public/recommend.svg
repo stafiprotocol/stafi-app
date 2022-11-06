@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="133px" height="75px" viewBox="0 0 133 75" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group 10 Copy 9</title>
+    <defs>
+        <polygon id="path-1" points="0 -7.03798584e-14 133 -7.03798584e-14 133 75 2.95319325e-12 75"></polygon>
+    </defs>
+    <g id="staker---staking-flow" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-10-Copy-9">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <g id="Rectangle-Copy-4"></g>
+            <g id="Group-29" mask="url(#mask-2)">
+                <g transform="translate(2.726298, -32.569565)">
+                    <rect id="Rectangle-Copy-13" fill="#00F3AB" fill-rule="evenodd" transform="translate(81.112159, 55.490381) rotate(30.000000) translate(-81.112159, -55.490381) " x="-3.88784068" y="40.4903811" width="170" height="30"></rect>
+                    <text id="Recommend" fill="none" transform="translate(89.273702, 60.301615) rotate(30.000000) translate(-89.273702, -60.301615) " font-family="Arial-BoldMT, Arial" font-size="14" font-weight="bold" letter-spacing="0.949647129">
+                        <tspan x="42.9900361" y="65.3016155" fill="#0D1720">Recommend</tspan>
+                    </text>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

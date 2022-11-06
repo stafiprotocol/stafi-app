@@ -12,12 +12,18 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
 import { useAppDispatch } from "hooks/common";
-import { handleEthTokenStake, updateEthBalance } from "redux/reducers/EthSlice";
+import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import { formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
 import { getShortAddress } from "utils/string";
-import { checkMetaMaskAddress } from "utils/common";
+import { checkMetaMaskAddress, openLink } from "utils/common";
 import { useAppSlice } from "hooks/selector";
+import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
+import { useTokenStandard } from "hooks/useTokenStandard";
+import { useRTokenRatio } from "hooks/useRTokenRatio";
+import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
+import { useEthGasPrice } from "hooks/useEthGasPrice";
+import Web3 from "web3";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -38,10 +44,25 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     defaultReceivingAddress,
     editAddressDisabled,
   } = props;
-  const [tokenStandard, setTokenStandard] = useState(TokenStandard.Native);
+  const tokenStandard = useTokenStandard(tokenName);
   const [editAddress, setEditAddress] = useState(false);
   const [targetAddress, setTargetAddress] = useState("");
   const [stakeAmount, setStakeAmount] = useState("");
+
+  const rTokenRatio = useRTokenRatio(tokenName);
+  const rTokenStakerApr = useRTokenStakerApr(tokenName);
+  const ethGasPrice = useEthGasPrice();
+
+  const willReceiveAmount = useMemo(() => {
+    if (
+      isNaN(Number(stakeAmount)) ||
+      isNaN(Number(rTokenRatio)) ||
+      Number(stakeAmount) === 0
+    ) {
+      return "--";
+    }
+    return Number(stakeAmount) / Number(rTokenRatio) + "";
+  }, [stakeAmount, rTokenRatio]);
 
   const { isLoading } = useAppSlice();
 
@@ -84,6 +105,21 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     addressCorrect,
   ]);
 
+  const estimateFee = useMemo(() => {
+    if (tokenName === TokenName.ETH) {
+      if (isNaN(Number(ethGasPrice))) {
+        return "--";
+      }
+
+      return Web3.utils.fromWei(
+        Web3.utils.toBN(146316).mul(Web3.utils.toBN(ethGasPrice)).toString(),
+        "gwei"
+      );
+    }
+
+    return "--";
+  }, [ethGasPrice, tokenName]);
+
   const resetState = () => {
     setEditAddress(false);
     setStakeAmount("");
@@ -92,9 +128,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
       dispatch(
-        handleEthTokenStake(stakeAmount, (success) => {
+        handleEthTokenStake(stakeAmount, willReceiveAmount, (success) => {
           if (success) {
             resetState();
+            dispatch(updateRTokenBalance(tokenStandard, tokenName));
+            props.onClose();
           }
         })
       );
@@ -151,7 +189,6 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   <TokenStandardSelector
                     tokenName={props.tokenName}
                     selectedStandard={tokenStandard}
-                    onSelect={setTokenStandard}
                   />
 
                   {editAddress || !targetAddress ? (
@@ -264,10 +301,18 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               <div
                 className="w-[1.35rem] h-[.67rem] bg-[#1A2835] rounded-[.16rem] flex items-center justify-center cursor-pointer text-white text-[.24rem]"
                 onClick={() => {
-                  if (isWrongMetaMaskNetwork || isNaN(Number(balance))) {
+                  if (
+                    isWrongMetaMaskNetwork ||
+                    isNaN(Number(balance)) ||
+                    isNaN(Number(estimateFee))
+                  ) {
                     return;
                   }
-                  setStakeAmount(formatNumber(balance));
+                  setStakeAmount(
+                    formatNumber(
+                      Math.max(Number(balance) - Number(estimateFee), 0)
+                    )
+                  );
                 }}
               >
                 Max
@@ -289,19 +334,20 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">You Will Receive</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  0 r{tokenName}
+                  {formatNumber(willReceiveAmount)} r{tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Exchange Rate</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  1.70 {tokenName} = 1 r{tokenName}
+                  {formatNumber(rTokenRatio, { decimals: 4 })} {tokenName} = 1 r
+                  {tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Transcation Cost</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  ≈ $0.23
+                  Est. {formatNumber(estimateFee)} ETH
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
@@ -309,14 +355,20 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   <MyTooltip text="Staking Reward" title="Staking Reward" />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  5.3% APR + 463.2 FIS
+                  {formatNumber(rTokenStakerApr, { decimals: 2 })}% APR
+                  {/* + 463.2 FIS */}
                 </div>
               </div>
             </div>
 
             <div className="self-center mt-[.8rem] text-[.24rem] flex items-center">
               <div className="text-text2">Need FIS for Transaction?</div>
-              <div className="ml-[.22rem] flex items-center text-primary cursor-pointer">
+              <div
+                className="ml-[.22rem] flex items-center text-primary cursor-pointer"
+                onClick={() => {
+                  openLink("https://app.stafi.io/feeStation");
+                }}
+              >
                 <div className="mr-[.16rem]">Go FIS Station</div>
                 <Icomoon icon="arrow-right" size=".26rem" color="#00F3AB" />
               </div>

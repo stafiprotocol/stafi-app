@@ -13,14 +13,15 @@ import { values } from "lodash";
 import { useMemo } from "react";
 import classNames from "classnames";
 import { getSupportedTokenStandards } from "utils/rToken";
+import { useRouter } from "next/router";
 
 interface TokenStandardSelectorProps {
   tokenName: TokenName;
   selectedStandard: TokenStandard | undefined;
-  onSelect: (v: TokenStandard) => void;
 }
 
 export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
+  const router = useRouter();
   const selectionPopupState = usePopupState({
     variant: "popover",
     popupId: "selection",
@@ -39,8 +40,13 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
         borderColor="#26494E"
       >
         <div
-          className="flex items-center justify-center rounded-[.16rem] w-[2.1rem] h-[.68rem] cursor-pointer"
-          {...bindTrigger(selectionPopupState)}
+          className={classNames(
+            "flex items-center justify-center rounded-[.16rem] w-[2.1rem] h-[.68rem]",
+            selectionList.length > 0 ? "cursor-pointer" : "cursor-default"
+          )}
+          {...(selectionList.length > 0
+            ? bindTrigger(selectionPopupState)
+            : {})}
         >
           <div className="text-white text-[.24rem]">
             {props.selectedStandard || ""}
@@ -58,7 +64,8 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
           <div
             className={classNames(
               "ml-[.16rem] flex items-center",
-              selectionPopupState.isOpen ? "rotate-0" : "rotate-180"
+              selectionPopupState.isOpen ? "rotate-0" : "rotate-180",
+              { hidden: selectionList.length === 0 }
             )}
           >
             <Icomoon icon="up" color="#ffffff" size=".19rem" />
@@ -97,8 +104,15 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
               <div
                 className="flex items-center justify-center h-[.74rem] cursor-pointer"
                 onClick={() => {
-                  props.onSelect(item);
                   selectionPopupState.close();
+
+                  router.replace({
+                    pathname: router.pathname,
+                    query: {
+                      ...router.query,
+                      tokenStandard: item,
+                    },
+                  });
                 }}
               >
                 <div className="text-white text-[.24rem]">{item}</div>

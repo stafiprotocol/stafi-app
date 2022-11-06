@@ -2,7 +2,8 @@ import { TokenName, TokenStandard, TokenSymbol } from "interfaces/common";
 
 export function getSupportedTokenStandards(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) {
-    return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
+    // return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
+    return [TokenStandard.ERC20];
   }
   return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
 }
