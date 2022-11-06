@@ -64,8 +64,6 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     return Number(lastEraReward) * Number(rTokenPrice);
   }, [lastEraReward, rTokenPrice]);
 
-  const {} = useEraReward(TokenName.ETH);
-
   const resizeListener = () => {
     // 1rem:100px
     let designSize = 2048;

@@ -1,12 +1,14 @@
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { getEtherScanTxUrl } from "config/explorer";
 import { getMaticAbi, getMaticTokenAddress } from "config/matic";
 import { TokenName } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
+import snackbarUtil from "utils/snackbarUtils";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from 'web3';
-import { setIsLoading, setStakeLoadingParams } from "./AppSlice";
+import { addNotice, setIsLoading, setStakeLoadingParams } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
 import { bound } from "./FisSlice";
 
@@ -93,89 +95,155 @@ export const handleMaticStake =
 		cb?: Function
 	): AppThunk => 
 	async (dispatch, getState) => {
-		dispatch(setIsLoading(true)); // stake button loading
-		dispatch(
-			setStakeLoadingParams({
-				modalVisible: true,
-				status: 'loading',
-				tokenName: TokenName.MATIC,
-				amount: stakeAmount,
-				willReceiveAmount: stakeAmount,
-				progressDetail: {
-					sending: {
-						totalStatus: 'loading',
+		try {
+			dispatch(setIsLoading(true)); // stake button loading
+			dispatch(
+				setStakeLoadingParams({
+					modalVisible: true,
+					status: 'loading',
+					tokenName: TokenName.MATIC,
+					amount: stakeAmount,
+					willReceiveAmount: stakeAmount,
+					progressDetail: {
+						sending: {
+							totalStatus: 'loading',
+						},
 					},
-				},
-			})
-		);
+				})
+			);
 
-		const metaMaskAccount = getState().wallet.metaMaskAccount;
-		if (!metaMaskAccount) {
-			throw new Error('Please connect MetaMask');
-		}
-		
-		const web3 = createWeb3();
-		const contract = new web3.eth.Contract(
-			getMaticAbi(),
-			getMaticTokenAddress(),
-			{
-				from: metaMaskAccount,
+			const metaMaskAccount = getState().wallet.metaMaskAccount;
+			if (!metaMaskAccount) {
+				throw new Error('Please connect MetaMask');
 			}
-		);
-
-		const amount = web3.utils.toWei(stakeAmount);
-
-		const validPools = getState().matic.validPools;
-		const poolLimit = getState().matic.poolLimit;
-		console.log(validPools, poolLimit);
-
-		const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
-		console.log('selectedPool', selectedPool);
-		if (!selectedPool) return null;
-
-		const sendTokens = await contract.methods.transfer(selectedPool.address, amount).send();
-		console.log('sendTokens', sendTokens);
-		if (sendTokens && sendTokens.status) {
-			const txHash = sendTokens.transactionHash;
-			let txDetail;
-			while (true) {
-				await sleep(5000);
-				txDetail = await ethereum
-					.request({
-						method: 'eth_getTransactionByHash',
-						params: [txHash],
-					})
-					.catch((err: any) => {
-						console.error(err);
-					});
-
-				if (txDetail.blockHash || !txDetail) {
-					break;
+			
+			const web3 = createWeb3();
+			const contract = new web3.eth.Contract(
+				getMaticAbi(),
+				getMaticTokenAddress(),
+				{
+					from: metaMaskAccount,
 				}
-			}
+			);
 
-			console.log('txDetail', txDetail);
-			const blockHash = txDetail && txDetail.blockHash;
-			if (!blockHash) {
+			const amount = web3.utils.toWei(stakeAmount.toString());
 
-			}
+			const validPools = getState().matic.validPools;
+			const poolLimit = getState().matic.poolLimit;
+			console.log(validPools, poolLimit);
 
-			blockHash &&
+			const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
+			console.log('selectedPool', selectedPool);
+			if (!selectedPool) return null;
+
+			const result = await contract.methods
+				.transfer(selectedPool.address, amount.toString())
+				.send();
+			console.log('result', result);
+
+			if (result && result.status) {
+				snackbarUtil.success('Deposit successfully');
+				const txHash = result.transactionHash;
 				dispatch(
-					bound(
-						metaMaskAccount,
+					addNotice(
 						txHash,
-						blockHash,
-						amount,
-						selectedPool.poolPubKey,
-						rSymbol.Matic,
-						1,
-						targetAddress,
-						() => {
-
-						}
+						'rToken Stake',
+						{
+							transactionHash: txHash,
+							sender: metaMaskAccount,
+						},
+						{
+							tokenName: TokenName.MATIC,
+							amount: stakeAmount,
+						},
+						getEtherScanTxUrl(result.transactionHash),
+						'Confirmed',
 					)
-				)
+				);
+				// todo:
+				dispatch(
+					setStakeLoadingParams({
+						status: 'success',
+						txHash: txHash,
+						scanUrl: getEtherScanTxUrl(txHash),
+						progressDetail: {
+							sending: {
+								totalStatus: 'success',
+								broadcastStatus: 'success',
+								finalizeStatus: 'success',
+							}
+						}
+					})
+				);
+
+				let txDetail;
+				while (true) {
+					await sleep(5000);
+					txDetail = await ethereum
+						.request({
+							method: 'eth_getTransactionByHash',
+							params: [txHash],
+						})
+						.catch((err: any) => {
+							console.error(err);
+						});
+
+					if (txDetail.blockHash || !txDetail) {
+						console.log('txDetail', txDetail);
+						break;
+					}
+				}
+
+				const blockHash = txDetail && txDetail.blockHash;
+				if (!blockHash) {
+					console.error('blockHash error');
+				}
+				console.log('sending succeeded, proceeding signature');
+
+				blockHash &&
+					dispatch(
+						bound(
+							metaMaskAccount,
+							txHash,
+							blockHash,
+							amount,
+							selectedPool.poolPubKey,
+							rSymbol.Matic,
+							chainId,
+							targetAddress,
+							(r: string) => {
+								console.log('r', r);
+							}
+						)
+					)
+			} else {
+				const txHash = result.transactionHash;
+				dispatch(
+					addNotice(
+						txHash,
+						'rToken Stake',
+						{
+							transactionHash: txHash,
+							sender: metaMaskAccount,
+						},
+						{
+							tokenName: TokenName.MATIC,
+							amount: stakeAmount,
+						},
+						getEtherScanTxUrl(txHash),
+						'Error'
+					)
+				);
+				snackbarUtil.error('Error! Please try again');
+			}
+		} catch (err) {
+			console.error(err);
+			dispatch(setStakeLoadingParams({
+				status: 'error',
+			}));
+		} finally {
+			dispatch(setIsLoading(false));
+			dispatch(updateMaticBalance());
 		}
 	}
 

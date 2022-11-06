@@ -77,7 +77,7 @@ export const bound =
 		blockHash: string,
 		amount: string,
 		poolAddress: string,
-		type: any,
+		type: rSymbol,
 		chainId: number,
 		targetAddress: string,
 		cb?: Function
@@ -90,21 +90,23 @@ export const bound =
 		let pubkey = '';
 		let poolPubKey = poolAddress;
 		// todo: other rTokens, here only rMatic
-		await sleep(3000);
+		if (type === rSymbol.Matic) {
+			await sleep(3000);
 
-		const metaMaskAccount = getState().wallet.metaMaskAccount;
-		const fisPubkey = u8aToHex(keyringInstance.decodeAddress(fisAddress), -1, false);
-		const msg = stringToHex(fisPubkey);
-		pubkey = address;
-		signature = await ethereum
-			.request({
-				method: 'personal_sign',
-				params: [metaMaskAccount, msg],
-			})
-			.catch((err: any) => {
-				console.error(err);
-			});
-		console.log('signature succeeded');
+			const metaMaskAccount = getState().wallet.metaMaskAccount;
+			const fisPubkey = u8aToHex(keyringInstance.decodeAddress(fisAddress), -1, false);
+			const msg = stringToHex(fisPubkey);
+			pubkey = address;
+			signature = await ethereum
+				.request({
+					method: 'personal_sign',
+					params: [metaMaskAccount, msg],
+				})
+				.catch((err: any) => {
+					console.error(err);
+				});
+			console.log('signature succeeded, proceeding staking');
+		}
 
 		await sleep(5000);
 
@@ -114,6 +116,7 @@ export const bound =
 
 		let bondResult: any;
 		// todo: chainId
+		console.log('stafiApi', stafiApi);
 		if (chainId === 1) {
 			bondResult = await stafiApi.tx.rTokenSeries.liquidityBond(
 				pubkey,
@@ -121,7 +124,7 @@ export const bound =
 				poolPubKey,
 				blockHash,
 				txHash,
-				amount,
+				amount.toString(),
 				type,
 			);
 			console.log({
@@ -136,57 +139,60 @@ export const bound =
 		} else {
 
 		}
+		console.log(bondResult);
 
 		try {
 			let index = 0;
 			console.log(fisAddress, injector.signer)
-			bondResult.signAndSend(fisAddress, {signer: injector.signer}, (result: any) => {
-				console.log(result);
-				if (index === 0) {
-					index++;
-				}
-				const tx = bondResult.hash.toHex();
-				try {
-					if (result.status.isInBlock) {
-						console.log('inBlock');
-						result.events.filter((e: any) => e.event.section === 'system')
-							.forEach((data: any) => {
-								console.log(data.event.method);
-								if (data.event.method === 'ExtrinsicFailed') {
-									const [dispatchError] = data.event.data;
-									if (dispatchError.isModule) {
-										try {
-											const mod = dispatchError.asModule;
-											const error = data.registry.findMetaError(
-												new Uint8Array([mod.index.toNumber(), mod.error.toNumber()]),
-											);
+			bondResult
+				.signAndSend(fisAddress, {signer: injector.signer}, (result: any) => {
+					if (index === 0) {
+						index++;
+					}
+					const tx = bondResult.hash.toHex();
+					try {
+						if (result.status.isInBlock) {
+							console.log('inBlock');
+							console.log('events', result.events);
+							result.events
+								.filter((e: any) => e.event.section === 'system')
+								.forEach((data: any) => {
+									console.log(data.event.method);
+									if (data.event.method === 'ExtrinsicFailed') {
+										const [dispatchError] = data.event.data;
+										if (dispatchError.isModule) {
+											try {
+												const mod = dispatchError.asModule;
+												const error = data.registry.findMetaError(
+													new Uint8Array([mod.index.toNumber(), mod.error.toNumber()]),
+												);
 
-											let msgStr = 'Something is wrong, please try again later';
-											if (error.name === '') {
-												msgStr = '';
+												let msgStr = 'Something is wrong, please try again later';
+												if (error.name === '') {
+													msgStr = '';
+												}
+												msgStr && console.log(msgStr);
+											} catch (err) {
+												console.error(err);
 											}
-											msgStr && console.log(msgStr);
-										} catch (err) {
-											console.error(err);
+											console.log('fail')
 										}
-										console.log('fail')
+									} else if (data.event.method === 'ExtrinsicSuccess') {
+										dispatch(
+											getMinting(type, txHash, blockHash)
+										);
+										console.log('loading');
 									}
-								} else if (data.event.method === 'ExtrinsicSuccess') {
-									dispatch(
-										getMinting(type, txHash, blockHash)
-									);
-									console.log('loading');
-								}
-							});
-					} else if (result.isError) {
-						console.log(result.toHuman());
+								});
+						} else if (result.isError) {
+							console.log(result.toHuman());
+						}
+						if (result.status.isFinalized) {
+							console.log('finalized');
+						}
+					} catch (err) {
+						console.error(err);
 					}
-					if (result.status.isFinalized) {
-						console.log('finalized');
-					}
-				} catch (err) {
-					console.error(err);
-				}
 			})
 			.catch((err: any) => {
 				console.log(err);

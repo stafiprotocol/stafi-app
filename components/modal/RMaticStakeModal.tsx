@@ -97,7 +97,7 @@ export const RMaticStakeModal = (props: RTokenStakeModalProps) => {
 		}));
     if (tokenName === TokenName.ETH) {
       dispatch(
-        handleEthTokenStake(stakeAmount, (success) => {
+        handleEthTokenStake(stakeAmount, '', (success) => {
           if (success) {
             resetState();
           }
@@ -156,7 +156,6 @@ export const RMaticStakeModal = (props: RTokenStakeModalProps) => {
                   <TokenStandardSelector
 										tokenName={TokenName.MATIC}
                     selectedStandard={tokenStandard}
-                    onSelect={setTokenStandard}
                   />
 
                   {editAddress || !targetAddress ? (

@@ -12,6 +12,14 @@ export default class StafiServer extends SubstrateKeyring {
 		this._symbol = 'fis';
 	}
 
+	getWeb3EnableName() {
+		return 'stafi/rtoken';
+	}
+
+	getPolkadotJsSource() {
+		return 'polkadot-js';
+	}
+
 	createStafiApi(): ApiPromise {
 		if (stafiApi) return stafiApi;
 

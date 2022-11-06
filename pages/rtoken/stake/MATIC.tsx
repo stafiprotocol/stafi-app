@@ -1,5 +1,5 @@
 import { CollapseCard } from "components/common/CollapseCard";
-import { RewardChartPanel } from "components/data/RewardChartPanel";
+import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { MyLayoutContext } from "components/layout/layout";
 import { RMaticStakeModal } from "components/modal/RMaticStakeModal";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
@@ -15,6 +15,7 @@ import { FisAccount, setAccounts, setFisAccount, updateFisBalance } from "redux/
 import { useFisAccount } from "hooks/useFisAccount";
 import { KeyringServer } from "servers/keyring";
 import { Symbol } from "keyring/defaults";
+import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 
 const RMaticStakePage = () => {
 	const { setNavigation, setTargetMetaMaskChainId } =
@@ -97,19 +98,14 @@ const RMaticStakePage = () => {
 				title={<div className="text-white text-[.32rem]">rMATIC Rewards</div>}
 			>
 				<RewardChartPanel
-					chartXData={["0", "1", "2"]}
-					chartYData={["10", "11", "12"]}
-					chartDu={chartDu}
-					setChartDu={setChartDu}
-					lastEraReward="0.0001"
-					totalToken="11"
-					totalTokenValue="1827.19"
-					last24hToken="0.1"
-					last24hTokenValue="188.1"
+					tokenName={TokenName.MATIC}
+					onClickStake={() => {}}
 				/>
 			</CollapseCard>
 
-			<StakeMyHistory />
+			<StakeMyHistory tokenName={TokenName.MATIC} />
+
+			<RTokenIntegrations tokenName={TokenName.MATIC} />
 
 			<RMaticStakeModal
 				defaultReceivingAddress={fisAccounts[1] ? fisAccounts[1].address : undefined}
