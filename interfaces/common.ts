@@ -4,6 +4,12 @@ export enum RequestStatus {
   error = 3,
 }
 
+export enum WalletType {
+  MetaMask = "MetaMask",
+  Polkadot = "Polkadot",
+  Phantom = "Phantom",
+}
+
 export enum ChainId {
   STAFI = 1,
   ETH = 2,
@@ -83,8 +89,11 @@ export enum ChartDu {
   "6M" = "6M",
 }
 
-export enum WalletType {
-  MetaMask = "MetaMask",
-  Polkadot = "Polkadot",
-  Phantom = "Phantom",
+export enum DexType {
+  rDEX = "rDEX",
+  Uniswap = "Uniswap",
+  Pancake = "Pancake",
+  Sushi = "Sushi",
+  Curve = "Curve",
+  Sifchain = "Sifchain",
 }

@@ -11,6 +11,7 @@ import checkFileSuccess from "public/check_file_success.svg";
 import { useEffect, useState } from "react";
 import { setStakeLoadingParams } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
+import { formatNumber } from "utils/number";
 
 export const RTokenStakeLoadingModal = () => {
   const dispatch = useAppDispatch();
@@ -87,7 +88,11 @@ export const RTokenStakeLoadingModal = () => {
               ? `Staking operation was successful`
               : stakeLoadingParams?.status === "error"
               ? "Something went wrong, please try again"
-              : `Staking ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}, you will receive ${stakeLoadingParams?.willReceiveAmount} ${stakeLoadingParams?.tokenName}`}
+              : `Staking ${stakeLoadingParams?.amount} ${
+                  stakeLoadingParams?.tokenName
+                }, you will receive ${formatNumber(
+                  stakeLoadingParams?.willReceiveAmount
+                )} ${stakeLoadingParams?.tokenName}`}
           </div>
 
           {stakeLoadingParams?.status === "loading" && (

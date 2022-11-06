@@ -1,10 +1,13 @@
 import { CollapseCard } from "components/common/CollapseCard";
+import { TokenName } from "interfaces/common";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { StakeMyRewardList } from "./StakeMyRewardList";
 import { StakeMyUnbondList } from "./StakeMyUnbondList";
 
-interface StakeMyHistoryProps {}
+interface StakeMyHistoryProps {
+  tokenName: TokenName;
+}
 
 export const StakeMyHistory = (props: StakeMyHistoryProps) => {
   const router = useRouter();
@@ -54,7 +57,7 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
         </div>
       </div>
 
-      {tab === "reward" && <StakeMyRewardList />}
+      {tab === "reward" && <StakeMyRewardList tokenName={props.tokenName} />}
 
       {tab === "unbond" && <StakeMyUnbondList />}
     </CollapseCard>

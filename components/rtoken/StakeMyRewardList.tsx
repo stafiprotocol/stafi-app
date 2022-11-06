@@ -2,12 +2,20 @@ import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
+import { useRTokenReward } from "hooks/useRTokenReward";
+import { TokenName } from "interfaces/common";
 import { useState } from "react";
 
-export const StakeMyRewardList = () => {
+interface StakeMyRewardListProps {
+  tokenName: TokenName;
+}
+
+export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(1);
   const list = [1, 2];
+
+  const {} = useRTokenReward(props.tokenName, page, 0);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">

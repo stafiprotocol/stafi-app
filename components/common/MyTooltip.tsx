@@ -1,4 +1,5 @@
 import { Tooltip } from "@mui/material";
+import classNames from "classnames";
 import { Icomoon } from "components/icon/Icomoon";
 
 interface MyTooltipProps {
@@ -6,6 +7,7 @@ interface MyTooltipProps {
   text: string;
   color?: string;
   hideQuestionIcon?: boolean;
+  className?: string;
 }
 
 export const MyTooltip = (props: MyTooltipProps) => {
@@ -28,7 +30,12 @@ export const MyTooltip = (props: MyTooltipProps) => {
         ],
       }}
     >
-      <div className="flex items-center cursor-default">
+      <div
+        className={classNames(
+          "flex items-center cursor-default",
+          props.className || ""
+        )}
+      >
         <div>{props.text}</div>
 
         {!props.hideQuestionIcon && (

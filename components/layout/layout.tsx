@@ -137,7 +137,7 @@ export const Layout = (props: LayoutProps) => {
             ))}
           </div>
 
-          <div className="w-[14.88rem] mb-[.3rem]">{props.children}</div>
+          <div className="w-[14.88rem] mb-[1rem]">{props.children}</div>
         </main>
 
         <EthValidatorStakeLoadingModal />

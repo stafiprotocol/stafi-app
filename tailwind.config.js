@@ -19,6 +19,7 @@ module.exports = {
       divider1: "#2B3F52",
       active: "#0095EB",
       error: "#FF52C4",
+      border1: "#1A2835",
     },
     fontFamily: {
       helvetica: [

@@ -6,19 +6,34 @@ type ButtonProps = React.PropsWithChildren<{
   disabled?: boolean;
   loading?: boolean;
   stroke?: boolean;
+  secondary?: boolean;
   mt?: string;
   width?: string;
   height?: string;
   fontSize?: string;
   radius?: string;
+  className?: string;
   onClick?: () => void;
 }>;
 
 export const Button = (props: ButtonProps) => {
+  const textColor = props.disabled
+    ? "#5b6872"
+    : props.stroke
+    ? "#00f3ab"
+    : props.secondary
+    ? "#ffffff"
+    : "#1a2835";
+
   return (
     <div
       className={classNames(
-        props.stroke ? styles["button-stroke"] : styles.button,
+        props.stroke
+          ? styles["button-stroke"]
+          : props.secondary
+          ? styles["button-secondary"]
+          : styles.button,
+        props.className || "",
         props.disabled
           ? props.stroke
             ? styles["button-stroke-disabled"]
@@ -28,6 +43,7 @@ export const Button = (props: ButtonProps) => {
       )}
       style={{
         ...(props.width ? { width: props.width } : {}),
+        color: textColor,
         height: props.height || "1rem",
         marginTop: props.mt || "0",
         fontSize: props.fontSize || "0.32rem",
@@ -43,13 +59,7 @@ export const Button = (props: ButtonProps) => {
       {props.loading && (
         <div
           style={{
-            color: props.disabled
-              ? props.stroke
-                ? "#5b6872"
-                : "#5b6872"
-              : props.stroke
-              ? "#00f3ab"
-              : "#1a2835",
+            color: textColor,
           }}
         >
           <CircularLoading color="inherit" size={props.fontSize || "0.32rem"} />

@@ -1,30 +1,68 @@
 import classNames from "classnames";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
-import { ChartDu, TokenName } from "interfaces/common";
+import { ChartDu, RequestStatus, TokenName } from "interfaces/common";
 import Image from "next/image";
 import { formatNumber } from "utils/number";
-import { CustomChart } from "./CustomChart";
+import { CustomChart } from "../data/CustomChart";
 import ethIcon from "public/eth_type_green.svg";
 import { Card } from "components/common/card";
-import { useEffect, useState } from "react";
-import { useEraReward } from "hooks/useRTokenReward";
+import { useEffect, useMemo, useState } from "react";
+import { useRTokenReward } from "hooks/useRTokenReward";
+import { getChartDuSeconds } from "utils/common";
+import { useTokenStandard } from "hooks/useTokenStandard";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
+import { useRTokenRatio } from "hooks/useRTokenRatio";
+import { useTokenPrice } from "hooks/useTokenPrice";
+import { Icomoon } from "components/icon/Icomoon";
 
 interface RewardChartPanelProps {
-  chartXData: string[];
-  chartYData: string[];
-  lastEraReward: string;
-  chartDu: ChartDu;
-  setChartDu: (v: ChartDu) => void;
-  totalToken: string;
-  totalTokenValue: string;
-  last24hToken: string;
-  last24hTokenValue: string;
+  tokenName: TokenName;
+  onClickStake: () => void;
 }
 
 export const RewardChartPanel = (props: RewardChartPanelProps) => {
+  const { tokenName } = props;
+
   const [chartWidth, setChartWidth] = useState("");
   const [chartHeight, setChartHeight] = useState("");
+  const [chartDu, setChartDu] = useState<"1W" | "1M" | "3M" | "6M" | "ALL">(
+    "ALL"
+  );
+
+  const selectedTokenStandard = useTokenStandard(tokenName);
+  const rTokenBalance = useRTokenBalance(
+    selectedTokenStandard,
+    props.tokenName
+  );
+  const rTokenRatio = useRTokenRatio(tokenName);
+  const rTokenPrice = useTokenPrice("r" + props.tokenName);
+  const { totalCount, requestStatus, chartXData, chartYData, lastEraReward } =
+    useRTokenReward(TokenName.ETH, 1, getChartDuSeconds(chartDu));
+
+  // User staked token amount.
+  const stakedAmount = useMemo(() => {
+    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenRatio))) {
+      return "--";
+    }
+    return Number(rTokenBalance) * Number(rTokenRatio);
+  }, [rTokenBalance, rTokenRatio]);
+
+  // User staked token value.
+  const stakedValue = useMemo(() => {
+    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenPrice))) {
+      return "--";
+    }
+    return Number(rTokenBalance) * Number(rTokenPrice);
+  }, [rTokenBalance, rTokenPrice]);
+
+  // Last era reward token value.
+  const lastEraRewardValue = useMemo(() => {
+    if (isNaN(Number(lastEraReward)) || isNaN(Number(rTokenPrice))) {
+      return "--";
+    }
+    return Number(lastEraReward) * Number(rTokenPrice);
+  }, [lastEraReward, rTokenPrice]);
 
   const {} = useEraReward(TokenName.ETH);
 
@@ -50,16 +88,25 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     };
   }, []);
 
-  const {
-    chartXData,
-    chartYData,
-    lastEraReward,
-    chartDu,
-    totalToken,
-    totalTokenValue,
-    last24hToken,
-    last24hTokenValue,
-  } = props;
+  if (totalCount === 0) {
+    return (
+      <div className="flex flex-col items-center pb-[.3rem]">
+        <div
+          className="flex flex-col items-center"
+          // onClick={props.onClickStake}
+        >
+          <EmptyContent mt="0.2rem" size=".8rem" />
+          {/* <div className="mt-[.3rem] flex items-center">
+            <div className="text-text1 text-[.24rem] mr-[.1rem]">
+              Make a stake
+            </div>
+            <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
+          </div> */}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex">
       <div className="relative ml-[.56rem]" style={{ width: chartWidth }}>
@@ -77,7 +124,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
         />
 
         <div className="text-[.18rem] text-text2 absolute top-[.36rem] left-0">
-          +{formatNumber(lastEraReward)} ETH (Last era)
+          +{formatNumber(lastEraReward)} {tokenName} (Last era)
         </div>
 
         <div
@@ -93,7 +140,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
                 ? "text-primary font-[700]"
                 : "text-text2"
             )}
-            onClick={() => props.setChartDu(ChartDu["1W"])}
+            onClick={() => setChartDu(ChartDu["1W"])}
           >
             1W
           </div>
@@ -104,7 +151,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
                 ? "text-primary font-[700]"
                 : "text-text2"
             )}
-            onClick={() => props.setChartDu(ChartDu["1M"])}
+            onClick={() => setChartDu(ChartDu["1M"])}
           >
             1M
           </div>
@@ -115,7 +162,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
                 ? "text-primary font-[700]"
                 : "text-text2"
             )}
-            onClick={() => props.setChartDu(ChartDu["3M"])}
+            onClick={() => setChartDu(ChartDu["3M"])}
           >
             3M
           </div>
@@ -126,7 +173,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
                 ? "text-primary font-[700]"
                 : "text-text2"
             )}
-            onClick={() => props.setChartDu(ChartDu["6M"])}
+            onClick={() => setChartDu(ChartDu["6M"])}
           >
             6M
           </div>
@@ -135,7 +182,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
               "cursor-pointer",
               chartDu === ChartDu.ALL ? "text-primary font-[700]" : "text-text2"
             )}
-            onClick={() => props.setChartDu(ChartDu.ALL)}
+            onClick={() => setChartDu(ChartDu.ALL)}
           >
             ALL
           </div>
@@ -162,10 +209,12 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
             </div>
 
             <div className="flex items-center mt-[.23rem]">
-              <div className="text-[.32rem] text-white">${totalTokenValue}</div>
+              <div className="text-[.32rem] text-white">
+                ${formatNumber(stakedValue, { decimals: 2 })}
+              </div>
               <div className="h-[.2rem] w-[1px] bg-text2 mx-[.18rem] opacity-50" />
               <div className="text-text2 text-[.18rem]">
-                {formatNumber(totalToken)} ETH
+                {formatNumber(stakedAmount)} {tokenName}
               </div>
             </div>
 
@@ -178,10 +227,12 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
 
             <div className="flex items-center mt-[.23rem]">
               <div className="text-[.32rem] text-white">
-                ${last24hTokenValue}
+                ${formatNumber(lastEraRewardValue, { decimals: 2 })}
               </div>
               <div className="h-[.2rem] w-[1px] bg-text2 mx-[.18rem] opacity-50" />
-              <div className="text-text2 text-[.18rem]">{last24hToken} ETH</div>
+              <div className="text-text2 text-[.18rem]">
+                {formatNumber(lastEraReward)} {tokenName}
+              </div>
             </div>
           </div>
         </Card>

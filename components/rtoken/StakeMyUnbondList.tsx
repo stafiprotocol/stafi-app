@@ -73,15 +73,15 @@ export const StakeMyUnbondList = () => {
       )}
 
       {totalCount === 0 && (
-        <div className="flex flex-col items-center">
-          <div className="flex flex-col items-center cursor-pointer">
+        <div className="flex flex-col items-center pb-[.3rem]">
+          <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />
-            <div className="mt-[.3rem] flex items-center">
+            {/* <div className="mt-[.3rem] flex items-center">
               <div className="text-text1 text-[.24rem] mr-[.1rem]">
                 Make a stake
               </div>
               <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
-            </div>
+            </div> */}
           </div>
         </div>
       )}
