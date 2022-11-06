@@ -12,7 +12,7 @@ export function useRTokenRatio(tokenName: TokenName) {
   });
 
   useEffect(() => {
-    dispatch(updateRTokenRatio(tokenName));
+    // dispatch(updateRTokenRatio(tokenName));
   }, [dispatch, tokenName]);
 
   return ratio;

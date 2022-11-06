@@ -124,25 +124,112 @@ export const bound =
 				amount,
 				type,
 			);
+			console.log({
+				pubkey,
+				signature,
+				poolPubKey,
+				blockHash,
+				txHash,
+				amount,
+				type,
+			});
 		} else {
 
 		}
 
 		try {
 			let index = 0;
+			console.log(fisAddress, injector.signer)
 			bondResult.signAndSend(fisAddress, {signer: injector.signer}, (result: any) => {
+				console.log(result);
 				if (index === 0) {
 					index++;
 				}
-				if (result.status.isInBlock) {
-					
+				const tx = bondResult.hash.toHex();
+				try {
+					if (result.status.isInBlock) {
+						console.log('inBlock');
+						result.events.filter((e: any) => e.event.section === 'system')
+							.forEach((data: any) => {
+								console.log(data.event.method);
+								if (data.event.method === 'ExtrinsicFailed') {
+									const [dispatchError] = data.event.data;
+									if (dispatchError.isModule) {
+										try {
+											const mod = dispatchError.asModule;
+											const error = data.registry.findMetaError(
+												new Uint8Array([mod.index.toNumber(), mod.error.toNumber()]),
+											);
+
+											let msgStr = 'Something is wrong, please try again later';
+											if (error.name === '') {
+												msgStr = '';
+											}
+											msgStr && console.log(msgStr);
+										} catch (err) {
+											console.error(err);
+										}
+										console.log('fail')
+									}
+								} else if (data.event.method === 'ExtrinsicSuccess') {
+									dispatch(
+										getMinting(type, txHash, blockHash)
+									);
+									console.log('loading');
+								}
+							});
+					} else if (result.isError) {
+						console.log(result.toHuman());
+					}
+					if (result.status.isFinalized) {
+						console.log('finalized');
+					}
+				} catch (err) {
+					console.error(err);
 				}
+			})
+			.catch((err: any) => {
+				console.log(err);
 			})
 		} catch (err: any) {
 			console.error(err);
 		}
 	}
 
+export const getMinting =
+	(type: number, txHash: string, blockHash: string, cb?: Function): AppThunk =>
+	async (dispatch, getState) => {
+		let bondSuccessParamArr: any[] = [];
+		bondSuccessParamArr.push(blockHash);
+		bondSuccessParamArr.push(txHash);
+		let statusObj = {
+			num: 0,
+		};
+		dispatch(
+			rTokenSeriesBondStates(type, bondSuccessParamArr, statusObj)
+		);
+	}
+
+export const rTokenSeriesBondStates =
+	(type: number, bondSuccessParamArr: any, statusObj: any, cb?: Function): AppThunk =>
+	async (dispatch, getState) => {
+		statusObj.num = statusObj.num + 1;
+		const stafiApi = await stafiServer.createStafiApi();
+		const result = await stafiApi.query.rTokenSeries.bondStates(type, bondSuccessParamArr);
+
+		let bondState = result.toJSON();
+		if (bondState === 'Success') {
+			console.log('success')
+		} else if (bondState === 'Fail') {
+			console.log('failer')
+		} else if (bondState === null) {
+			console.log('stakingFailure')
+		} else if (statusObj.num <= 40) {
+			console.log('pending')
+		} else {
+			console.log('failure')
+		}
+	}
 function sleep(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }

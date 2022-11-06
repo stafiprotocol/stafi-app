@@ -13,6 +13,8 @@ import { useAppDispatch } from "hooks/common";
 import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
 import { FisAccount, setAccounts, setFisAccount, updateFisBalance } from "redux/reducers/FisSlice";
 import { useFisAccount } from "hooks/useFisAccount";
+import { KeyringServer } from "servers/keyring";
+import { Symbol } from "keyring/defaults";
 
 const RMaticStakePage = () => {
 	const { setNavigation, setTargetMetaMaskChainId } =
@@ -44,11 +46,15 @@ const RMaticStakePage = () => {
 		const conn = async () => {
 			const { web3Enable, web3Accounts } = await import('@polkadot/extension-dapp');
 			const accounts = await web3Enable('stafi/rtoken').then(async () => await web3Accounts());
-			const fisAccounts: FisAccount[] = accounts.map(account => ({
-				name: account.meta.name,
-				address: account.address,
-				balance: '--',
-			}));
+			const keyringInstance = new KeyringServer().init(Symbol.Fis);
+			const fisAccounts: FisAccount[] = accounts.map(account => {
+				const address = keyringInstance.encodeAddress(keyringInstance.decodeAddress(account.address));
+				return {
+					name: account.meta.name,
+					address,
+					balance: '--',
+				};
+			});
 			dispatch(setAccounts(fisAccounts));
 			if (fisAccounts.length > 1) {
 				dispatch(setFisAccount(fisAccounts[1]));
@@ -106,7 +112,7 @@ const RMaticStakePage = () => {
 			<StakeMyHistory />
 
 			<RMaticStakeModal
-				defaultReceivingAddress={fisAccounts[0] ? fisAccounts[0].address : undefined}
+				defaultReceivingAddress={fisAccounts[1] ? fisAccounts[1].address : undefined}
 				tokenName={TokenName.MATIC}
 				visible={stakeModalVisible}
 				onClose={() => setStakeModalVisible(false)}

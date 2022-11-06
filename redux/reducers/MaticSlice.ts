@@ -38,8 +38,12 @@ export const maticSlice = createSlice({
 		setMaticBalance: (state: MaticState, action: PayloadAction<string>) => {
 			state.balance = action.payload;
 		},
-		setValidPools: (state: MaticState, action: PayloadAction<any[]>) => {
-
+		setValidPools: (state: MaticState, action: PayloadAction<any | null>) => {
+			if (action.payload === null) {
+				state.validPools = [];
+			} else {
+				state.validPools.push(action.payload);
+			}
 		},
 		setPoolLimit: (state: MaticState, action: PayloadAction<any>) => {
 			state.poolLimit = action.payload;
@@ -55,12 +59,6 @@ export const {
 } = maticSlice.actions;
 
 export default maticSlice.reducer;
-
-const getTokenAbi = () => {
-	const abi =
-		'[{"constant":true,"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"mint","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"addMinter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"renounceMinter","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"isMinter","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_symbol","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"}],"name":"MinterAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"}],"name":"MinterRemoved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"}]';
-	return JSON.parse(abi);
-}
 
 export const updateMaticBalance = (): AppThunk => async (dispatch, getState) => {
 	const account = getState().wallet.metaMaskAccount;
@@ -95,7 +93,7 @@ export const handleMaticStake =
 		cb?: Function
 	): AppThunk => 
 	async (dispatch, getState) => {
-		dispatch(setIsLoading(true));
+		dispatch(setIsLoading(true)); // stake button loading
 		dispatch(
 			setStakeLoadingParams({
 				modalVisible: true,
@@ -129,6 +127,7 @@ export const handleMaticStake =
 
 		const validPools = getState().matic.validPools;
 		const poolLimit = getState().matic.poolLimit;
+		console.log(validPools, poolLimit);
 
 		const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
 		console.log('selectedPool', selectedPool);
@@ -168,8 +167,8 @@ export const handleMaticStake =
 						txHash,
 						blockHash,
 						amount,
-						'',
-						'MATIC',
+						selectedPool.poolPubKey,
+						rSymbol.Matic,
 						1,
 						targetAddress,
 						() => {
@@ -183,6 +182,7 @@ export const handleMaticStake =
 const sleep = (ms: number) => {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 export const getPools = 
 	(cb?: Function): AppThunk => 
 	async (dispatch, getState) => {
