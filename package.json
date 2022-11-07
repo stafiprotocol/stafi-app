@@ -6,10 +6,11 @@
     "dev": "NEXT_PUBLIC_ENV=dev next dev -p 3001",
     "build:dev": "NEXT_PUBLIC_ENV=dev next build",
     "build": "NEXT_PUBLIC_ENV=production next build",
+    "start": "next start -p 3001",
     "dev:validator": "NEXT_PUBLIC_ENV=dev NEXT_PUBLIC_SITE=validator next dev -p 3002",
     "build:validator-dev": "NEXT_PUBLIC_ENV=dev NEXT_PUBLIC_SITE=validator next build",
     "build:validator": "NEXT_PUBLIC_ENV=production NEXT_PUBLIC_SITE=validator next build",
-    "start": "next start",
+    "start:validator": "next start -p 3002",
     "lint": "next lint"
   },
   "dependencies": {
