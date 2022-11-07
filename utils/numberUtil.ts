@@ -1,5 +1,7 @@
 import { rSymbol } from 'keyring/defaults';
 import { create, floorDependencies, divideDependencies } from 'mathjs';
+import Web3Utils from 'web3-utils';
+
 const { floor, divide } = create({
 	floorDependencies,
 	divideDependencies,
@@ -79,6 +81,14 @@ const numberUtil = {
       s[1] += new Array(prec - s[1].length + 1).join('0');
     }
     return s.join(dec);
+	},
+	tokenAmountToChain(amount: string, symbol: rSymbol) {
+		switch (symbol) {
+			case rSymbol.Matic:
+				return Web3Utils.toWei(amount.toString()).toString();
+			default:
+				return Math.round(Number(amount) * 1000000000000).toString();
+		}
 	}
 }
 

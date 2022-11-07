@@ -378,6 +378,54 @@ export const rTokenSeriesBondStates =
 			console.log('failure')
 		}
 	}
+
 function sleep(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export const fisUnbond =
+	(amount: string, symbol: rSymbol, recipient: string, selectedPool: string, topstr: string, cb?: Function): AppThunk =>
+	async (dispatch, getState) => {
+		const address = getState().fis.fisAccount && getState().fis.fisAccount.address;
+		const api = await stafiServer.createStafiApi();
+		
+		const { web3Enable, web3FromSource } = await import('@polkadot/extension-dapp');
+		web3Enable(stafiServer.getWeb3EnableName());
+		const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
+
+		const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
+			symbol,
+			selectedPool,
+			numberUtil.tokenAmountToChain(amount, symbol).toString(),
+			recipient,
+		);
+
+		unbondResult
+			.signAndSend(address, { signer: injector.signer }, (result: any) => {
+				try {
+					if (result.status.isInBlock) {
+						result.events
+							.filter((e: any) => e.event.section === 'system')
+							.forEach((data: any) => {
+								if (data.event.method === 'ExtrinsicSuccess') {
+									const txHash = unbondResult.hash.toHex();
+									cb && cb('Success', txHash);
+									console.log('success');
+								} else if (data.event.method === 'ExtrinsicFailed') {
+									cb && cb('Failed');
+									console.error('failed');
+								}
+							});
+					}
+				} catch (err: any) {
+					cb && cb('Failed');
+				}
+			})
+			.catch((err: any) => {
+				if (err === 'Error: Cancelled') {
+					cb && cb('Cancel');
+				} else {
+
+				}
+			});
+	};

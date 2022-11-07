@@ -12,7 +12,9 @@ import { createWeb3 } from "utils/web3Utils";
 import Web3 from 'web3';
 import { addNotice, setIsLoading, setStakeLoadingParams } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
-import { bond } from "./FisSlice";
+import { bond, fisUnbond } from "./FisSlice";
+import keyring from 'servers/keyring';
+import { u8aToHex } from "@polkadot/util";
 
 declare const ethereum: any;
 
@@ -303,4 +305,35 @@ export const getRMaticRate =
 		ratio = ratio || 1;
 		cb && cb(ratio);
 		return ratio;
+	}
+
+export const unbond =
+	(amount: string, recipient: string, willAmount: any, cb?: Function): AppThunk =>
+	async (dispatch, getState) => {
+		try {
+			const validPools = getState().matic.validPools;
+			let selectedPool = commonSlice.getPoolForUnbond(amount, validPools, rSymbol.Matic);
+			if (!selectedPool) {
+				cb && cb();
+				return;
+			}
+
+			const keyringInstance = keyring.init(Symbol.Matic);
+
+			dispatch(
+				fisUnbond(
+					amount,
+					rSymbol.Matic,
+					u8aToHex(keyringInstance.decodeAddress(recipient)),
+					selectedPool.poolPubKey,
+					// todo:
+					'Unbond succeeded, unbonding period is around',
+					(r?: string, txHash?: string) => {
+
+					}
+				)
+			)
+		} catch (err: any) {
+			console.error(err);
+		}
 	}

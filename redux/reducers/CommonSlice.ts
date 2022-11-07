@@ -3,6 +3,7 @@ import { rSymbol, Symbol } from "keyring/defaults";
 import StafiServer from "servers/stafi";
 import keyring from 'servers/keyring';
 import { hexToU8a } from "@polkadot/util";
+import numberUtil from "utils/numberUtil";
 
 const stafiServer = new StafiServer();
 
@@ -82,5 +83,17 @@ export default class CommonSlice {
 			console.error(errMsg || 'No Matching pool');
 			return null;
 		}
+	}
+
+	getPoolForUnbond(tokenAmount: string, validPools: any[], type: rSymbol, msgStr?: string) {
+		const amount = numberUtil.tokenAmountToChain(tokenAmount.toString(), type);
+		const data = validPools.find((item: any) => {
+			if (Number(item.active) >= Number(amount)) return true;
+		});
+		if (!data) {
+			console.error(msgStr || 'No matching pool')
+			return null;
+		}
+		return data;
 	}
 }
