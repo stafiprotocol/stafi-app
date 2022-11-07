@@ -48,6 +48,37 @@ const numberUtil = {
 		}
 		
 		return divide(Number(amount), Number(factor));
+	},
+	rTokenRateToHuman(amount: any) {
+		return amount / 1000000000000;
+	},
+	amount_format(amount: any, decimals: number) {
+		if (amount === '--') return '--';
+		return this.number_format(amount, decimals || 2, '.', ',');
+	},
+	number_format(num: any, decimals: number, dec_point: string, thousands_sep: string) {
+		num = (num + '').replace(/[^0-9+-Ee.]/g, '');
+    let n = !isFinite(+num) ? 0 : +num,
+      prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+      sep = typeof thousands_sep === 'undefined' ? ',' : thousands_sep,
+      dec = typeof dec_point === 'undefined' ? '.' : dec_point,
+      s: any = '';
+		const toFixedFix = (n: number, prec: number) => {
+			var k = Math.pow(10, prec);
+			return '' + Math.ceil(n * k) / k;
+		};
+
+    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+    var re = /(-?\d+)(\d{3})/;
+    while (re.test(s[0])) {
+      s[0] = s[0].replace(re, '$1' + sep + '$2');
+    }
+
+    if ((s[1] || '').length < prec && num.indexOf('.') > -1) {
+      s[1] = s[1] || '';
+      s[1] += new Array(prec - s[1].length + 1).join('0');
+    }
+    return s.join(dec);
 	}
 }
 

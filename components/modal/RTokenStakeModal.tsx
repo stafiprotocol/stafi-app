@@ -24,6 +24,7 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
+import { handleMaticStake } from "redux/reducers/MaticSlice";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -136,7 +137,13 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           }
         })
       );
-    }
+    } else if (tokenName === TokenName.MATIC) {
+			dispatch(
+				handleMaticStake(stakeAmount, willReceiveAmount, 1, targetAddress, () => {
+
+				})
+			);
+		}
   };
 
   return (
@@ -320,7 +327,8 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             </Card>
 
             <Button
-              disabled={buttonDisabled}
+              // disabled={buttonDisabled}
+							disabled={false}
               loading={isLoading}
               mt=".36rem"
               fontSize=".32rem"

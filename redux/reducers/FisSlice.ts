@@ -6,6 +6,7 @@ import numberUtil from "utils/numberUtil";
 import keyring from 'servers/keyring';
 import StafiServer from "servers/stafi";
 import { stringToHex, u8aToHex } from "@polkadot/util";
+import { setStakeLoadingParams } from "./AppSlice";
 
 declare const ethereum: any;
 
@@ -70,7 +71,7 @@ export const updateFisBalance = (): AppThunk => async (dispatch, getState) => {
 	}
 }
 
-export const bound = 
+export const bond = 
 	(
 		address: string,
 		txHash: string,
@@ -83,6 +84,15 @@ export const bound =
 		cb?: Function
 	): AppThunk =>
 	async (dispatch, getState) => {
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					staking: {
+						broadcastStatus: 'loading',
+					}
+				}
+			})
+		);
 		const fisAddress = getState().fis.fisAccount.address;
 		const keyringInstance = keyring.init(Symbol.Fis);
 		let signature = '';
@@ -103,6 +113,17 @@ export const bound =
 					params: [metaMaskAccount, msg],
 				})
 				.catch((err: any) => {
+					dispatch(
+						setStakeLoadingParams({
+							status: 'error',
+							progressDetail: {
+								staking: {
+									totalStatus: 'error',
+									broadcastStatus: 'error',
+								}
+							}
+						})
+					);
 					console.error(err);
 				});
 			console.log('signature succeeded, proceeding staking');
@@ -152,6 +173,16 @@ export const bound =
 					const tx = bondResult.hash.toHex();
 					try {
 						if (result.status.isInBlock) {
+							dispatch(
+								setStakeLoadingParams({
+									progressDetail: {
+										staking: {
+											broadcastStatus: 'success',
+											packStatus: 'loading',
+										}
+									}
+								})
+							);
 							console.log('inBlock');
 							console.log('events', result.events);
 							result.events
@@ -177,7 +208,28 @@ export const bound =
 											}
 											console.log('fail')
 										}
+										dispatch(
+											setStakeLoadingParams({
+												status: 'error',
+												progressDetail: {
+													staking: {
+														totalStatus: 'error',
+														packStatus: 'error',
+													}
+												}
+											})
+										);
 									} else if (data.event.method === 'ExtrinsicSuccess') {
+										dispatch(
+											setStakeLoadingParams({
+												progressDetail: {
+													staking: {
+														packStatus: 'success',
+														finalizeStatus: 'loading',
+													}
+												}
+											})
+										);
 										dispatch(
 											getMinting(type, txHash, blockHash)
 										);
@@ -188,6 +240,16 @@ export const bound =
 							console.log(result.toHuman());
 						}
 						if (result.status.isFinalized) {
+							dispatch(
+								setStakeLoadingParams({
+									progressDetail: {
+										staking: {
+											totalStatus: 'success',
+											finalizeStatus: 'success',
+										}
+									}
+								})
+							);
 							console.log('finalized');
 						}
 					} catch (err) {
@@ -195,6 +257,19 @@ export const bound =
 					}
 			})
 			.catch((err: any) => {
+				if (err === 'Error: Cancelled') {
+					dispatch(
+						setStakeLoadingParams({
+							status: 'error',
+							progressDetail: {
+								staking: {
+									totalStatus: 'error',
+									broadcastStatus: 'error',
+								}
+							}
+						})
+					);
+				}
 				console.log(err);
 			})
 		} catch (err: any) {
@@ -205,6 +280,16 @@ export const bound =
 export const getMinting =
 	(type: number, txHash: string, blockHash: string, cb?: Function): AppThunk =>
 	async (dispatch, getState) => {
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					minting: {
+						totalStatus: 'loading',
+						broadcastStatus: 'loading',
+					}
+				}
+			})
+		);
 		let bondSuccessParamArr: any[] = [];
 		bondSuccessParamArr.push(blockHash);
 		bondSuccessParamArr.push(txHash);
@@ -212,7 +297,23 @@ export const getMinting =
 			num: 0,
 		};
 		dispatch(
-			rTokenSeriesBondStates(type, bondSuccessParamArr, statusObj)
+			rTokenSeriesBondStates(type, bondSuccessParamArr, statusObj, (e: string) => {
+				if (e === 'successful') {
+					dispatch(
+						setStakeLoadingParams({
+							status: 'success',
+							progressDetail: {
+								minting: {
+									totalStatus: 'success',
+									broadcastStatus: 'success',
+									packStatus: 'success',
+									finalizeStatus: 'success',
+								}
+							}
+						})
+					);
+				}
+			})
 		);
 	}
 
@@ -225,14 +326,55 @@ export const rTokenSeriesBondStates =
 
 		let bondState = result.toJSON();
 		if (bondState === 'Success') {
+			dispatch(
+				setStakeLoadingParams({
+					progressDetail: {
+						minting: {
+							broadcastStatus: 'success',
+						}
+					}
+				})
+			);
+			cb && cb('successful');
 			console.log('success')
 		} else if (bondState === 'Fail') {
+			dispatch(
+				setStakeLoadingParams({
+					status: 'error',
+					progressDetail: {
+						minting: {
+							totalStatus: 'error',
+							broadcastStatus: 'error',
+						}
+					}
+				})
+			);
+			cb && cb('failure');
 			console.log('failer')
 		} else if (bondState === null) {
+			cb && cb('stakingFailure');
 			console.log('stakingFailure')
 		} else if (statusObj.num <= 40) {
+			cb && cb('pending');
+			setTimeout(() => {
+				dispatch(
+					rTokenSeriesBondStates(type, bondSuccessParamArr, statusObj, cb)
+				);
+			}, 15000);
 			console.log('pending')
 		} else {
+			dispatch(
+				setStakeLoadingParams({
+					status: 'error',
+					progressDetail: {
+						minting: {
+							totalStatus: 'error',
+							broadcastStatus: 'error',
+						}
+					}
+				})
+			);
+			cb && cb('failure');
 			console.log('failure')
 		}
 	}

@@ -92,7 +92,7 @@ export const RMaticStakeModal = (props: RTokenStakeModalProps) => {
 
   const clickStake = () => {
 		// todo: chainId
-		dispatch(handleMaticStake(stakeAmount, 1, targetAddress, () => {
+		dispatch(handleMaticStake(stakeAmount, '', 1, targetAddress, () => {
 
 		}));
     if (tokenName === TokenName.ETH) {

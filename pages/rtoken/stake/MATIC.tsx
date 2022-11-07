@@ -16,6 +16,8 @@ import { useFisAccount } from "hooks/useFisAccount";
 import { KeyringServer } from "servers/keyring";
 import { Symbol } from "keyring/defaults";
 import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
+import { updateRTokenRatio } from "redux/reducers/RTokenSlice";
+import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
 
 const RMaticStakePage = () => {
 	const { setNavigation, setTargetMetaMaskChainId } =
@@ -107,7 +109,7 @@ const RMaticStakePage = () => {
 
 			<RTokenIntegrations tokenName={TokenName.MATIC} />
 
-			<RMaticStakeModal
+			<RTokenStakeModal
 				defaultReceivingAddress={fisAccounts[1] ? fisAccounts[1].address : undefined}
 				tokenName={TokenName.MATIC}
 				visible={stakeModalVisible}

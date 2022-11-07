@@ -5,16 +5,20 @@ import { getMaticAbi, getMaticTokenAddress } from "config/matic";
 import { TokenName } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
+import StafiServer from "servers/stafi";
+import numberUtil from "utils/numberUtil";
 import snackbarUtil from "utils/snackbarUtils";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from 'web3';
 import { addNotice, setIsLoading, setStakeLoadingParams } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
-import { bound } from "./FisSlice";
+import { bond } from "./FisSlice";
 
 declare const ethereum: any;
 
 const commonSlice = new CommonSlice();
+
+const stafiServer = new StafiServer();
 
 export interface MaticState {
 	txLoading: boolean;
@@ -90,6 +94,7 @@ export const updateMaticBalance = (): AppThunk => async (dispatch, getState) => 
 export const handleMaticStake = 
 	(
 		stakeAmount: string,
+		willReceiveAmount: string,
 		chainId: number,
 		targetAddress: string,
 		cb?: Function
@@ -103,7 +108,7 @@ export const handleMaticStake =
 					status: 'loading',
 					tokenName: TokenName.MATIC,
 					amount: stakeAmount,
-					willReceiveAmount: stakeAmount,
+					willReceiveAmount: willReceiveAmount,
 					progressDetail: {
 						sending: {
 							totalStatus: 'loading',
@@ -140,6 +145,15 @@ export const handleMaticStake =
 				.transfer(selectedPool.address, amount.toString())
 				.send();
 			console.log('result', result);
+			dispatch(
+				setStakeLoadingParams({
+					progressDetail: {
+						sending: {
+							broadcastStatus: 'loading',
+						}
+					}
+				})
+			)
 
 			if (result && result.status) {
 				snackbarUtil.success('Deposit successfully');
@@ -159,21 +173,6 @@ export const handleMaticStake =
 						getEtherScanTxUrl(result.transactionHash),
 						'Confirmed',
 					)
-				);
-				// todo:
-				dispatch(
-					setStakeLoadingParams({
-						status: 'success',
-						txHash: txHash,
-						scanUrl: getEtherScanTxUrl(txHash),
-						progressDetail: {
-							sending: {
-								totalStatus: 'success',
-								broadcastStatus: 'success',
-								finalizeStatus: 'success',
-							}
-						}
-					})
 				);
 
 				let txDetail;
@@ -196,13 +195,43 @@ export const handleMaticStake =
 
 				const blockHash = txDetail && txDetail.blockHash;
 				if (!blockHash) {
+					dispatch(
+						setStakeLoadingParams({
+							status: 'error',
+							progressDetail: {
+								sending: {
+									totalStatus: 'error',
+									broadcastStatus: 'error',
+								}
+							}
+						})
+					);
 					console.error('blockHash error');
 				}
+
 				console.log('sending succeeded, proceeding signature');
+				dispatch(
+					setStakeLoadingParams({
+						status: 'loading',
+						txHash: txHash,
+						scanUrl: getEtherScanTxUrl(txHash),
+						progressDetail: {
+							sending: {
+								totalStatus: 'success',
+								broadcastStatus: 'success',
+								packStatus: 'success',
+								finalizeStatus: 'success',
+							},
+							staking: {
+								totalStatus: 'loading',
+							}
+						}
+					})
+				);
 
 				blockHash &&
 					dispatch(
-						bound(
+						bond(
 							metaMaskAccount,
 							txHash,
 							blockHash,
@@ -263,4 +292,15 @@ export const getPools =
 		const data = await commonSlice.poolBalanceLimit(rSymbol.Matic);
 		dispatch(setPoolLimit(data));
 		console.log('poolLimit', data);
+	}
+
+export const getRMaticRate =
+	(cb?: Function): AppThunk =>
+	async (dispatch, getState) => {
+		const api = await stafiServer.createStafiApi();
+		const result = await api.query.rTokenRate.rate(rSymbol.Matic);
+		let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
+		ratio = ratio || 1;
+		cb && cb(ratio);
+		return ratio;
 	}
