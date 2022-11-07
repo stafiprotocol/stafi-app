@@ -1,5 +1,6 @@
 import { MyLayoutContext } from "components/layout/layout";
 import { RTokenOverviewCard } from "components/rtoken/RTokenOverviewCard";
+import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import rectangle from "public/rectangle_h.svg";
@@ -8,11 +9,15 @@ import React, { useEffect } from "react";
 import { openLink } from "utils/common";
 
 const RTokenPage = () => {
-  const { setNavigation } = React.useContext(MyLayoutContext);
+  const { setNavigation, setWalletType } = React.useContext(MyLayoutContext);
 
   useEffect(() => {
     setNavigation([{ name: "rToken List" }]);
   }, [setNavigation]);
+
+  useEffect(() => {
+    setWalletType(WalletType.Polkadot);
+  }, [setWalletType]);
 
   return (
     <div>

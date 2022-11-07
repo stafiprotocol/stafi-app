@@ -4,6 +4,13 @@ export function isDev() {
   return process.env.NEXT_PUBLIC_ENV !== "production";
 }
 
+export function getValidatorSiteHost() {
+  if (isDev()) {
+    return "https://test-reth-validator.stafi.io/";
+  }
+  return "https://reth-validator.stafi.io/";
+}
+
 export function getApiHost() {
   if (isDev()) {
     return "https://test-drop-api.stafi.io";

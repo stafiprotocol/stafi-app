@@ -72,9 +72,9 @@ export const Layout = (props: LayoutProps) => {
     return false;
   }, [walletType, metaMaskAccount]);
 
-  if (isServer()) {
-    return null;
-  }
+  // if (isServer()) {
+  //   return null;
+  // }
 
   return (
     <MyLayoutContext.Provider

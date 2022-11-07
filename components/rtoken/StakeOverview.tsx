@@ -22,6 +22,8 @@ import { formatNumber } from "utils/number";
 import { getSupportedTokenStandards } from "utils/rToken";
 import { connectMetaMask } from "utils/web3Utils";
 import { TokenStandardSelector } from "./TokenStandardSelector";
+import classNames from "classnames";
+import { getValidatorSiteHost } from "config/env";
 
 interface StakeOverviewProps {
   tokenName: TokenName;
@@ -176,13 +178,17 @@ export const StakeOverview = (props: StakeOverviewProps) => {
               </div>
 
               <div
-                className="flex items-center cursor-pointer"
+                className={classNames("flex items-center cursor-pointer", {
+                  hidden: props.tokenName !== TokenName.ETH,
+                })}
                 onClick={() => {
-                  openLink("https://www.google.com");
+                  openLink(
+                    `${getValidatorSiteHost()}/validator/reth/pool-data`
+                  );
                 }}
               >
                 <div className="text-text1 text-[.24rem] mr-[.12rem]">
-                  rETH Dashboard
+                  Pool Data
                 </div>
 
                 <Icomoon icon="arrow-right" color="#9DAFBE" size=".25rem" />

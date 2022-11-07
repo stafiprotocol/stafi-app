@@ -1,5 +1,6 @@
 import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
+import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
@@ -14,7 +15,7 @@ import { connectMetaMask } from "utils/web3Utils";
 export const RTokenOverviewCard = () => {
   const { metaMaskAccount } = useWalletAccount();
   const router = useRouter();
-  const { validatorApr, allEth, allEthValue } = useEthPoolData();
+  const { stakeApr, allEth, allEthValue } = useEthPoolData();
 
   const clickStake = () => {
     if (!metaMaskAccount) {
@@ -48,20 +49,24 @@ export const RTokenOverviewCard = () => {
 
       <div className="mt-[.3rem] flex items-end justify-between">
         <div className="flex items-center">
-          <div className="text-text2 text-[.16rem] mr-[.07rem]">APR</div>
-          <Icomoon icon="question" size=".16rem" color="#5B6872" />
+          <MyTooltip
+            text="APR"
+            title="Moving average of APR for 7 days period"
+            className="text-text2 text-[.16rem]"
+          />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
-          {formatNumber(validatorApr, { decimals: 2 })}%
+          {formatNumber(stakeApr, { decimals: 2 })}%
         </div>
       </div>
 
       <div className="mt-[.23rem] flex items-end justify-between">
         <div className="flex items-center">
-          <div className="text-text2 text-[.16rem] mr-[.07rem]">
-            Staked Value
-          </div>
-          <Icomoon icon="question" size=".16rem" color="#5B6872" />
+          <MyTooltip
+            text="Staked Value"
+            title="Total staked ETH value"
+            className="text-text2 text-[.16rem]"
+          />
         </div>
         <div className="text-text2 text-[.16rem]">
           ${formatNumber(allEthValue, { decimals: 2 })}
@@ -70,10 +75,11 @@ export const RTokenOverviewCard = () => {
 
       <div className="mt-[.23rem] flex items-end justify-between">
         <div className="flex items-center">
-          <div className="text-text2 text-[.16rem] mr-[.07rem]">
-            Total ETH Staked
-          </div>
-          <Icomoon icon="question" size=".16rem" color="#5B6872" />
+          <MyTooltip
+            text="Total ETH Staked"
+            title="Overall ETH staked, including restake ETH"
+            className="text-text2 text-[.16rem]"
+          />
         </div>
         <div className="text-text2 text-[.16rem]">
           {formatNumber(allEth, { decimals: 2 })}
