@@ -37,7 +37,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
   );
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenPrice = useTokenPrice("r" + props.tokenName);
-  const { totalCount, requestStatus, chartXData, chartYData, lastEraReward } =
+  const { requestStatus, totalCount, chartXData, chartYData, lastEraReward } =
     useRTokenReward(TokenName.ETH, 1, getChartDuSeconds(chartDu));
 
   // User staked token amount.

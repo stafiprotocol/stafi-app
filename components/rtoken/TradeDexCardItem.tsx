@@ -6,7 +6,7 @@ import { DexType, TokenStandard } from "interfaces/common";
 import Image from "next/image";
 import curveIcon from "public/dex/curve.svg";
 import pancakeIcon from "public/dex/pancake.svg";
-import rDEXIcon from "public/dex/rDEX.png";
+import rDEXIcon from "public/dex/r_dex.png";
 import sifchainIcon from "public/dex/sifchain.svg";
 import uniswapIcon from "public/dex/uniswap.png";
 import recommendImage from "public/recommend.svg";

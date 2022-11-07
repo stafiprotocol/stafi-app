@@ -30,9 +30,10 @@ import { updateEthBalance } from "redux/reducers/EthSlice";
 import { MyLayoutContext } from "./layout";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import Link from "next/link";
+import { WalletType } from "interfaces/common";
 
 export const Navbar = () => {
-  const { isWrongMetaMaskNetwork, targetMetaMaskChainId } =
+  const { walletType, isWrongMetaMaskNetwork, targetMetaMaskChainId } =
     useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
 
@@ -93,7 +94,7 @@ export const Navbar = () => {
                 className="flex items-center cursor-pointer"
                 onClick={clickAccountLeftArea}
               >
-                {isWrongMetaMaskNetwork && (
+                {isWrongMetaMaskNetwork && walletType === WalletType.MetaMask && (
                   <div className="flex items-center">
                     <div className="bg-error w-[.12rem] h-[.12rem] rounded-full" />
                     <div className="ml-[.12rem] text-error text-[.24rem]">

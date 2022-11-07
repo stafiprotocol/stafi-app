@@ -1,4 +1,5 @@
 import { TokenName, TokenStandard, TokenSymbol } from "interfaces/common";
+import { formatNumber } from "./number";
 
 export function getSupportedTokenStandards(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) {
@@ -27,4 +28,12 @@ export function getTokenSymbol(tokenName: TokenName): TokenSymbol | undefined {
     return TokenSymbol.ATOM;
   }
   return undefined;
+}
+
+export function getRewardText(reward: string) {
+  return reward !== "--"
+    ? Number(reward) > 0 && Number(reward) < 0.000001
+      ? "<0.000001"
+      : `+${formatNumber(reward)}`
+    : "--";
 }
