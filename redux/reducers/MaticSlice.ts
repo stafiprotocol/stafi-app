@@ -307,8 +307,8 @@ export const getRMaticRate =
 		return ratio;
 	}
 
-export const unbond =
-	(amount: string, recipient: string, willAmount: any, cb?: Function): AppThunk =>
+export const unbondRMatic =
+	(amount: string, recipient: string, cb?: Function): AppThunk =>
 	async (dispatch, getState) => {
 		try {
 			const validPools = getState().matic.validPools;
