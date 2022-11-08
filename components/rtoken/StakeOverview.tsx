@@ -174,16 +174,17 @@ export const StakeOverview = (props: StakeOverviewProps) => {
             )}
           </div>
         </div>
-        <div className="flex items-end mr-[.7rem]">
-          <div className="w-[.8rem] h-[1.3rem] relative">
-            <Image
-              src={getChainIcon(props.tokenName)}
-              alt="chain"
-              layout="fill"
-            />
-          </div>
+        <div className="flex items-center mr-[.7rem] opacity-60">
+          <div className="flex flex-col mr-[.45rem] items-end">
+            <div className="text-primary text-[.6rem] font-[600]">
+              {formatNumber(rTokenBalance)}
+            </div>
 
-          <div className="ml-[.24rem] w-[.33rem] h-[.53rem] relative">
+            <div className="text-primary text-[.2rem] mr-[.1rem] mt-[.1rem]">
+              {formatNumber(stakedAmount)} {props.tokenName} staked
+            </div>
+          </div>
+          <div className="w-[.8rem] h-[1.3rem] relative">
             <Image
               src={getChainIcon(props.tokenName)}
               alt="chain"
