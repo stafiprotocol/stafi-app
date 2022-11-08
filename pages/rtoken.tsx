@@ -1,5 +1,6 @@
 import { MyLayoutContext } from "components/layout/layout";
 import { RTokenOverviewCard } from "components/rtoken/RTokenOverviewCard";
+import { getMetamaskEthChainId } from "config/metaMask";
 import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import leftArrowIcon from "public/icon_arrow_left.png";
@@ -9,15 +10,20 @@ import React, { useEffect } from "react";
 import { openLink } from "utils/common";
 
 const RTokenPage = () => {
-  const { setNavigation, setWalletType } = React.useContext(MyLayoutContext);
+  const { setNavigation, setWalletType, setTargetMetaMaskChainId } =
+    React.useContext(MyLayoutContext);
 
   useEffect(() => {
     setNavigation([{ name: "rToken List" }]);
   }, [setNavigation]);
 
   useEffect(() => {
-    setWalletType(WalletType.Polkadot);
+    setWalletType(WalletType.MetaMask);
   }, [setWalletType]);
+
+  useEffect(() => {
+    setTargetMetaMaskChainId(getMetamaskEthChainId());
+  }, [setTargetMetaMaskChainId]);
 
   return (
     <div>

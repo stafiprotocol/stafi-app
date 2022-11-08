@@ -1,3 +1,4 @@
+import { isDev } from "config/env";
 import {
   getMetamaskEthChainId,
   getMetaMaskEthConnectConfig,
@@ -29,11 +30,11 @@ export function connectMetaMask(targetChainId: number | undefined) {
 }
 
 export async function getErc20AssetBalance(
-  userAddress: string,
+  userAddress: string | undefined,
   tokenAbi: AbiItem | AbiItem[],
   tokenAddress: string | undefined
 ) {
-  if (!tokenAbi || !tokenAddress) {
+  if (!userAddress || !tokenAbi || !tokenAddress) {
     return "--";
   }
   try {
@@ -44,12 +45,37 @@ export async function getErc20AssetBalance(
     let contract = new web3.eth.Contract(tokenAbi, tokenAddress, {
       from: userAddress,
     });
-
     const result = await contract.methods.balanceOf(userAddress).call();
-
     let balance = web3.utils.fromWei(result, "ether");
     return balance;
   } catch {
+    return "--";
+  }
+}
+
+export async function getBep20AssetBalance(
+  userAddress: string | undefined,
+  tokenAbi: AbiItem | AbiItem[],
+  tokenAddress: string | undefined
+) {
+  if (!userAddress || !tokenAbi || !tokenAddress) {
+    return "--";
+  }
+  try {
+    const web3 = createWeb3(
+      isDev()
+        ? new Web3.providers.HttpProvider(getWeb3ProviderUrlConfig().bsc)
+        : new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().bsc)
+    );
+
+    let contract = new web3.eth.Contract(tokenAbi, tokenAddress, {
+      from: userAddress,
+    });
+    const result = await contract.methods.balanceOf(userAddress).call();
+    let balance = web3.utils.fromWei(result, "ether");
+    return balance;
+  } catch (err: unknown) {
+    console.log(err);
     return "--";
   }
 }

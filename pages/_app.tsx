@@ -6,6 +6,7 @@ import { Layout } from "components/layout/layout";
 import { hooks as metaMaskHooks, metaMask } from "connectors/metaMask";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { SnackbarProvider } from "notistack";
 import type { ReactElement, ReactNode } from "react";
@@ -15,6 +16,10 @@ import { store } from "redux/store";
 import { theme } from "src/material-ui-theme";
 import { SnackbarUtilsConfigurator } from "utils/snackbarUtils";
 import "../styles/globals.css";
+
+const ApiProvider = dynamic(() => import("providers/api-provider"), {
+  ssr: false,
+});
 
 const useStyles = makeStyles({
   root: { marginLeft: "0" },
@@ -68,28 +73,31 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
+
   return (
     <Provider store={store}>
-      {/* <Web3ReactProvider connectors={connectors}> */}
-      <ThemeProvider theme={theme}>
-        <SnackbarProvider
-          maxSnack={1}
-          autoHideDuration={3000}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          TransitionComponent={Fade as React.ComponentType}
-          classes={{
-            root: classes.root,
-            variantSuccess: classes.successSnackbar,
-            variantError: classes.errorSnackbar,
-          }}
-        >
-          <SnackbarUtilsConfigurator />
-          <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
-        </SnackbarProvider>
-      </ThemeProvider>
+      <ApiProvider>
+        {/* <Web3ReactProvider connectors={connectors}> */}
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider
+            maxSnack={1}
+            autoHideDuration={3000}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+            TransitionComponent={Fade as React.ComponentType}
+            classes={{
+              root: classes.root,
+              variantSuccess: classes.successSnackbar,
+              variantError: classes.errorSnackbar,
+            }}
+          >
+            <SnackbarUtilsConfigurator />
+            <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </ApiProvider>
       {/* </Web3ReactProvider> */}
     </Provider>
   );

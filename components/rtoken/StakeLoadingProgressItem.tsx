@@ -59,6 +59,8 @@ export const StakeLoadingProgressItem = (
       <div className={classNames("ml-[.32rem] mt-[.12rem]  text-[.16rem]")}>
         <div
           className={classNames(
+            "flex items-center",
+            { hidden: !data.broadcastStatus },
             data.broadcastStatus === "success"
               ? "text-active"
               : data.broadcastStatus === "error"
@@ -66,11 +68,15 @@ export const StakeLoadingProgressItem = (
               : "text-text1"
           )}
         >
-          Broadcasting...
+          <div className="mr-[.1rem]">Broadcasting...</div>
+          {data.broadcastStatus === "success" && (
+            <Icomoon icon="nike" size=".18rem" color="#0095EB" />
+          )}
         </div>
         <div
           className={classNames(
-            "mt-[.08rem]",
+            "mt-[.08rem] flex items-center",
+            { hidden: !data.packStatus },
             data.packStatus === "success"
               ? "text-active"
               : data.packStatus === "error"
@@ -78,11 +84,15 @@ export const StakeLoadingProgressItem = (
               : "text-text1"
           )}
         >
-          Packing...
+          <div className="mr-[.1rem]">Packing...</div>
+          {data.packStatus === "success" && (
+            <Icomoon icon="nike" size=".18rem" color="#0095EB" />
+          )}
         </div>
         <div
           className={classNames(
-            "mt-[.08rem]",
+            "mt-[.08rem] flex items-center",
+            { hidden: !data.finalizeStatus },
             data.finalizeStatus === "success"
               ? "text-active"
               : data.finalizeStatus === "error"
@@ -90,7 +100,10 @@ export const StakeLoadingProgressItem = (
               : "text-text1"
           )}
         >
-          Finalizing...
+          <div className="mr-[.1rem]">Finalizing...</div>
+          {data.finalizeStatus === "success" && (
+            <Icomoon icon="nike" size=".18rem" color="#0095EB" />
+          )}
         </div>
         {txHash && (
           <div className="mt-[.12rem] text-text1">

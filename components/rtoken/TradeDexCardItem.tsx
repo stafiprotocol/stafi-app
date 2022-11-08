@@ -4,13 +4,9 @@ import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
 import { DexType, TokenStandard } from "interfaces/common";
 import Image from "next/image";
-import curveIcon from "public/dex/curve.svg";
-import pancakeIcon from "public/dex/pancake.svg";
-import rDEXIcon from "public/dex/r_dex.png";
-import sifchainIcon from "public/dex/sifchain.svg";
-import uniswapIcon from "public/dex/uniswap.png";
 import recommendImage from "public/recommend.svg";
 import { openLink } from "utils/common";
+import { getDexIcon } from "utils/rToken";
 
 interface TradeDexCardItemProps {
   type: DexType;
@@ -20,20 +16,6 @@ interface TradeDexCardItemProps {
 
 export const TradeDexCardItem = (props: TradeDexCardItemProps) => {
   const { type } = props;
-
-  const getIcon = () => {
-    if (type === DexType.rDEX) {
-      return rDEXIcon;
-    } else if (type === DexType.Uniswap) {
-      return uniswapIcon;
-    } else if (type === DexType.Pancake) {
-      return pancakeIcon;
-    } else if (type === DexType.Curve) {
-      return curveIcon;
-    } else if (type === DexType.Sifchain) {
-      return sifchainIcon;
-    }
-  };
 
   return (
     <Card
@@ -49,8 +31,7 @@ export const TradeDexCardItem = (props: TradeDexCardItemProps) => {
 
       <div className="bg-[#171717] border-[1px] border-solid border-border1 w-[.76rem] h-[.76rem] rounded-full mt-[.24rem] p-[.15rem]">
         <div className="w-full h-full relative">
-          {" "}
-          <Image alt="icon" layout="fill" src={getIcon()} />
+          <Image alt="icon" layout="fill" src={getDexIcon(type)} />
         </div>
       </div>
 

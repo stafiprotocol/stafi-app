@@ -55,7 +55,7 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
       // eth: "wss://eth-goerli.alchemyapi.io/v2/O4w9rgihCPcRvH1IDF2BHLt5YSzSI9oJ",
       // stafi testnet
       eth: "wss://test-eth-node.stafi.io",
-      bsc: "wss://speedy-nodes-nyc.moralis.io/5a284cffde906505c6eb2af8/bsc/testnet/ws",
+      bsc: "https://bsc-testnet.blockvision.org/v1/2HD6MqYwTgYlZD2uDKmLPey8Thh",
       polygon: "wss://matic-testnet-archive-ws.bwarelabs.com",
     };
   }

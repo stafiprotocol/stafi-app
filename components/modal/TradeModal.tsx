@@ -1,11 +1,12 @@
 import { Box, Modal } from "@mui/material";
 import { Icomoon } from "components/icon/Icomoon";
+import { TradeDexCardItem } from "components/rtoken/TradeDexCardItem";
 import { useAppDispatch } from "hooks/common";
-import rectangle from "public/rectangle_h.svg";
+import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { TradeDexCardItem } from "components/rtoken/TradeDexCardItem";
-import { DexType, TokenName, TokenStandard } from "interfaces/common";
+import rectangle from "public/rectangle_h.svg";
+import { getDexList } from "utils/rToken";
 
 interface TradeModalProps {
   tokenName: TokenName;
@@ -13,39 +14,7 @@ interface TradeModalProps {
   onClose: () => void;
 }
 
-interface DexItem {
-  type: DexType;
-  tokenStandard: TokenStandard;
-  url: string;
-}
-
 export const TradeModal = (props: TradeModalProps) => {
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-
-  const getDexList = (): DexItem[] => {
-    if (props.tokenName === TokenName.ETH) {
-      return [
-        {
-          type: DexType.rDEX,
-          tokenStandard: TokenStandard.Native,
-          url: "https://app.rdex.finance/swap?first=rETH&second=FIS",
-        },
-        {
-          type: DexType.Uniswap,
-          tokenStandard: TokenStandard.ERC20,
-          url: "https://app.uniswap.org/#/swap?inputCurrency=0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593&outputCurrency=ETH",
-        },
-        {
-          type: DexType.Curve,
-          tokenStandard: TokenStandard.ERC20,
-          url: "https://curve.fi/reth",
-        },
-      ];
-    }
-    return [];
-  };
-
   const onClickRBridge = () => {
     if (props.tokenName === TokenName.ETH) {
       window.open("https://app.stafi.io/rAsset/swap/rETH?first=native");
@@ -90,7 +59,7 @@ export const TradeModal = (props: TradeModalProps) => {
               gridTemplateColumns: "auto auto auto",
             }}
           >
-            {getDexList().map((item) => (
+            {getDexList(props.tokenName).map((item) => (
               <TradeDexCardItem
                 key={item.type}
                 type={item.type}

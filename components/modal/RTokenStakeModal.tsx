@@ -24,6 +24,7 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
+import classNames from "classnames";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -361,7 +362,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               </div>
             </div>
 
-            <div className="self-center mt-[.8rem] text-[.24rem] flex items-center">
+            <div
+              className={classNames(
+                "self-center mt-[.8rem] text-[.24rem] flex items-center",
+                { hidden: tokenName === TokenName.ETH }
+              )}
+            >
               <div className="text-text2">Need FIS for Transaction?</div>
               <div
                 className="ml-[.22rem] flex items-center text-primary cursor-pointer"

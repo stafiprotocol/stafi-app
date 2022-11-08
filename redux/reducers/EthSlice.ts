@@ -445,7 +445,6 @@ export const handleEthTokenStake =
                 totalStatus: "success",
                 broadcastStatus: "success",
                 packStatus: "success",
-                finalizeStatus: "success",
               },
             },
           })
