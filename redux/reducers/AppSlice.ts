@@ -21,7 +21,7 @@ interface StakeLoadingParams {
   tokenStandard?: TokenStandard;
   amount?: string;
   willReceiveAmount?: string;
-  newRTokenBalance?: string;
+  newTotalStakedAmount?: string;
   scanUrl?: string;
   txHash?: string;
   progressDetail?: StakeLoadingProgressDetail;

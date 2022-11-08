@@ -379,7 +379,7 @@ export const handleEthTokenStake =
     tokenStandard: TokenStandard | undefined,
     stakeAmount: string,
     willReceiveAmount: string,
-    newRTokenBalance: string,
+    newTotalStakedAmount: string,
     callback?: (success: boolean, result: any) => void
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -397,7 +397,7 @@ export const handleEthTokenStake =
           tokenName: TokenName.ETH,
           amount: stakeAmount,
           willReceiveAmount,
-          newRTokenBalance,
+          newTotalStakedAmount,
           progressDetail: {
             sending: {
               totalStatus: "loading",

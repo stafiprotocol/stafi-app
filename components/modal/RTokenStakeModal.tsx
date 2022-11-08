@@ -123,12 +123,18 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return "--";
   }, [ethGasPrice, tokenName]);
 
-  const newRTokenBalance = useMemo(() => {
-    if (isNaN(Number(rTokenBalance)) || isNaN(Number(willReceiveAmount))) {
+  const newTotalStakedAmount = useMemo(() => {
+    if (
+      isNaN(Number(rTokenBalance)) ||
+      isNaN(Number(stakeAmount)) ||
+      isNaN(Number(rTokenRatio))
+    ) {
       return "--";
     }
-    return Number(rTokenBalance) + Number(willReceiveAmount) + "";
-  }, [rTokenBalance, willReceiveAmount]);
+    return (
+      Number(rTokenBalance) * Number(rTokenRatio) + Number(stakeAmount) + ""
+    );
+  }, [rTokenBalance, rTokenRatio, stakeAmount]);
 
   const resetState = () => {
     setEditAddress(false);
@@ -142,7 +148,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           tokenStandard,
           stakeAmount,
           willReceiveAmount,
-          newRTokenBalance,
+          newTotalStakedAmount,
           (success) => {
             if (success) {
               resetState();
