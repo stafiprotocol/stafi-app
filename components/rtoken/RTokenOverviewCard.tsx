@@ -6,13 +6,19 @@ import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
+import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ethLogo from "public/eth_token.svg";
 import { formatNumber } from "utils/number";
 import { connectMetaMask } from "utils/web3Utils";
 
-export const RTokenOverviewCard = () => {
+interface RTokenOverviewCardProps {
+  tokenName: TokenName;
+}
+
+export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
+  const { tokenName } = props;
   const { metaMaskAccount } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
@@ -42,7 +48,7 @@ export const RTokenOverviewCard = () => {
         <div className="flex flex-col items-end">
           <div className="mt-[.1rem] text-text1 text-[.12rem]">Ethereum</div>
           <div className="mt-[.12rem]">
-            <GradientText size=".4rem">ETH</GradientText>
+            <GradientText size=".4rem">{tokenName}</GradientText>
           </div>
         </div>
       </div>
@@ -64,7 +70,7 @@ export const RTokenOverviewCard = () => {
         <div className="flex items-center">
           <MyTooltip
             text="Staked Value"
-            title="Total staked ETH value"
+            title="Overall token staked value In USD, including restake value"
             className="text-text2 text-[.16rem]"
           />
         </div>
@@ -77,7 +83,7 @@ export const RTokenOverviewCard = () => {
         <div className="flex items-center">
           <MyTooltip
             text="Total ETH Staked"
-            title="Overall ETH staked, including restake ETH"
+            title={`Overall ${tokenName} staked, including restake ${tokenName}`}
             className="text-text2 text-[.16rem]"
           />
         </div>

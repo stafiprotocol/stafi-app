@@ -32,20 +32,26 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           <div className="flex justify-center">
             <MyTooltip
               text={`Stake ${tokenName}`}
-              title={`Stake ${tokenName}`}
+              title={`Your overall staked ${tokenName} amount, including restaked ${tokenName}`}
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text={`r${tokenName}/${tokenName}`}
-              title={`r${tokenName}/${tokenName}`}
+              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every 8 hours`}
             />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text={`Get r${tokenName}`} title={`Get r${tokenName}`} />
+            <MyTooltip
+              text={`Get r${tokenName}`}
+              title={`Your current r${tokenName} count`}
+            />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Est. Reward" title="Est. Reward" />
+            <MyTooltip
+              text="Est. Reward"
+              title={`Estimated staking reward that generated at this time period`}
+            />
           </div>
         </div>
       )}

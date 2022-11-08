@@ -31,30 +31,28 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
   );
 
   const selectedTokenStandard = useTokenStandard(tokenName);
-  const rTokenBalance = useRTokenBalance(
-    selectedTokenStandard,
-    props.tokenName
-  );
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenPrice = useTokenPrice("r" + props.tokenName);
-  const { requestStatus, totalCount, chartXData, chartYData, lastEraReward } =
-    useRTokenReward(TokenName.ETH, 1, getChartDuSeconds(chartDu));
+  const {
+    requestStatus,
+    totalCount,
+    totalReward,
+    chartXData,
+    chartYData,
+    lastEraReward,
+  } = useRTokenReward(TokenName.ETH, 1, getChartDuSeconds(chartDu));
 
-  // User staked token amount.
-  const stakedAmount = useMemo(() => {
-    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenRatio))) {
+  // Total reward value.
+  const totalRewardValue = useMemo(() => {
+    if (
+      isNaN(Number(totalReward)) ||
+      isNaN(Number(rTokenPrice)) ||
+      isNaN(Number(rTokenRatio))
+    ) {
       return "--";
     }
-    return Number(rTokenBalance) * Number(rTokenRatio);
-  }, [rTokenBalance, rTokenRatio]);
-
-  // User staked token value.
-  const stakedValue = useMemo(() => {
-    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenPrice))) {
-      return "--";
-    }
-    return Number(rTokenBalance) * Number(rTokenPrice);
-  }, [rTokenBalance, rTokenPrice]);
+    return (Number(totalReward) / Number(rTokenRatio)) * Number(rTokenPrice);
+  }, [totalReward, rTokenPrice, rTokenRatio]);
 
   // Last era reward token value.
   const lastEraRewardValue = useMemo(() => {
@@ -201,25 +199,25 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
           <div className={classNames("pt-[.78rem] pl-[.56rem]")} style={{}}>
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
-                title="Total staked ETH value, includes validator own stakes."
-                text="Total Staked Value"
+                text="Total reward"
+                title="Overall staking reward generated"
               />
             </div>
 
             <div className="flex items-center mt-[.23rem]">
               <div className="text-[.32rem] text-white">
-                ${formatNumber(stakedValue, { decimals: 2 })}
+                ${formatNumber(totalRewardValue, { decimals: 2 })}
               </div>
               <div className="h-[.2rem] w-[1px] bg-text2 mx-[.18rem] opacity-50" />
               <div className="text-text2 text-[.18rem]">
-                {formatNumber(stakedAmount)} {tokenName}
+                {formatNumber(totalReward)} {tokenName}
               </div>
             </div>
 
             <div className="mt-[.4rem] text-text2 text-[.24rem] flex items-center">
               <MyTooltip
                 text="Reward in last Era"
-                title="rTokens will continuously generate staking rewards even when deposited in farms, mines or other yield generation methods, however, it will not be visible in the Est. Reward column as calculations are limited."
+                title="Staking reward generated in last era, data update may have time delays for a while"
               />
             </div>
 

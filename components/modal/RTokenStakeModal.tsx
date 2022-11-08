@@ -182,8 +182,16 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
             <div className="mt-[.76rem] flex items-center justify-between">
               <div>
-                <div className="text-text1 text-[.24rem]">
-                  <MyTooltip title="Choose Mint Type" text="Choose Mint Type" />
+                <div className="text-text1 text-[.24rem] flex items-center">
+                  <div>Choose Mint Type</div>
+                  <div
+                    className="flex items-center ml-[.08rem] cursor-pointer"
+                    onClick={() => {
+                      openLink("https://www.google.com");
+                    }}
+                  >
+                    <Icomoon icon="question" size="0.16rem" color="#9DAFBE" />
+                  </div>
                 </div>
 
                 <div className="flex items-center mt-[.15rem]">
@@ -353,7 +361,10 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
-                  <MyTooltip text="Staking Reward" title="Staking Reward" />
+                  <MyTooltip
+                    text="Staking Reward"
+                    title="Estimated staking reward based on your staking amount"
+                  />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
                   {formatNumber(rTokenStakerApr, { decimals: 2 })}% APR

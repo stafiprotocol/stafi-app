@@ -32,10 +32,12 @@ export const RTokenIntegrationItem = (props: { data: IntegrationItem }) => {
           {data.title}
         </GradientText>
 
-        <div className="text-[.16rem] text-text2 mt-[.32rem]">{data.desc}</div>
+        <div className="text-[.16rem] text-text2 mt-[.32rem] mx-[.16rem] text-center h-[.36rem]">
+          {data.desc}
+        </div>
 
         <div
-          className="cursor-pointer mt-[.36rem] self-stretch mx-[.36rem] rounded-full h-[.65rem] flex items-center justify-center text-white text-[.24rem]"
+          className="cursor-pointer mt-[.2rem] self-stretch mx-[.36rem] rounded-full h-[.65rem] flex items-center justify-center text-white text-[.24rem]"
           style={{
             background:
               "linear-gradient(0deg, #090F17 40.28%, #082C2B 166.52%, #083330 214.39%)",

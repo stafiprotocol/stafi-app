@@ -39,6 +39,7 @@ export function useRTokenReward(
     RequestStatus.loading
   );
   const [totalCount, setTotalCount] = useState(0);
+  const [totalReward, setTotalReward] = useState("--");
   const [lastEraReward, setLastEraReward] = useState("--");
   const [chartXData, setChartXData] = useState<string[]>([]);
   const [chartYData, setChartYData] = useState<string[]>([]);
@@ -98,6 +99,7 @@ export function useRTokenReward(
         setRequestStatus(RequestStatus.success);
 
         setTotalCount(resJson.data.totalCount);
+        setTotalReward(resJson.data.totalReward || "0");
         setChartXData(
           resJson.data.chartXData
             .map((item: number) =>
@@ -213,6 +215,7 @@ export function useRTokenReward(
   return {
     requestStatus,
     totalCount,
+    totalReward,
     lastEraReward,
     chartXData,
     chartYData,

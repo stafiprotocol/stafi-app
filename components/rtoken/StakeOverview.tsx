@@ -24,6 +24,7 @@ import { connectMetaMask } from "utils/web3Utils";
 import { TokenStandardSelector } from "./TokenStandardSelector";
 import classNames from "classnames";
 import { getValidatorSiteHost } from "config/env";
+import { useRTokenReward } from "hooks/useRTokenReward";
 
 interface StakeOverviewProps {
   tokenName: TokenName;
@@ -49,7 +50,19 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
   const rTokenRatio = useRTokenRatio(props.tokenName);
   const rTokenPrice = useTokenPrice("r" + props.tokenName);
-  // console.log("xxx", rTokenBalance, rTokenRatio);
+  const { totalReward } = useRTokenReward(props.tokenName, 0, 0);
+
+  // Total reward value.
+  const totalRewardValue = useMemo(() => {
+    if (
+      isNaN(Number(totalReward)) ||
+      isNaN(Number(rTokenPrice)) ||
+      isNaN(Number(rTokenRatio))
+    ) {
+      return "--";
+    }
+    return (Number(totalReward) / Number(rTokenRatio)) * Number(rTokenPrice);
+  }, [totalReward, rTokenPrice, rTokenRatio]);
 
   // User staked token amount.
   const stakedAmount = useMemo(() => {
@@ -139,8 +152,24 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <Icomoon icon="arrow-right" size=".26rem" color="#9DAFBE" />
               </div>
             ) : (
-              <div className="text-text1 text-[.24rem] mt-[.4rem]">
-                Stake {props.tokenName} and receive r{props.tokenName} in return
+              <div className="flex items-center  mt-[.4rem]">
+                <div className="text-text1 text-[.24rem]">
+                  Stake {props.tokenName} and receive r{props.tokenName} in
+                  return
+                </div>
+
+                <div
+                  className="flex items-center ml-[.08rem] cursor-pointer"
+                  onClick={() => {
+                    if (props.tokenName === TokenName.ETH) {
+                      openLink(
+                        "https://docs.stafi.io/rtoken-app/reth-solution"
+                      );
+                    }
+                  }}
+                >
+                  <Icomoon icon="question" size="0.16rem" color="#9DAFBE" />
+                </div>
               </div>
             )}
           </div>
@@ -198,7 +227,10 @@ export const StakeOverview = (props: StakeOverviewProps) => {
             <div className="mt-[.6rem] flex">
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-text2 text-[.24rem] flex items-center">
-                  <MyTooltip title="Staked Value" text="Staked Value" />
+                  <MyTooltip
+                    text="Staked Value"
+                    title={`Overall ${props.tokenName} staked value in USD, including restake ${props.tokenName}`}
+                  />
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
@@ -213,23 +245,25 @@ export const StakeOverview = (props: StakeOverviewProps) => {
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-text2 text-[.24rem] flex items-center">
                   <MyTooltip
-                    title="Total rETH Rewards"
-                    text="Total rETH Rewards"
+                    text={`Total  ${props.tokenName} Rewards`}
+                    title={`Overall ${props.tokenName} generated`}
                   />
                 </div>
 
-                <div className="mt-[.23rem] text-white text-[.32rem]">$ --</div>
+                <div className="mt-[.23rem] text-white text-[.32rem]">
+                  $ {formatNumber(totalRewardValue, { decimals: 2 })}
+                </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  -- {props.tokenName}
+                  {formatNumber(totalReward)} {props.tokenName}
                 </div>
               </div>
 
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-text2 text-[.24rem] flex items-center">
                   <MyTooltip
-                    title="Current Exchange Rate"
                     text="Current Exchange Rate"
+                    title={`The number of ${props.tokenName}'s that can be exchanged for 1 r${props.tokenName}, the exchange rate of r${props.tokenName} will be updated every 8 hours`}
                   />
                 </div>
 

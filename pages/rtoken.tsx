@@ -1,7 +1,7 @@
 import { MyLayoutContext } from "components/layout/layout";
 import { RTokenOverviewCard } from "components/rtoken/RTokenOverviewCard";
 import { getMetamaskEthChainId } from "config/metaMask";
-import { WalletType } from "interfaces/common";
+import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import rectangle from "public/rectangle_h.svg";
@@ -66,7 +66,7 @@ const RTokenPage = () => {
       <div className="mt-[.56rem] text-white text-[.32rem]">All Stakes</div>
 
       <div className="mt-[.35rem]">
-        <RTokenOverviewCard />
+        <RTokenOverviewCard tokenName={TokenName.ETH} />
       </div>
     </div>
   );

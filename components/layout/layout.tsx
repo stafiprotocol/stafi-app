@@ -9,7 +9,6 @@ import { NavigationItem, WalletType } from "interfaces/common";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
-import { isServer } from "utils/common";
 import { HideOnScroll } from "../common/HideOnScroll";
 import { Icomoon } from "../icon/Icomoon";
 import { EthValidatorStakeLoadingModal } from "../modal/EthValidatorStakeLoadingModal";
@@ -92,7 +91,11 @@ export const Layout = (props: LayoutProps) => {
     >
       <div className="">
         <Head>
-          <title>StaFi rETH</title>
+          <title>
+            {process.env.NEXT_PUBLIC_SITE === "validator"
+              ? "StaFi rETH"
+              : "StaFi rToken APP"}
+          </title>
           <meta
             name="viewport"
             content="initial-scale=1.0, width=device-width"

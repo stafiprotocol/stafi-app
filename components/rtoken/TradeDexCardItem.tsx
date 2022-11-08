@@ -42,7 +42,7 @@ export const TradeDexCardItem = (props: TradeDexCardItemProps) => {
       <div className="mx-[.24rem] mt-[.4rem] self-stretch flex items-center justify-between">
         <MyTooltip
           text="Token Standard"
-          title="Token Standard"
+          title="The native token standard for DEX platform"
           className="text-[.16rem] text-text2"
         />
 

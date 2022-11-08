@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { CollapseCard } from "components/common/CollapseCard";
-import { TokenName } from "interfaces/common";
+import { DexType, TokenName } from "interfaces/common";
 import {
   IntegrationItem,
   RTokenIntegrationItem,
@@ -16,6 +16,18 @@ interface RTokenIntegrationsProps {
 
 export const RTokenIntegrations = (props: RTokenIntegrationsProps) => {
   const integrationList = useMemo(() => {
+    const getDexDesc = (dexType: DexType) => {
+      switch (dexType) {
+        case DexType.rDEX:
+          return "StaFi native DEX for rTokens";
+        case DexType.Uniswap:
+          return `Add r${props.tokenName} Liquidity on Uniswap`;
+        case DexType.Curve:
+          return `Add r${props.tokenName} Liquidity on Curve`;
+      }
+      return "Decentralized Exchange";
+    };
+
     const dexList = getDexList(props.tokenName);
 
     const resList: IntegrationItem[] = dexList.map((item) => {
@@ -23,14 +35,14 @@ export const RTokenIntegrations = (props: RTokenIntegrationsProps) => {
         ...item,
         icon: getDexIcon(item.type),
         title: item.type,
-        desc: "Decentralized Exchange",
+        desc: getDexDesc(item.type),
       };
     });
     if (props.tokenName === TokenName.ETH) {
       resList.unshift({
         icon: tidal,
         title: "Tidal",
-        desc: "Tidal Insurance",
+        desc: "Buy insurance to cover potential loss",
         url: "https://docs.tidal.finance/how-to-use-1/buy-cover",
       });
     }
