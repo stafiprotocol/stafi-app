@@ -8,7 +8,7 @@ import {
 } from "config/erc20Abi";
 import { getEtherScanTxUrl } from "config/explorer";
 import { getErc20ContractConfig } from "config/erc20Contract";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import { CANCELLED_MESSAGE, COMMON_ERROR_MESSAGE } from "utils/constants";
 import snackbarUtil from "utils/snackbarUtils";
@@ -376,20 +376,28 @@ export const handleEthValidatorStake =
 
 export const handleEthTokenStake =
   (
+    tokenStandard: TokenStandard | undefined,
     stakeAmount: string,
     willReceiveAmount: string,
+    newRTokenBalance: string,
     callback?: (success: boolean, result: any) => void
   ): AppThunk =>
   async (dispatch, getState) => {
     try {
+      if (!tokenStandard) {
+        return;
+      }
+
       dispatch(setIsLoading(true));
       dispatch(
         setStakeLoadingParams({
           modalVisible: true,
           status: "loading",
+          tokenStandard,
           tokenName: TokenName.ETH,
           amount: stakeAmount,
           willReceiveAmount,
+          newRTokenBalance,
           progressDetail: {
             sending: {
               totalStatus: "loading",

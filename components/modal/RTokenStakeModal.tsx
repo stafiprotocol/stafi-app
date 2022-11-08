@@ -25,6 +25,7 @@ import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
 import classNames from "classnames";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -50,6 +51,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const [targetAddress, setTargetAddress] = useState("");
   const [stakeAmount, setStakeAmount] = useState("");
 
+  const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
@@ -121,6 +123,13 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return "--";
   }, [ethGasPrice, tokenName]);
 
+  const newRTokenBalance = useMemo(() => {
+    if (isNaN(Number(rTokenBalance)) || isNaN(Number(willReceiveAmount))) {
+      return "--";
+    }
+    return Number(rTokenBalance) + Number(willReceiveAmount) + "";
+  }, [rTokenBalance, willReceiveAmount]);
+
   const resetState = () => {
     setEditAddress(false);
     setStakeAmount("");
@@ -129,13 +138,19 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
       dispatch(
-        handleEthTokenStake(stakeAmount, willReceiveAmount, (success) => {
-          if (success) {
-            resetState();
-            dispatch(updateRTokenBalance(tokenStandard, tokenName));
-            props.onClose();
+        handleEthTokenStake(
+          tokenStandard,
+          stakeAmount,
+          willReceiveAmount,
+          newRTokenBalance,
+          (success) => {
+            if (success) {
+              resetState();
+              dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              props.onClose();
+            }
           }
-        })
+        )
       );
     }
   };
