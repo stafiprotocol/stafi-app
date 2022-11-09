@@ -71,7 +71,7 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
             ))}
           </div>
 
-          <div className="text-text2 text-[.16rem] leading-tight">
+          <div className="text-text2 text-[.16rem] leading-tight invisible">
             Need a Native StaFi Wallet? Create a new wallet or import your
             existing wallet by following our{" "}
             <a
