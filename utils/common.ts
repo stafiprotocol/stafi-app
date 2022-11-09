@@ -1,3 +1,4 @@
+import { encodeAddress } from "@polkadot/util-crypto";
 import { checkAddressChecksum } from "web3-utils";
 
 export function openLink(url: string | undefined | null) {
@@ -38,5 +39,31 @@ export function checkMetaMaskAddress(address: string) {
     return true;
   } else {
     return checkAddressChecksum(address);
+  }
+}
+
+export function convertToSS58(
+  text: string,
+  prefix: number,
+  isShort = false
+): string {
+  if (!text) {
+    return "";
+  }
+
+  try {
+    let address = encodeAddress(text, prefix);
+    const length = 8;
+
+    if (isShort) {
+      address =
+        address.substr(0, length) +
+        "..." +
+        address.substr(address.length - length, length);
+    }
+
+    return address;
+  } catch (error) {
+    return "";
   }
 }

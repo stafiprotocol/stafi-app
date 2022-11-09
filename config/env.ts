@@ -4,6 +4,20 @@ export function isDev() {
   return process.env.NEXT_PUBLIC_ENV !== "production";
 }
 
+export function getStafiRpc() {
+  if (isDev()) {
+    return "wss://stafi-seiya-rewrite.stafi.io";
+  }
+  return "wss://mainnet-rpc.stafi.io";
+}
+
+export function getValidatorSiteHost() {
+  if (isDev()) {
+    return "https://test-reth-validator.stafi.io/";
+  }
+  return "https://reth-validator.stafi.io/";
+}
+
 export function getApiHost() {
   if (isDev()) {
     return "https://test-drop-api.stafi.io";

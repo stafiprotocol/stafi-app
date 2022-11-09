@@ -71,9 +71,15 @@ export const RTokenStakeLoadingModal = () => {
             <Icomoon icon="close" size=".22rem" />
           </div>
 
-          <div className={classNames("mt-[.56rem] text-[.32rem] text-center")}>
+          <div
+            className={classNames(
+              "mt-[.56rem] text-[.32rem] text-center leading-tight"
+            )}
+          >
             {stakeLoadingParams?.status === "success"
-              ? `Your new balance is ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`
+              ? `Your new balance is ${formatNumber(
+                  stakeLoadingParams?.newTotalStakedAmount
+                )} ${stakeLoadingParams?.tokenName}`
               : stakeLoadingParams?.status === "error"
               ? "Transaction Failed"
               : `You are now staking ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`}
@@ -92,7 +98,7 @@ export const RTokenStakeLoadingModal = () => {
                   stakeLoadingParams?.tokenName
                 }, you will receive ${formatNumber(
                   stakeLoadingParams?.willReceiveAmount
-                )} ${stakeLoadingParams?.tokenName}`}
+                )} r${stakeLoadingParams?.tokenName}`}
           </div>
 
           {stakeLoadingParams?.status === "loading" && (

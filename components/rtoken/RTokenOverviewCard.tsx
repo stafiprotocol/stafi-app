@@ -1,20 +1,27 @@
 import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
+import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
+import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ethLogo from "public/eth_token.svg";
 import { formatNumber } from "utils/number";
 import { connectMetaMask } from "utils/web3Utils";
 
-export const RTokenOverviewCard = () => {
+interface RTokenOverviewCardProps {
+  tokenName: TokenName;
+}
+
+export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
+  const { tokenName } = props;
   const { metaMaskAccount } = useWalletAccount();
   const router = useRouter();
-  const { validatorApr, allEth, allEthValue } = useEthPoolData();
+  const { stakeApr, allEth, allEthValue } = useEthPoolData();
 
   const clickStake = () => {
     if (!metaMaskAccount) {
@@ -41,27 +48,31 @@ export const RTokenOverviewCard = () => {
         <div className="flex flex-col items-end">
           <div className="mt-[.1rem] text-text1 text-[.12rem]">Ethereum</div>
           <div className="mt-[.12rem]">
-            <GradientText size=".4rem">ETH</GradientText>
+            <GradientText size=".4rem">{tokenName}</GradientText>
           </div>
         </div>
       </div>
 
       <div className="mt-[.3rem] flex items-end justify-between">
         <div className="flex items-center">
-          <div className="text-text2 text-[.16rem] mr-[.07rem]">APR</div>
-          <Icomoon icon="question" size=".16rem" color="#5B6872" />
+          <MyTooltip
+            text="APR"
+            title="Moving average of APR for 7 days period"
+            className="text-text2 text-[.16rem]"
+          />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
-          {formatNumber(validatorApr, { decimals: 2 })}%
+          {formatNumber(stakeApr, { decimals: 2 })}%
         </div>
       </div>
 
       <div className="mt-[.23rem] flex items-end justify-between">
         <div className="flex items-center">
-          <div className="text-text2 text-[.16rem] mr-[.07rem]">
-            Staked Value
-          </div>
-          <Icomoon icon="question" size=".16rem" color="#5B6872" />
+          <MyTooltip
+            text="Staked Value"
+            title="Overall token staked value In USD, including restake value"
+            className="text-text2 text-[.16rem]"
+          />
         </div>
         <div className="text-text2 text-[.16rem]">
           ${formatNumber(allEthValue, { decimals: 2 })}
@@ -70,10 +81,11 @@ export const RTokenOverviewCard = () => {
 
       <div className="mt-[.23rem] flex items-end justify-between">
         <div className="flex items-center">
-          <div className="text-text2 text-[.16rem] mr-[.07rem]">
-            Total ETH Staked
-          </div>
-          <Icomoon icon="question" size=".16rem" color="#5B6872" />
+          <MyTooltip
+            text="Total ETH Staked"
+            title={`Overall ${tokenName} staked, including restake ${tokenName}`}
+            className="text-text2 text-[.16rem]"
+          />
         </div>
         <div className="text-text2 text-[.16rem]">
           {formatNumber(allEth, { decimals: 2 })}

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import {
   addNoticeInternal,
   NoticeDataType,
@@ -18,8 +18,10 @@ interface StakeLoadingParams {
   modalVisible?: boolean;
   status?: "loading" | "success" | "error";
   tokenName?: TokenName;
+  tokenStandard?: TokenStandard;
   amount?: string;
   willReceiveAmount?: string;
+  newTotalStakedAmount?: string;
   scanUrl?: string;
   txHash?: string;
   progressDetail?: StakeLoadingProgressDetail;

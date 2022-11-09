@@ -5,17 +5,19 @@ import { Icomoon } from "components/icon/Icomoon";
 import { useRTokenReward } from "hooks/useRTokenReward";
 import { TokenName } from "interfaces/common";
 import { useState } from "react";
+import { formatNumber } from "utils/number";
+import { getRewardText } from "utils/rToken";
 
 interface StakeMyRewardListProps {
   tokenName: TokenName;
 }
 
 export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
+  const { tokenName } = props;
   const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
   const list = [1, 2];
 
-  const {} = useRTokenReward(props.tokenName, page, 0);
+  const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
@@ -28,21 +30,33 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
             <MyTooltip text="Era" title="Era" />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Stake ETH" title="Stake ETH" />
+            <MyTooltip
+              text={`Stake ${tokenName}`}
+              title={`Your overall staked ${tokenName} amount, including restaked ${tokenName}`}
+            />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="rETH/ETH" title="rETH/ETH" />
+            <MyTooltip
+              text={`r${tokenName}/${tokenName}`}
+              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every 8 hours`}
+            />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Get rETH" title="Get rETH" />
+            <MyTooltip
+              text={`Get r${tokenName}`}
+              title={`Your current r${tokenName} count`}
+            />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Est Reward" title="Est Reward" />
+            <MyTooltip
+              text="Est. Reward"
+              title={`Estimated staking reward that generated at this time period`}
+            />
           </div>
         </div>
       )}
 
-      {list.map((item, index) => (
+      {rewardList.map((item, index) => (
         <div
           key={index}
           className="grid h-[1.1rem]"
@@ -53,19 +67,19 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           }}
         >
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            29384
+            {item.era}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            24.5 ETH
+            {formatNumber(item.stakeValue)} {tokenName}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            1.03
+            {formatNumber(item.rate, { decimals: 2 })}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            1.03
+            {formatNumber(item.rTokenBalance)}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
-            +0.03 ETH
+            {getRewardText(item.reward)} {tokenName}
           </div>
         </div>
       ))}
@@ -81,15 +95,15 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
       )}
 
       {totalCount === 0 && (
-        <div className="flex flex-col items-center">
-          <div className="flex flex-col items-center cursor-pointer">
+        <div className="flex flex-col items-center pb-[.3rem]">
+          <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />
-            <div className="mt-[.3rem] flex items-center">
-              <div className="text-text1 text-[.24rem] mr-[.1rem]">
-                Make a stake
-              </div>
-              <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
+            {/* <div className="mt-[.3rem] flex items-center">
+            <div className="text-text1 text-[.24rem] mr-[.1rem]">
+              Make a stake
             </div>
+            <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
+          </div> */}
           </div>
         </div>
       )}
