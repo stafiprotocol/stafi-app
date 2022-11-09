@@ -57,7 +57,7 @@ export const TradeDexCardItem = (props: TradeDexCardItemProps) => {
         className="mx-[.24rem] mt-[.47rem] mb-[.32rem] self-stretch"
         onClick={() => openLink(props.url)}
       >
-        {props.type === "rDEX" ? "Trade" : "Details"}
+        Trade
       </Button>
     </Card>
   );
