@@ -43,7 +43,7 @@ export const RTokenIntegrations = (props: RTokenIntegrationsProps) => {
         icon: tidal,
         title: "Tidal",
         desc: "Buy insurance to cover potential loss",
-        url: "https://docs.tidal.finance/how-to-use-1/buy-cover",
+        url: "https://stafi.tidal.finance/",
       });
     }
 

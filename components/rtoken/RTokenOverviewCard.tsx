@@ -4,12 +4,14 @@ import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
+import { useAppDispatch } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName } from "interfaces/common";
+import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ethLogo from "public/eth_token.svg";
+import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
 import { connectMetaMask } from "utils/web3Utils";
 
@@ -18,17 +20,28 @@ interface RTokenOverviewCardProps {
 }
 
 export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
+  const dispatch = useAppDispatch();
+  const { useChainId: useMetaMaskChainId } = hooks;
+  const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
   const { metaMaskAccount } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
 
   const clickStake = () => {
-    if (!metaMaskAccount) {
-      connectMetaMask(getMetamaskEthChainId());
-      return;
+    if (tokenName === TokenName.ETH) {
+      if (!metaMaskAccount || metaMaskChainId !== getMetamaskEthChainId()) {
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.MetaMask],
+            targetMetaMaskChainId: getMetamaskEthChainId(),
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/ETH");
     }
-    router.push("/rtoken/stake/ETH");
   };
 
   return (
