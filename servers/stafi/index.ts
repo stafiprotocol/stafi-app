@@ -1,6 +1,6 @@
 import { KeypairType } from "@polkadot/util-crypto/types";
 import { SubstrateKeyring } from "keyring/SubstrateKeyring";
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise, WsProvider } from "@polkadot/api-old";
 import { getStafiChain } from "config/chain";
 
 let stafiApi: any = null;

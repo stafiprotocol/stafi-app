@@ -161,10 +161,10 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       );
     } else if (tokenName === TokenName.MATIC) {
 			dispatch(
-				// handleMaticStake(stakeAmount, willReceiveAmount, 1, targetAddress, () => {
+				handleMaticStake(stakeAmount, willReceiveAmount, 1, targetAddress, () => {
 
-				// })
-				mockProcess()
+				})
+				// mockProcess()
 			);
 		}
   };

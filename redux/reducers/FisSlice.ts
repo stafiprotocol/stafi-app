@@ -176,7 +176,7 @@ export const bond =
 					if (index === 0) {
 						index++;
 					}
-					const tx = bondResult.hash.toHex();
+					// const tx = bondResult.hash.toHex();
 					try {
 						if (result.status.isInBlock) {
 							dispatch(
@@ -196,7 +196,7 @@ export const bond =
 								})
 							);
 							console.log('inBlock');
-							console.log('events', result.events);
+							// console.log('events', result.events);
 							result.events
 								.filter((e: any) => e.event.section === 'system')
 								.forEach((data: any) => {
