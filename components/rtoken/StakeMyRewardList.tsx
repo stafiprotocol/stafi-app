@@ -73,7 +73,7 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
             {formatNumber(item.stakeValue)} {tokenName}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {formatNumber(item.rate, { decimals: 2 })}
+            {formatNumber(item.rate, { decimals: 4 })}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {formatNumber(item.rTokenBalance)}

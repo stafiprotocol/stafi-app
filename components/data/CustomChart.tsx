@@ -13,7 +13,7 @@ interface CustomChartProps {
 export const CustomChart = (props: CustomChartProps) => {
   const getChartOption = () => {
     return {
-      // height: props.height,
+      height: Number(props.height.replace("px", "")) * 0.6 + "px",
       animation: false,
       color: ["#14494E"],
       lenend: {
@@ -72,7 +72,8 @@ export const CustomChart = (props: CustomChartProps) => {
           show: false,
           type: "value",
           min: function (value: any) {
-            return Math.max(0, value.min - (value.max - value.min));
+            // return Math.max(0, value.min - (value.max - value.min));
+            return value.min;
           },
           max: "dataMax",
           axisLabel: {

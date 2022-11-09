@@ -1,4 +1,5 @@
 import { TokenSymbol } from "interfaces/common";
+import { divide } from "mathjs";
 import Web3 from "web3";
 
 export function formatNumber(
@@ -100,13 +101,15 @@ export function chainAmountToHuman(
       factor = "1000000000000";
       break;
   }
-  console.log(Web3.utils.toBN(num).div(Web3.utils.toBN(factor)));
+  // console.log(Web3.utils.toBN(num).div(Web3.utils.toBN(factor)));
 
   return Number(num) / Number(factor) + "";
 
-  return Web3.utils.toBN(num).div(Web3.utils.toBN(factor)).toString();
+  // return Web3.utils.toBN(num).div(Web3.utils.toBN(factor)).toString();
 }
 
 export function rTokenRateToHuman(num: string | number) {
-  return Web3.utils.toBN(num).div(Web3.utils.toBN("1000000000000")).toString();
+  // return divide(Number(num), 1000000000000) + "";
+  return Number(num) / 1000000000000 + "";
+  // return Web3.utils.toBN(num).div(Web3.utils.toBN("1000000000000")).toString();
 }

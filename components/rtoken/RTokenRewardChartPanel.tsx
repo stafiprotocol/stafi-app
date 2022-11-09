@@ -32,7 +32,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
 
   const selectedTokenStandard = useTokenStandard(tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
-  const rTokenPrice = useTokenPrice("r" + props.tokenName);
+  const tokenPrice = useTokenPrice(props.tokenName);
   const {
     requestStatus,
     totalCount,
@@ -44,23 +44,19 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
 
   // Total reward value.
   const totalRewardValue = useMemo(() => {
-    if (
-      isNaN(Number(totalReward)) ||
-      isNaN(Number(rTokenPrice)) ||
-      isNaN(Number(rTokenRatio))
-    ) {
+    if (isNaN(Number(totalReward)) || isNaN(Number(tokenPrice))) {
       return "--";
     }
-    return (Number(totalReward) / Number(rTokenRatio)) * Number(rTokenPrice);
-  }, [totalReward, rTokenPrice, rTokenRatio]);
+    return Number(totalReward) * Number(tokenPrice);
+  }, [totalReward, tokenPrice]);
 
   // Last era reward token value.
   const lastEraRewardValue = useMemo(() => {
-    if (isNaN(Number(lastEraReward)) || isNaN(Number(rTokenPrice))) {
+    if (isNaN(Number(lastEraReward)) || isNaN(Number(tokenPrice))) {
       return "--";
     }
-    return Number(lastEraReward) * Number(rTokenPrice);
-  }, [lastEraReward, rTokenPrice]);
+    return Number(lastEraReward) * Number(tokenPrice);
+  }, [lastEraReward, tokenPrice]);
 
   const resizeListener = () => {
     // 1rem:100px
