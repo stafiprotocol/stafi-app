@@ -13,7 +13,7 @@ interface CustomChartProps {
 export const CustomChart = (props: CustomChartProps) => {
   const getChartOption = () => {
     return {
-      height: props.height,
+      // height: props.height,
       animation: false,
       color: ["#14494E"],
       lenend: {
@@ -105,6 +105,7 @@ export const CustomChart = (props: CustomChartProps) => {
             color: "#00F3AB",
           },
           areaStyle: {
+            // color: "#14494E",
             color: new graphic.LinearGradient(0, 0, 0, 1, [
               {
                 offset: 0,

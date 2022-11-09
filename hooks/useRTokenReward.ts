@@ -99,7 +99,12 @@ export function useRTokenReward(
         setRequestStatus(RequestStatus.success);
 
         setTotalCount(resJson.data.totalCount);
-        setTotalReward(resJson.data.totalReward || "0");
+        setTotalReward(
+          chainAmountToHuman(
+            resJson.data.totalReward || "0",
+            getTokenSymbol(tokenName)
+          )
+        );
         setChartXData(
           resJson.data.chartXData
             .map((item: number) =>

@@ -100,6 +100,9 @@ export function chainAmountToHuman(
       factor = "1000000000000";
       break;
   }
+  console.log(Web3.utils.toBN(num).div(Web3.utils.toBN(factor)));
+
+  return Number(num) / Number(factor) + "";
 
   return Web3.utils.toBN(num).div(Web3.utils.toBN(factor)).toString();
 }

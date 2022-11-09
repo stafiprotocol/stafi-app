@@ -340,7 +340,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   }
                   setStakeAmount(
                     formatNumber(
-                      Math.max(Number(balance) - Number(estimateFee), 0)
+                      Math.max(Number(balance) - Number(estimateFee) * 1.5, 0)
                     )
                   );
                 }}

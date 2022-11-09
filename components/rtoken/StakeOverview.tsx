@@ -331,7 +331,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         onClose={() => {
           setEthRedeemWarningModalVisible(false);
         }}
-        content="Redemption will be supported once ETH2.0 Phase 1.5 is released"
+        content="Redemption will be supported once Ethereum withdraw is enabled"
       />
     </div>
   );
