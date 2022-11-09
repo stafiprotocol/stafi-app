@@ -87,6 +87,12 @@ export const bond =
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {
+					sending: {
+						totalStatus: 'success',
+						broadcastStatus: 'success',
+						packStatus: 'success',
+						finalizeStatus: 'success',
+					},
 					staking: {
 						broadcastStatus: 'loading',
 					}
@@ -176,6 +182,12 @@ export const bond =
 							dispatch(
 								setStakeLoadingParams({
 									progressDetail: {
+										sending: {
+											totalStatus: 'success',
+											broadcastStatus: 'success',
+											packStatus: 'success',
+											finalizeStatus: 'success',
+										},
 										staking: {
 											broadcastStatus: 'success',
 											packStatus: 'loading',
@@ -223,6 +235,12 @@ export const bond =
 										dispatch(
 											setStakeLoadingParams({
 												progressDetail: {
+													sending: {
+														totalStatus: 'success',
+														broadcastStatus: 'success',
+														packStatus: 'success',
+														finalizeStatus: 'success',
+													},
 													staking: {
 														packStatus: 'success',
 														finalizeStatus: 'loading',
@@ -243,6 +261,12 @@ export const bond =
 							dispatch(
 								setStakeLoadingParams({
 									progressDetail: {
+										sending: {
+											totalStatus: 'success',
+											broadcastStatus: 'success',
+											packStatus: 'success',
+											finalizeStatus: 'success',
+										},
 										staking: {
 											totalStatus: 'success',
 											finalizeStatus: 'success',
@@ -262,6 +286,12 @@ export const bond =
 						setStakeLoadingParams({
 							status: 'error',
 							progressDetail: {
+								sending: {
+									totalStatus: 'success',
+									broadcastStatus: 'success',
+									packStatus: 'success',
+									finalizeStatus: 'success',
+								},
 								staking: {
 									totalStatus: 'error',
 									broadcastStatus: 'error',
@@ -283,6 +313,18 @@ export const getMinting =
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {
+					sending: {
+						totalStatus: 'success',
+						broadcastStatus: 'success',
+						packStatus: 'success',
+						finalizeStatus: 'success',
+					},
+					staking: {
+						totalStatus: 'success',
+						broadcastStatus: 'success',
+						packStatus: 'success',
+						finalizeStatus: 'success',
+					},
 					minting: {
 						totalStatus: 'loading',
 						broadcastStatus: 'loading',
@@ -303,6 +345,18 @@ export const getMinting =
 						setStakeLoadingParams({
 							status: 'success',
 							progressDetail: {
+								sending: {
+									totalStatus: 'success',
+									broadcastStatus: 'success',
+									packStatus: 'success',
+									finalizeStatus: 'success',
+								},
+								staking: {
+									totalStatus: 'success',
+									broadcastStatus: 'success',
+									packStatus: 'success',
+									finalizeStatus: 'success',
+								},
 								minting: {
 									totalStatus: 'success',
 									broadcastStatus: 'success',
@@ -329,6 +383,19 @@ export const rTokenSeriesBondStates =
 			dispatch(
 				setStakeLoadingParams({
 					progressDetail: {
+						sending: {
+							totalStatus: 'success',
+							broadcastStatus: 'success',
+							packStatus: 'success',
+							finalizeStatus: 'success',
+						},
+						staking: {
+							totalStatus: 'success',
+							broadcastStatus: 'success',
+							packStatus: 'success',
+							finalizeStatus: 'success',
+						},
+
 						minting: {
 							broadcastStatus: 'success',
 						}
@@ -342,6 +409,18 @@ export const rTokenSeriesBondStates =
 				setStakeLoadingParams({
 					status: 'error',
 					progressDetail: {
+						sending: {
+							totalStatus: 'success',
+							broadcastStatus: 'success',
+							packStatus: 'success',
+							finalizeStatus: 'success',
+						},
+						staking: {
+							totalStatus: 'success',
+							broadcastStatus: 'success',
+							packStatus: 'success',
+							finalizeStatus: 'success',
+						},
 						minting: {
 							totalStatus: 'error',
 							broadcastStatus: 'error',
@@ -367,6 +446,18 @@ export const rTokenSeriesBondStates =
 				setStakeLoadingParams({
 					status: 'error',
 					progressDetail: {
+						sending: {
+							totalStatus: 'success',
+							broadcastStatus: 'success',
+							packStatus: 'success',
+							finalizeStatus: 'success',
+						},
+						staking: {
+							totalStatus: 'success',
+							broadcastStatus: 'success',
+							packStatus: 'success',
+							finalizeStatus: 'success',
+						},
 						minting: {
 							totalStatus: 'error',
 							broadcastStatus: 'error',

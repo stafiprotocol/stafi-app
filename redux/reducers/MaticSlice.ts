@@ -161,21 +161,31 @@ export const handleMaticStake =
 				snackbarUtil.success('Deposit successfully');
 				const txHash = result.transactionHash;
 				dispatch(
-					addNotice(
-						txHash,
-						'rToken Stake',
-						{
-							transactionHash: txHash,
-							sender: metaMaskAccount,
-						},
-						{
-							tokenName: TokenName.MATIC,
-							amount: stakeAmount,
-						},
-						getEtherScanTxUrl(result.transactionHash),
-						'Confirmed',
-					)
+					setStakeLoadingParams({
+						progressDetail: {
+							sending: {
+								broadcastStatus: 'success',
+								packStatus: 'loading',
+							}
+						}
+					})
 				);
+				// dispatch(
+				// 	addNotice(
+				// 		txHash,
+				// 		'rToken Stake',
+				// 		{
+				// 			transactionHash: txHash,
+				// 			sender: metaMaskAccount,
+				// 		},
+				// 		{
+				// 			tokenName: TokenName.MATIC,
+				// 			amount: stakeAmount,
+				// 		},
+				// 		getEtherScanTxUrl(result.transactionHash),
+				// 		'Confirmed',
+				// 	)
+				// );
 
 				let txDetail;
 				while (true) {
@@ -336,4 +346,72 @@ export const unbondRMatic =
 		} catch (err: any) {
 			console.error(err);
 		}
+	}
+
+export const mockProcess =
+	(): AppThunk =>
+	async (dispatch, getState) => {
+		console.log('mock')
+		dispatch(
+			setStakeLoadingParams({
+				modalVisible: true,
+				status: 'loading',
+				tokenName: TokenName.MATIC,
+				amount: '1',
+				willReceiveAmount: '1',
+				progressDetail: {
+					sending: {
+						totalStatus: 'loading',
+					}
+				}
+			})
+		);
+		await sleep(2000);
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					sending: {
+						broadcastStatus: 'loading',
+					}
+				}
+			})
+		);
+		await sleep(2000);
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					sending: {
+						broadcastStatus: 'success',
+						finalizeStatus: 'loading',
+					}
+				}
+			})
+		);
+		await sleep(1000);
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					sending: {
+						totalStatus: 'success',
+					},
+					staking: {
+						totalStatus: 'loading',
+					}
+				}
+			})
+		);
+		await sleep(2000);
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					staking: {
+						broadcastStatus: 'loading'
+					}
+				}
+			})
+		);
+		await sleep(2000)
+		dispatch(
+			setStakeLoadingParams(undefined)
+		);
 	}

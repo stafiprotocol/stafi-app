@@ -24,7 +24,7 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
-import { handleMaticStake } from "redux/reducers/MaticSlice";
+import { handleMaticStake, mockProcess } from "redux/reducers/MaticSlice";
 import classNames from "classnames";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 
@@ -161,9 +161,10 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       );
     } else if (tokenName === TokenName.MATIC) {
 			dispatch(
-				handleMaticStake(stakeAmount, willReceiveAmount, 1, targetAddress, () => {
+				// handleMaticStake(stakeAmount, willReceiveAmount, 1, targetAddress, () => {
 
-				})
+				// })
+				mockProcess()
 			);
 		}
   };
