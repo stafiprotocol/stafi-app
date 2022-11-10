@@ -19,7 +19,7 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
       mt=".36rem"
       title={<div className="text-white text-[.32rem]">My History</div>}
     >
-      <div className="mt-[.4rem] mx-[.56rem] flex items-center justify-between">
+      <div className="mx-[.56rem] flex items-center justify-between">
         <div
           className="bg-[#1a2835] border-[1px] border-solid border-[#1a2835] h-[.65rem] rounded-[.33rem] flex"
           style={{ backdropFilter: "blur(1.35rem)" }}

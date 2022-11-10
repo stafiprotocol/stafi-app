@@ -1,17 +1,21 @@
 import { CollapseCard } from "components/common/CollapseCard";
-import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { MyLayoutContext } from "components/layout/layout";
 import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
 import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
+import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
+import { getValidatorSiteHost } from "config/env";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { useAppSelector } from "hooks/common";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { ChartDu, TokenName, WalletType } from "interfaces/common";
+import { TokenName, WalletType } from "interfaces/common";
+import Image from "next/image";
 import { useRouter } from "next/router";
+import bulb from "public/bulb.svg";
 import React, { useEffect, useState } from "react";
 import { RootState } from "redux/store";
+import { openLink } from "utils/common";
 import { connectMetaMask } from "utils/web3Utils";
 
 const RTokenStakePage = () => {
@@ -46,7 +50,7 @@ const RTokenStakePage = () => {
       />
 
       <CollapseCard
-        background="#0A131B"
+        background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={<div className="text-white text-[.32rem]">rETH Rewards</div>}
       >
@@ -60,18 +64,42 @@ const RTokenStakePage = () => {
 
       <RTokenIntegrations tokenName={TokenName.ETH} />
 
-      <div className="mt-[.76rem] text-white text-[.32rem]">FAQs</div>
+      <div className="mt-[.36rem] rounded-[.3rem] h-[.6rem] flex items-center justify-between px-[.3rem] border-solid border-[1px] border-warning/50">
+        <div className="flex items-center">
+          <div className="w-[.3rem] h-[.3rem] relative">
+            <Image src={bulb} alt="bulb" layout="fill" />
+          </div>
+
+          <div className="ml-[.16rem] text-[.2rem] text-warning">
+            Interested to become StaFi Validator? Join us to stake ETH and earn
+            more right now!
+          </div>
+        </div>
+
+        <div
+          className="text-[.2rem] text-warning underline font-bold cursor-pointer"
+          onClick={() => {
+            openLink(
+              `${getValidatorSiteHost()}/validator/reth/token-stake?checkNewUser=true`
+            );
+          }}
+        >
+          Learn More
+        </div>
+      </div>
+
+      <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 
       <CollapseCard
-        background="#0A131B"
-        mt=".55rem"
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">
             Staking rewards upgrade time and influence factors
           </div>
         }
       >
-        <div className="text-text2 text-[.24rem] mx-[.56rem]">
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           Reward normally is updated every 8 hours. For the on-chain data
           synchronization reason, it may be delayed for a while.
           <br />
@@ -80,19 +108,29 @@ const RTokenStakePage = () => {
           beacon chain’s staking APY, the priority fee collected by rETH
           Original Validators, potential slash risks and the commission charged
           by StaFi Protocol and OVs.
+          <br />
+          <br />
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://docs.stafi.io/rtoken-app/reth-solution"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Click here for more details
+          </a>
         </div>
       </CollapseCard>
 
       <CollapseCard
-        background="#0A131B"
-        mt=".55rem"
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">
             About the rETH on-chain rate and secondary market peg
           </div>
         }
       >
-        <div className="text-text2 text-[.24rem] mx-[.56rem]">
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           rETH on-chain rate is recording how many ETHs could be redeemed with 1
           rETH token. It will start from 1 and gradually increase along with the
           staking rewards generated continuously.
@@ -120,13 +158,13 @@ const RTokenStakePage = () => {
       </CollapseCard>
 
       <CollapseCard
-        background="#0A131B"
-        mt=".55rem"
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">rETH Redemption Notes</div>
         }
       >
-        <div className="text-text2 text-[.24rem] mx-[.56rem]">
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           Now the redemption function is disabled. We will support the
           redemption function as soon as the Ethereum{" "}
           <a

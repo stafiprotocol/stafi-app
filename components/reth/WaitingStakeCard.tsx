@@ -197,16 +197,16 @@ export const WaitingStakeCard = (props: WaitingStakeCardProps) => {
       </div>
 
       <div className="mt-[.24rem] flex items-center justify-between">
-        <div className="flex items-center">
+        <div
+          className="flex items-center cursor-pointer"
+          onClick={() =>
+            openLink(
+              "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide"
+            )
+          }
+        >
           <div className="mr-[.06rem] text-text2 text-[.16rem]">Status</div>
-          <div
-            className="cursor-pointer"
-            onClick={() =>
-              openLink(
-                "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide"
-              )
-            }
-          >
+          <div>
             <Icomoon icon="question" size="0.16rem" color={"#5B6872"} />
           </div>
         </div>

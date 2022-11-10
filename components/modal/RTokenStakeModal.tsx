@@ -203,14 +203,16 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
             <div className="mt-[.76rem] flex items-center justify-between">
               <div>
-                <div className="text-text1 text-[.24rem] flex items-center">
-                  <div>Choose Mint Type</div>
-                  <div
-                    className="flex items-center ml-[.08rem] cursor-pointer"
-                    onClick={() => {
-                      openLink("https://www.google.com");
-                    }}
-                  >
+                <div
+                  className="text-text1 text-[.24rem] flex items-center cursor-pointer"
+                  onClick={() => {
+                    openLink(
+                      "https://docs.stafi.io/rtoken-app/reth-solution/staker-guide"
+                    );
+                  }}
+                >
+                  <div>Mint Type</div>
+                  <div className="flex items-center ml-[.08rem]">
                     <Icomoon icon="question" size="0.16rem" color="#9DAFBE" />
                   </div>
                 </div>

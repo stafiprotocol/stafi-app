@@ -18,10 +18,10 @@ export const CustomNumberInput = (props: CustomInputProps) => {
       className={classNames(
         "w-full bg-transparent border-none outline-none",
         props.light
-          ? "text-text-black1 placeholder:text-[#cacaca]"
+          ? "text-text-black1 placeholder:text-text2"
           : props.primary
           ? "text-primary placeholder:text-placdholder-primary"
-          : "text-white placeholder:text-placdholder"
+          : "text-white placeholder:text-text2"
       )}
       style={{
         fontSize: props.fontSize ? `${props.fontSize}` : ".2rem",

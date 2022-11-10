@@ -39,7 +39,7 @@ export const RTokenIntegrations = (props: RTokenIntegrationsProps) => {
       };
     });
     if (props.tokenName === TokenName.ETH) {
-      resList.unshift({
+      resList.splice(1, 0, {
         icon: tidal,
         title: "Tidal",
         desc: "Buy insurance to cover potential loss",

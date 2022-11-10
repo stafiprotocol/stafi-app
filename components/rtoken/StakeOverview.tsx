@@ -148,29 +148,31 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <Icomoon icon="arrow-right" size=".26rem" color="#9DAFBE" />
               </div>
             ) : (
-              <div className="flex items-center  mt-[.4rem]">
+              <div
+                className="flex items-center mt-[.4rem] cursor-pointer"
+                onClick={() => {
+                  if (props.tokenName === TokenName.ETH) {
+                    openLink("https://docs.stafi.io/rtoken-app/reth-solution");
+                  }
+                }}
+              >
                 <div className="text-text1 text-[.24rem]">
                   Stake {props.tokenName} and receive r{props.tokenName} in
                   return
                 </div>
 
-                <div
-                  className="flex items-center ml-[.08rem] cursor-pointer"
-                  onClick={() => {
-                    if (props.tokenName === TokenName.ETH) {
-                      openLink(
-                        "https://docs.stafi.io/rtoken-app/reth-solution"
-                      );
-                    }
-                  }}
-                >
+                <div className="flex items-center ml-[.08rem]">
                   <Icomoon icon="question" size="0.16rem" color="#9DAFBE" />
                 </div>
               </div>
             )}
           </div>
         </div>
-        <div className="flex items-center mr-[.7rem] opacity-60">
+        <div
+          className={classNames("flex items-center mr-[.7rem] opacity-60", {
+            hidden: isWrongNetwork,
+          })}
+        >
           <div className="flex flex-col mr-[.45rem] items-end">
             <div className="text-primary text-[.6rem] font-[600]">
               {formatNumber(rTokenBalance)}
@@ -190,7 +192,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         </div>
       </div>
       <div className="relative z-10 mt-[-.16rem]">
-        <Card background="#0A131B">
+        <Card background="rgba(26, 40, 53, 0.2)">
           <div className="px-[.56rem]">
             <div className="flex items-center justify-between mt-[.46rem]">
               <div className="flex items-center">
@@ -231,11 +233,15 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  $ {formatNumber(stakedValue, { decimals: 2 })}
+                  ${" "}
+                  {isWrongNetwork
+                    ? "--"
+                    : formatNumber(stakedValue, { decimals: 2 })}
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {formatNumber(stakedAmount)} {props.tokenName}
+                  {isWrongNetwork ? "--" : formatNumber(stakedAmount)}{" "}
+                  {props.tokenName}
                 </div>
               </div>
 
@@ -248,11 +254,15 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  $ {formatNumber(totalRewardValue, { decimals: 2 })}
+                  ${" "}
+                  {isWrongNetwork
+                    ? "--"
+                    : formatNumber(totalRewardValue, { decimals: 2 })}
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {formatNumber(totalReward)} {props.tokenName}
+                  {isWrongNetwork ? "--" : formatNumber(totalReward)}{" "}
+                  {props.tokenName}
                 </div>
               </div>
 
@@ -265,7 +275,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  {formatNumber(rTokenRatio, { decimals: 4 })}
+                  {isWrongNetwork
+                    ? "--"
+                    : formatNumber(rTokenRatio, { decimals: 4 })}
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
@@ -295,14 +307,19 @@ export const StakeOverview = (props: StakeOverviewProps) => {
               >
                 Trade
               </Button>
-              <Button
-                disabled={isWrongNetwork}
-                height=".86rem"
-                width="4rem"
-                stroke
-                radius=".5rem"
-                fontSize=".24rem"
+              <div
+                className={classNames(
+                  "h-[.86rem] rounded-[.45rem] w-[4rem] border-solid border-[1px] border-[] text-[.24rem]",
+                  "flex items-center justify-center",
+                  isWrongNetwork ? "cursor-default" : "cursor-pointer"
+                )}
+                style={{
+                  border: "1px solid rgba(91, 104, 114, 0.5)",
+                }}
                 onClick={() => {
+                  if (isWrongNetwork) {
+                    return;
+                  }
                   if (props.tokenName === TokenName.ETH) {
                     setEthRedeemWarningModalVisible(true);
                     return;
@@ -310,7 +327,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 }}
               >
                 Redeem
-              </Button>
+              </div>
             </div>
           </div>
         </Card>
