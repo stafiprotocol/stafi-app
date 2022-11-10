@@ -164,7 +164,12 @@ export const EthValidatorStakeLoadingModal = (
   useInterval(fetchStatus, 8000);
 
   return (
-    <Modal open={ethValidatorStakeModalVisible}>
+    <Modal
+      open={ethValidatorStakeModalVisible}
+      sx={{
+        backgroundColor: "#0A131Bba",
+      }}
+    >
       <Box
         pt="0"
         pl="0"

@@ -22,7 +22,13 @@ export const TradeModal = (props: TradeModalProps) => {
   };
 
   return (
-    <Modal open={props.visible} onClose={props.onClose}>
+    <Modal
+      open={props.visible}
+      onClose={props.onClose}
+      sx={{
+        backgroundColor: "#0A131Bba",
+      }}
+    >
       <Box
         pt="0"
         sx={{

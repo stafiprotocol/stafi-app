@@ -4,7 +4,7 @@ import { CustomInput } from "components/common/CustomInput";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { TokenStandardSelector } from "components/rtoken/TokenStandardSelector";
-import { TokenName, TokenStandard } from "interfaces/common";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
@@ -26,6 +26,7 @@ import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
 import classNames from "classnames";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
+import { useWalletAccount } from "hooks/useWalletAccount";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -47,6 +48,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     editAddressDisabled,
   } = props;
   const tokenStandard = useTokenStandard(tokenName);
+  const [expandUserAddress, setExpandUserAddress] = useState(false);
   const [editAddress, setEditAddress] = useState(false);
   const [targetAddress, setTargetAddress] = useState("");
   const [stakeAmount, setStakeAmount] = useState("");
@@ -55,6 +57,15 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
+
+  const { metaMaskAccount } = useWalletAccount();
+
+  const userAddress = useMemo(() => {
+    if (walletType === WalletType.MetaMask) {
+      return metaMaskAccount;
+    }
+    return "";
+  }, [walletType, metaMaskAccount]);
 
   const willReceiveAmount = useMemo(() => {
     if (
@@ -168,7 +179,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       scroll="paper"
       sx={{
         borderRadius: "0.16rem",
-        background: "transparent",
+        background: "#0A131Bba",
         "& .MuiDialog-container": {
           padding: "0",
           "& .MuiPaper-root": {
@@ -295,7 +306,18 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     background="rgba(25, 38, 52, 0.35)"
                     borderColor="#1A2835"
                   >
-                    <div className="w-[.76rem] h-[.68rem] flex items-center justify-center">
+                    <div
+                      className="px-[.24rem] h-[.68rem] flex items-center justify-center cursor-pointer"
+                      onClick={() => {
+                        setExpandUserAddress(!expandUserAddress);
+                      }}
+                    >
+                      {expandUserAddress && (
+                        <div className="text-text2 text-[.24rem] mr-[.14rem]">
+                          {getShortAddress(userAddress, 5)}
+                        </div>
+                      )}
+
                       <div className="w-[.28rem] h-[.28rem] relative">
                         <Image src={ethIcon} alt="icon" layout="fill" />
                       </div>

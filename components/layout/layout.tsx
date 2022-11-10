@@ -100,7 +100,7 @@ export const Layout = (props: LayoutProps) => {
         </Head>
 
         <HideOnScroll>
-          <AppBar position="fixed" color="darkBg">
+          <AppBar position="fixed" color="transparent">
             <Navbar />
           </AppBar>
         </HideOnScroll>

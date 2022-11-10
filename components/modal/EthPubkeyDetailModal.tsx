@@ -57,7 +57,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
       scroll="paper"
       sx={{
         borderRadius: "0.16rem",
-        background: "transparent",
+        background: "#0A131Bba",
         "& .MuiDialog-container": {
           padding: "0",
           "& .MuiPaper-root": {

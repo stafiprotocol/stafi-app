@@ -11,7 +11,13 @@ interface ChooseStakeTypeModalProps {
 
 export const ChooseStakeTypeModal = (props: ChooseStakeTypeModalProps) => {
   return (
-    <Modal open={props.visible} onClose={props.onClose}>
+    <Modal
+      open={props.visible}
+      onClose={props.onClose}
+      sx={{
+        backgroundColor: "#0A131Bba",
+      }}
+    >
       <Box
         pt=".3rem"
         pl=".4rem"

@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { StakeMyRewardList } from "./StakeMyRewardList";
 import { StakeMyUnbondList } from "./StakeMyUnbondList";
+import { StakeOverallList } from "./StakeOverallList";
 
 interface StakeMyHistoryProps {
   tokenName: TokenName;
@@ -11,7 +12,7 @@ interface StakeMyHistoryProps {
 
 export const StakeMyHistory = (props: StakeMyHistoryProps) => {
   const router = useRouter();
-  const [tab, setTab] = useState<"reward" | "unbond">("reward");
+  const [tab, setTab] = useState<"overall" | "reward" | "unbond">("overall");
 
   return (
     <CollapseCard
@@ -24,6 +25,22 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
           className="bg-[#1a2835] border-[1px] border-solid border-[#1a2835] h-[.65rem] rounded-[.33rem] flex"
           style={{ backdropFilter: "blur(1.35rem)" }}
         >
+          <div
+            className="cursor-pointer w-[1.6rem] h-full rounded-[.33rem] flex items-center justify-center text-[.24rem]"
+            style={{
+              background:
+                tab === "overall"
+                  ? "linear-gradient(140.73deg, #0093ed 4.72%, #00f3ab 96.52%)"
+                  : "#1a2835",
+              border:
+                tab === "overall" ? "1px solid rgba(38, 73, 78, 0.5)" : "",
+              color: tab === "overall" ? "#1a2835" : "#9dafbe",
+              backdropFilter: tab === "overall" ? "blur(1.35rem)" : "",
+            }}
+            onClick={() => setTab("overall")}
+          >
+            Overall
+          </div>
           <div
             className="cursor-pointer w-[1.6rem] h-full rounded-[.33rem] flex items-center justify-center text-[.24rem]"
             style={{
@@ -56,6 +73,8 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
           </div>
         </div>
       </div>
+
+      {tab === "overall" && <StakeOverallList tokenName={props.tokenName} />}
 
       {tab === "reward" && <StakeMyRewardList tokenName={props.tokenName} />}
 
