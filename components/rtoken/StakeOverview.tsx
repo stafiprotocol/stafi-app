@@ -49,20 +49,16 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   const selectedStandard = useTokenStandard(props.tokenName);
   const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
   const rTokenRatio = useRTokenRatio(props.tokenName);
-  const rTokenPrice = useTokenPrice("r" + props.tokenName);
+  const tokenPrice = useTokenPrice(props.tokenName);
   const { totalReward } = useRTokenReward(props.tokenName, 0, 0);
 
   // Total reward value.
   const totalRewardValue = useMemo(() => {
-    if (
-      isNaN(Number(totalReward)) ||
-      isNaN(Number(rTokenPrice)) ||
-      isNaN(Number(rTokenRatio))
-    ) {
+    if (isNaN(Number(totalReward)) || isNaN(Number(tokenPrice))) {
       return "--";
     }
-    return (Number(totalReward) / Number(rTokenRatio)) * Number(rTokenPrice);
-  }, [totalReward, rTokenPrice, rTokenRatio]);
+    return Number(totalReward) * Number(tokenPrice);
+  }, [totalReward, tokenPrice]);
 
   // User staked token amount.
   const stakedAmount = useMemo(() => {
@@ -74,11 +70,11 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
   // User staked token value.
   const stakedValue = useMemo(() => {
-    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenPrice))) {
+    if (isNaN(Number(stakedAmount)) || isNaN(Number(tokenPrice))) {
       return "--";
     }
-    return Number(rTokenBalance) * Number(rTokenPrice);
-  }, [rTokenBalance, rTokenPrice]);
+    return Number(stakedAmount) * Number(tokenPrice);
+  }, [stakedAmount, tokenPrice]);
 
   return (
     <div>
@@ -331,7 +327,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         onClose={() => {
           setEthRedeemWarningModalVisible(false);
         }}
-        content="Redemption will be supported once ETH2.0 Phase 1.5 is released"
+        content="Redemption will be supported once Ethereum withdraw is enabled"
       />
     </div>
   );

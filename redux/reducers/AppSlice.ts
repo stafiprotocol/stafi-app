@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TokenName, TokenStandard } from "interfaces/common";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import {
   addNoticeInternal,
   NoticeDataType,
@@ -34,6 +34,12 @@ interface StakeLoadingProgressDetail {
   swapping?: StakeLoadingProgressDetailItem;
 }
 
+interface ConnectWalletModalParams {
+  visible: boolean;
+  walletList: WalletType[];
+  targetMetaMaskChainId?: number;
+}
+
 export interface StakeLoadingProgressDetailItem {
   totalStatus?: "loading" | "success" | "error";
   broadcastStatus?: "loading" | "success" | "error";
@@ -46,6 +52,7 @@ export interface AppState {
   unreadNoticeFlag: boolean;
   updateFlag15s: number;
   stakeLoadingParams: StakeLoadingParams | undefined;
+  connectWalletModalParams: ConnectWalletModalParams | undefined;
 }
 
 const initialState: AppState = {
@@ -53,6 +60,7 @@ const initialState: AppState = {
   unreadNoticeFlag: false,
   updateFlag15s: 0,
   stakeLoadingParams: undefined,
+  connectWalletModalParams: undefined,
 };
 
 export const appSlice = createSlice({
@@ -87,6 +95,12 @@ export const appSlice = createSlice({
         state.stakeLoadingParams = newParams;
       }
     },
+    setConnectWalletModalParams: (
+      state: AppState,
+      action: PayloadAction<ConnectWalletModalParams | undefined>
+    ) => {
+      state.connectWalletModalParams = action.payload;
+    },
   },
 });
 
@@ -95,6 +109,7 @@ export const {
   setUnreadNoticeFlag,
   setUpdateFlag15s,
   setStakeLoadingParams,
+  setConnectWalletModalParams,
 } = appSlice.actions;
 
 export default appSlice.reducer;

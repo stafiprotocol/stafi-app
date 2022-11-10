@@ -1,5 +1,6 @@
 import { AppBar } from "@mui/material";
 import classNames from "classnames";
+import { ConnectWalletModal } from "components/modal/ConnectWalletModal";
 import { RTokenStakeLoadingModal } from "components/modal/RTokenStakeLoadingModal";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
@@ -148,6 +149,8 @@ export const Layout = (props: LayoutProps) => {
         <EthValidatorStakeSidebar />
 
         <RTokenStakeLoadingModal />
+
+        <ConnectWalletModal />
       </div>
     </MyLayoutContext.Provider>
   );

@@ -24,9 +24,7 @@ export function useRTokenBalance(
   });
 
   useEffect(() => {
-    if (isNaN(Number(balance))) {
-      dispatch(updateRTokenBalance(tokenStandard, tokenName));
-    }
+    dispatch(updateRTokenBalance(tokenStandard, tokenName));
   }, [dispatch, balance, metaMaskAccount, tokenStandard, tokenName]);
 
   return balance;

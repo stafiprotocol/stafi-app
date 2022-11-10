@@ -99,9 +99,14 @@ export function useRTokenReward(
         setRequestStatus(RequestStatus.success);
 
         setTotalCount(resJson.data.totalCount);
-        setTotalReward(resJson.data.totalReward || "0");
+        setTotalReward(
+          chainAmountToHuman(
+            resJson.data.totalReward || "0",
+            getTokenSymbol(tokenName)
+          )
+        );
         setChartXData(
-          resJson.data.chartXData
+          resJson.data.rewardChartXData
             .map((item: number) =>
               dayjs.unix(item).format("YYYY.MM.DD HH:mm:ss")
             )
@@ -109,7 +114,7 @@ export function useRTokenReward(
         );
 
         setChartYData(
-          resJson.data.chartYData
+          resJson.data.rewardChartYData
             .map((item: string) => {
               let tokenSymbol;
               if (

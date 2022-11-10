@@ -4,6 +4,7 @@ import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { Icomoon } from "components/icon/Icomoon";
 import { StakeLoadingProgressItem } from "components/rtoken/StakeLoadingProgressItem";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import checkFileError from "public/check_file_error.svg";
@@ -131,7 +132,10 @@ export const RTokenStakeLoadingModal = () => {
           )}
 
           <div
-            className="mt-[.24rem] flex items-center cursor-pointer"
+            className={classNames(
+              "mt-[.24rem] flex items-center cursor-pointer",
+              { hidden: stakeLoadingParams?.tokenName === TokenName.ETH }
+            )}
             onClick={() => setShowDetail(!showDetail)}
           >
             <div
