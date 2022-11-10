@@ -85,10 +85,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
-      return [true, "Stake"];
+      return [true, "Redeem"];
     }
     if (!redeemAmount || Number(redeemAmount) === 0 || isNaN(Number(balance))) {
-      return [true, "Stake"];
+      return [true, "Redeem"];
     }
     if (Number(redeemAmount) > Number(balance)) {
       return [true, "Insufficient Balance"];
@@ -96,7 +96,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (!addressCorrect) {
       return [true, "Invalid Receiving Address"];
     }
-    return [false, "Stake"];
+    return [false, "Redeem"];
   }, [
     walletType,
     isWrongMetaMaskNetwork,
@@ -176,7 +176,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             </div>
 
             <div className="text-center mt-[0rem] text-white font-[700] text-[.42rem]">
-              Stake {tokenName}
+              Redeem {tokenName}
             </div>
 
             <div className="mt-[.76rem] flex items-center justify-between">
@@ -250,7 +250,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
               <div className="flex flex-col items-end">
                 <div className="text-text1 text-[.24rem]">
-                  Available to stake:
+                  Available to redeem:
                 </div>
 
                 <div className="mt-[.15rem] flex items-center">
@@ -282,12 +282,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                 <Image src={ethIcon} alt="icon" layout="fill" />
               </div>
 
-              <div className="ml-[.35rem] text-text2 text-[.32rem]">ETH</div>
+              <div className="ml-[.35rem] text-text2 text-[.32rem]">{props.tokenName}</div>
 
               <div className="flex-1 mx-[.34rem]">
                 <CustomNumberInput
                   fontSize=".32rem"
-                  placeholder="Stake Amount"
+                  placeholder="Redeem Amount"
                   value={redeemAmount}
                   handleValueChange={setRedeemAmount}
                 />

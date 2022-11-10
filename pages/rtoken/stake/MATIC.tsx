@@ -46,27 +46,6 @@ const RMaticStakePage = () => {
 	}, [setTargetMetaMaskChainId]);
 
 	useEffect(() => {
-		const conn = async () => {
-			const { web3Enable, web3Accounts } = await import('@polkadot/extension-dapp');
-			const accounts = await web3Enable('stafi/rtoken').then(async () => await web3Accounts());
-			const keyringInstance = new KeyringServer().init(Symbol.Fis);
-			const fisAccounts: FisAccount[] = accounts.map(account => {
-				const address = keyringInstance.encodeAddress(keyringInstance.decodeAddress(account.address));
-				return {
-					name: account.meta.name,
-					address,
-					balance: '--',
-				};
-			});
-			dispatch(setAccounts(fisAccounts));
-			if (fisAccounts.length > 1) {
-				dispatch(setFisAccount(fisAccounts[1]));
-			}
-		}
-		conn();
-	}, []);
-
-	useEffect(() => {
 		dispatch(getPools());
 	}, []);
 
@@ -77,8 +56,6 @@ const RMaticStakePage = () => {
 	}, [fisAccount]);
 
 	const onClickStake = () => {
-		// if polkadotAccount is valid
-		console.log(fisAccounts)
 		if (fisAccounts.length > 0) {
 			dispatch(updateMaticBalance());
 			setStakeModalVisible(true);
@@ -110,7 +87,7 @@ const RMaticStakePage = () => {
 			<RTokenIntegrations tokenName={TokenName.MATIC} />
 
 			<RTokenStakeModal
-				defaultReceivingAddress={fisAccounts[1] ? fisAccounts[1].address : undefined}
+				defaultReceivingAddress={fisAccount.address}
 				tokenName={TokenName.MATIC}
 				visible={stakeModalVisible}
 				onClose={() => setStakeModalVisible(false)}

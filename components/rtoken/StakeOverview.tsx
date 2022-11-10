@@ -25,6 +25,8 @@ import { TokenStandardSelector } from "./TokenStandardSelector";
 import classNames from "classnames";
 import { getValidatorSiteHost } from "config/env";
 import { useRTokenReward } from "hooks/useRTokenReward";
+import { RTokenRedeemModal } from 'components/modal/RTokenRedeemModal';
+import { useWalletAccount } from "hooks/useWalletAccount";
 
 interface StakeOverviewProps {
   tokenName: TokenName;
@@ -45,6 +47,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   const [tradeModalVisible, setTradeModalVisible] = useState(false);
   const [ethRedeemWarningModalVisible, setEthRedeemWarningModalVisible] =
     useState(false);
+	const [rTokenRedeemModalVisible, setRTokenRedeemModalVisible] = useState(false);
+
+	const { metaMaskAccount } = useWalletAccount();
 
   const selectedStandard = useTokenStandard(props.tokenName);
   const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
@@ -296,7 +301,8 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 Trade
               </Button>
               <Button
-                disabled={isWrongNetwork}
+                // disabled={isWrongNetwork}
+								disabled={false}
                 height=".86rem"
                 width="4rem"
                 stroke
@@ -306,7 +312,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   if (props.tokenName === TokenName.ETH) {
                     setEthRedeemWarningModalVisible(true);
                     return;
-                  }
+                  } else if (props.tokenName === TokenName.MATIC) {
+										setRTokenRedeemModalVisible(true);
+									}
                 }}
               >
                 Redeem
@@ -329,6 +337,14 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         }}
         content="Redemption will be supported once Ethereum withdraw is enabled"
       />
+
+			<RTokenRedeemModal
+				visible={rTokenRedeemModalVisible}
+				onClose={() => setRTokenRedeemModalVisible(false)}
+				tokenName={props.tokenName}
+				balance={''}
+				defaultReceivingAddress={metaMaskAccount}
+			/>
     </div>
   );
 };
