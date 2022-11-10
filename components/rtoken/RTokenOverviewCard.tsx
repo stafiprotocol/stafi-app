@@ -6,6 +6,7 @@ import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
+import { useFisAccount } from "hooks/useFisAccount";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
@@ -25,6 +26,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
   const { metaMaskAccount } = useWalletAccount();
+	const { fisAccount } = useFisAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
 
@@ -41,7 +43,26 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         return;
       }
       router.push("/rtoken/stake/ETH");
-    }
+    } else if (tokenName === TokenName.MATIC) {
+			if (metaMaskAccount && fisAccount.address) {
+				router.push('/rtoken/stake/MATIC');
+				return;
+			}
+			let walletTypes: WalletType[] = [];
+			if (!metaMaskAccount) {
+				walletTypes.push(WalletType.MetaMask);
+			}
+			if (!fisAccount.address) {
+				walletTypes.push(WalletType.Polkadot);
+			}
+			dispatch(
+				setConnectWalletModalParams({
+					visible: true,
+					walletList: walletTypes,
+					targetMetaMaskChainId: getMetamaskEthChainId(),
+				})
+			);
+		}
   };
 
   return (

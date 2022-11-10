@@ -1,12 +1,16 @@
 import classNames from "classnames";
 import { Icomoon } from "components/icon/Icomoon";
 import { hooks } from "connectors/metaMask";
+import { useAppDispatch } from "hooks/common";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import metaMask from "public/wallet/metaMask.svg";
 import { useMemo, useState } from "react";
-import { connectMetaMask } from "utils/web3Utils";
+import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
+import { FisAccount, setChooseAccountVisible, setFisAccount } from "redux/reducers/FisSlice";
+import { setAccounts } from "redux/reducers/FisSlice";
+import { connectMetaMask, connectPolkadot } from "utils/web3Utils";
 
 interface ConnectWalletItemProps {
   walletType: WalletType;
@@ -14,6 +18,7 @@ interface ConnectWalletItemProps {
 }
 
 export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
+	const dispatch = useAppDispatch();
   const { walletType, targetMetaMaskChainId } = props;
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
@@ -107,7 +112,19 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
           onClick={() => {
             if (walletType === WalletType.MetaMask) {
               connectMetaMask(targetMetaMaskChainId);
-            }
+            } else if (walletType === WalletType.Polkadot) {
+							connectPolkadot()
+								.then((accounts: FisAccount[]) => {
+									if (accounts.length === 0) return;
+									dispatch(setAccounts(accounts));
+									dispatch(setFisAccount(accounts[0]));
+									dispatch(setChooseAccountVisible(true));
+									dispatch(setConnectWalletModalParams(undefined));
+								})
+								.catch(err => {
+									console.error(err);
+								});
+						}
           }}
         >
           <div className="w-[.3rem] h-[.3rem] relative">

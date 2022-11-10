@@ -65,8 +65,12 @@ const RTokenPage = () => {
 
       <div className="mt-[.56rem] text-white text-[.32rem]">All Stakes</div>
 
-      <div className="mt-[.35rem]">
+      <div className="mt-[.35rem] flex">
         <RTokenOverviewCard tokenName={TokenName.ETH} />
+				
+				<div className="ml-[.875rem]">
+					<RTokenOverviewCard tokenName={TokenName.MATIC} />
+				</div>
       </div>
     </div>
   );

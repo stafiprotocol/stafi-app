@@ -13,6 +13,9 @@ const numberUtil = {
 		if (Number(amount) === 0) return '0';
 		return (floor(amount * 1000000) / 1000000).toFixed(6) || '--';
 	},
+	fisAmountToHuman(amount: any) {
+		return amount / 1000000000000;
+	},
 	tokenAmountToHuman(amount: any, symbol: rSymbol) {
 		if (isNaN(Number(amount))) return '--';
 		let factor: BigInt;

@@ -24,6 +24,7 @@ export interface FisState {
 	fisAccount: FisAccount;
 	accounts: FisAccount[];
 	stakedAmount: number | string;
+	chooseAccountVisible: boolean;
 }
 
 const initialState: FisState = {
@@ -34,6 +35,7 @@ const initialState: FisState = {
 	},
 	accounts: [],
 	stakedAmount: '--',
+	chooseAccountVisible: false,
 };
 
 const FisSlice = createSlice({
@@ -49,6 +51,9 @@ const FisSlice = createSlice({
 		setStakedAmount(state: FisState, action: PayloadAction<number | string>) {
 			state.stakedAmount = action.payload;
 		},
+		setChooseAccountVisible(state: FisState, action: PayloadAction<boolean>) {
+			state.chooseAccountVisible = action.payload;
+		},
 	},
 });
 
@@ -56,6 +61,7 @@ export const {
 	setFisAccount,
 	setAccounts,
 	setStakedAmount,
+	setChooseAccountVisible,
 } = FisSlice.actions;
 
 export default FisSlice.reducer;
@@ -69,6 +75,33 @@ export const updateFisBalance = (): AppThunk => async (dispatch, getState) => {
 	} else {
 		dispatch(setStakedAmount(numberUtil.handleFisAmountToFixed(0)));
 	}
+}
+
+export const updateFisBalances = (): AppThunk => async (dispatch, getState) => {
+	const accounts = getState().fis.accounts;
+	if (accounts.length === 0) return;
+	let queries: Promise<any>[] = [];
+	accounts.forEach(async (account: FisAccount) => {
+		queries.push(commonSlice.queryRBalance(account.address, rSymbol.Matic));
+	});
+
+	let newAccounts: FisAccount[] = [];
+	Promise.all(queries).then((datas: any[]) => {
+		for (let i = 0; i < accounts.length; i++) {
+			let balance = '--';
+			if (datas[i]) {
+				balance = numberUtil.fisAmountToHuman(datas[i].free).toString();
+			}
+			let _account: FisAccount = {
+				...accounts[i],
+				balance,
+			}
+			newAccounts.push(_account);
+		}
+		dispatch(
+			setAccounts(newAccounts)
+		);
+	});
 }
 
 export const bond = 

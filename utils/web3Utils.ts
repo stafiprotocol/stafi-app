@@ -9,6 +9,9 @@ import {
 
 import { metaMask } from "connectors/metaMask";
 import { TokenName } from "interfaces/common";
+import { Symbol } from "keyring/defaults";
+import { FisAccount } from "redux/reducers/FisSlice";
+import { KeyringServer } from "servers/keyring";
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 
@@ -27,6 +30,26 @@ export function connectMetaMask(targetChainId: number | undefined) {
   } else if (targetChainId === getMetamaskEthChainId()) {
     metaMask.activate(getMetaMaskEthConnectConfig());
   }
+}
+
+export function connectPolkadot() {
+	const conn = async () => {
+		const { web3Enable, web3Accounts } = await import('@polkadot/extension-dapp');
+		const accounts = await web3Enable('stafi/rtoken')
+			.then(async () => await web3Accounts());
+		const keyringInstance = new KeyringServer().init(Symbol.Fis);
+		const fisAccounts: FisAccount[] = accounts.map(account => {
+			const address = keyringInstance.encodeAddress(keyringInstance.decodeAddress(account.address));
+			return {
+				name: account.meta.name,
+				address,
+				balance: '--',
+			};
+		});
+		return fisAccounts;
+	}
+
+	return conn();
 }
 
 export async function getErc20AssetBalance(

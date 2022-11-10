@@ -1,5 +1,6 @@
 import { AppBar } from "@mui/material";
 import classNames from "classnames";
+import { ChooseFisAccountModal } from "components/modal/ChooseFisAccountModal";
 import { ConnectWalletModal } from "components/modal/ConnectWalletModal";
 import { RTokenStakeLoadingModal } from "components/modal/RTokenStakeLoadingModal";
 import { hooks } from "connectors/metaMask";
@@ -151,6 +152,8 @@ export const Layout = (props: LayoutProps) => {
         <RTokenStakeLoadingModal />
 
         <ConnectWalletModal />
+
+				<ChooseFisAccountModal />
       </div>
     </MyLayoutContext.Provider>
   );
