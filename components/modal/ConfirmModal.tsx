@@ -13,7 +13,13 @@ interface ConfirmModalProps {
 
 export const ConfirmModal = (props: ConfirmModalProps) => {
   return (
-    <Modal open={props.visible} onClose={props.onClose}>
+    <Modal
+      open={props.visible}
+      onClose={props.onClose}
+      sx={{
+        backgroundColor: "#0A131Bba",
+      }}
+    >
       <Box
         pt="0"
         pl="0"

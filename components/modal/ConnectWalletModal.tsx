@@ -26,6 +26,9 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
     <Modal
       open={connectWalletModalParams.visible}
       onClose={() => dispatch(setConnectWalletModalParams(undefined))}
+      sx={{
+        backgroundColor: "#0A131Bba",
+      }}
     >
       <Box
         pt="0"

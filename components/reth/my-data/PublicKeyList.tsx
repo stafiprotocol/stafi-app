@@ -122,18 +122,18 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
               </section>
             </div>
             <div className="flex justify-center">
-              <section className="flex-1 flex justify-center items-center">
+              <section
+                className="flex-1 flex justify-center items-center cursor-pointer"
+                onClick={() =>
+                  openLink(
+                    "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-faq#8.what-are-the-reasons-for-staking-failure "
+                  )
+                }
+              >
                 <div className="mr-[.07rem] text-[.2rem] text-text2">
                   Status
                 </div>
-                <div
-                  className="cursor-pointer"
-                  onClick={() =>
-                    openLink(
-                      "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-faq#8.what-are-the-reasons-for-staking-failure "
-                    )
-                  }
-                >
+                <div>
                   <Icomoon icon="question" size="0.16rem" color="#5B6872" />
                 </div>
               </section>

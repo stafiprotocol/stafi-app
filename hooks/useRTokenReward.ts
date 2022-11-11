@@ -24,7 +24,9 @@ interface EraRewardModel {
   era: number;
   rate: string;
   stakeValue: string;
+  addedStakeAmount: string;
   rTokenBalance: string;
+  addedRTokenAmount: string;
   reward: string;
 }
 
@@ -156,6 +158,8 @@ export function useRTokenReward(
             const newRate = rTokenRateToHuman(element.rate);
             let newStakeValue = "--";
             let newRTokenBalance = "--";
+            let addedStakeAmount = "--";
+            let addedRTokenAmount = "--";
             let newReward: number | string = "--";
             if (
               tokenStandard === TokenStandard.ERC20 ||
@@ -168,6 +172,14 @@ export function useRTokenReward(
 
               newRTokenBalance = chainAmountToHuman(
                 element.rTokenBalance,
+                TokenSymbol.ETH
+              );
+              addedStakeAmount = chainAmountToHuman(
+                element.addedStakeAmount,
+                TokenSymbol.ETH
+              );
+              addedRTokenAmount = chainAmountToHuman(
+                element.addedRTokenAmount,
                 TokenSymbol.ETH
               );
               if (!isEmpty(element.reward)) {
@@ -185,6 +197,14 @@ export function useRTokenReward(
                 element.rTokenBalance,
                 getTokenSymbol(tokenName)
               );
+              addedStakeAmount = chainAmountToHuman(
+                element.addedStakeAmount,
+                getTokenSymbol(tokenName)
+              );
+              addedRTokenAmount = chainAmountToHuman(
+                element.addedRTokenAmount,
+                getTokenSymbol(tokenName)
+              );
               if (!isEmpty(element.reward)) {
                 newReward = chainAmountToHuman(
                   element.reward,
@@ -197,7 +217,9 @@ export function useRTokenReward(
               era: element.era,
               rate: newRate,
               stakeValue: newStakeValue,
+              addedStakeAmount,
               rTokenBalance: newRTokenBalance,
+              addedRTokenAmount,
               reward: newReward,
             };
           }

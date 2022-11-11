@@ -35,9 +35,17 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
 
   return (
     <>
-      <Card
-        background="linear-gradient(0deg,rgba(0, 243, 171, 0.1) 0%,rgba(26, 40, 53, 0.16) 70%,rgba(26, 40, 53, 0.2) 100%)"
-        borderColor="#26494E"
+      <div
+        className="rounded-[.16rem] border-solid border-[1px] border-[#1A2835] bg-[#192634]/35 active:bg-[#192634]/80"
+        style={{
+          backdropFilter: "blue(.4rem)",
+          ...(selectionPopupState.isOpen
+            ? {
+                background:
+                  "linear-gradient(0deg,rgba(0, 243, 171, 0.1) 0%,rgba(26, 40, 53, 0.16) 70%,rgba(26, 40, 53, 0.2) 100%)",
+              }
+            : {}),
+        }}
       >
         <div
           className={classNames(
@@ -71,7 +79,7 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
             <Icomoon icon="up" color="#ffffff" size=".19rem" />
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Notice */}
       <Popover

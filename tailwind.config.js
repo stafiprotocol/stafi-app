@@ -9,7 +9,7 @@ module.exports = {
       transparent: "transparent",
       white: "#ffffff",
       primary: "#00F3AB",
-      navbarBg: "transparent",
+      navbarBg: "#071526",
       cardBg: "#0A131B",
       text1: "#9DAFBE",
       text2: "#5B6872",

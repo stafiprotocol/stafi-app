@@ -10,7 +10,13 @@ interface WarningModalProps {
 
 export const WarningModal = (props: WarningModalProps) => {
   return (
-    <Modal open={props.visible} onClose={props.onClose}>
+    <Modal
+      open={props.visible}
+      onClose={props.onClose}
+      sx={{
+        backgroundColor: "#0A131Bba",
+      }}
+    >
       <Box
         pt="0"
         pl="0"

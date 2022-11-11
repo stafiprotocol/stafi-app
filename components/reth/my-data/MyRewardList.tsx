@@ -14,7 +14,7 @@ import { openLink } from "utils/common";
 import Web3 from "web3";
 import styles from "../../../styles/reth/MyData.module.scss";
 
-interface MyRewardListProps { }
+interface MyRewardListProps {}
 
 export const MyRewardList = (props: MyRewardListProps) => {
   const [page, setPage] = useState(1);
@@ -28,17 +28,17 @@ export const MyRewardList = (props: MyRewardListProps) => {
         </div>
       )}
 
-      <div className="mx-[.56rem] flex items-center mt-[.76rem]">
+      <div
+        className="mx-[.56rem] flex items-center mt-[.76rem] cursor-pointer"
+        onClick={() => {
+          openLink(
+            "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-faq#1.ov-commission-and-reward-related-reth"
+          );
+        }}
+      >
         <div className="text-white text-[.32rem]">Reward Details</div>
 
-        <div
-          className="text-text2 text-[.24rem] ml-[.16rem] cursor-pointer"
-          onClick={() => {
-            openLink(
-              "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-faq#1.ov-commission-and-reward-related-reth"
-            );
-          }}
-        >
+        <div className="text-text2 text-[.24rem] ml-[.16rem]">
           <Icomoon icon="question" size="0.16rem" color="#5B6872" />
         </div>
       </div>

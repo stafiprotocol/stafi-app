@@ -39,7 +39,12 @@ export const RTokenStakeLoadingModal = () => {
   }, [dispatch, stakeLoadingParams]);
 
   return (
-    <Modal open={stakeLoadingParams?.modalVisible === true}>
+    <Modal
+      open={stakeLoadingParams?.modalVisible === true}
+      sx={{
+        backgroundColor: "#0A131Bba",
+      }}
+    >
       <Box
         pt="0"
         pl=".32rem"

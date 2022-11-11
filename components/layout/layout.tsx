@@ -93,11 +93,7 @@ export const Layout = (props: LayoutProps) => {
     >
       <div className="">
         <Head>
-          <title>
-            {process.env.NEXT_PUBLIC_SITE === "validator"
-              ? "StaFi rETH"
-              : "StaFi rToken APP"}
-          </title>
+          <title>StaFi rToken APP</title>
           <meta
             name="viewport"
             content="initial-scale=1.0, width=device-width"
@@ -105,7 +101,7 @@ export const Layout = (props: LayoutProps) => {
         </Head>
 
         <HideOnScroll>
-          <AppBar position="fixed" color="darkBg">
+          <AppBar position="fixed" color="transparent">
             <Navbar />
           </AppBar>
         </HideOnScroll>
