@@ -13,7 +13,7 @@ export function getStafiRpc() {
 
 export function getValidatorSiteHost() {
   if (isDev()) {
-    return "https://test-reth-validator.stafi.io/";
+    return "https://test-rtoken-app.stafi.io/";
   }
   return "https://reth-validator.stafi.io/";
 }

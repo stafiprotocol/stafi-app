@@ -17,6 +17,7 @@ import {
   rTokenRateToHuman,
 } from "utils/number";
 import { getTokenSymbol } from "utils/rToken";
+import { useAppSlice } from "./selector";
 import { useTokenStandard } from "./useTokenStandard";
 import { useWalletAccount } from "./useWalletAccount";
 
@@ -47,6 +48,7 @@ export function useRTokenReward(
   const [chartYData, setChartYData] = useState<string[]>([]);
   const [rewardList, setRewardList] = useState<EraRewardModel[]>([]);
 
+  const { updateFlag15s } = useAppSlice();
   const { metaMaskAccount } = useWalletAccount();
 
   const userAddress = useMemo(() => {
@@ -68,7 +70,7 @@ export function useRTokenReward(
         ? ChainId.SOL
         : -1;
 
-    if (!userAddress || chainType === -1) {
+    if (!userAddress || chainType === -1 || !updateFlag15s) {
       setRequestStatus(RequestStatus.success);
       return;
     }
@@ -233,7 +235,14 @@ export function useRTokenReward(
     } finally {
       // dispatch(setLoading(false));
     }
-  }, [tokenName, tokenStandard, page, userAddress, chartDuSeconds]);
+  }, [
+    tokenName,
+    tokenStandard,
+    page,
+    userAddress,
+    chartDuSeconds,
+    updateFlag15s,
+  ]);
 
   useEffect(() => {
     fetchData();

@@ -8,6 +8,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { chainAmountToHuman } from "utils/number";
 import { getTokenSymbol } from "utils/rToken";
+import { useAppSlice } from "./selector";
 import { useTokenStandard } from "./useTokenStandard";
 import { useWalletAccount } from "./useWalletAccount";
 
@@ -16,6 +17,7 @@ export function useRTokenLastEraReward(tokenName: TokenName) {
 
   const tokenStandard = useTokenStandard(tokenName);
   const { metaMaskAccount } = useWalletAccount();
+  const { updateFlag15s } = useAppSlice();
 
   const userAddress = useMemo(() => {
     if (tokenStandard === TokenStandard.ERC20) {
@@ -36,7 +38,7 @@ export function useRTokenLastEraReward(tokenName: TokenName) {
         ? ChainId.SOL
         : -1;
 
-    if (!userAddress || chainType === -1) {
+    if (!userAddress || chainType === -1 || !updateFlag15s) {
       return;
     }
 
@@ -78,7 +80,7 @@ export function useRTokenLastEraReward(tokenName: TokenName) {
       }
     } finally {
     }
-  }, [tokenName, userAddress, tokenStandard]);
+  }, [tokenName, userAddress, tokenStandard, updateFlag15s]);
 
   useEffect(() => {
     fetchData();

@@ -179,7 +179,8 @@ export const StakeOverview = (props: StakeOverviewProps) => {
             </div>
 
             <div className="text-primary text-[.2rem] mr-[.1rem] mt-[.1rem]">
-              {formatNumber(stakedAmount)} {props.tokenName} staked
+              r{props.tokenName} Balance
+              {/* {formatNumber(stakedAmount)} {props.tokenName} staked */}
             </div>
           </div>
           <div className="w-[.8rem] h-[1.3rem] relative">

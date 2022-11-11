@@ -1,9 +1,10 @@
 import classNames from "classnames";
 import Image from "next/image";
 import downIcon from "public/icon_down.png";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 type CollapseCardProps = React.PropsWithChildren<{
+  defaultCollapsed?: boolean;
   title?: ReactNode | undefined;
   mt?: string;
   mx?: string;
@@ -11,7 +12,7 @@ type CollapseCardProps = React.PropsWithChildren<{
 }>;
 
 export const CollapseCard = (props: CollapseCardProps) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(props.defaultCollapsed);
 
   return (
     <div
@@ -25,13 +26,13 @@ export const CollapseCard = (props: CollapseCardProps) => {
       }}
     >
       <div className="p-[.56rem] flex flex-col items-center">
-        <div className="self-stretch flex items-center justify-between">
+        <div
+          className="self-stretch flex items-center justify-between cursor-pointer"
+          onClick={() => setCollapsed(!collapsed)}
+        >
           {props.title}
 
-          <div
-            className="w-[.29rem] h-[0.2rem] p-[.05rem] cursor-pointer"
-            onClick={() => setCollapsed(!collapsed)}
-          >
+          <div className="w-[.29rem] h-[0.2rem] p-[.05rem]">
             <div
               className={classNames("w-full h-full relative ", {
                 "-rotate-90": collapsed,
@@ -43,7 +44,14 @@ export const CollapseCard = (props: CollapseCardProps) => {
         </div>
       </div>
 
-      {!collapsed && <div className="pb-[.56rem]">{props.children}</div>}
+      {
+        <div
+          className={classNames(collapsed ? "h-0 max-h-0 overflow-hidden" : "")}
+        >
+          {props.children}
+          <div className="h-[.56rem]" />
+        </div>
+      }
     </div>
   );
 };

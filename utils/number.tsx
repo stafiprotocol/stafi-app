@@ -1,5 +1,4 @@
 import { TokenSymbol } from "interfaces/common";
-import { divide } from "mathjs";
 import Web3 from "web3";
 
 export function formatNumber(
@@ -10,6 +9,7 @@ export function formatNumber(
     withSplit?: boolean;
     toReadable?: boolean;
     roundMode?: "round" | "floor" | "ceil";
+    fixedLength?: boolean;
   } = {}
 ) {
   if (num === undefined || num === "") {
@@ -22,7 +22,7 @@ export function formatNumber(
   const decimals = options.decimals === undefined ? 6 : options.decimals;
   const withSplit = options.withSplit === undefined ? true : options.withSplit;
   const fixedDecimals =
-    options.fixedDecimals === undefined ? false : options.fixedDecimals;
+    options.fixedDecimals === undefined ? true : options.fixedDecimals;
   const toReadable =
     options.toReadable === undefined ? true : options.toReadable;
   const roundMode = options.roundMode || "round";

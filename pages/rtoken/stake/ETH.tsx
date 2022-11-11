@@ -91,6 +91,7 @@ const RTokenStakePage = () => {
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 
       <CollapseCard
+        defaultCollapsed
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={
@@ -122,6 +123,7 @@ const RTokenStakePage = () => {
       </CollapseCard>
 
       <CollapseCard
+        defaultCollapsed
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={
@@ -158,6 +160,7 @@ const RTokenStakePage = () => {
       </CollapseCard>
 
       <CollapseCard
+        defaultCollapsed
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={
