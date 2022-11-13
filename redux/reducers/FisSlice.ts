@@ -517,6 +517,16 @@ export const fisUnbond =
 		web3Enable(stafiServer.getWeb3EnableName());
 		const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
 
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					sending: {
+						broadcastStatus: 'loading',
+					}
+				}
+			})
+		);
+
 		const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
 			symbol,
 			selectedPool,
@@ -535,9 +545,29 @@ export const fisUnbond =
 									const txHash = unbondResult.hash.toHex();
 									cb && cb('Success', txHash);
 									console.log('success');
+									dispatch(
+										setStakeLoadingParams({
+											status: 'success',
+											progressDetail: {
+												sending: {
+													totalStatus: 'success',
+												}
+											}
+										})
+									);
 								} else if (data.event.method === 'ExtrinsicFailed') {
 									cb && cb('Failed');
 									console.error('failed');
+									dispatch(
+										setStakeLoadingParams({
+											status: 'error',
+											progressDetail: {
+												sending: {
+													totalStatus: 'error',
+												}
+											}
+										})
+									);
 								}
 							});
 					}

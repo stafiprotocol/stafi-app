@@ -349,7 +349,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                 <Image src={ethIcon} alt="icon" layout="fill" />
               </div>
 
-              <div className="ml-[.35rem] text-text2 text-[.32rem]">ETH</div>
+              <div className="ml-[.35rem] text-text2 text-[.32rem]">{tokenName}</div>
 
               <div className="flex-1 mx-[.34rem]">
                 <CustomNumberInput

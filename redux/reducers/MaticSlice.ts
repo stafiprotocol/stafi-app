@@ -320,6 +320,20 @@ export const getRMaticRate =
 export const unbondRMatic =
 	(amount: string, recipient: string, cb?: Function): AppThunk =>
 	async (dispatch, getState) => {
+		dispatch(setIsLoading(true));
+		dispatch(
+			setStakeLoadingParams({
+				modalVisible: true,
+				status: 'loading',
+				tokenName: TokenName.MATIC,
+				amount: amount,
+				progressDetail: {
+					sending: {
+						totalStatus: 'loading',
+					}
+				}
+			})
+		);
 		try {
 			const validPools = getState().matic.validPools;
 			let selectedPool = commonSlice.getPoolForUnbond(amount, validPools, rSymbol.Matic);
@@ -345,6 +359,8 @@ export const unbondRMatic =
 			)
 		} catch (err: any) {
 			console.error(err);
+		} finally {
+			dispatch(setIsLoading(false));
 		}
 	}
 
