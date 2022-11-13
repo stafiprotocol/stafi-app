@@ -233,17 +233,22 @@ export const updateRTokenStakerApr =
           newApr = resJson.data.stakeApr;
         }
       } else if (tokenName === TokenName.MATIC) {
-				const api = new StafiServer().createStafiApi();
-				const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Matic);
-				console.log({eraResult})
-				let currentEra = eraResult.toJSON() as number;
-				console.log({currentEra})
-				if (currentEra) {
-					let rateResult = await api.query.rTokenRate.eraRate(rSymbol.Matic, currentEra - 1);
-					const currentRate = rateResult.toJSON() as number;
-					const rateResult2 = await api.query.rTokenRate.eraRate(rSymbol.Matic, currentEra - 8);
-					let lastRate = rateResult2.toJSON() as number;
-					newApr = numberUtil.amount_format(((currentRate - lastRate) / 1000000000000 / 7) * 365.25 * 100, 1);
+				const api = await new StafiServer().createStafiApi();
+				try {
+					const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Matic);
+					console.log({eraResult})
+					let currentEra = eraResult.toJSON() as number;
+					console.log({currentEra})
+					if (currentEra) {
+						let rateResult = await api.query.rTokenRate.eraRate(rSymbol.Matic, currentEra - 1);
+						const currentRate = rateResult.toJSON() as number;
+						const rateResult2 = await api.query.rTokenRate.eraRate(rSymbol.Matic, currentEra - 8);
+						let lastRate = rateResult2.toJSON() as number;
+						newApr = numberUtil.amount_format(((currentRate - lastRate) / 1000000000000 / 7) * 365.25 * 100, 1);
+					}
+
+				} catch (err) {
+					console.error(err);
 				}
 			}
 			console.log(tokenName, newApr)

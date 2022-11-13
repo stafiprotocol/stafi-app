@@ -72,13 +72,13 @@ const RMaticStakePage = () => {
 			/>
 
 			<CollapseCard
-				background="#0A131B"
+				background="rgba(26, 40, 53, 0.2)"
 				mt=".36rem"
-				title={<div className="text-white text-[.32rem]">rMATIC Rewards</div>}
+				title={<div className="text-white text-[.32rem]">rMATIC Reward</div>}
 			>
 				<RewardChartPanel
 					tokenName={TokenName.MATIC}
-					onClickStake={() => {}}
+					onClickStake={() => setStakeModalVisible(true)}
 				/>
 			</CollapseCard>
 

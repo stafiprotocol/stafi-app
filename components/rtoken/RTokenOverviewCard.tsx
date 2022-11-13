@@ -7,6 +7,7 @@ import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useFisAccount } from "hooks/useFisAccount";
+import { useMaticPoolData } from "hooks/useMaticPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
@@ -29,6 +30,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
 	const { fisAccount } = useFisAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
+	const { stakedMaticValue, stakedMaticAmount, maticApr } = useMaticPoolData();
 
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
@@ -96,7 +98,10 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
-          {formatNumber(stakeApr, { decimals: 2 })}%
+          {formatNumber(
+						tokenName === TokenName.ETH ? stakeApr : maticApr,
+						{ decimals: 2 }
+					)}%
         </div>
       </div>
 
@@ -109,20 +114,26 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           />
         </div>
         <div className="text-text2 text-[.16rem]">
-          ${formatNumber(allEthValue, { decimals: 2 })}
+          ${formatNumber(
+						tokenName === TokenName.ETH ? allEthValue : stakedMaticValue,
+						{ decimals: 2 }
+					)}
         </div>
       </div>
 
       <div className="mt-[.23rem] flex items-end justify-between">
         <div className="flex items-center">
           <MyTooltip
-            text="Total ETH Staked"
+            text={`Total ${tokenName} Staked`}
             title={`Overall ${tokenName} staked, including restake ${tokenName}`}
             className="text-text2 text-[.16rem]"
           />
         </div>
         <div className="text-text2 text-[.16rem]">
-          {formatNumber(allEth, { decimals: 2 })}
+          {formatNumber(
+						tokenName === TokenName.ETH ? allEth : stakedMaticAmount,
+						{ decimals: 2 }
+					)}
         </div>
       </div>
 

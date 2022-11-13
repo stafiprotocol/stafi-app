@@ -72,6 +72,7 @@ export const ChooseFisAccountModal = (props: Props) => {
           <div className="py-[.32rem]">
 						{fisAccounts.map((account: FisAccount) => (
 							<Card
+								key={account.address}
 								onClick={() => changeAccount(account)}
 								sx={{
 									border: account.address === fisAccount.address ? '1px solid #00F3AB' : '1px solid #1A2835',
