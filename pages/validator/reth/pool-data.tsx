@@ -138,7 +138,7 @@ const PoolData = () => {
             </div>
 
             <div className="mt-[.23rem] text-white text-[.32rem]">
-              {formatNumber(matchedValidators)}
+              {matchedValidators}
             </div>
           </div>
         </div>
