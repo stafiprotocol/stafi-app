@@ -107,35 +107,6 @@ export const Layout = (props: LayoutProps) => {
           id="1"
           height="100px"
           init={particlesInit}
-          // options={{
-          //   background: {
-          //     color: "transparent",
-          //   },
-
-          //   particles: {
-          //     color: {
-          //       value: "#00F3AB",
-          //     },
-          //     number: {
-          //       value: 500,
-          //       density: {
-          //         enable: true,
-          //       },
-          //     },
-          //     size: {
-          //       value: 2,
-          //       random: true,
-          //     },
-          //     shape: {
-          //       type: "circle",
-          //     },
-          //     move: {
-          //       enable: true,
-          //       direction: "bottom",
-          //       speed: 1,
-          //     },
-          //   },
-          // }}
           options={{
             particles: {
               number: {
