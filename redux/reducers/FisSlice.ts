@@ -7,6 +7,7 @@ import keyring from 'servers/keyring';
 import StafiServer from "servers/stafi";
 import { stringToHex, u8aToHex } from "@polkadot/util";
 import { setStakeLoadingParams } from "./AppSlice";
+import { getLocalStorageItem } from "utils/common";
 
 declare const ethereum: any;
 
@@ -27,12 +28,17 @@ export interface FisState {
 	chooseAccountVisible: boolean;
 }
 
-const initialState: FisState = {
-	fisAccount: {
+const localStoredAccount: FisAccount = getLocalStorageItem('stafi_fis_account') ?
+	{...getLocalStorageItem('stafi_fis_account'), balance: '--'}
+	:
+	{
 		name: '',
 		address: '',
 		balance: '--',
-	},
+	};
+
+const initialState: FisState = {
+	fisAccount: localStoredAccount,
 	accounts: [],
 	stakedAmount: '--',
 	chooseAccountVisible: false,
@@ -44,9 +50,21 @@ const FisSlice = createSlice({
 	reducers: {
 		setFisAccount(state: FisState, action: PayloadAction<FisAccount>) {
 			state.fisAccount = action.payload;
+			localStorage.setItem('stafi_fis_account', JSON.stringify({address: action.payload.address}));
 		},
 		setAccounts(state: FisState, action: PayloadAction<FisAccount[]>) {
 			state.accounts = action.payload;
+		},
+		setFisAccounts(state: FisState, action: PayloadAction<FisAccount>) {
+			const newAccount = action.payload;
+			const accounts = state.accounts;
+			const account = accounts.find((acc: FisAccount) => acc.address === newAccount.address);
+			if (account) {
+				account.balance = newAccount.balance;
+				account.name = newAccount.name;
+			} else {
+				accounts.push(newAccount);
+			}
 		},
 		setStakedAmount(state: FisState, action: PayloadAction<number | string>) {
 			state.stakedAmount = action.payload;
@@ -60,6 +78,7 @@ const FisSlice = createSlice({
 export const {
 	setFisAccount,
 	setAccounts,
+	setFisAccounts,
 	setStakedAmount,
 	setChooseAccountVisible,
 } = FisSlice.actions;
@@ -76,6 +95,23 @@ export const updateFisBalance = (): AppThunk => async (dispatch, getState) => {
 		dispatch(setStakedAmount(numberUtil.handleFisAmountToFixed(0)));
 	}
 }
+
+export const queryBalance = (account: FisAccount): AppThunk =>
+	async (dispatch, getState) => {
+		dispatch(setFisAccounts(account));
+		let _account = {...account};
+		const api = await stafiServer.createStafiApi();
+		const result = await api.query.system.account(account.address);
+		if (result) {
+			const freeBalance = numberUtil.fisAmountToHuman(result.data.free);
+			_account.balance = numberUtil.handleEthAmountRound(freeBalance).toString();
+		}
+		const fisAccount = getState().fis.fisAccount;
+		if (fisAccount && fisAccount.address === _account.address) {
+			dispatch(setFisAccount(_account));
+		}
+		dispatch(setFisAccounts(_account));
+	}
 
 export const updateFisBalances = (): AppThunk => async (dispatch, getState) => {
 	const accounts = getState().fis.accounts;

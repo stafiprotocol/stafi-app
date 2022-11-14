@@ -92,6 +92,9 @@ const numberUtil = {
 			default:
 				return Math.round(Number(amount) * 1000000000000).toString();
 		}
+	},
+	handleEthAmountRound(amount: any) {
+		return Math.floor(amount * 1000000) / 1000000;
 	}
 }
 

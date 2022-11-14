@@ -67,3 +67,17 @@ export function convertToSS58(
     return "";
   }
 }
+
+export function setLocalStorageItem(key: string, val: any) {
+	if (typeof window === 'undefined') return;
+	localStorage.setItem(key, JSON.stringify(val));
+}
+
+export function getLocalStorageItem(key: string) {
+	if (typeof window === 'undefined') return null;
+	const val = localStorage.getItem(key);
+	if (val) {
+		return JSON.parse(val);
+	}
+	return null;
+}
