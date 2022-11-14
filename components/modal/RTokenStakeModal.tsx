@@ -129,7 +129,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     }
     if (
       Number(stakeAmount) +
-        (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.5) >
+        (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
       Number(balance)
     ) {
       return [true, "Insufficient Balance"];
