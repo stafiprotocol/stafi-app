@@ -236,7 +236,7 @@ export const Layout = (props: LayoutProps) => {
         <main className="flex flex-col items-center pt-[1.3rem]">
           <div
             className={classNames(
-              "w-[14.88rem] flex items-center py-[.56rem]",
+              "w-[14.88rem] flex items-center py-[.56rem] relative z-10",
               {
                 invisible: !navigation || navigation.length <= 1,
               }
