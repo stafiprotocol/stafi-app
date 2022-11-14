@@ -98,28 +98,6 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     resetState();
   }, [visible]);
 
-  const [buttonDisabled, buttonText] = useMemo(() => {
-    if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
-      return [true, "Stake"];
-    }
-    if (!stakeAmount || Number(stakeAmount) === 0 || isNaN(Number(balance))) {
-      return [true, "Stake"];
-    }
-    if (Number(stakeAmount) > Number(balance)) {
-      return [true, "Insufficient Balance"];
-    }
-    if (!addressCorrect) {
-      return [true, "Invalid Receiving Address"];
-    }
-    return [false, "Stake"];
-  }, [
-    walletType,
-    isWrongMetaMaskNetwork,
-    balance,
-    stakeAmount,
-    addressCorrect,
-  ]);
-
   const estimateFee = useMemo(() => {
     if (tokenName === TokenName.ETH) {
       if (isNaN(Number(ethGasPrice))) {
@@ -134,6 +112,42 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
     return "--";
   }, [ethGasPrice, tokenName]);
+
+  const [buttonDisabled, buttonText] = useMemo(() => {
+    if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
+      return [true, "Stake"];
+    }
+    if (
+      !stakeAmount ||
+      Number(stakeAmount) === 0 ||
+      isNaN(Number(stakeAmount)) ||
+      isNaN(Number(balance))
+    ) {
+      return [true, "Stake"];
+    }
+    if (Number(stakeAmount) < 0.01) {
+      return [true, `Minimal Stake Amount is 0.01 ${tokenName}`];
+    }
+    if (
+      Number(stakeAmount) +
+        (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.5) >
+      Number(balance)
+    ) {
+      return [true, "Insufficient Balance"];
+    }
+    if (!addressCorrect) {
+      return [true, "Invalid Receiving Address"];
+    }
+    return [false, "Stake"];
+  }, [
+    walletType,
+    isWrongMetaMaskNetwork,
+    balance,
+    stakeAmount,
+    addressCorrect,
+    estimateFee,
+    tokenName,
+  ]);
 
   const newTotalStakedAmount = useMemo(() => {
     if (
@@ -306,7 +320,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
               <div className="flex flex-col items-end">
                 <div className="text-text1 text-[.24rem]">
-                  Available to stake:
+                  Available Balance:
                 </div>
 
                 <div className="mt-[.15rem] flex items-center">
@@ -408,7 +422,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
-                <div className="text-text2 text-[.24rem]">Transcation Cost</div>
+                <div className="text-text2 text-[.24rem]">Transaction Cost</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
                   Est. {formatNumber(estimateFee)} ETH
                 </div>

@@ -49,6 +49,7 @@ export interface NoticeEthDepositData {
 
 export interface NoticeRTokenStakeData {
   amount: string;
+  willReceiveAmount: string;
   tokenName: TokenName;
 }
 

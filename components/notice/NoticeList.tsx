@@ -13,6 +13,7 @@ import { removeStorage, STORAGE_KEY_UNREAD_NOTICE } from "utils/storage";
 import { formatDate } from "utils/time";
 import { EmptyContent } from "components/common/EmptyContent";
 import classNames from "classnames";
+import { formatNumber } from "utils/number";
 
 export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
   const dispatch = useDispatch();
@@ -36,7 +37,11 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
       let data;
       if (notice.type === "rToken Stake") {
         data = notice.data as NoticeRTokenStakeData;
-        return `Stake ${data.amount} ${data.tokenName} from your Wallet to StaFi Validator Pool Contract.`;
+        return `Stake ${data.amount} ${
+          data.tokenName
+        } from your Wallet to StaFi Pool Contract, and receive ${formatNumber(
+          data.willReceiveAmount
+        )} r${data.tokenName}.`;
       }
       if (notice.type === "ETH Deposit") {
         data = notice.data as NoticeEthDepositData;

@@ -83,7 +83,7 @@ export const RTokenStakeLoadingModal = () => {
             )}
           >
             {stakeLoadingParams?.status === "success"
-              ? `Your new balance is ${formatNumber(
+              ? `Your new staking balance is ${formatNumber(
                   stakeLoadingParams?.newTotalStakedAmount
                 )} ${stakeLoadingParams?.tokenName}`
               : stakeLoadingParams?.status === "error"

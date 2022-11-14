@@ -52,7 +52,7 @@ const RTokenStakePage = () => {
       <CollapseCard
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
-        title={<div className="text-white text-[.32rem]">rETH Rewards</div>}
+        title={<div className="text-white text-[.32rem]">ETH Reward</div>}
       >
         <RewardChartPanel
           tokenName={TokenName.ETH}
@@ -91,11 +91,12 @@ const RTokenStakePage = () => {
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 
       <CollapseCard
+        defaultCollapsed
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">
-            Staking rewards upgrade time and influence factors
+            What&apos;s the factors that affect the staking rewards?
           </div>
         }
       >
@@ -122,11 +123,12 @@ const RTokenStakePage = () => {
       </CollapseCard>
 
       <CollapseCard
+        defaultCollapsed
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">
-            About the rETH on-chain rate and secondary market peg
+            What&apos;s the onchain rate of rETH?
           </div>
         }
       >
@@ -158,10 +160,13 @@ const RTokenStakePage = () => {
       </CollapseCard>
 
       <CollapseCard
+        defaultCollapsed
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
         title={
-          <div className="text-white text-[.32rem]">rETH Redemption Notes</div>
+          <div className="text-white text-[.32rem]">
+            How rETH can be converted to ETH?
+          </div>
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">

@@ -101,82 +101,107 @@ export default rTokenSlice.reducer;
 
 export const updateRTokenPriceList =
   (): AppThunk => async (dispatch, getState) => {
-    const response = await fetch(
-      `${getDropHost()}/stafi/v1/webapi/rtoken/pricelist`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
+    try {
+      const response = await fetch(
+        `${getDropHost()}/stafi/v1/webapi/rtoken/pricelist`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        }
+      );
+      const resJson = await response.json();
+      if (resJson && resJson.status === "80000") {
+        dispatch(setPriceList(resJson.data));
       }
-    );
-    const resJson = await response.json();
-    if (resJson && resJson.status === "80000") {
-      dispatch(setPriceList(resJson.data));
-    }
+    } catch (err: unknown) {}
+  };
+
+export const clearRTokenBalance =
+  (tokenStandard: TokenStandard | undefined, tokenName: TokenName): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      if (!tokenStandard) {
+        return;
+      }
+
+      let newBalance = "--";
+      const rTokenBalanceStore = getState().rToken.rTokenBalanceStore;
+      const newValue = {
+        ...rTokenBalanceStore,
+        [tokenStandard]: {
+          ...rTokenBalanceStore[tokenStandard],
+          [tokenName]: newBalance,
+        },
+      };
+
+      dispatch(setRTokenBalanceStore(newValue));
+    } catch (err: unknown) {}
   };
 
 export const updateRTokenBalance =
   (tokenStandard: TokenStandard | undefined, tokenName: TokenName): AppThunk =>
   async (dispatch, getState) => {
-    const metaMaskAccount = getState().wallet.metaMaskAccount;
-    const polkadotAccount = getState().wallet.polkadotAccount;
-    if (!tokenStandard) {
-      return;
-    }
-
-    let newBalance = "--";
-    if (tokenStandard === TokenStandard.Native) {
-      newBalance = await getNativeRTokenBalance(
-        polkadotAccount,
-        getTokenSymbol(tokenName)
-      );
-    } else if (tokenStandard === TokenStandard.BEP20) {
-      // Query bep20 rToken balance.
-      const bep20TokenContractConfig = getBep20TokenContractConfig();
-      let tokenAbi = undefined;
-      let tokenAddress = undefined;
-      if (tokenName === TokenName.ETH) {
-        tokenAbi = getBep20REthTokenAbi();
-        tokenAddress = bep20TokenContractConfig.rETH;
-      } else {
+    try {
+      const metaMaskAccount = getState().wallet.metaMaskAccount;
+      const polkadotAccount = getState().wallet.polkadotAccount;
+      if (!tokenStandard) {
+        return;
       }
-      newBalance = await getBep20AssetBalance(
-        metaMaskAccount,
-        tokenAbi,
-        tokenAddress
-      );
-    } else if (tokenStandard === TokenStandard.ERC20) {
-      // Query erc20 rToken balance.
-      const erc20TokenContractConfig = getErc20TokenContractConfig();
-      let tokenAbi = undefined;
-      let tokenAddress = undefined;
-      if (tokenName === TokenName.ETH) {
-        tokenAbi = getErc20REthTokenAbi();
-        tokenAddress = erc20TokenContractConfig.rETH;
-      } else if (tokenName === TokenName.MATIC) {
-				console.log('balance')
-				tokenAbi = getMaticAbi();
-				tokenAddress = getMaticTokenAddress();
+
+      let newBalance = "--";
+      if (tokenStandard === TokenStandard.Native) {
+        newBalance = await getNativeRTokenBalance(
+          polkadotAccount,
+          getTokenSymbol(tokenName)
+        );
+      } else if (tokenStandard === TokenStandard.BEP20) {
+        // Query bep20 rToken balance.
+        const bep20TokenContractConfig = getBep20TokenContractConfig();
+        let tokenAbi = undefined;
+        let tokenAddress = undefined;
+        if (tokenName === TokenName.ETH) {
+          tokenAbi = getBep20REthTokenAbi();
+          tokenAddress = bep20TokenContractConfig.rETH;
+        } else {
+        }
+        newBalance = await getBep20AssetBalance(
+          metaMaskAccount,
+          tokenAbi,
+          tokenAddress
+        );
+      } else if (tokenStandard === TokenStandard.ERC20) {
+        // Query erc20 rToken balance.
+        const erc20TokenContractConfig = getErc20TokenContractConfig();
+        let tokenAbi = undefined;
+        let tokenAddress = undefined;
+        if (tokenName === TokenName.ETH) {
+          tokenAbi = getErc20REthTokenAbi();
+          tokenAddress = erc20TokenContractConfig.rETH;
+        } else if (tokenName === TokenName.MATIC) {
+					tokenAbi = getMaticAbi();
+					tokenAddress = getMaticTokenAddress();
+        }
+        newBalance = await getErc20AssetBalance(
+          metaMaskAccount,
+          tokenAbi,
+          tokenAddress
+        );
       }
-      newBalance = await getErc20AssetBalance(
-        metaMaskAccount,
-        tokenAbi,
-        tokenAddress
-      );
-    }
 
-    const rTokenBalanceStore = getState().rToken.rTokenBalanceStore;
-    const newValue = {
-      ...rTokenBalanceStore,
-      [tokenStandard]: {
-        ...rTokenBalanceStore[tokenStandard],
-        [tokenName]: newBalance,
-      },
-    };
+      const rTokenBalanceStore = getState().rToken.rTokenBalanceStore;
+      const newValue = {
+        ...rTokenBalanceStore,
+        [tokenStandard]: {
+          ...rTokenBalanceStore[tokenStandard],
+          [tokenName]: newBalance,
+        },
+      };
 
-    dispatch(setRTokenBalanceStore(newValue));
+      dispatch(setRTokenBalanceStore(newValue));
+    } catch (err: unknown) {}
   };
 
 export const updateRTokenRatio =
@@ -211,7 +236,7 @@ export const updateRTokenRatio =
         [tokenName]: newRatio,
       };
       dispatch(setRTokenRatioStore(newValue));
-    } catch {}
+    } catch (err: unknown) {}
   };
 
 export const updateRTokenStakerApr =
@@ -259,5 +284,5 @@ export const updateRTokenStakerApr =
         [tokenName]: newApr,
       };
       dispatch(setRTokenStakerAprStore(newValue));
-    } catch {}
+    } catch (err: unknown) {}
   };

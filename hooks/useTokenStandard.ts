@@ -35,7 +35,7 @@ export function useTokenStandard(tokenName: TokenName) {
       } else {
         setSelectedStandard(res as TokenStandard);
       }
-    } catch {}
+    } catch (err: unknown) {}
   }, [router, tokenName]);
 
   return selectedStandard;

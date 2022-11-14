@@ -31,7 +31,7 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              text={`Stake ${tokenName}`}
+              text={`Staked ${tokenName}`}
               title={`Your overall staked ${tokenName} amount, including restaked ${tokenName}`}
             />
           </div>
@@ -43,14 +43,14 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              text={`Get r${tokenName}`}
-              title={`Your current r${tokenName} count`}
+              text={`r${tokenName} Balance`}
+              title={`Your current r${tokenName} amount`}
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Est. Reward"
-              title={`Estimated staking reward that generated at this time period`}
+              title={`Estimated staking reward that generated in this time period`}
             />
           </div>
         </div>

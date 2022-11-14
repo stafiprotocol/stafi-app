@@ -115,7 +115,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
           yData={chartYData}
         />
 
-        <div className="text-[.18rem] text-text2 absolute top-[.36rem] left-0">
+        <div className="text-[.18rem] text-text2 absolute top-[.36rem] left-0 invisible">
           +{formatNumber(lastEraReward)} {tokenName} (Last era)
         </div>
 
@@ -196,7 +196,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
                 text="Total reward"
-                title="Overall staking reward generated"
+                title="Your overall staking reward generated"
               />
             </div>
 
@@ -213,7 +213,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
             <div className="mt-[.4rem] text-text2 text-[.24rem] flex items-center">
               <MyTooltip
                 text="Reward in last Era"
-                title="Staking reward generated in last era, data update may have time delays for a while"
+                title="Your staking reward generated in last era, data update may have time delays for a while"
               />
             </div>
 
