@@ -15,6 +15,7 @@ import { Icomoon } from "../icon/Icomoon";
 import { EthValidatorStakeLoadingModal } from "../modal/EthValidatorStakeLoadingModal";
 import { EthValidatorStakeSidebar } from "../modal/EthValidatorStakeSidebar";
 import { Navbar } from "./navbar";
+import Particles from "react-tsparticles";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
@@ -91,6 +92,39 @@ export const Layout = (props: LayoutProps) => {
       }}
     >
       <div className="">
+        <Particles
+          id="1"
+          height="300px"
+          options={{
+            background: {
+              color: "green",
+            },
+
+            particles: {
+              color: {
+                value: "#00F3AB",
+              },
+              number: {
+                value: 500,
+                density: {
+                  enable: true,
+                },
+              },
+              size: {
+                value: 2,
+                random: true,
+              },
+              shape: {
+                type: "circle",
+              },
+              move: {
+                enable: true,
+                direction: "bottom",
+                speed: 1,
+              },
+            },
+          }}
+        />
         <Head>
           <title>StaFi rToken APP</title>
           <meta

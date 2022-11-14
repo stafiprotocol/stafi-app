@@ -114,6 +114,28 @@ export const updateRTokenPriceList =
     } catch (err: unknown) {}
   };
 
+export const clearRTokenBalance =
+  (tokenStandard: TokenStandard | undefined, tokenName: TokenName): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      if (!tokenStandard) {
+        return;
+      }
+
+      let newBalance = "--";
+      const rTokenBalanceStore = getState().rToken.rTokenBalanceStore;
+      const newValue = {
+        ...rTokenBalanceStore,
+        [tokenStandard]: {
+          ...rTokenBalanceStore[tokenStandard],
+          [tokenName]: newBalance,
+        },
+      };
+
+      dispatch(setRTokenBalanceStore(newValue));
+    } catch (err: unknown) {}
+  };
+
 export const updateRTokenBalance =
   (tokenStandard: TokenStandard | undefined, tokenName: TokenName): AppThunk =>
   async (dispatch, getState) => {
