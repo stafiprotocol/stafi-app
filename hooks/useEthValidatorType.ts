@@ -28,7 +28,7 @@ export function useEthValidatorType() {
         .getSuperNodeExists(account)
         .call();
       setIsTrust(exist);
-    } catch {}
+    } catch (err: unknown) {}
   }, [account]);
 
   useEffect(() => {

@@ -15,7 +15,6 @@ interface StakeMyRewardListProps {
 export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
   const { tokenName } = props;
   const [page, setPage] = useState(1);
-  const list = [1, 2];
 
   const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
 
@@ -31,7 +30,7 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              text={`Stake ${tokenName}`}
+              text={`Staked ${tokenName}`}
               title={`Your overall staked ${tokenName} amount, including restaked ${tokenName}`}
             />
           </div>
@@ -43,14 +42,14 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              text={`Get r${tokenName}`}
-              title={`Your current r${tokenName} count`}
+              text={`r${tokenName} Balance`}
+              title={`Your current r${tokenName} amount`}
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Est. Reward"
-              title={`Estimated staking reward that generated at this time period`}
+              title={`Estimated staking reward that generated in this time period`}
             />
           </div>
         </div>
@@ -70,7 +69,7 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
             {item.era}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {formatNumber(item.stakeValue)} {tokenName}
+            {formatNumber(item.stakeValue)}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {formatNumber(item.rate, { decimals: 4 })}

@@ -116,7 +116,7 @@ const CheckFile = () => {
           setStatus("success");
         }
       }
-    } catch {}
+    } catch (err: unknown) {}
   }, [router, status, depositPubkeys]);
 
   useInterval(fetchStatus, 8000);

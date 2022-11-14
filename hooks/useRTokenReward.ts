@@ -111,15 +111,15 @@ export function useRTokenReward(
         );
         setChartXData(
           resJson.data.rewardChartXData
-            .map((item: number) =>
+            ?.map((item: number) =>
               dayjs.unix(item).format("YYYY.MM.DD HH:mm:ss")
             )
-            .reverse()
+            ?.reverse() || []
         );
 
         setChartYData(
           resJson.data.rewardChartYData
-            .map((item: string) => {
+            ?.map((item: string) => {
               let tokenSymbol;
               if (
                 tokenStandard === TokenStandard.ERC20 ||
@@ -133,7 +133,7 @@ export function useRTokenReward(
                 chainAmountToHuman(item, getTokenSymbol(tokenName))
               );
             })
-            .reverse()
+            ?.reverse() || []
         );
 
         if (

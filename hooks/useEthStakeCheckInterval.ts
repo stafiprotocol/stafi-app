@@ -112,7 +112,7 @@ export function useEthStakeCheckInterval() {
           })
         );
       }
-    } catch {}
+    } catch (err: unknown) {}
   }, [dispatch, ethStakeParams]);
 
   useInterval(fetchStatus, 8000);

@@ -158,7 +158,7 @@ export const EthValidatorStakeLoadingModal = (
           })
         );
       }
-    } catch {}
+    } catch (err: unknown) {}
   }, [dispatch, ethValidatorStakeParams]);
 
   useInterval(fetchStatus, 8000);

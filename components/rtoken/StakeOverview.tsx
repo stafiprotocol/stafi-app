@@ -229,7 +229,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="text-text2 text-[.24rem] flex items-center">
                   <MyTooltip
                     text="Staked Value"
-                    title={`Overall ${props.tokenName} staked value in USD, including restake ${props.tokenName}`}
+                    title={`Your overall ${props.tokenName} staked value in USD, including restaked ${props.tokenName}`}
                   />
                 </div>
 
@@ -249,8 +249,8 @@ export const StakeOverview = (props: StakeOverviewProps) => {
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-text2 text-[.24rem] flex items-center">
                   <MyTooltip
-                    text={`Total  ${props.tokenName} Rewards`}
-                    title={`Overall ${props.tokenName} generated`}
+                    text={`Total ${props.tokenName} Rewards`}
+                    title={`Your overall ${props.tokenName} rewards value in USD`}
                   />
                 </div>
 
@@ -271,7 +271,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="text-text2 text-[.24rem] flex items-center">
                   <MyTooltip
                     text="Current Exchange Rate"
-                    title={`The number of ${props.tokenName}'s that can be exchanged for 1 r${props.tokenName}, the exchange rate of r${props.tokenName} will be updated every 8 hours`}
+                    title={`The number of ${props.tokenName}s that can be exchanged for 1 r${props.tokenName}, the exchange rate of r${props.tokenName} will be updated every 8 hours`}
                   />
                 </div>
 

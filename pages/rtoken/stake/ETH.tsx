@@ -52,7 +52,7 @@ const RTokenStakePage = () => {
       <CollapseCard
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
-        title={<div className="text-white text-[.32rem]">rETH Rewards</div>}
+        title={<div className="text-white text-[.32rem]">ETH Reward</div>}
       >
         <RewardChartPanel
           tokenName={TokenName.ETH}

@@ -105,7 +105,7 @@ export const updateEthBalance = (): AppThunk => async (dispatch, getState) => {
     });
 
     dispatch(setEthBalance(Web3.utils.fromWei(balance.toString())));
-  } catch {}
+  } catch (err: unknown) {}
 };
 
 export const updateEthGasPrice = (): AppThunk => async (dispatch, getState) => {
@@ -395,7 +395,7 @@ export const handleEthTokenStake =
           status: "loading",
           tokenStandard,
           tokenName: TokenName.ETH,
-          amount: stakeAmount,
+          amount: Number(stakeAmount) + "",
           willReceiveAmount,
           newTotalStakedAmount,
           progressDetail: {
@@ -428,7 +428,7 @@ export const handleEthTokenStake =
 
       callback && callback(result.status, result);
       if (result && result.status) {
-        snackbarUtil.success("Deposit successfully");
+        snackbarUtil.success("Deposit successful");
         const txHash = result.transactionHash;
         dispatch(
           addNotice(
@@ -437,7 +437,8 @@ export const handleEthTokenStake =
             { transactionHash: txHash, sender: metaMaskAccount },
             {
               tokenName: TokenName.ETH,
-              amount: stakeAmount,
+              amount: Number(stakeAmount) + "",
+              willReceiveAmount: Number(willReceiveAmount) + "",
             },
             getEtherScanTxUrl(result.transactionHash),
             "Confirmed"
@@ -467,7 +468,8 @@ export const handleEthTokenStake =
             { transactionHash: txHash, sender: metaMaskAccount },
             {
               tokenName: TokenName.ETH,
-              amount: stakeAmount,
+              amount: Number(stakeAmount) + "",
+              willReceiveAmount: Number(willReceiveAmount) + "",
             },
             getEtherScanTxUrl(result.transactionHash),
             "Error"
