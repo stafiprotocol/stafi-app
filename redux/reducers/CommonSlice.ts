@@ -65,7 +65,6 @@ export default class CommonSlice {
 		const stafiApi = await stafiServer.createStafiApi();
 		const accountData = await stafiApi.query.rBalances.account(rSymbol, fisAddress);
 		const data = accountData.toJSON();
-		console.log(data);
 		cb && cb(data);
 		return data;
 	}

@@ -56,12 +56,6 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   const rTokenRatio = useRTokenRatio(props.tokenName);
   const tokenPrice = useTokenPrice(props.tokenName);
   const { totalReward } = useRTokenReward(props.tokenName, 0, 0);
-	console.log({
-		rTokenBalance,
-		rTokenRatio,
-		tokenPrice,
-		totalReward
-	})
 
   // Total reward value.
   const totalRewardValue = useMemo(() => {
@@ -86,8 +80,6 @@ export const StakeOverview = (props: StakeOverviewProps) => {
     }
     return Number(stakedAmount) * Number(tokenPrice);
   }, [stakedAmount, tokenPrice]);
-
-	console.log({stakedValue, stakedAmount})
 
   return (
     <div>
@@ -248,13 +240,13 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   ${" "}
-                  {isWrongNetwork
+                  {false
                     ? "--"
                     : formatNumber(stakedValue, { decimals: 2 })}
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {isWrongNetwork ? "--" : formatNumber(stakedAmount)}{" "}
+                  {false ? "--" : formatNumber(stakedAmount)}{" "}
                   {props.tokenName}
                 </div>
               </div>
@@ -269,13 +261,13 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   ${" "}
-                  {isWrongNetwork
+                  {false
                     ? "--"
                     : formatNumber(totalRewardValue, { decimals: 2 })}
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {isWrongNetwork ? "--" : formatNumber(totalReward)}{" "}
+                  {false ? "--" : formatNumber(totalReward)}{" "}
                   {props.tokenName}
                 </div>
               </div>
@@ -289,7 +281,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  {isWrongNetwork
+                  {false
                     ? "--"
                     : formatNumber(rTokenRatio, { decimals: 4 })}
                 </div>

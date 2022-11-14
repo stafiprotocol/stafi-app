@@ -147,6 +147,7 @@ export const updateRTokenBalance =
     try {
       const metaMaskAccount = getState().wallet.metaMaskAccount;
       const polkadotAccount = getState().wallet.polkadotAccount;
+			const fisAccount = getState().fis.fisAccount;
       if (!tokenStandard) {
         return;
       }
@@ -154,7 +155,7 @@ export const updateRTokenBalance =
       let newBalance = "--";
       if (tokenStandard === TokenStandard.Native) {
         newBalance = await getNativeRTokenBalance(
-          polkadotAccount,
+					fisAccount.address,
           getTokenSymbol(tokenName)
         );
       } else if (tokenStandard === TokenStandard.BEP20) {
@@ -242,7 +243,6 @@ export const updateRTokenRatio =
 export const updateRTokenStakerApr =
   (tokenName: TokenName): AppThunk =>
   async (dispatch, getState) => {
-		console.log('apr', tokenName)
     try {
       let newApr = "--";
 
@@ -261,9 +261,7 @@ export const updateRTokenStakerApr =
 				const api = await new StafiServer().createStafiApi();
 				try {
 					const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Matic);
-					console.log({eraResult})
 					let currentEra = eraResult.toJSON() as number;
-					console.log({currentEra})
 					if (currentEra) {
 						let rateResult = await api.query.rTokenRate.eraRate(rSymbol.Matic, currentEra - 1);
 						const currentRate = rateResult.toJSON() as number;
@@ -276,7 +274,6 @@ export const updateRTokenStakerApr =
 					console.error(err);
 				}
 			}
-			console.log(tokenName, newApr)
 
       const rTokenStakerAprStore = getState().rToken.rTokenStakerAprStore;
       const newValue = {

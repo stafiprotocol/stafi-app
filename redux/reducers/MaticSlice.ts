@@ -137,16 +137,13 @@ export const handleMaticStake =
 
 			const validPools = getState().matic.validPools;
 			const poolLimit = getState().matic.poolLimit;
-			console.log(validPools, poolLimit);
 
 			const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
-			console.log('selectedPool', selectedPool);
 			if (!selectedPool) return null;
 
 			const result = await contract.methods
 				.transfer(selectedPool.address, amount.toString())
 				.send();
-			console.log('result', result);
 			dispatch(
 				setStakeLoadingParams({
 					progressDetail: {

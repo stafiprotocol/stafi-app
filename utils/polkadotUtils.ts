@@ -21,8 +21,8 @@ export async function getNativeRTokenBalance(
       tokenSymbol,
       userAddress
     );
-    let data = accountData.toJSON();
-    data = chainAmountToHuman(data ? data + "" : "0", tokenSymbol);
+    let data: any = accountData.toJSON();
+    data = chainAmountToHuman(data ? data.free + "" : "0", tokenSymbol);
     return data;
   } catch (err: unknown) {
     console.log(err);

@@ -40,7 +40,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     chartXData,
     chartYData,
     lastEraReward,
-  } = useRTokenReward(TokenName.ETH, 1, getChartDuSeconds(chartDu));
+  } = useRTokenReward(tokenName, 1, getChartDuSeconds(chartDu));
 
   // Total reward value.
   const totalRewardValue = useMemo(() => {

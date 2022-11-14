@@ -10,6 +10,7 @@ import {
 import { isEmpty } from "lodash";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { RootState } from "redux/store";
 import { COMMON_ERROR_MESSAGE, PAGE_SIZE } from "utils/constants";
 import {
   chainAmountToHuman,
@@ -17,9 +18,13 @@ import {
   rTokenRateToHuman,
 } from "utils/number";
 import { getTokenSymbol } from "utils/rToken";
+import { useAppSelector } from "./common";
 import { useAppSlice } from "./selector";
 import { useTokenStandard } from "./useTokenStandard";
 import { useWalletAccount } from "./useWalletAccount";
+import keyring from 'servers/keyring';
+import { Symbol } from "keyring/defaults";
+import { u8aToHex } from "@polkadot/util";
 
 interface EraRewardModel {
   era: number;
@@ -50,11 +55,19 @@ export function useRTokenReward(
 
   const { updateFlag15s } = useAppSlice();
   const { metaMaskAccount } = useWalletAccount();
+	const { fisAccount } = useAppSelector((state: RootState) => {
+		return {
+			fisAccount: state.fis.fisAccount,
+		};
+	});
 
   const userAddress = useMemo(() => {
     if (tokenStandard === TokenStandard.ERC20) {
       return metaMaskAccount;
-    }
+    } else if (tokenStandard === TokenStandard.Native) {
+			const keyringInstance = keyring.init(Symbol.Fis);
+			return u8aToHex(keyringInstance.decodeAddress(fisAccount.address));
+		}
     return "";
   }, [tokenStandard, metaMaskAccount]);
 
