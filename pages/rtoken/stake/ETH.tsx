@@ -64,7 +64,7 @@ const RTokenStakePage = () => {
 
       <RTokenIntegrations tokenName={TokenName.ETH} />
 
-      <div className="mt-[.56rem] rounded-[.3rem] h-[.6rem] flex items-center justify-between px-[.3rem] border-solid border-[1px] border-warning/50">
+      <div className="relative z-10 mt-[.56rem] rounded-[.3rem] h-[.6rem] flex items-center justify-between px-[.3rem] border-solid border-[1px] border-warning/50">
         <div className="flex items-center">
           <div className="w-[.3rem] h-[.3rem] relative">
             <Image src={bulb} alt="bulb" layout="fill" />

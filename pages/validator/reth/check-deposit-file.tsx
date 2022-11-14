@@ -123,7 +123,7 @@ const CheckFile = () => {
 
   return (
     <div>
-      <Card>
+      <Card background="rgba(26, 40, 53, 0.2)">
         <div className="flex flex-col items-center pb-[.85rem]">
           <div className="self-center relative w-[2.4rem] h-[.9rem]">
             <Image src={rectangle} layout="fill" alt="rectangle" />

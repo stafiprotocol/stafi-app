@@ -18,7 +18,7 @@ export const ValidatorTokenStakeLayout = (
 
   return (
     <div>
-      <Card background="#0A131B">
+      <Card background="rgba(26, 40, 53, 0.2)">
         <div>
           <div className="h-[1.33rem] border-solid border-b-[1px] border-b-text3 flex items-center justify-between">
             <div className="self-stretch flex items-stretch">
