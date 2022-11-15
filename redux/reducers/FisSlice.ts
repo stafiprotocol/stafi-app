@@ -8,6 +8,7 @@ import StafiServer from "servers/stafi";
 import { stringToHex, u8aToHex } from "@polkadot/util";
 import { setStakeLoadingParams } from "./AppSlice";
 import { getLocalStorageItem } from "utils/common";
+import { connectPolkadot } from "utils/web3Utils";
 
 declare const ethereum: any;
 
@@ -93,6 +94,21 @@ export const updateFisBalance = (): AppThunk => async (dispatch, getState) => {
 		dispatch(setStakedAmount(numberUtil.tokenAmountToHuman(data.free, rSymbol.Matic)));
 	} else {
 		dispatch(setStakedAmount(numberUtil.handleFisAmountToFixed(0)));
+	}
+}
+
+export const updateFisAccounts = (): AppThunk => async (dispatch, getState) => {
+	const accounts = await connectPolkadot();
+	dispatch(setAccounts(accounts));
+	if (accounts.length === 0) {
+		dispatch(setFisAccount({name: '', address: '', balance: '--'}));
+	} else {
+		const fisAccount = getState().fis.fisAccount;
+		const _account = accounts.find((acc: FisAccount) => acc.address === fisAccount.address);
+		if (!_account) {
+			dispatch(setFisAccount(accounts[0]));
+			dispatch(setFisAccounts(accounts[0]));
+		}
 	}
 }
 

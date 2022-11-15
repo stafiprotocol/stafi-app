@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { RootState } from "redux/store";
 import { useAppDispatch } from "hooks/common";
 import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
-import { FisAccount, setAccounts, setFisAccount, updateFisBalance } from "redux/reducers/FisSlice";
+import { FisAccount, setAccounts, setFisAccount, updateFisAccounts, updateFisBalance } from "redux/reducers/FisSlice";
 import { useFisAccount } from "hooks/useFisAccount";
 import { KeyringServer } from "servers/keyring";
 import { Symbol } from "keyring/defaults";
@@ -47,6 +47,7 @@ const RMaticStakePage = () => {
 
 	useEffect(() => {
 		dispatch(getPools());
+		dispatch(updateFisAccounts());
 	}, []);
 
 	useEffect(() => {
@@ -56,7 +57,7 @@ const RMaticStakePage = () => {
 	}, [fisAccount]);
 
 	const onClickStake = () => {
-		if (fisAccounts.length > 0) {
+		if (fisAccount.address) {
 			dispatch(updateMaticBalance());
 			setStakeModalVisible(true);
 		} else {

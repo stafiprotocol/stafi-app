@@ -2,7 +2,7 @@ import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { getEtherScanTxUrl } from "config/explorer";
 import { getMaticAbi, getMaticTokenAddress } from "config/matic";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
@@ -97,11 +97,20 @@ export const handleMaticStake =
 	(
 		stakeAmount: string,
 		willReceiveAmount: string,
-		chainId: number,
+		tokenStandard: TokenStandard | undefined,
 		targetAddress: string,
-		cb?: Function
+		cb?: (success: boolean) => void,
 	): AppThunk => 
 	async (dispatch, getState) => {
+		let chainId = 1;
+		if (tokenStandard === TokenStandard.ERC20) {
+			chainId = 2;
+		} else if (tokenStandard === TokenStandard.BEP20) {
+			chainId = 3;
+		} else if (tokenStandard === TokenStandard.SPL) {
+			chainId = 4;
+		}
+
 		try {
 			dispatch(setIsLoading(true)); // stake button loading
 			dispatch(
@@ -155,7 +164,6 @@ export const handleMaticStake =
 			)
 
 			if (result && result.status) {
-				snackbarUtil.success('Deposit successfully');
 				const txHash = result.transactionHash;
 				dispatch(
 					setStakeLoadingParams({
@@ -256,22 +264,22 @@ export const handleMaticStake =
 					)
 			} else {
 				const txHash = result.transactionHash;
-				dispatch(
-					addNotice(
-						txHash,
-						'rToken Stake',
-						{
-							transactionHash: txHash,
-							sender: metaMaskAccount,
-						},
-						{
-							tokenName: TokenName.MATIC,
-							amount: stakeAmount,
-						},
-						getEtherScanTxUrl(txHash),
-						'Error'
-					)
-				);
+				// dispatch(
+				// 	addNotice(
+				// 		txHash,
+				// 		'rToken Stake',
+				// 		{
+				// 			transactionHash: txHash,
+				// 			sender: metaMaskAccount,
+				// 		},
+				// 		{
+				// 			tokenName: TokenName.MATIC,
+				// 			amount: stakeAmount,
+				// 		},
+				// 		getEtherScanTxUrl(txHash),
+				// 		'Error'
+				// 	)
+				// );
 				snackbarUtil.error('Error! Please try again');
 			}
 		} catch (err) {
@@ -400,7 +408,7 @@ export const mockProcess =
 				}
 			})
 		);
-		await sleep(1000);
+		await sleep(2000);
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {
@@ -417,6 +425,9 @@ export const mockProcess =
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {
+					sending: {
+						totalStatus: 'success',
+					},
 					staking: {
 						broadcastStatus: 'loading'
 					}
@@ -424,6 +435,23 @@ export const mockProcess =
 			})
 		);
 		await sleep(2000)
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					sending: {
+						totalStatus: 'success',
+					},
+					staking: {
+						totalStatus: 'success',
+					},
+					minting: {
+						totalStatus: 'loading'
+					}
+				}
+			})
+		);
+		await sleep(2000)
+
 		dispatch(
 			setStakeLoadingParams(undefined)
 		);

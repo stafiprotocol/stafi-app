@@ -99,13 +99,17 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   }, [visible]);
 
   const estimateFee = useMemo(() => {
-    if (tokenName === TokenName.ETH) {
+		let gasLimit = 146316;
+		if (tokenName === TokenName.MATIC) {
+			gasLimit = 36928;
+		}
+    if (tokenName === TokenName.ETH || tokenName === TokenName.MATIC) {
       if (isNaN(Number(ethGasPrice))) {
         return "--";
       }
 
       return Web3.utils.fromWei(
-        Web3.utils.toBN(146316).mul(Web3.utils.toBN(ethGasPrice)).toString(),
+        Web3.utils.toBN(gasLimit).mul(Web3.utils.toBN(ethGasPrice)).toString(),
         "gwei"
       );
     }
@@ -186,9 +190,19 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       );
     } else if (tokenName === TokenName.MATIC) {
 			dispatch(
-				handleMaticStake(stakeAmount, willReceiveAmount, 1, targetAddress, () => {
-
-				})
+				handleMaticStake(
+					stakeAmount,
+					willReceiveAmount,
+					tokenStandard,
+					targetAddress,
+					(success) => {
+						if (success) {
+							resetState();
+							dispatch(updateRTokenBalance(tokenStandard, tokenName));
+							props.onClose();
+						}
+					}
+				)
 				// mockProcess()
 			);
 		}
@@ -378,7 +392,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                 className="w-[1.35rem] h-[.67rem] bg-[#1A2835] rounded-[.16rem] flex items-center justify-center cursor-pointer text-white text-[.24rem]"
                 onClick={() => {
                   if (
-                    isWrongMetaMaskNetwork ||
+                    false ||
                     isNaN(Number(balance)) ||
                     isNaN(Number(estimateFee))
                   ) {
