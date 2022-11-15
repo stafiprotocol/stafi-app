@@ -85,6 +85,12 @@ export function useRTokenReward(
 
     if (!userAddress || chainType === -1 || !updateFlag15s) {
       setRequestStatus(RequestStatus.success);
+      setTotalCount(0);
+      setTotalReward("--");
+      setLastEraReward("--");
+      setChartXData([]);
+      setChartYData([]);
+      setRewardList([]);
       return;
     }
 

@@ -161,7 +161,7 @@ const SoloValidatorDeposit = () => {
 
   return (
     <div>
-      <Card background="#0A131B">
+      <Card background="rgba(26, 40, 53, 0.2)">
         <div className="flex flex-col items-stretch px-[.56rem] pb-[.56rem]">
           <div className="self-center relative w-[2.4rem] h-[.9rem]">
             <Image src={rectangle} layout="fill" alt="rectangle" />

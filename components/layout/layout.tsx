@@ -108,35 +108,6 @@ export const Layout = (props: LayoutProps) => {
           id="1"
           height="100px"
           init={particlesInit}
-          // options={{
-          //   background: {
-          //     color: "transparent",
-          //   },
-
-          //   particles: {
-          //     color: {
-          //       value: "#00F3AB",
-          //     },
-          //     number: {
-          //       value: 500,
-          //       density: {
-          //         enable: true,
-          //       },
-          //     },
-          //     size: {
-          //       value: 2,
-          //       random: true,
-          //     },
-          //     shape: {
-          //       type: "circle",
-          //     },
-          //     move: {
-          //       enable: true,
-          //       direction: "bottom",
-          //       speed: 1,
-          //     },
-          //   },
-          // }}
           options={{
             particles: {
               number: {
@@ -266,7 +237,7 @@ export const Layout = (props: LayoutProps) => {
         <main className="flex flex-col items-center pt-[1.3rem]">
           <div
             className={classNames(
-              "w-[14.88rem] flex items-center py-[.56rem]",
+              "w-[14.88rem] flex items-center py-[.56rem] relative z-10",
               {
                 invisible: !navigation || navigation.length <= 1,
               }

@@ -20,7 +20,7 @@ const EthStake = () => {
 
   return (
     <div>
-      <Card>
+      <Card background="rgba(26, 40, 53, 0.2)">
         <div className="flex h-[10.13rem] items-stretch">
           <RunNodesLeftExplanation />
 
