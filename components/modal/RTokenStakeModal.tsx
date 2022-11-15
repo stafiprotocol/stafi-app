@@ -8,6 +8,7 @@ import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
+import maticIcon from 'public/matic_type_green.svg';
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
@@ -195,6 +196,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 					willReceiveAmount,
 					tokenStandard,
 					targetAddress,
+					newTotalStakedAmount,
 					(success) => {
 						if (success) {
 							resetState();
@@ -355,7 +357,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                       )}
 
                       <div className="w-[.28rem] h-[.28rem] relative">
-                        <Image src={ethIcon} alt="icon" layout="fill" />
+                        <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
                       </div>
                     </div>
                   </Card>
@@ -374,7 +376,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image src={ethIcon} alt="icon" layout="fill" />
+                <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
               </div>
 
               <div className="ml-[.35rem] text-text2 text-[.32rem]">{tokenName}</div>

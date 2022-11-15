@@ -227,9 +227,7 @@ export const bond =
 		const injector = await web3FromSource('polkadot-js');
 
 		let bondResult: any;
-		// todo: chainId
-		console.log('stafiApi', stafiApi);
-		if (chainId === 1) {
+		if (chainId === 1) { // stafi chain id
 			bondResult = await stafiApi.tx.rTokenSeries.liquidityBond(
 				pubkey,
 				signature,
@@ -249,8 +247,24 @@ export const bond =
 				type,
 			});
 		} else {
-
-		}
+			let swapAddress;
+			if (chainId === 4) { // sol chain id
+				// todo:
+			} else {
+				swapAddress = targetAddress;
+			}
+			bondResult = await stafiApi.tx.rTokenSeries.liquidityBondAndSwap(
+				pubkey,
+				signature,
+				poolPubKey,
+				blockHash,
+				txHash,
+				amount,
+				type,
+				swapAddress,
+				chainId,
+			)
+		};
 		console.log(bondResult);
 
 		try {
@@ -343,22 +357,22 @@ export const bond =
 							console.log(result.toHuman());
 						}
 						if (result.status.isFinalized) {
-							dispatch(
-								setStakeLoadingParams({
-									progressDetail: {
-										sending: {
-											totalStatus: 'success',
-											broadcastStatus: 'success',
-											packStatus: 'success',
-											finalizeStatus: 'success',
-										},
-										staking: {
-											totalStatus: 'success',
-											finalizeStatus: 'success',
-										}
-									}
-								})
-							);
+							// dispatch(
+							// 	setStakeLoadingParams({
+							// 		progressDetail: {
+							// 			sending: {
+							// 				totalStatus: 'success',
+							// 				broadcastStatus: 'success',
+							// 				packStatus: 'success',
+							// 				finalizeStatus: 'success',
+							// 			},
+							// 			staking: {
+							// 				totalStatus: 'success',
+							// 				finalizeStatus: 'success',
+							// 			}
+							// 		}
+							// 	})
+							// );
 							console.log('finalized');
 						}
 					} catch (err) {
@@ -480,7 +494,6 @@ export const rTokenSeriesBondStates =
 							packStatus: 'success',
 							finalizeStatus: 'success',
 						},
-
 						minting: {
 							broadcastStatus: 'success',
 						}

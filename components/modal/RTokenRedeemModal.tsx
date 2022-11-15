@@ -8,6 +8,7 @@ import { TokenName, TokenStandard } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
+import maticIcon from 'public/matic_type_green.svg';
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
@@ -106,13 +107,17 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   ]);
 
   const estimateFee = useMemo(() => {
-    if (tokenName === TokenName.ETH) {
+    let gasLimit = 146316;
+		if (tokenName === TokenName.MATIC) {
+			gasLimit = 36928;
+		}
+    if (tokenName === TokenName.ETH || tokenName === TokenName.MATIC) {
       if (isNaN(Number(ethGasPrice))) {
         return "--";
       }
 
       return Web3.utils.fromWei(
-        Web3.utils.toBN(146316).mul(Web3.utils.toBN(ethGasPrice)).toString(),
+        Web3.utils.toBN(gasLimit).mul(Web3.utils.toBN(ethGasPrice)).toString(),
         "gwei"
       );
     }
@@ -182,18 +187,18 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             <div className="mt-[.76rem] flex items-center justify-between">
               <div>
                 <div className="text-text1 text-[.24rem]">
-                  <MyTooltip title="Choose Mint Type" text="Choose Mint Type" />
+                  <MyTooltip title="Receive Address" text="Receive Address" />
                 </div>
 
-                <div className="flex items-center mt-[.15rem]">
+                <div className="flex mt-[.15rem]">
                   {editAddress || !targetAddress ? (
-                    <div className="flex items-center">
+                    <div>
                       <Card
                         background="rgba(25, 38, 52, 0.35)"
                         borderColor="#1A2835"
-                        ml=".24rem"
+												ml="0.24rem"
                       >
-                        <div className="h-[.68rem] w-[5.3rem] flex items-center px-[.24rem]">
+                        <div className="h-[.68rem] w-[5.3rem] px-[.24rem]">
                           <CustomInput
                             fontSize=".18rem"
                             placeholder="Receiving Address"
@@ -216,7 +221,6 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                     <Card
                       background="rgba(25, 38, 52, 0.35)"
                       borderColor="#1A2835"
-                      ml=".24rem"
                     >
                       <div className="h-[.68rem] flex items-center px-[.24rem] text-white">
                         <div>
@@ -260,13 +264,13 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   >
                     <div className="w-[.76rem] h-[.68rem] flex items-center justify-center">
                       <div className="w-[.28rem] h-[.28rem] relative">
-                        <Image src={ethIcon} alt="icon" layout="fill" />
+                        <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
                       </div>
                     </div>
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance)} {tokenName}
+                    {formatNumber(balance)} r{tokenName}
                   </div>
                 </div>
               </div>
@@ -279,10 +283,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image src={ethIcon} alt="icon" layout="fill" />
+                <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
               </div>
 
-              <div className="ml-[.35rem] text-text2 text-[.32rem]">{props.tokenName}</div>
+              <div className="ml-[.35rem] text-text2 text-[.32rem]">r{props.tokenName}</div>
 
               <div className="flex-1 mx-[.34rem]">
                 <CustomNumberInput
@@ -297,7 +301,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                 className="w-[1.35rem] h-[.67rem] bg-[#1A2835] rounded-[.16rem] flex items-center justify-center cursor-pointer text-white text-[.24rem]"
                 onClick={() => {
                   if (
-                    isWrongMetaMaskNetwork ||
+                    false ||
                     isNaN(Number(balance)) ||
                     isNaN(Number(estimateFee))
                   ) {

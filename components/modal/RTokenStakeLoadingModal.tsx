@@ -88,7 +88,7 @@ export const RTokenStakeLoadingModal = () => {
                 )} ${stakeLoadingParams?.tokenName}`
               : stakeLoadingParams?.status === "error"
               ? "Transaction Failed"
-              : `You are now staking ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`}
+              : `You are now ${stakeLoadingParams?.userAction || 'staking'} ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`}
           </div>
 
           <div

@@ -25,6 +25,7 @@ interface StakeLoadingParams {
   scanUrl?: string;
   txHash?: string;
   progressDetail?: StakeLoadingProgressDetail;
+	userAction?: string; // 'staking' | 'redeem'
 }
 
 interface StakeLoadingProgressDetail {

@@ -93,12 +93,18 @@ export const updateMaticBalance = (): AppThunk => async (dispatch, getState) => 
 	}
 }
 
+export const reloadData = (): AppThunk =>
+	async (dispatch, getState) => {
+		dispatch(updateMaticBalance());
+	}
+
 export const handleMaticStake = 
 	(
 		stakeAmount: string,
 		willReceiveAmount: string,
 		tokenStandard: TokenStandard | undefined,
 		targetAddress: string,
+		newTotalStakedAmount: string,
 		cb?: (success: boolean) => void,
 	): AppThunk => 
 	async (dispatch, getState) => {
@@ -120,6 +126,7 @@ export const handleMaticStake =
 					tokenName: TokenName.MATIC,
 					amount: stakeAmount,
 					willReceiveAmount: willReceiveAmount,
+					newTotalStakedAmount,
 					progressDetail: {
 						sending: {
 							totalStatus: 'loading',
@@ -246,6 +253,8 @@ export const handleMaticStake =
 					})
 				);
 
+				dispatch(reloadData());
+
 				blockHash &&
 					dispatch(
 						bond(
@@ -257,29 +266,23 @@ export const handleMaticStake =
 							rSymbol.Matic,
 							chainId,
 							targetAddress,
-							(r: string) => {
-								console.log('r', r);
-							}
+							cb,
 						)
 					)
 			} else {
 				const txHash = result.transactionHash;
-				// dispatch(
-				// 	addNotice(
-				// 		txHash,
-				// 		'rToken Stake',
-				// 		{
-				// 			transactionHash: txHash,
-				// 			sender: metaMaskAccount,
-				// 		},
-				// 		{
-				// 			tokenName: TokenName.MATIC,
-				// 			amount: stakeAmount,
-				// 		},
-				// 		getEtherScanTxUrl(txHash),
-				// 		'Error'
-				// 	)
-				// );
+				dispatch(
+					setStakeLoadingParams({
+						status: 'error',
+						txHash: txHash,
+						progressDetail: {
+							sending: {
+								totalStatus: 'error',
+								broadcastStatus: 'error',
+							}
+						}
+					})
+				);
 				snackbarUtil.error('Error! Please try again');
 			}
 		} catch (err) {
@@ -366,6 +369,7 @@ export const unbondRMatic =
 			console.error(err);
 		} finally {
 			dispatch(setIsLoading(false));
+			dispatch(updateMaticBalance());
 		}
 	}
 

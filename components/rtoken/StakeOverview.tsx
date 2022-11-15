@@ -359,7 +359,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 				visible={rTokenRedeemModalVisible}
 				onClose={() => setRTokenRedeemModalVisible(false)}
 				tokenName={props.tokenName}
-				balance={''}
+				balance={rTokenBalance || '--'}
 				defaultReceivingAddress={metaMaskAccount}
 			/>
     </div>

@@ -13,6 +13,7 @@ import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ethLogo from "public/eth_token.svg";
+import maticLogo from 'public/matic_type_black.svg';
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
 import { connectMetaMask } from "utils/web3Utils";
@@ -78,7 +79,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     >
       <div className="mt-[.36rem] flex items-center justify-between">
         <div className="w-[.76rem] h-[.76rem] relative">
-          <Image src={ethLogo} layout="fill" alt="logo" />
+          <Image src={tokenName === TokenName.MATIC ? maticLogo : ethLogo} layout="fill" alt="logo" />
         </div>
 
         <div className="flex flex-col items-end">

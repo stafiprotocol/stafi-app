@@ -6,6 +6,7 @@ import Image from "next/image";
 import { formatNumber } from "utils/number";
 import { CustomChart } from "../data/CustomChart";
 import ethIcon from "public/eth_type_green.svg";
+import maticIcon from 'public/matic_type_green.svg';
 import { Card } from "components/common/card";
 import { useEffect, useMemo, useState } from "react";
 import { useRTokenReward } from "hooks/useRTokenReward";
@@ -183,7 +184,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
 
       <div className="ml-[1.3rem] mr-[.9rem] flex-1 h-[253px] flex flex-col">
         <div className="w-[.72rem] h-[.72rem] self-center relative z-10">
-          <Image src={ethIcon} alt="eth" layout="fill" />
+          <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="eth" layout="fill" />
         </div>
 
         <Card
