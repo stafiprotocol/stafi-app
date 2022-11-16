@@ -10,7 +10,8 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import ethLogo from "public/eth_token.svg";
+import ethLogo from "public/eth_type_black.svg";
+import circulate from "public/circulate.svg";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
 import { connectMetaMask } from "utils/web3Utils";
@@ -53,9 +54,22 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         backdropFilter: "blur(0.67rem)",
       }}
     >
-      <div className="mt-[.36rem] flex items-center justify-between">
+      <div className="mt-[.36rem] flex items-center justify-between relative">
         <div className="w-[.76rem] h-[.76rem] relative">
           <Image src={ethLogo} layout="fill" alt="logo" />
+        </div>
+
+        <div
+          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.1rem]"
+          style={{
+            background: "rgba(25, 38, 52, 0.4)",
+            border: "1px solid #1A2835",
+            backdropFilter: "blur(.13rem)",
+          }}
+        >
+          <div className="w-full h-full relative">
+            <Image src={circulate} layout="fill" alt="circulate" />
+          </div>
         </div>
 
         <div className="flex flex-col items-end">

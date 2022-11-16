@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="78px" height="78px" viewBox="0 0 78 78" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group 6</title>
+    <g id="staker---staking-flow" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="card-hover" transform="translate(-674.000000, -271.000000)">
+            <g id="Group-2" transform="translate(76.000000, 144.000000)">
+                <g id="Group-10-Copy" transform="translate(469.000000, 128.000000)">
+                    <g id="cosmos-logo-horizontal-dark" transform="translate(130.000000, 0.000000)">
+                        <path d="M37.9999365,0 C58.9867462,0 76,17.0131586 76,37.9999365 C76,58.9867462 58.9867462,76 37.9999365,76 C17.0131586,76 0,58.9867462 0,37.9999365 C0,17.0131586 17.0131586,0 37.9999365,0 Z" id="Path" stroke="#1A2835" fill="#171717"></path>
+                        <g id="eth-crypto-cryptocurrency-cryptocurrencies-cash-money-bank-payment_95451" transform="translate(22.000000, 12.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                            <g id="Group">
+                                <polygon id="Path" fill-opacity="0.602" points="15.9957333 0 15.9957333 19.222338 31.9893333 26.4821838"></polygon>
+                                <polygon id="Path" points="15.9957333 0 0 26.4821838 15.9957333 19.222338"></polygon>
+                                <polygon id="Path" fill-opacity="0.602" points="15.9957333 38.9387789 15.9957333 52 32 29.5074807"></polygon>
+                                <polygon id="Path" points="15.9957333 52 15.9957333 38.9366118 0 29.5074807"></polygon>
+                                <polygon id="Path" fill-opacity="0.2" points="15.9957333 35.9156491 31.9893333 26.4821838 15.9957333 19.2266722"></polygon>
+                                <polygon id="Path" fill-opacity="0.602" points="0 26.4821838 15.9957333 35.9156491 15.9957333 19.2266722"></polygon>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
