@@ -231,7 +231,7 @@ const TokenStake = (props: any) => {
             <div className="flex flex-col items-center">
               <Link href="/validator/reth/choose-validator">
                 <div className="flex flex-col items-center cursor-pointer">
-                  <EmptyContent mt="0.2rem" size=".8rem" />
+                  <EmptyContent mt="0.2rem" size=".8rem" hideText />
                   <div className="mt-[.3rem] flex items-center">
                     <div className="text-text1 text-[.24rem] mr-[.1rem]">
                       Make a deposit

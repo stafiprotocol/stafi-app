@@ -140,9 +140,6 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
         {noticeList.length === 0 && (
           <Stack mt="30px" alignItems="center">
             <EmptyContent mt="1rem" size=".7rem" />
-            <div className="mt-[.2rem] text-[.16rem] text-text2">
-              Oops, there is nothing here
-            </div>
           </Stack>
         )}
       </Box>
