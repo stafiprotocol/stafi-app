@@ -96,7 +96,7 @@ const RTokenStakePage = () => {
         mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">
-            What&apos;s the factors that affect the staking rewards?
+            What&apos;re the factors that affect the staking rewards?
           </div>
         }
       >
@@ -105,10 +105,10 @@ const RTokenStakePage = () => {
           synchronization reason, it may be delayed for a while.
           <br />
           <br />
-          StaFi’s rETH liquid staking rewards are mainly decided by the Ethereum
-          beacon chain’s staking APY, the priority fee collected by rETH
-          Original Validators, potential slash risks and the commission charged
-          by StaFi Protocol and OVs.
+          StaFi&apos;s rETH liquid staking rewards are mainly decided by the
+          Ethereum beacon chain&apos;s staking APY, the priority fee collected
+          by rETH Original Validators, potential slash risks and the commission
+          charged by StaFi Protocol and OVs.
           <br />
           <br />
           <a
