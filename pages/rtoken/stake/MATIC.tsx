@@ -4,9 +4,9 @@ import { MyLayoutContext } from "components/layout/layout";
 import { RMaticStakeModal } from "components/modal/RMaticStakeModal";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
-import { getMetamaskEthChainId } from "config/metaMask";
+import { getMetamaskEthChainId, getMetamaskMaticChainId } from "config/metaMask";
 import { useAppSelector } from "hooks/common";
-import { ChartDu, TokenName } from "interfaces/common";
+import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
 import React, { useEffect, useState } from "react";
 import { RootState } from "redux/store";
 import { useAppDispatch } from "hooks/common";
@@ -16,14 +16,20 @@ import { useFisAccount } from "hooks/useFisAccount";
 import { KeyringServer } from "servers/keyring";
 import { Symbol } from "keyring/defaults";
 import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
-import { updateRTokenRatio } from "redux/reducers/RTokenSlice";
+import { updateRTokenBalance, updateRTokenRatio } from "redux/reducers/RTokenSlice";
 import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
+import { useTokenStandard } from "hooks/useTokenStandard";
+import { useWalletAccount } from "hooks/useWalletAccount";
 
 const RMaticStakePage = () => {
 	const { setNavigation, setTargetMetaMaskChainId } =
 		React.useContext(MyLayoutContext);
 	
 	const dispatch = useAppDispatch();
+
+	const tokenStandard = useTokenStandard(TokenName.MATIC);
+
+	const { metaMaskAccount } = useWalletAccount();
 
 	const [chartDu, setChartDu] = useState(ChartDu.ALL);
 	const [stakeModalVisible, setStakeModalVisible] = useState(false);
@@ -42,8 +48,12 @@ const RMaticStakePage = () => {
 	}, [setNavigation]);
 
 	useEffect(() => {
-		setTargetMetaMaskChainId(getMetamaskEthChainId());
+		setTargetMetaMaskChainId(getMetamaskMaticChainId());
 	}, [setTargetMetaMaskChainId]);
+
+	useEffect(() => {
+		dispatch(updateMaticBalance());
+	}, [metaMaskAccount]);
 
 	useEffect(() => {
 		dispatch(getPools());
@@ -62,6 +72,13 @@ const RMaticStakePage = () => {
 			setStakeModalVisible(true);
 		} else {
 		}
+	}
+
+	const getDefaultReceivingAddress = () => {
+		if (tokenStandard === TokenStandard.Native) {
+			return fisAccount.address;
+		}
+		return metaMaskAccount;
 	}
 
 	return (
@@ -88,7 +105,7 @@ const RMaticStakePage = () => {
 			<RTokenIntegrations tokenName={TokenName.MATIC} />
 
 			<RTokenStakeModal
-				defaultReceivingAddress={fisAccount.address}
+				defaultReceivingAddress={getDefaultReceivingAddress()}
 				tokenName={TokenName.MATIC}
 				visible={stakeModalVisible}
 				onClose={() => setStakeModalVisible(false)}

@@ -318,7 +318,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                             className="flex items-center ml-[.25rem] cursor-pointer"
                             onClick={() => {
                               setEditAddress(true);
-                              setTargetAddress("");
+                              // setTargetAddress("");
                             }}
                           >
                             <Icomoon
@@ -394,7 +394,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                 className="w-[1.35rem] h-[.67rem] bg-[#1A2835] rounded-[.16rem] flex items-center justify-center cursor-pointer text-white text-[.24rem]"
                 onClick={() => {
                   if (
-                    false ||
+                    isWrongMetaMaskNetwork ||
                     isNaN(Number(balance)) ||
                     isNaN(Number(estimateFee))
                   ) {
@@ -412,8 +412,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             </Card>
 
             <Button
-              // disabled={buttonDisabled}
-							disabled={false}
+              disabled={buttonDisabled}
               loading={isLoading}
               mt=".36rem"
               fontSize=".32rem"

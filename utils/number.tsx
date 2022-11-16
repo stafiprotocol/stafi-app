@@ -32,9 +32,12 @@ export function formatNumber(
   if (toReadable && Number(num) > 1000000) {
     newNum = Number(num) / 1000000 + "";
     suffix = "M";
+  } else if (toReadable && Number(num) > 1000) {
+		newNum = Number(num) / 1000 + '';
+		suffix = 'K';
   } else {
-    newNum = num + "";
-  }
+		newNum = num + '';
+	}
 
   const roundMethod =
     roundMode === "floor"

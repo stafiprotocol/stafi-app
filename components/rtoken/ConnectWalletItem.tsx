@@ -6,6 +6,7 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import metaMask from "public/wallet/metaMask.svg";
+import polkadotLogo from 'public/matic_type_black.svg';
 import { useMemo, useState } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { FisAccount, setChooseAccountVisible, setFisAccount } from "redux/reducers/FisSlice";
@@ -35,7 +36,9 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
   const getIcon = () => {
     if (walletType === WalletType.MetaMask) {
       return metaMask;
-    }
+    } else if (walletType === WalletType.Polkadot) {
+			return polkadotLogo;
+		}
     return undefined;
   };
 
