@@ -12,8 +12,8 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import ethLogo from "public/eth_token.svg";
-import maticLogo from 'public/matic_type_black.svg';
+import ethLogo from "public/eth_type_black.svg";
+import maticLogo from "public/matic_type_black.svg";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
 import { connectMetaMask } from "utils/web3Utils";
@@ -28,10 +28,10 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
   const { metaMaskAccount } = useWalletAccount();
-	const { fisAccount } = useFisAccount();
+  const { fisAccount } = useFisAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
-	const { stakedMaticValue, stakedMaticAmount, maticApr } = useMaticPoolData();
+  const { stakedMaticValue, stakedMaticAmount, maticApr } = useMaticPoolData();
 
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
@@ -47,25 +47,25 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
       }
       router.push("/rtoken/stake/ETH");
     } else if (tokenName === TokenName.MATIC) {
-			if (metaMaskAccount && fisAccount.address) {
-				router.push('/rtoken/stake/MATIC');
-				return;
-			}
-			let walletTypes: WalletType[] = [];
-			if (!metaMaskAccount) {
-				walletTypes.push(WalletType.MetaMask);
-			}
-			if (!fisAccount.address) {
-				walletTypes.push(WalletType.Polkadot);
-			}
-			dispatch(
-				setConnectWalletModalParams({
-					visible: true,
-					walletList: walletTypes,
-					targetMetaMaskChainId: getMetamaskEthChainId(),
-				})
-			);
-		}
+      if (metaMaskAccount && fisAccount.address) {
+        router.push("/rtoken/stake/MATIC");
+        return;
+      }
+      let walletTypes: WalletType[] = [];
+      if (!metaMaskAccount) {
+        walletTypes.push(WalletType.MetaMask);
+      }
+      if (!fisAccount.address) {
+        walletTypes.push(WalletType.Polkadot);
+      }
+      dispatch(
+        setConnectWalletModalParams({
+          visible: true,
+          walletList: walletTypes,
+          targetMetaMaskChainId: getMetamaskEthChainId(),
+        })
+      );
+    }
   };
 
   return (
@@ -79,7 +79,11 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     >
       <div className="mt-[.36rem] flex items-center justify-between">
         <div className="w-[.76rem] h-[.76rem] relative">
-          <Image src={tokenName === TokenName.MATIC ? maticLogo : ethLogo} layout="fill" alt="logo" />
+          <Image
+            src={tokenName === TokenName.MATIC ? maticLogo : ethLogo}
+            layout="fill"
+            alt="logo"
+          />
         </div>
 
         <div className="flex flex-col items-end">
@@ -99,10 +103,10 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
-          {formatNumber(
-						tokenName === TokenName.ETH ? stakeApr : maticApr,
-						{ decimals: 2 }
-					)}%
+          {formatNumber(tokenName === TokenName.ETH ? stakeApr : maticApr, {
+            decimals: 2,
+          })}
+          %
         </div>
       </div>
 
@@ -115,10 +119,11 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           />
         </div>
         <div className="text-text2 text-[.16rem]">
-          ${formatNumber(
-						tokenName === TokenName.ETH ? allEthValue : stakedMaticValue,
-						{ decimals: 2 }
-					)}
+          $
+          {formatNumber(
+            tokenName === TokenName.ETH ? allEthValue : stakedMaticValue,
+            { decimals: 2 }
+          )}
         </div>
       </div>
 
@@ -132,9 +137,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         </div>
         <div className="text-text2 text-[.16rem]">
           {formatNumber(
-						tokenName === TokenName.ETH ? allEth : stakedMaticAmount,
-						{ decimals: 2 }
-					)}
+            tokenName === TokenName.ETH ? allEth : stakedMaticAmount,
+            { decimals: 2 }
+          )}
         </div>
       </div>
 
