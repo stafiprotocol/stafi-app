@@ -15,6 +15,13 @@ export function getMetamaskEthChainId() {
   return 1;
 }
 
+export function getMetamaskMaticChainId() {
+	if (isDev()) {
+		return 5; // goerli
+	}
+	return 1;
+}
+
 export function getMetaMaskValidatorConnectConfig() {
   if (isDev()) {
     return getMetaMaskStafiTestnetConfig();

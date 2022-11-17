@@ -2,6 +2,7 @@ import { isDev } from "config/env";
 import {
   getMetamaskEthChainId,
   getMetaMaskEthConnectConfig,
+  getMetamaskMaticChainId,
   getMetamaskValidatorChainId,
   getMetaMaskValidatorConnectConfig,
   getWeb3ProviderUrlConfig,
@@ -29,7 +30,9 @@ export function connectMetaMask(targetChainId: number | undefined) {
     metaMask.activate(getMetaMaskValidatorConnectConfig());
   } else if (targetChainId === getMetamaskEthChainId()) {
     metaMask.activate(getMetaMaskEthConnectConfig());
-  }
+  } else if (targetChainId === getMetamaskMaticChainId()) {
+		metaMask.activate(getMetamaskMaticChainId());
+	}
 }
 
 export function connectPolkadot() {

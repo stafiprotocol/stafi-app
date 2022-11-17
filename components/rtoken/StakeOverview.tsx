@@ -294,7 +294,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
             <div className="flex justify-between mt-[.8rem] mb-[.86rem]">
               <Button
-                disabled={false}
+                disabled={isWrongNetwork}
                 height=".86rem"
                 width="4rem"
                 radius=".5rem"
@@ -331,6 +331,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                     return;
                   } else if (props.tokenName === TokenName.MATIC) {
 										setRTokenRedeemModalVisible(true);
+										return;
 									}
                 }}
               >
