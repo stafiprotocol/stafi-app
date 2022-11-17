@@ -1,23 +1,20 @@
 import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
-import { Icomoon } from "components/icon/Icomoon";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
-import { useFisAccount } from "hooks/useFisAccount";
 import { useMaticPoolData } from "hooks/useMaticPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import circulate from "public/circulate.svg";
 import ethLogo from "public/eth_type_black.svg";
 import maticLogo from "public/matic_type_black.svg";
-import circulate from "public/circulate.svg";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
-import { connectMetaMask } from "utils/web3Utils";
 
 interface RTokenOverviewCardProps {
   tokenName: TokenName;
@@ -29,7 +26,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
   const { metaMaskAccount } = useWalletAccount();
-  const { fisAccount } = useFisAccount();
+  const { polkadotAccount } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
   const { stakedMaticValue, stakedMaticAmount, maticApr } = useMaticPoolData();
@@ -48,7 +45,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
       }
       router.push("/rtoken/stake/ETH");
     } else if (tokenName === TokenName.MATIC) {
-      if (metaMaskAccount && fisAccount.address) {
+      if (metaMaskAccount && polkadotAccount) {
         router.push("/rtoken/stake/MATIC");
         return;
       }
@@ -56,7 +53,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
       if (!metaMaskAccount) {
         walletTypes.push(WalletType.MetaMask);
       }
-      if (!fisAccount.address) {
+      if (!polkadotAccount) {
         walletTypes.push(WalletType.Polkadot);
       }
       dispatch(

@@ -7,6 +7,7 @@ import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getValidatorSiteHost } from "config/env";
 import { getMetamaskEthChainId } from "config/metaMask";
+import { hooks } from "connectors/metaMask";
 import { useAppSelector } from "hooks/common";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
@@ -19,8 +20,9 @@ import { openLink } from "utils/common";
 import { connectMetaMask } from "utils/web3Utils";
 
 const RTokenStakePage = () => {
-  const { setNavigation, setTargetMetaMaskChainId, setWalletType } =
-    React.useContext(MyLayoutContext);
+  const { useChainId: useMetaMaskChainId } = hooks;
+  const chainId = useMetaMaskChainId();
+  const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
@@ -35,11 +37,6 @@ const RTokenStakePage = () => {
       { name: "Stake" },
     ]);
   }, [setNavigation]);
-
-  useEffect(() => {
-    setTargetMetaMaskChainId(getMetamaskEthChainId());
-    setWalletType(WalletType.MetaMask);
-  }, [setTargetMetaMaskChainId, setWalletType]);
 
   return (
     <div>

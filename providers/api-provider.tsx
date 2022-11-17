@@ -65,7 +65,7 @@ const ApiProvider = ({ children }: React.PropsWithChildren<unknown>) => {
 
     // Auto connect polkadot.js if connected before.
     if (getStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG)) {
-      dispatch(connectPolkadotJs(api, false));
+      dispatch(connectPolkadotJs());
     }
   }, [api, dispatch, walletState.polkadotWalletStatus]);
 

@@ -10,20 +10,11 @@ import React, { useEffect } from "react";
 import { openLink } from "utils/common";
 
 const RTokenPage = () => {
-  const { setNavigation, setWalletType, setTargetMetaMaskChainId } =
-    React.useContext(MyLayoutContext);
+  const { setNavigation } = React.useContext(MyLayoutContext);
 
   useEffect(() => {
     setNavigation([{ name: "rToken List" }]);
   }, [setNavigation]);
-
-  useEffect(() => {
-    setWalletType(WalletType.MetaMask);
-  }, [setWalletType]);
-
-  useEffect(() => {
-    setTargetMetaMaskChainId(getMetamaskEthChainId());
-  }, [setTargetMetaMaskChainId]);
 
   return (
     <div>
@@ -67,10 +58,10 @@ const RTokenPage = () => {
 
       <div className="mt-[.35rem] flex">
         <RTokenOverviewCard tokenName={TokenName.ETH} />
-				
-				<div className="ml-[.875rem]">
-					<RTokenOverviewCard tokenName={TokenName.MATIC} />
-				</div>
+
+        <div className="ml-[.875rem]">
+          <RTokenOverviewCard tokenName={TokenName.MATIC} />
+        </div>
       </div>
     </div>
   );

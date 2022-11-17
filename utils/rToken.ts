@@ -10,6 +10,7 @@ import pancakeIcon from "public/dex/pancake.svg";
 import rDEXIcon from "public/dex/r_dex.png";
 import sifchainIcon from "public/dex/sifchain.svg";
 import uniswapIcon from "public/dex/uniswap.png";
+import { getMetamaskMaticChainId } from "config/metaMask";
 
 export interface DexItem {
   type: DexType;

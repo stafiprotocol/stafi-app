@@ -1,48 +1,50 @@
-import { Modal, Box, Card } from "@mui/material"
+import { Box, Card, Modal } from "@mui/material";
 import { Icomoon } from "components/icon/Icomoon";
 import { useAppDispatch, useAppSelector } from "hooks/common";
-import { useFisAccount } from "hooks/useFisAccount";
+import { usePolkadotApi } from "hooks/usePolkadotApi";
+import { useWalletAccount } from "hooks/useWalletAccount";
 import { useEffect } from "react";
-import { FisAccount, setChooseAccountVisible, setFisAccount, updateFisBalance, updateFisBalances } from "redux/reducers/FisSlice";
+import { setChooseAccountVisible } from "redux/reducers/FisSlice";
+import {
+  setPolkadotAccount,
+  updatePolkadotExtensionAccountsBalances,
+} from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 
-interface Props {
-}
+interface Props {}
 
 export const ChooseFisAccountModal = (props: Props) => {
-	const dispatch = useAppDispatch();
+  const { api } = usePolkadotApi();
+  const dispatch = useAppDispatch();
 
-	const { chooseAccountVisible } = useAppSelector((state: RootState) => {
-		return {
-			chooseAccountVisible: state.fis.chooseAccountVisible,
-		};
-	});
+  const { chooseAccountVisible } = useAppSelector((state: RootState) => {
+    return {
+      chooseAccountVisible: state.fis.chooseAccountVisible,
+    };
+  });
 
-	const { fisAccounts, fisAccount } = useFisAccount();
+  const { polkadotAccount, polkadotExtensionAccounts } = useWalletAccount();
 
-	useEffect(() => {
-		if (chooseAccountVisible) {
-			dispatch(
-				updateFisBalances()
-			);
-		}
-	}, [chooseAccountVisible]);
+  useEffect(() => {
+    if (chooseAccountVisible) {
+      dispatch(updatePolkadotExtensionAccountsBalances(api));
+    }
+  }, [chooseAccountVisible, dispatch, api]);
 
-	const changeAccount = (account: FisAccount) => {
-		dispatch(
-			setFisAccount(account)
-		);
-	}
+  const changeAccount = (address: string) => {
+    // dispatch(setFisAccount(account));
+    dispatch(setPolkadotAccount(address));
+  };
 
-	return (
-		<Modal
-			open={chooseAccountVisible}
-			onClose={() => dispatch(setChooseAccountVisible(false))}
-		>
-			<Box
-				pt="0"
-				sx={{
-					border: "1px solid #1A2835",
+  return (
+    <Modal
+      open={chooseAccountVisible}
+      onClose={() => dispatch(setChooseAccountVisible(false))}
+    >
+      <Box
+        pt="0"
+        sx={{
+          border: "1px solid #1A2835",
           backgroundColor: "#0A131B",
           width: "6rem",
           borderRadius: "0.16rem",
@@ -51,9 +53,9 @@ export const ChooseFisAccountModal = (props: Props) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-				}}
-			>
-				<div className="flex flex-col items-stretch px-[.56rem] pb-[.6rem] relative">
+        }}
+      >
+        <div className="flex flex-col items-stretch px-[.56rem] pb-[.6rem] relative">
           <div
             className="absolute right-[.16rem] top-[.16rem] cursor-pointer"
             onClick={() => dispatch(setChooseAccountVisible(false))}
@@ -62,7 +64,7 @@ export const ChooseFisAccountModal = (props: Props) => {
           </div>
 
           <div className="text-center mt-[0.56rem] text-white font-[700] text-[.42rem]">
-						Change Polkadot Address
+            Change Polkadot Address
           </div>
 
           <div className="text-center text-[.16rem] text-text1 mt-[.24rem]">
@@ -70,31 +72,33 @@ export const ChooseFisAccountModal = (props: Props) => {
           </div>
 
           <div className="py-[.32rem]">
-						{fisAccounts.map((account: FisAccount) => (
-							<Card
-								key={account.address}
-								onClick={() => changeAccount(account)}
-								sx={{
-									border: account.address === fisAccount.address ? '1px solid #00F3AB' : '1px solid #1A2835',
-									margin: '.2rem 0',
-									padding: '.16rem',
-									backgroundColor: account.address === fisAccount.address ? '#163a3e' : '#0A131B',
-									height: '1rem',
-								}}
-							>
-								<div
-									className="flex flex-col justify-between h-full"
-								>
-									<div
-										className="flex justify-between text-[.18rem] text-white"
-									>
-										<div>{account.name}</div>
-										<div>{account.balance}</div>
-									</div>
-									<div className="text-text1 text-[.16rem]">{account.address}</div>
-								</div>
-							</Card>
-						))}
+            {polkadotExtensionAccounts.map((account) => (
+              <Card
+                key={account.address}
+                onClick={() => changeAccount(account.address)}
+                sx={{
+                  border:
+                    account.address === polkadotAccount
+                      ? "1px solid #00F3AB"
+                      : "1px solid #1A2835",
+                  margin: ".2rem 0",
+                  padding: ".16rem",
+                  backgroundColor:
+                    account.address === polkadotAccount ? "#163a3e" : "#0A131B",
+                  height: "1rem",
+                }}
+              >
+                <div className="flex flex-col justify-between h-full">
+                  <div className="flex justify-between text-[.18rem] text-white">
+                    <div>{account.meta?.name}</div>
+                    <div>{account.balance}</div>
+                  </div>
+                  <div className="text-text1 text-[.16rem]">
+                    {account.address}
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
 
           <div className="text-text2 text-[.16rem] leading-tight invisible">
@@ -110,7 +114,7 @@ export const ChooseFisAccountModal = (props: Props) => {
             </a>
           </div>
         </div>
-			</Box>
-		</Modal>
-	)
-}
+      </Box>
+    </Modal>
+  );
+};

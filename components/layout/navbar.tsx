@@ -2,8 +2,6 @@ import { Popover } from "@mui/material";
 import classNames from "classnames";
 import { NavbarWallet } from "components/NavbarWallet";
 import { NoticeList } from "components/notice/NoticeList";
-import { useAppDispatch } from "hooks/common";
-import { useWalletAccount } from "hooks/useWalletAccount";
 import {
   bindPopover,
   bindTrigger,
@@ -13,20 +11,11 @@ import Image from "next/image";
 import Link from "next/link";
 import notificationIcon from "public/icon_notification.svg";
 import stafiLogo from "public/stafi_logo.svg";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { updateEthBalance } from "redux/reducers/EthSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
 
 export const Navbar = () => {
-  const dispatch = useAppDispatch();
-  const { metaMaskAccount } = useWalletAccount();
-
-  useEffect(() => {
-    dispatch(updateEthBalance());
-  }, [dispatch, metaMaskAccount]);
-
   const { unreadNoticeFlag } = useSelector((state: RootState) => {
     return {
       unreadNoticeFlag: state.app.unreadNoticeFlag,

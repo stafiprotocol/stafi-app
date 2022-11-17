@@ -8,6 +8,7 @@ import { getStorage, STORAGE_KEY_UNREAD_NOTICE } from "utils/storage";
 import { useAppDispatch } from "./common";
 import { useAppSlice } from "./selector";
 import { useInterval } from "./useInterval";
+import { usePolkadotApi } from "./usePolkadotApi";
 
 export function useInit() {
   const dispatch = useAppDispatch();

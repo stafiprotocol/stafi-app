@@ -11,6 +11,8 @@ import {
 } from "utils/storage";
 import { chainAmountToHuman } from "utils/number";
 import { TokenSymbol } from "interfaces/common";
+import { setChooseAccountVisible } from "./FisSlice";
+import { cloneDeep } from "lodash";
 
 export interface InjectedPolkadotAccountWithMeta
   extends ExtType.InjectedAccountWithMeta {
@@ -27,7 +29,7 @@ export type PolkadotWalletStatus =
 export interface WalletState {
   metaMaskAccount: string | undefined;
   polkadotWalletStatus: PolkadotWalletStatus;
-  polkadotExtensionAccounts: InjectedPolkadotAccountWithMeta[] | undefined;
+  polkadotExtensionAccounts: InjectedPolkadotAccountWithMeta[];
   polkadotAccount: string | undefined;
   polkadotBalance: string;
 }
@@ -35,8 +37,8 @@ export interface WalletState {
 const initialState: WalletState = {
   metaMaskAccount: undefined,
   polkadotWalletStatus: "pending",
-  polkadotAccount: "5FTw7Z3L9ypHfpZ93V2NuUebmNgJd3bqHeEnpBDLyZ9HzRpb",
-  polkadotExtensionAccounts: undefined,
+  polkadotAccount: "",
+  polkadotExtensionAccounts: [],
   polkadotBalance: "--",
 };
 
@@ -60,11 +62,12 @@ export const walletSlice = createSlice({
       state: WalletState,
       action: PayloadAction<string | undefined>
     ) => {
+      saveStorage(STORAGE_KEY_POLKADOT_ACCOUNT, action.payload || "");
       state.polkadotAccount = action.payload;
     },
     setPolkadotExtensionAccounts: (
       state: WalletState,
-      action: PayloadAction<InjectedPolkadotAccountWithMeta[] | undefined>
+      action: PayloadAction<InjectedPolkadotAccountWithMeta[]>
     ) => {
       state.polkadotExtensionAccounts = action.payload;
     },
@@ -88,7 +91,7 @@ export default walletSlice.reducer;
  * Reload stafi balance.
  */
 export const connectPolkadotJs =
-  (api: ApiPromise | null, showSelectAccountModal: boolean = false): AppThunk =>
+  (showSelectAccountModal: boolean = false): AppThunk =>
   async (dispatch, getState) => {
     if (!window) {
       return;
@@ -97,10 +100,6 @@ export const connectPolkadotJs =
     const { web3Accounts, web3Enable } = await import(
       "@polkadot/extension-dapp"
     );
-
-    if (!api) {
-      return;
-    }
 
     try {
       const extensions = await web3Enable("stafi-app");
@@ -120,6 +119,7 @@ export const connectPolkadotJs =
 
       // Check local selected account.
       const savedPolkadotAccount = getStorage(STORAGE_KEY_POLKADOT_ACCOUNT);
+
       let matchAccount = accounts.find((account) => {
         return account.address === savedPolkadotAccount;
       });
@@ -132,9 +132,30 @@ export const connectPolkadotJs =
       }
 
       if (matchAccount) {
-        dispatch(updatePolkadotAccount(api, savedPolkadotAccount));
+        dispatch(setPolkadotAccount(savedPolkadotAccount || ""));
+      }
+      dispatch(setPolkadotExtensionAccounts(accounts));
+
+      if (showSelectAccountModal) {
+        dispatch(setChooseAccountVisible(true));
       }
 
+      saveStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG, "1");
+    } catch (err: unknown) {}
+  };
+
+/**
+ * Reload stafi balance.
+ */
+export const updatePolkadotExtensionAccountsBalances =
+  (api: ApiPromise | null): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      if (!api) {
+        return;
+      }
+
+      const accounts = cloneDeep(getState().wallet.polkadotExtensionAccounts);
       for (let account of accounts) {
         const result: any = await api.query.system.account(account.address);
         if (result) {
@@ -147,34 +168,34 @@ export const connectPolkadotJs =
       }
 
       dispatch(setPolkadotExtensionAccounts(accounts));
-
-      // if (showSelectAccountModal) {
-      //   dispatch(setStaFiChainAccountModalVisible(true));
-      // }
-
-      saveStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG, "1");
     } catch (err: unknown) {}
   };
 
 /**
  * Update selected stafi address.
  */
-export const updatePolkadotAccount =
-  (api: ApiPromise | null, address: string | null): AppThunk =>
+export const updateSelectedPolkadotAccountBalance =
+  (api: ApiPromise | null): AppThunk =>
   async (dispatch, getState) => {
-    if (!api || !address) {
-      return;
-    }
+    try {
+      if (!api) {
+        return;
+      }
 
-    dispatch(setPolkadotAccount(address));
-    dispatch(setPolkadotBalance("--"));
+      const address = getState().wallet.polkadotAccount;
 
-    const result: any = await api.query.system.account(address);
-    if (result) {
-      let fisFreeBalance = chainAmountToHuman(
-        result.data.free.toString(),
-        TokenSymbol.FIS
-      );
-      dispatch(setPolkadotBalance(fisFreeBalance.toString()));
-    }
+      // dispatch(setPolkadotBalance("--"));
+      if (!address) {
+        return;
+      }
+
+      const result: any = await api.query.system.account(address);
+      if (result) {
+        let fisFreeBalance = chainAmountToHuman(
+          result.data.free.toString(),
+          TokenSymbol.FIS
+        );
+        dispatch(setPolkadotBalance(fisFreeBalance.toString()));
+      }
+    } catch (err: unknown) {}
   };

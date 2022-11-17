@@ -10,7 +10,7 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { NavigationItem, WalletType } from "interfaces/common";
 import Head from "next/head";
 import Link from "next/link";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HideOnScroll } from "../common/HideOnScroll";
 import { Icomoon } from "../icon/Icomoon";
 import { EthValidatorStakeLoadingModal } from "../modal/EthValidatorStakeLoadingModal";
@@ -19,6 +19,12 @@ import { Navbar } from "./navbar";
 import Particles from "react-tsparticles";
 import type { Container, Engine } from "tsparticles-engine";
 import { loadFull } from "tsparticles";
+import { useRouter } from "next/router";
+import {
+  getMetamaskEthChainId,
+  getMetamaskMaticChainId,
+  getMetamaskValidatorChainId,
+} from "config/metaMask";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
@@ -49,17 +55,23 @@ export const MyLayoutContext = React.createContext<{
 
 export const Layout = (props: LayoutProps) => {
   useInit();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
   const [navigation, setNavigation] = useState<NavigationItem[]>([]);
-  const [targetMetaMaskChainId, setTargetMetaMaskChainId] = useState();
+  const [targetMetaMaskChainId, setTargetMetaMaskChainId] = useState<
+    number | undefined
+  >();
   const [walletType, setWalletType] = useState<WalletType>(WalletType.MetaMask);
 
   const { metaMaskAccount } = useWalletAccount();
 
   const isWrongMetaMaskNetwork = useMemo(() => {
-    return metaMaskChainId !== targetMetaMaskChainId;
+    return (
+      targetMetaMaskChainId !== undefined &&
+      metaMaskChainId !== targetMetaMaskChainId
+    );
   }, [metaMaskChainId, targetMetaMaskChainId]);
 
   const isWrongNetwork = useMemo(() => {
@@ -88,6 +100,22 @@ export const Layout = (props: LayoutProps) => {
   // if (isServer()) {
   //   return null;
   // }
+
+  useEffect(() => {
+    if (router.pathname.startsWith("/validator")) {
+      setTargetMetaMaskChainId(getMetamaskValidatorChainId());
+      setWalletType(WalletType.MetaMask);
+    } else if (router.pathname === "/rtoken/stake/ETH") {
+      setTargetMetaMaskChainId(getMetamaskEthChainId());
+      setWalletType(WalletType.MetaMask);
+    } else if (router.pathname === "/rtoken/stake/MATIC") {
+      setTargetMetaMaskChainId(getMetamaskMaticChainId());
+      setWalletType(WalletType.MetaMask);
+    } else {
+      setTargetMetaMaskChainId(getMetamaskEthChainId());
+      setWalletType(WalletType.Polkadot);
+    }
+  }, [router.pathname]);
 
   return (
     <MyLayoutContext.Provider
@@ -277,7 +305,7 @@ export const Layout = (props: LayoutProps) => {
 
         <ConnectWalletModal />
 
-				<ChooseFisAccountModal />
+        <ChooseFisAccountModal />
       </div>
     </MyLayoutContext.Provider>
   );

@@ -8,15 +8,6 @@ import { MyLayoutContext } from "./layout";
 type ValidatorLayoutProps = React.PropsWithChildren<{}>;
 
 export const ValidatorLayout = (props: ValidatorLayoutProps) => {
-  const { setTargetMetaMaskChainId, setWalletType } =
-    useContext(MyLayoutContext);
-  const { useChainId, useAccount } = hooks;
-
-  useEffect(() => {
-    setTargetMetaMaskChainId(getMetamaskValidatorChainId());
-    setWalletType(WalletType.MetaMask);
-  }, [setTargetMetaMaskChainId, setWalletType]);
-
   return (
     <div>
       <Head>

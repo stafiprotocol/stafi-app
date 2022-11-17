@@ -81,8 +81,8 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
   return (
     <Box width="5rem" px=".24rem" py=".1rem">
       <Box
-        minHeight="4.8rem"
-        maxHeight="4.8rem"
+        minHeight="5rem"
+        maxHeight="5rem"
         sx={{
           overflow: "auto",
         }}

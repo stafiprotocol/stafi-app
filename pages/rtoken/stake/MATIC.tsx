@@ -1,118 +1,103 @@
 import { CollapseCard } from "components/common/CollapseCard";
-import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { MyLayoutContext } from "components/layout/layout";
-import { RMaticStakeModal } from "components/modal/RMaticStakeModal";
+import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
+import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
+import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
-import { getMetamaskEthChainId, getMetamaskMaticChainId } from "config/metaMask";
-import { useAppSelector } from "hooks/common";
-import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
-import React, { useEffect, useState } from "react";
-import { RootState } from "redux/store";
-import { useAppDispatch } from "hooks/common";
-import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
-import { FisAccount, setAccounts, setFisAccount, updateFisAccounts, updateFisBalance } from "redux/reducers/FisSlice";
-import { useFisAccount } from "hooks/useFisAccount";
-import { KeyringServer } from "servers/keyring";
-import { Symbol } from "keyring/defaults";
-import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
-import { updateRTokenBalance, updateRTokenRatio } from "redux/reducers/RTokenSlice";
-import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
+import { hooks } from "connectors/metaMask";
+import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
+import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
+import React, { useEffect, useState } from "react";
+import { updateFisAccounts } from "redux/reducers/FisSlice";
+import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
+import { RootState } from "redux/store";
 
 const RMaticStakePage = () => {
-	const { setNavigation, setTargetMetaMaskChainId } =
-		React.useContext(MyLayoutContext);
-	
-	const dispatch = useAppDispatch();
+  const { useChainId: useMetaMaskChainId } = hooks;
+  const chainId = useMetaMaskChainId();
+  const { setNavigation } = React.useContext(MyLayoutContext);
 
-	const tokenStandard = useTokenStandard(TokenName.MATIC);
+  const dispatch = useAppDispatch();
 
-	const { metaMaskAccount } = useWalletAccount();
+  const tokenStandard = useTokenStandard(TokenName.MATIC);
 
-	const [chartDu, setChartDu] = useState(ChartDu.ALL);
-	const [stakeModalVisible, setStakeModalVisible] = useState(false);
+  const { metaMaskAccount } = useWalletAccount();
 
-	const { fisAccounts, fisAccount, stakedAmount } = useFisAccount();
+  const [chartDu, setChartDu] = useState(ChartDu.ALL);
+  const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
-	const { balance } = useAppSelector((state: RootState) => {
-		return { balance: state.matic.balance };
-	});
+  const { polkadotAccount } = useWalletAccount();
 
-	useEffect(() => {
-		setNavigation([
-			{ name: "rToken List", path: "/rtoken" },
-			{ name: "Stake" },
-		]);
-	}, [setNavigation]);
+  const { balance } = useAppSelector((state: RootState) => {
+    return { balance: state.matic.balance };
+  });
 
-	useEffect(() => {
-		setTargetMetaMaskChainId(getMetamaskMaticChainId());
-	}, [setTargetMetaMaskChainId]);
+  useEffect(() => {
+    setNavigation([
+      { name: "rToken List", path: "/rtoken" },
+      { name: "Stake" },
+    ]);
+  }, [setNavigation]);
 
-	useEffect(() => {
-		dispatch(updateMaticBalance());
-	}, [metaMaskAccount]);
+  useEffect(() => {
+    dispatch(updateMaticBalance());
+  }, [dispatch, metaMaskAccount, chainId]);
 
-	useEffect(() => {
-		dispatch(getPools());
-		dispatch(updateFisAccounts());
-	}, []);
+  useEffect(() => {
+    dispatch(getPools());
+    dispatch(updateFisAccounts());
+  }, [dispatch]);
 
-	useEffect(() => {
-		if (fisAccount.address) {
-			dispatch(updateFisBalance());
-		}
-	}, [fisAccount]);
+  const onClickStake = () => {
+    if (polkadotAccount) {
+      dispatch(updateMaticBalance());
+      setStakeModalVisible(true);
+    } else {
+    }
+  };
 
-	const onClickStake = () => {
-		if (fisAccount.address) {
-			dispatch(updateMaticBalance());
-			setStakeModalVisible(true);
-		} else {
-		}
-	}
+  const getDefaultReceivingAddress = () => {
+    if (tokenStandard === TokenStandard.Native) {
+      return polkadotAccount;
+    }
+    return metaMaskAccount;
+  };
 
-	const getDefaultReceivingAddress = () => {
-		if (tokenStandard === TokenStandard.Native) {
-			return fisAccount.address;
-		}
-		return metaMaskAccount;
-	}
+  return (
+    <div>
+      <StakeOverview
+        tokenName={TokenName.MATIC}
+        onClickStake={onClickStake}
+        onClickConnectWallet={() => {}}
+      />
 
-	return (
-		<div>
-			<StakeOverview
-				tokenName={TokenName.MATIC}
-				onClickStake={onClickStake}
-				onClickConnectWallet={() => {}}
-			/>
+      <CollapseCard
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={<div className="text-white text-[.32rem]">rMATIC Reward</div>}
+      >
+        <RewardChartPanel
+          tokenName={TokenName.MATIC}
+          onClickStake={() => setStakeModalVisible(true)}
+        />
+      </CollapseCard>
 
-			<CollapseCard
-				background="rgba(26, 40, 53, 0.2)"
-				mt=".36rem"
-				title={<div className="text-white text-[.32rem]">rMATIC Reward</div>}
-			>
-				<RewardChartPanel
-					tokenName={TokenName.MATIC}
-					onClickStake={() => setStakeModalVisible(true)}
-				/>
-			</CollapseCard>
+      <StakeMyHistory tokenName={TokenName.MATIC} />
 
-			<StakeMyHistory tokenName={TokenName.MATIC} />
+      <RTokenIntegrations tokenName={TokenName.MATIC} />
 
-			<RTokenIntegrations tokenName={TokenName.MATIC} />
-
-			<RTokenStakeModal
-				defaultReceivingAddress={getDefaultReceivingAddress()}
-				tokenName={TokenName.MATIC}
-				visible={stakeModalVisible}
-				onClose={() => setStakeModalVisible(false)}
-				balance={balance}
-			/>
-		</div>
-	)
-}
+      <RTokenStakeModal
+        defaultReceivingAddress={getDefaultReceivingAddress()}
+        tokenName={TokenName.MATIC}
+        visible={stakeModalVisible}
+        onClose={() => setStakeModalVisible(false)}
+        balance={balance}
+      />
+    </div>
+  );
+};
 
 export default RMaticStakePage;
