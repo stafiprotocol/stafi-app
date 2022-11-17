@@ -187,6 +187,14 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           <div className="text-text1 text-[.16rem] mt-[.05rem]">Polkadot</div>
         </div>
       </div>
+
+      <div className="mr-[.32rem] flex items-center">
+        <div className="text-primary text-[.24rem] mr-[.2rem]">28 ETH</div>
+
+        <div className="-rotate-90 w-[.19rem] h-[0.1rem] relative">
+          <Image src={downIcon} layout="fill" alt="down" />
+        </div>
+      </div>
     </div>
   );
 };

@@ -8,7 +8,7 @@ import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
-import maticIcon from 'public/matic_type_green.svg';
+import maticIcon from "public/matic_type_green.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
@@ -100,10 +100,10 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   }, [visible]);
 
   const estimateFee = useMemo(() => {
-		let gasLimit = 146316;
-		if (tokenName === TokenName.MATIC) {
-			gasLimit = 36928;
-		}
+    let gasLimit = 146316;
+    if (tokenName === TokenName.MATIC) {
+      gasLimit = 36928;
+    }
     if (tokenName === TokenName.ETH || tokenName === TokenName.MATIC) {
       if (isNaN(Number(ethGasPrice))) {
         return "--";
@@ -190,24 +190,24 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         )
       );
     } else if (tokenName === TokenName.MATIC) {
-			dispatch(
-				handleMaticStake(
-					stakeAmount,
-					willReceiveAmount,
-					tokenStandard,
-					targetAddress,
-					newTotalStakedAmount,
-					(success) => {
-						if (success) {
-							resetState();
-							dispatch(updateRTokenBalance(tokenStandard, tokenName));
-							props.onClose();
-						}
-					}
-				)
-				// mockProcess()
-			);
-		}
+      dispatch(
+        handleMaticStake(
+          stakeAmount,
+          willReceiveAmount,
+          tokenStandard,
+          targetAddress,
+          newTotalStakedAmount,
+          (success) => {
+            if (success) {
+              resetState();
+              dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              props.onClose();
+            }
+          }
+        )
+        // mockProcess()
+      );
+    }
   };
 
   return (
@@ -253,7 +253,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             <div className="mt-[.76rem] flex items-center justify-between">
               <div>
                 <div
-                  className="text-text1 text-[.24rem] flex items-center cursor-pointer"
+                  className="text-text1 text-[.24rem] inline-flex items-center cursor-pointer"
                   onClick={() => {
                     openLink(
                       "https://docs.stafi.io/rtoken-app/reth-solution/staker-guide"
@@ -357,7 +357,13 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                       )}
 
                       <div className="w-[.28rem] h-[.28rem] relative">
-                        <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
+                        <Image
+                          src={
+                            tokenName === TokenName.MATIC ? maticIcon : ethIcon
+                          }
+                          alt="icon"
+                          layout="fill"
+                        />
                       </div>
                     </div>
                   </Card>
@@ -376,10 +382,16 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
+                <Image
+                  src={tokenName === TokenName.MATIC ? maticIcon : ethIcon}
+                  alt="icon"
+                  layout="fill"
+                />
               </div>
 
-              <div className="ml-[.35rem] text-text2 text-[.32rem]">{tokenName}</div>
+              <div className="ml-[.35rem] text-text2 text-[.32rem]">
+                {tokenName}
+              </div>
 
               <div className="flex-1 mx-[.34rem]">
                 <CustomNumberInput
@@ -413,7 +425,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
             <Button
               // disabled={buttonDisabled}
-							disabled={false}
+              disabled={false}
               loading={isLoading}
               mt=".36rem"
               fontSize=".32rem"
