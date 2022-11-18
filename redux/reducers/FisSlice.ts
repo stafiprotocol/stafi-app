@@ -23,25 +23,10 @@ export interface FisAccount {
 }
 
 export interface FisState {
-	fisAccount: FisAccount;
-	accounts: FisAccount[];
-	stakedAmount: number | string;
 	chooseAccountVisible: boolean;
 }
 
-const localStoredAccount: FisAccount = getLocalStorageItem('stafi_fis_account') ?
-	{...getLocalStorageItem('stafi_fis_account'), balance: '--'}
-	:
-	{
-		name: '',
-		address: '',
-		balance: '--',
-	};
-
 const initialState: FisState = {
-	fisAccount: localStoredAccount,
-	accounts: [],
-	stakedAmount: '--',
 	chooseAccountVisible: false,
 };
 
@@ -49,27 +34,6 @@ const FisSlice = createSlice({
 	name: 'fis',
 	initialState,
 	reducers: {
-		setFisAccount(state: FisState, action: PayloadAction<FisAccount>) {
-			state.fisAccount = action.payload;
-			localStorage.setItem('stafi_fis_account', JSON.stringify({address: action.payload.address}));
-		},
-		setAccounts(state: FisState, action: PayloadAction<FisAccount[]>) {
-			state.accounts = action.payload;
-		},
-		setFisAccounts(state: FisState, action: PayloadAction<FisAccount>) {
-			const newAccount = action.payload;
-			const accounts = state.accounts;
-			const account = accounts.find((acc: FisAccount) => acc.address === newAccount.address);
-			if (account) {
-				account.balance = newAccount.balance;
-				account.name = newAccount.name;
-			} else {
-				accounts.push(newAccount);
-			}
-		},
-		setStakedAmount(state: FisState, action: PayloadAction<number | string>) {
-			state.stakedAmount = action.payload;
-		},
 		setChooseAccountVisible(state: FisState, action: PayloadAction<boolean>) {
 			state.chooseAccountVisible = action.payload;
 		},
@@ -77,84 +41,10 @@ const FisSlice = createSlice({
 });
 
 export const {
-	setFisAccount,
-	setAccounts,
-	setFisAccounts,
-	setStakedAmount,
 	setChooseAccountVisible,
 } = FisSlice.actions;
 
 export default FisSlice.reducer;
-
-export const updateFisBalance = (): AppThunk => async (dispatch, getState) => {
-	const account = getState().fis.fisAccount;
-	if (!account.address) return;
-	const data: any = await commonSlice.queryRBalance(account.address, rSymbol.Matic);
-	if (data) {
-		dispatch(setStakedAmount(numberUtil.tokenAmountToHuman(data.free, rSymbol.Matic)));
-	} else {
-		dispatch(setStakedAmount(numberUtil.handleFisAmountToFixed(0)));
-	}
-}
-
-export const updateFisAccounts = (): AppThunk => async (dispatch, getState) => {
-	const accounts = await connectPolkadot();
-	dispatch(setAccounts(accounts));
-	if (accounts.length === 0) {
-		dispatch(setFisAccount({name: '', address: '', balance: '--'}));
-	} else {
-		const fisAccount = getState().fis.fisAccount;
-		const _account = accounts.find((acc: FisAccount) => acc.address === fisAccount.address);
-		if (!_account) {
-			dispatch(setFisAccount(accounts[0]));
-			dispatch(setFisAccounts(accounts[0]));
-		}
-	}
-}
-
-export const queryBalance = (account: FisAccount): AppThunk =>
-	async (dispatch, getState) => {
-		dispatch(setFisAccounts(account));
-		let _account = {...account};
-		const api = await stafiServer.createStafiApi();
-		const result = await api.query.system.account(account.address);
-		if (result) {
-			const freeBalance = numberUtil.fisAmountToHuman(result.data.free);
-			_account.balance = numberUtil.handleEthAmountRound(freeBalance).toString();
-		}
-		const fisAccount = getState().fis.fisAccount;
-		if (fisAccount && fisAccount.address === _account.address) {
-			dispatch(setFisAccount(_account));
-		}
-		dispatch(setFisAccounts(_account));
-	}
-
-export const updateFisBalances = (): AppThunk => async (dispatch, getState) => {
-	const accounts = getState().fis.accounts;
-	if (accounts.length === 0) return;
-	let queries: Promise<any>[] = [];
-	accounts.forEach(async (account: FisAccount) => {
-		queries.push(commonSlice.queryRBalance(account.address, rSymbol.Matic));
-	});
-
-	let newAccounts: FisAccount[] = [];
-	Promise.all(queries).then((datas: any[]) => {
-		for (let i = 0; i < accounts.length; i++) {
-			let balance = '--';
-			if (datas[i]) {
-				balance = numberUtil.fisAmountToHuman(datas[i].free).toString();
-			}
-			let _account: FisAccount = {
-				...accounts[i],
-				balance,
-			}
-			newAccounts.push(_account);
-		}
-		dispatch(
-			setAccounts(newAccounts)
-		);
-	});
-}
 
 export const bond = 
 	(
@@ -184,7 +74,7 @@ export const bond =
 				}
 			})
 		);
-		const fisAddress = getState().fis.fisAccount.address;
+		const fisAddress = getState().wallet.polkadotAccount;
 		const keyringInstance = keyring.init(Symbol.Fis);
 		let signature = '';
 		const stafiApi = await stafiServer.createStafiApi();
@@ -195,7 +85,7 @@ export const bond =
 			await sleep(3000);
 
 			const metaMaskAccount = getState().wallet.metaMaskAccount;
-			const fisPubkey = u8aToHex(keyringInstance.decodeAddress(fisAddress), -1, false);
+			const fisPubkey = u8aToHex(keyringInstance.decodeAddress(fisAddress as string), -1, false);
 			const msg = stringToHex(fisPubkey);
 			pubkey = address;
 			signature = await ethereum
@@ -575,7 +465,7 @@ function sleep(ms: number) {
 export const fisUnbond =
 	(amount: string, symbol: rSymbol, recipient: string, selectedPool: string, topstr: string, cb?: Function): AppThunk =>
 	async (dispatch, getState) => {
-		const address = getState().fis.fisAccount && getState().fis.fisAccount.address;
+		const address = getState().wallet.polkadotAccount as string;
 		const api = await stafiServer.createStafiApi();
 		
 		const { web3Enable, web3FromSource } = await import('@polkadot/extension-dapp');
@@ -651,29 +541,29 @@ export const fisUnbond =
 
 export const getTransactionFees = (): AppThunk =>
 	async (dispatch, getState) => {
-		const address = getState().fis.fisAccount && getState().fis.fisAccount.address;
-		const api = await stafiServer.createStafiApi();
+		// const address = getState().fis.fisAccount && getState().fis.fisAccount.address;
+		// const api = await stafiServer.createStafiApi();
 		
-		const { web3Enable, web3FromSource } = await import('@polkadot/extension-dapp');
-		web3Enable(stafiServer.getWeb3EnableName());
-		const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
+		// const { web3Enable, web3FromSource } = await import('@polkadot/extension-dapp');
+		// web3Enable(stafiServer.getWeb3EnableName());
+		// const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
 
-		dispatch(
-			setStakeLoadingParams({
-				progressDetail: {
-					sending: {
-						broadcastStatus: 'loading',
-					}
-				}
-			})
-		);
+		// dispatch(
+		// 	setStakeLoadingParams({
+		// 		progressDetail: {
+		// 			sending: {
+		// 				broadcastStatus: 'loading',
+		// 			}
+		// 		}
+		// 	})
+		// );
 
-		const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
-			symbol,
-			selectedPool,
-			numberUtil.tokenAmountToChain(amount, symbol).toString(),
-			recipient,
-		);
+		// const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
+		// 	symbol,
+		// 	selectedPool,
+		// 	numberUtil.tokenAmountToChain(amount, symbol).toString(),
+		// 	recipient,
+		// );
 		// const sender = getState().fis.fisAccount.address;
 		// const validPools = getState().matic.validPools;
 		// let selectedPool = commonSlice.getPoolForUnbond('0', validPools, rSymbol.Matic);

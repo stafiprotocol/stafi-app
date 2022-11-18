@@ -54,19 +54,15 @@ export function useRTokenReward(
   const [rewardList, setRewardList] = useState<EraRewardModel[]>([]);
 
   const { updateFlag15s } = useAppSlice();
-  const { metaMaskAccount } = useWalletAccount();
-	const { fisAccount } = useAppSelector((state: RootState) => {
-		return {
-			fisAccount: state.fis.fisAccount,
-		};
-	});
+  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
 
   const userAddress = useMemo(() => {
     if (tokenStandard === TokenStandard.ERC20) {
       return metaMaskAccount;
     } else if (tokenStandard === TokenStandard.Native) {
+			if (!polkadotAccount) return '';
 			const keyringInstance = keyring.init(Symbol.Fis);
-			return u8aToHex(keyringInstance.decodeAddress(fisAccount.address));
+			return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
 		}
     return "";
   }, [tokenStandard, metaMaskAccount]);

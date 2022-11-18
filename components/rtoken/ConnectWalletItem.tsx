@@ -8,11 +8,8 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import {
-  FisAccount,
   setChooseAccountVisible,
-  setFisAccount,
 } from "redux/reducers/FisSlice";
-import { setAccounts } from "redux/reducers/FisSlice";
 import {
   connectPolkadotJs,
   setPolkadotAccount,

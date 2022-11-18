@@ -31,6 +31,7 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { RootState } from "redux/store";
 import { getTransactionFees } from "redux/reducers/FisSlice";
 import numberUtil from "utils/numberUtil";
+import { useTransactionCost } from "hooks/useTransactionCost";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -55,13 +56,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const [targetAddress, setTargetAddress] = useState("");
   const [redeemAmount, setRedeemAmount] = useState("");
 	const [expandUserAddress, setExpandUserAddress] = useState(false);
+
+	const tokenStandard = useTokenStandard(props.tokenName);
  
-	const { unbondCommision, unbondFees } = useAppSelector((state: RootState) => {
-		return {
-			unbondFees: state.matic.unbondFees,
-			unbondCommision: state.matic.unbondCommision,
-		};
-	});
+	const { unbondCommision, unbondFees, transactionFees } = useTransactionCost();
 	const transactionFee = 0.0129;
 
   const rTokenRatio = useRTokenRatio(tokenName);
@@ -128,18 +126,6 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     resetState();
   }, [visible]);
 
-	useEffect(() => {
-		dispatch(
-			getTransactionFees()
-		);
-		dispatch(
-			getUnbondCommision()
-		);
-		dispatch(
-			getUnbondFees()
-		);
-	}, []);
-
 	console.log({unbondCommision, unbondFees})
 
   const [buttonDisabled, buttonText] = useMemo(() => {
@@ -195,7 +181,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 					redeemAmount,
 					targetAddress,
 					() => {
-
+						dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
 					}
 				)
 			);

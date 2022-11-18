@@ -16,6 +16,7 @@ import { bond, fisUnbond } from "./FisSlice";
 import keyring from 'servers/keyring';
 import { u8aToHex } from "@polkadot/util";
 import { CANCELLED_MESSAGE } from "utils/constants";
+import { updateRTokenBalance } from "./RTokenSlice";
 
 declare const ethereum: any;
 
@@ -26,19 +27,23 @@ const stafiServer = new StafiServer();
 export interface MaticState {
 	txLoading: boolean;
 	balance: string;
+	stakedAmount: string;
 	validPools: any[];
 	poolLimit: any;
 	unbondFees: string;
 	unbondCommision: string;
+	transactionFees: string;
 }
 
 const initialState: MaticState = {
 	txLoading: false,
-	balance: "",
+	balance: "--",
+	stakedAmount: '--',
 	validPools: [],
 	poolLimit: 0,
 	unbondCommision: '--',
 	unbondFees: '--',
+	transactionFees: '--',
 }
 
 export const maticSlice = createSlice({
@@ -50,6 +55,9 @@ export const maticSlice = createSlice({
 		},
 		setMaticBalance: (state: MaticState, action: PayloadAction<string>) => {
 			state.balance = action.payload;
+		},
+		setStakedAmount: (state: MaticState, action: PayloadAction<string>) => {
+			state.stakedAmount = action.payload;
 		},
 		setValidPools: (state: MaticState, action: PayloadAction<any | null>) => {
 			if (action.payload === null) {
@@ -72,6 +80,7 @@ export const maticSlice = createSlice({
 
 export const {
 	setMaticBalance,
+	setStakedAmount,
 	setMaticTxLoading,
 	setPoolLimit,
 	setValidPools,
@@ -83,8 +92,7 @@ export default maticSlice.reducer;
 
 export const updateMaticBalance = (): AppThunk => async (dispatch, getState) => {
 	const account = getState().wallet.metaMaskAccount;
-	if (!account) return;
-	if (!window.ethereum) return;
+	if (!account || !window.ethereum) return;
 
 	let web3 = new Web3(window.ethereum as any);
 	let contract = new web3.eth.Contract(getMaticAbi(), getMaticTokenAddress(), {

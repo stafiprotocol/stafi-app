@@ -5,15 +5,16 @@ import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
+import { getMetamaskMaticChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
 import React, { useEffect, useState } from "react";
-import { updateFisAccounts } from "redux/reducers/FisSlice";
 import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
 import { RootState } from "redux/store";
+import { connectMetaMask } from "utils/web3Utils";
 
 const RMaticStakePage = () => {
   const { useChainId: useMetaMaskChainId } = hooks;
@@ -48,7 +49,7 @@ const RMaticStakePage = () => {
 
   useEffect(() => {
     dispatch(getPools());
-    dispatch(updateFisAccounts());
+    // dispatch(updateFisAccounts());
   }, [dispatch]);
 
   const onClickStake = () => {
@@ -71,7 +72,7 @@ const RMaticStakePage = () => {
       <StakeOverview
         tokenName={TokenName.MATIC}
         onClickStake={onClickStake}
-        onClickConnectWallet={() => {}}
+        onClickConnectWallet={() => connectMetaMask(getMetamaskMaticChainId())}
       />
 
       <CollapseCard

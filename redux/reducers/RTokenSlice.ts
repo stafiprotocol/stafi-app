@@ -19,7 +19,6 @@ import {
   getErc20AssetBalance,
 } from "utils/web3Utils";
 import Web3 from "web3";
-import { getRMaticRate } from "./MaticSlice";
 
 export type RTokenBalanceStore = {
   [tokenStandard in TokenStandard]: RTokenBalanceCollection;
@@ -147,7 +146,6 @@ export const updateRTokenBalance =
     try {
       const metaMaskAccount = getState().wallet.metaMaskAccount;
       const polkadotAccount = getState().wallet.polkadotAccount;
-			const fisAccount = getState().fis.fisAccount;
       if (!tokenStandard) {
         return;
       }
@@ -155,7 +153,7 @@ export const updateRTokenBalance =
       let newBalance = "--";
       if (tokenStandard === TokenStandard.Native) {
         newBalance = await getNativeRTokenBalance(
-					fisAccount.address,
+					polkadotAccount,
           getTokenSymbol(tokenName)
         );
       } else if (tokenStandard === TokenStandard.BEP20) {
