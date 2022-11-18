@@ -157,25 +157,40 @@ export const NavbarWallet = () => {
     displayMetaMaskBalance,
   ]);
 
+  const [displayAddress] = useMemo(() => {
+    if (walletType === WalletType.MetaMask) {
+      return [metaMaskAccount];
+    }
+    return [polkadotAccount];
+  }, [walletType, polkadotAccount, metaMaskAccount]);
+
+  const showConnectWallet = useMemo(() => {
+    return !displayAddress;
+  }, [displayAddress]);
+
   return (
     <div>
       <div
         className={styles.account}
         style={{
-          background: isWrongNetwork
-            ? "rgba(255, 82, 196, 0.05)"
-            : accountsPopupState.isOpen
+          background: accountsPopupState.isOpen
             ? "linear-gradient(0deg,rgba(0, 243, 171, 0.1) 0%,rgba(26, 40, 53, 0.16) 70%,rgba(26, 40, 53, 0.2) 100%)"
+            : showConnectWallet
+            ? "rgba(25, 38, 52, 0.35)"
+            : isWrongNetwork
+            ? "rgba(255, 82, 196, 0.05)"
             : "rgba(25, 38, 52, 0.35)",
-          border: isWrongNetwork
-            ? "1px solid rgba(255, 82, 196, 0.2)"
-            : accountsPopupState.isOpen
+          border: accountsPopupState.isOpen
             ? "1px solid #26494E"
+            : showConnectWallet
+            ? "1px solid #1a2835"
+            : isWrongNetwork
+            ? "1px solid rgba(255, 82, 196, 0.2)"
             : "1px solid #1a2835",
         }}
         {...bindTrigger(accountsPopupState)}
       >
-        {polkadotConnected || metaMaskConnected ? (
+        {!showConnectWallet ? (
           <div className="flex items-center">
             <div
               className="flex items-center cursor-pointer"
@@ -213,12 +228,16 @@ export const NavbarWallet = () => {
               // {...bindTrigger(accountsPopupState)}
             >
               <div className="text-text2">
-                {getShortAddress(metaMaskAccount, 5)}
+                {getShortAddress(displayAddress, 5)}
               </div>
               <div className="bg-divider1 w-[1px] h-[.25rem] mx-[.24rem]" />
               <div className="flex items-center">
                 <div className="w-[.28rem] h-[.28rem] relative">
-                  <Image src={ethereumLogo} alt="logo" layout="fill" />
+                  <Image
+                    src={getWalletIcon(walletType)}
+                    alt="logo"
+                    layout="fill"
+                  />
                 </div>
 
                 <div

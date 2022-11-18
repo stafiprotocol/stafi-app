@@ -7,9 +7,7 @@ import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
-import {
-  setChooseAccountVisible,
-} from "redux/reducers/FisSlice";
+import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
   connectPolkadotJs,
   setPolkadotAccount,
@@ -30,7 +28,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
   const { metaMaskAccount, polkadotAccount } = useWalletAccount();
-  const [showDetail, setShowDetail] = useState(false);
+  const [showDetail, setShowDetail] = useState(true);
 
   const userAddress = useMemo(() => {
     if (walletType === WalletType.MetaMask) {
