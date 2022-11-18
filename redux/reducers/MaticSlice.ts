@@ -15,6 +15,7 @@ import CommonSlice from "./CommonSlice";
 import { bond, fisUnbond } from "./FisSlice";
 import keyring from 'servers/keyring';
 import { u8aToHex } from "@polkadot/util";
+import { CANCELLED_MESSAGE } from "utils/constants";
 
 declare const ethereum: any;
 
@@ -27,6 +28,8 @@ export interface MaticState {
 	balance: string;
 	validPools: any[];
 	poolLimit: any;
+	unbondFees: string;
+	unbondCommision: string;
 }
 
 const initialState: MaticState = {
@@ -34,6 +37,8 @@ const initialState: MaticState = {
 	balance: "",
 	validPools: [],
 	poolLimit: 0,
+	unbondCommision: '--',
+	unbondFees: '--',
 }
 
 export const maticSlice = createSlice({
@@ -56,6 +61,12 @@ export const maticSlice = createSlice({
 		setPoolLimit: (state: MaticState, action: PayloadAction<any>) => {
 			state.poolLimit = action.payload;
 		},
+		setUnbondFees: (state: MaticState, action: PayloadAction<string>) => {
+			state.unbondFees = action.payload;
+		},
+		setUnbondCommision: (state: MaticState, action: PayloadAction<string>) => {
+			state.unbondCommision = action.payload;
+		},
 	}
 });
 
@@ -64,6 +75,8 @@ export const {
 	setMaticTxLoading,
 	setPoolLimit,
 	setValidPools,
+	setUnbondCommision,
+	setUnbondFees,
 } = maticSlice.actions;
 
 export default maticSlice.reducer;
@@ -285,11 +298,17 @@ export const handleMaticStake =
 				);
 				snackbarUtil.error('Error! Please try again');
 			}
-		} catch (err) {
+		} catch (err: any) {
 			console.error(err);
-			dispatch(setStakeLoadingParams({
-				status: 'error',
-			}));
+			if (err.code === 4001) {
+				snackbarUtil.error(CANCELLED_MESSAGE);
+				dispatch(setStakeLoadingParams(undefined));
+			} else {
+				snackbarUtil.error(err.message);
+				dispatch(setStakeLoadingParams({
+					status: 'error',
+				}));
+			}
 		} finally {
 			dispatch(setIsLoading(false));
 			dispatch(updateMaticBalance());
@@ -335,6 +354,7 @@ export const unbondRMatic =
 				status: 'loading',
 				tokenName: TokenName.MATIC,
 				amount: amount,
+				userAction: 'redeem',
 				progressDetail: {
 					sending: {
 						totalStatus: 'loading',
@@ -458,5 +478,21 @@ export const mockProcess =
 
 		dispatch(
 			setStakeLoadingParams(undefined)
+		);
+	}
+
+export const getUnbondCommision = (): AppThunk =>
+	async (dispatch, getState) => {
+		const unbondCommision = await commonSlice.getUnbondCommision();
+		dispatch(
+			setUnbondCommision(unbondCommision.toString())
+		);
+	};
+
+export const getUnbondFees = (): AppThunk =>
+	async (dispatch, getState) => {
+		const unbondFees = await commonSlice.getUnbondFees(rSymbol.Matic);
+		dispatch(
+			setUnbondFees(unbondFees as string)
 		);
 	}

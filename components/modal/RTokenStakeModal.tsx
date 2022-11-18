@@ -133,13 +133,19 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     if (Number(stakeAmount) < 0.01) {
       return [true, `Minimal Stake Amount is 0.01 ${tokenName}`];
     }
-    if (
-      Number(stakeAmount) +
-        (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
-      Number(balance)
-    ) {
-      return [true, "Insufficient Balance"];
-    }
+		if (tokenName === TokenName.ETH) {
+			if (
+				Number(stakeAmount) +
+					(isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
+				Number(balance)
+			) {
+				return [true, "Insufficient Balance"];
+			}
+		} else {
+			if (Number(stakeAmount) > Number(balance)) {
+				return [true, "Insufficient Balance"];
+			}
+		}
     if (!addressCorrect) {
       return [true, "Invalid Receiving Address"];
     }
@@ -289,7 +295,14 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                         </div>
                       </Card>
                       {addressCorrect && (
-                        <div className="ml-[.32rem]">
+                        <div
+													className="ml-[.32rem] cursor-pointer"
+													onClick={() => {
+														if (editAddress) {
+															setEditAddress(false);
+														}
+													}}
+												>
                           <Icomoon
                             icon="complete-outline"
                             size=".38rem"
@@ -369,7 +382,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance)} {tokenName}
+                    {balance} {tokenName}
                   </div>
                 </div>
               </div>
@@ -412,11 +425,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   ) {
                     return;
                   }
-                  setStakeAmount(
-                    formatNumber(
-                      Math.max(Number(balance) - Number(estimateFee) * 1.5, 0)
-                    )
-                  );
+									let amount = Number(balance);
+									if (tokenName === TokenName.ETH) {
+										amount = Math.max(Number(balance) - Number(estimateFee) * 1.5, 0);
+									}
+									setStakeAmount(amount.toString());
                 }}
               >
                 Max

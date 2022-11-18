@@ -95,4 +95,17 @@ export default class CommonSlice {
 		}
 		return data;
 	}
+
+	async getUnbondFees(rsymbol: rSymbol) {
+		const stafiApi = await stafiServer.createStafiApi();
+		const result = await stafiApi.query.rTokenSeries.unbondFees(rsymbol);
+		return result.toJSON();
+	}
+
+	async getUnbondCommision() {
+		const stafiApi = await stafiServer.createStafiApi();
+		const result = await stafiApi.query.rTokenSeries.unbondCommission();
+		const unbondCommision = numberUtil.fisFeeToHuman(result.toJSON());
+		return unbondCommision;
+	}
 }

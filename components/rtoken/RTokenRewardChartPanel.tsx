@@ -114,6 +114,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
           height={chartHeight}
           xData={chartXData}
           yData={chartYData}
+					tokenName={tokenName}
         />
 
         <div className="text-[.18rem] text-text2 absolute top-[.36rem] left-0 invisible">

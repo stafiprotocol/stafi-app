@@ -96,4 +96,5 @@ export enum DexType {
   Sushi = "Sushi",
   Curve = "Curve",
   Sifchain = "Sifchain",
+	Quickswap = "Quickswap",
 }

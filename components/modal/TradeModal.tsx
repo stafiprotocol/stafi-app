@@ -18,7 +18,9 @@ export const TradeModal = (props: TradeModalProps) => {
   const onClickRBridge = () => {
     if (props.tokenName === TokenName.ETH) {
       window.open("https://app.stafi.io/rAsset/swap/rETH?first=native");
-    }
+    } else if (props.tokenName === TokenName.MATIC) {
+			window.open("https://app.stafi.io/rAsset/swap/rMATIC?first=native");
+		}
   };
 
   return (

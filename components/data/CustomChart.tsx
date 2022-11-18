@@ -2,12 +2,14 @@ import ReactEcharts from "echarts-for-react";
 import React from "react";
 import { graphic } from "echarts";
 import { height } from "@mui/system";
+import { TokenName } from "interfaces/common";
 
 interface CustomChartProps {
   xData: string[];
   yData: string[];
   width: string;
   height: string;
+	tokenName?: TokenName;
 }
 
 export const CustomChart = (props: CustomChartProps) => {
@@ -36,7 +38,7 @@ export const CustomChart = (props: CustomChartProps) => {
 
             return `<div style="font-size:0.24rem;display:flex;flex-direction:column;align-items:center;">
             <div style="color:#9DAFBE;">${params[0].axisValue}</div>
-            <span style="color:#00F3AB;margin-top:0.05rem">+${formatStakedValue} ETH<span>
+            <span style="color:#00F3AB;margin-top:0.05rem">+${formatStakedValue} ${props.tokenName || 'ETH'}<span>
           </div>`;
           }
           // console.log(params, "======params");

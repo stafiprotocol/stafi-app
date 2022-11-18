@@ -149,7 +149,7 @@ export function useRTokenReward(
                 tokenSymbol = getTokenSymbol(tokenName);
               }
               return formatNumber(
-                chainAmountToHuman(item, getTokenSymbol(tokenName))
+                chainAmountToHuman(item, tokenSymbol)
               );
             })
             ?.reverse() || []

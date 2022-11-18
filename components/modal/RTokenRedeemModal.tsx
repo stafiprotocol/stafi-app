@@ -4,15 +4,16 @@ import { CustomInput } from "components/common/CustomInput";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { TokenStandardSelector } from "components/rtoken/TokenStandardSelector";
-import { TokenName, TokenStandard } from "interfaces/common";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
 import maticIcon from 'public/matic_type_green.svg';
+import maticBlackIcon from 'public/matic_type_black.svg';
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
-import { useAppDispatch } from "hooks/common";
+import { useAppDispatch, useAppSelector } from "hooks/common";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import { formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
@@ -25,7 +26,11 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
-import { handleMaticStake, unbondRMatic } from "redux/reducers/MaticSlice";
+import { getUnbondCommision, getUnbondFees, handleMaticStake, unbondRMatic } from "redux/reducers/MaticSlice";
+import { useWalletAccount } from "hooks/useWalletAccount";
+import { RootState } from "redux/store";
+import { getTransactionFees } from "redux/reducers/FisSlice";
+import numberUtil from "utils/numberUtil";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -49,10 +54,28 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const [editAddress, setEditAddress] = useState(false);
   const [targetAddress, setTargetAddress] = useState("");
   const [redeemAmount, setRedeemAmount] = useState("");
+	const [expandUserAddress, setExpandUserAddress] = useState(false);
+ 
+	const { unbondCommision, unbondFees } = useAppSelector((state: RootState) => {
+		return {
+			unbondFees: state.matic.unbondFees,
+			unbondCommision: state.matic.unbondCommision,
+		};
+	});
+	const transactionFee = 0.0129;
 
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
+
+	const { metaMaskAccount } = useWalletAccount();
+
+	const userAddress = useMemo(() => {
+		if (walletType === WalletType.MetaMask) {
+			return metaMaskAccount;
+		}
+		return '';
+	}, [walletType, metaMaskAccount]);
 
   const willReceiveAmount = useMemo(() => {
     if (
@@ -62,8 +85,29 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     ) {
       return "--";
     }
-    return Number(redeemAmount) / Number(rTokenRatio) + "";
+    return Number(redeemAmount) * Number(rTokenRatio) + "";
   }, [redeemAmount, rTokenRatio]);
+
+	const redeemFee = useMemo(() => {
+		if (
+			isNaN(Number(unbondCommision)) ||
+			isNaN(Number(rTokenRatio)) ||
+			Number(unbondCommision) === 0
+		) {
+			return '--';
+		}
+		return Number(unbondCommision) * Number(rTokenRatio) + '';
+	}, [unbondCommision, rTokenRatio]);
+
+	const transactionCost = useMemo(() => {
+		if (
+			isNaN(Number(transactionFee)) ||
+			isNaN(Number(unbondFees))
+		) {
+			return '--';
+		}
+		return Number(numberUtil.fisAmountToHuman(unbondFees)) + Number(transactionFee) + '';
+	}, [unbondFees, transactionFee]);
 
   const { isLoading } = useAppSlice();
 
@@ -83,6 +127,20 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   useEffect(() => {
     resetState();
   }, [visible]);
+
+	useEffect(() => {
+		dispatch(
+			getTransactionFees()
+		);
+		dispatch(
+			getUnbondCommision()
+		);
+		dispatch(
+			getUnbondFees()
+		);
+	}, []);
+
+	console.log({unbondCommision, unbondFees})
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
@@ -190,15 +248,15 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   <MyTooltip title="Receive Address" text="Receive Address" />
                 </div>
 
-                <div className="flex mt-[.15rem]">
+                <div className="flex mt-[.15rem] items-center">
                   {editAddress || !targetAddress ? (
-                    <div>
+                    <div className="flex items-center">
                       <Card
                         background="rgba(25, 38, 52, 0.35)"
                         borderColor="#1A2835"
 												ml="0.24rem"
                       >
-                        <div className="h-[.68rem] w-[5.3rem] px-[.24rem]">
+                        <div className="h-[.68rem] w-[5.3rem] px-[.24rem] flex items-center">
                           <CustomInput
                             fontSize=".18rem"
                             placeholder="Receiving Address"
@@ -208,7 +266,14 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                         </div>
                       </Card>
                       {addressCorrect && (
-                        <div className="ml-[.32rem]">
+                        <div
+													className="ml-[.32rem] cursor-pointer"
+													onClick={() => {
+														if (editAddress) {
+															setEditAddress(false);
+														}
+													}}
+												>
                           <Icomoon
                             icon="complete-outline"
                             size=".38rem"
@@ -236,7 +301,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                             className="flex items-center ml-[.25rem] cursor-pointer"
                             onClick={() => {
                               setEditAddress(true);
-                              setTargetAddress("");
+                              // setTargetAddress("");
                             }}
                           >
                             <Icomoon
@@ -262,7 +327,18 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                     background="rgba(25, 38, 52, 0.35)"
                     borderColor="#1A2835"
                   >
-                    <div className="w-[.76rem] h-[.68rem] flex items-center justify-center">
+                    <div
+											className="px-[.24rem] h-[.68rem] flex items-center justify-center cursor-pointer"
+											onClick={() => {
+												setExpandUserAddress(!expandUserAddress);
+											}}
+										>
+											{expandUserAddress && (
+												<div className="text-text2 text-[.24rem] mr-[.14rem]">
+													{getShortAddress(userAddress, 5)}
+												</div>
+											)}
+
                       <div className="w-[.28rem] h-[.28rem] relative">
                         <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
                       </div>
@@ -270,7 +346,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance)} r{tokenName}
+                    {balance} r{tokenName}
                   </div>
                 </div>
               </div>
@@ -283,7 +359,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
+                <Image src={tokenName === TokenName.MATIC ? maticBlackIcon : ethIcon} alt="icon" layout="fill" />
               </div>
 
               <div className="ml-[.35rem] text-text2 text-[.32rem]">r{props.tokenName}</div>
@@ -301,16 +377,14 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                 className="w-[1.35rem] h-[.67rem] bg-[#1A2835] rounded-[.16rem] flex items-center justify-center cursor-pointer text-white text-[.24rem]"
                 onClick={() => {
                   if (
-                    false ||
+                    isWrongMetaMaskNetwork ||
                     isNaN(Number(balance)) ||
                     isNaN(Number(estimateFee))
                   ) {
                     return;
                   }
                   setRedeemAmount(
-                    formatNumber(
-                      Math.max(Number(balance) - Number(estimateFee), 0)
-                    )
+										balance
                   );
                 }}
               >
@@ -319,8 +393,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             </Card>
 
             <Button
-              // disabled={buttonDisabled}
-							disabled={false}
+              disabled={buttonDisabled}
               loading={isLoading}
               mt=".36rem"
               fontSize=".32rem"
@@ -347,16 +420,15 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Transcation Cost</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  Est. {formatNumber(estimateFee)} ETH
+									{formatNumber(transactionCost, { decimals: 2 })} FIS
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
-                  <MyTooltip text="Staking Reward" title="Staking Reward" />
+                  <MyTooltip text="Redeem Fee" title="Redeem Fee" />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(rTokenStakerApr, { decimals: 2 })}% Reward Fee
-                  {/* + 463.2 FIS */}
+                  {formatNumber(unbondCommision, { decimals: 3 })} r{tokenName} (~{formatNumber(redeemFee, { decimals: 3 })} {tokenName})
                 </div>
               </div>
             </div>

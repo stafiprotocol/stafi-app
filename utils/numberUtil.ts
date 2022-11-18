@@ -95,7 +95,10 @@ const numberUtil = {
 	},
 	handleEthAmountRound(amount: any) {
 		return Math.floor(amount * 1000000) / 1000000;
-	}
+	},
+	fisFeeToHuman(fee: any) {
+		return fee / 1000000000;
+	},
 }
 
 export default numberUtil;

@@ -648,3 +648,40 @@ export const fisUnbond =
 				}
 			});
 	};
+
+export const getTransactionFees = (): AppThunk =>
+	async (dispatch, getState) => {
+		const address = getState().fis.fisAccount && getState().fis.fisAccount.address;
+		const api = await stafiServer.createStafiApi();
+		
+		const { web3Enable, web3FromSource } = await import('@polkadot/extension-dapp');
+		web3Enable(stafiServer.getWeb3EnableName());
+		const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
+
+		dispatch(
+			setStakeLoadingParams({
+				progressDetail: {
+					sending: {
+						broadcastStatus: 'loading',
+					}
+				}
+			})
+		);
+
+		const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
+			symbol,
+			selectedPool,
+			numberUtil.tokenAmountToChain(amount, symbol).toString(),
+			recipient,
+		);
+		// const sender = getState().fis.fisAccount.address;
+		// const validPools = getState().matic.validPools;
+		// let selectedPool = commonSlice.getPoolForUnbond('0', validPools, rSymbol.Matic);
+		// if (!sender || !selectedPool) return;
+
+		// const api = await stafiServer.createStafiApi();
+		// const info = await api.tx.balances
+		// 	.transfer(selectedPool.address, 123)
+		// 	.paymentInfo(sender);
+		// console.log({info: info.partialFee.toHuman()})
+	}
