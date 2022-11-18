@@ -1,7 +1,9 @@
 import { Box, Modal } from "@mui/material";
+import classNames from "classnames";
 import { Icomoon } from "components/icon/Icomoon";
 import { ConnectWalletItem } from "components/rtoken/ConnectWalletItem";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import metaMask from "public/wallet/metaMask.svg";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
@@ -35,7 +37,7 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
         sx={{
           border: "1px solid #1A2835",
           backgroundColor: "#0A131B",
-          width: "6rem",
+          width: "6.04rem",
           borderRadius: "0.16rem",
           outline: "none",
           position: "fixed",
@@ -44,7 +46,7 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
           transform: "translate(-50%, -50%)",
         }}
       >
-        <div className="flex flex-col items-stretch px-[.56rem] pb-[.6rem] relative">
+        <div className="flex flex-col items-stretch px-[.46rem] pb-[.6rem] relative">
           <div
             className="absolute right-[.16rem] top-[.16rem] cursor-pointer"
             onClick={() => dispatch(setConnectWalletModalParams(undefined))}
@@ -58,14 +60,16 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
               : `Connect ${connectWalletModalParams.walletList.length} Wallets`}
           </div>
 
-          <div className="text-center text-[.16rem] text-text1 mt-[.24rem]">
-            Connect following wallets below to stake your tokens
+          <div className="text-[.16rem] text-text1 mt-[.24rem] leading-normal">
+            Connect your wallet via our supported wallets below to stake your
+            tokens
           </div>
 
           <div className="py-[.32rem]">
             {connectWalletModalParams.walletList.map((item) => (
               <ConnectWalletItem
                 key={item}
+                showDot={connectWalletModalParams.walletList.length > 1}
                 walletType={item}
                 targetMetaMaskChainId={
                   connectWalletModalParams.targetMetaMaskChainId
@@ -74,7 +78,14 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
             ))}
           </div>
 
-          <div className="text-text2 text-[.16rem] leading-tight invisible">
+          <div
+            className={classNames("text-text2 text-[.16rem] leading-tight", {
+              invisible:
+                connectWalletModalParams.walletList.indexOf(
+                  WalletType.Polkadot
+                ) < 0,
+            })}
+          >
             Need a Native StaFi Wallet? Create a new wallet or import your
             existing wallet by following our{" "}
             <a

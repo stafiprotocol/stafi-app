@@ -50,12 +50,12 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         return;
       }
       let walletTypes: WalletType[] = [];
-      if (!metaMaskAccount) {
-        walletTypes.push(WalletType.MetaMask);
-      }
-      if (!polkadotAccount) {
-        walletTypes.push(WalletType.Polkadot);
-      }
+      // if (!metaMaskAccount) {
+      walletTypes.push(WalletType.MetaMask);
+      // }
+      // if (!polkadotAccount) {
+      walletTypes.push(WalletType.Polkadot);
+      // }
       dispatch(
         setConnectWalletModalParams({
           visible: true,

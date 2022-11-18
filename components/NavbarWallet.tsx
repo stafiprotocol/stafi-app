@@ -18,18 +18,21 @@ import {
 import Image from "next/image";
 import ethereumLogo from "public/eth_logo.png";
 import downIcon from "public/icon_down.png";
-import metaMask from "public/wallet/metaMask.svg";
 import { useContext, useEffect, useMemo } from "react";
 import { updateEthBalance } from "redux/reducers/EthSlice";
+import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
   connectPolkadotJs,
   updatePolkadotExtensionAccountsBalances,
   updateSelectedPolkadotAccountBalance,
+  setPolkadotAccount,
+  setPolkadotBalance,
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
 import { openLink } from "utils/common";
 import { formatNumber } from "utils/number";
+import { getWalletIcon } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask } from "utils/web3Utils";
@@ -313,6 +316,7 @@ interface WalletAccountItemProps {
 }
 
 const WalletAccountItem = (props: WalletAccountItemProps) => {
+  const dispatch = useAppDispatch();
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
   const { isWrongMetaMaskNetwork, targetMetaMaskChainId } =
@@ -352,7 +356,11 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
       >
         <div className="flex items-center">
           <div className="ml-[.24rem] w-[.3rem] h-[.3rem] relative">
-            <Image src={metaMask} layout="fill" alt="icon" />
+            <Image
+              src={getWalletIcon(props.walletType)}
+              layout="fill"
+              alt="icon"
+            />
           </div>
 
           <div className="ml-[.14rem]">
@@ -415,7 +423,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           {isWrongMetaMaskNetwork && props.walletType === WalletType.MetaMask && (
             <>
               <div
-                className="text-center py-[.24rem] cursor-pointer"
+                className="text-center py-[.24rem] cursor-pointer active:text-primary"
                 onClick={() => {
                   connectMetaMask(targetMetaMaskChainId);
                   menuPopupState.close();
@@ -427,7 +435,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             </>
           )}
           <div
-            className="text-center py-[.24rem] cursor-pointer"
+            className="text-center py-[.24rem] cursor-pointer active:text-primary"
             onClick={() => {
               navigator.clipboard.writeText(props.address).then(() => {
                 snackbarUtil.success("Copied");
@@ -438,8 +446,22 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             Copy Address
           </div>
           <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
+          {props.walletType === WalletType.Polkadot && (
+            <>
+              <div
+                className="text-center py-[.24rem] cursor-pointer active:text-primary"
+                onClick={() => {
+                  dispatch(setChooseAccountVisible(true));
+                  menuPopupState.close();
+                }}
+              >
+                Change Address
+              </div>
+              <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
+            </>
+          )}
           <div
-            className="text-center py-[.24rem] cursor-pointer"
+            className="text-center py-[.24rem] cursor-pointer active:text-primary"
             onClick={() => {
               menuPopupState.close();
               if (props.walletType === WalletType.MetaMask) {
@@ -451,10 +473,23 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           >
             Block Explorer
           </div>
-          <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
-          <div className="text-center py-[.24rem] cursor-pointer">
-            Disconnect
-          </div>
+          {props.walletType === WalletType.Polkadot && (
+            <>
+              <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
+              <div
+                className="text-center py-[.24rem] cursor-pointer active:text-primary"
+                onClick={() => {
+                  menuPopupState.close();
+                  if (props.walletType === WalletType.Polkadot) {
+                    dispatch(setPolkadotAccount(undefined));
+                    dispatch(setPolkadotBalance("--"));
+                  }
+                }}
+              >
+                Disconnect
+              </div>
+            </>
+          )}
         </div>
       </Popover>
     </>

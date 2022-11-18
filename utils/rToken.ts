@@ -3,6 +3,7 @@ import {
   TokenName,
   TokenStandard,
   TokenSymbol,
+  WalletType,
 } from "interfaces/common";
 import { formatNumber } from "./number";
 import curveIcon from "public/dex/curve.svg";
@@ -11,7 +12,9 @@ import rDEXIcon from "public/dex/r_dex.png";
 import sifchainIcon from "public/dex/sifchain.svg";
 import uniswapIcon from "public/dex/uniswap.png";
 import { getMetamaskMaticChainId } from "config/metaMask";
-import quickswapIcon from 'public/dex/quick_swap.png';
+import quickswapIcon from "public/dex/quick_swap.png";
+import metaMask from "public/wallet/metaMask.svg";
+import polkadot from "public/wallet/polkadot.svg";
 
 export interface DexItem {
   type: DexType;
@@ -68,8 +71,8 @@ export function getDexIcon(type: DexType): any {
   } else if (type === DexType.Sifchain) {
     return sifchainIcon;
   } else if (type === DexType.Quickswap) {
-		return quickswapIcon;
-	}
+    return quickswapIcon;
+  }
 }
 
 export function getDexList(tokenName: TokenName): DexItem[] {
@@ -92,19 +95,29 @@ export function getDexList(tokenName: TokenName): DexItem[] {
       },
     ];
   }
-	if (tokenName === TokenName.MATIC) {
-		return [
-			{
-				type: DexType.rDEX,
-				tokenStandard: TokenStandard.Native,
-				url: 'https://app.rdex.finance/swap?first=rMATIC&second=FIS',
-			},
-			{
-				type: DexType.Quickswap,
-				tokenStandard: TokenStandard.ERC20,
-				url: 'https://quickswap.exchange/#/swap?inputCurrency=0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270&outputCurrency=0x9f28e2455f9ffcfac9ebd6084853417362bc5dbb',
-			},
-		];
-	}
+  if (tokenName === TokenName.MATIC) {
+    return [
+      {
+        type: DexType.rDEX,
+        tokenStandard: TokenStandard.Native,
+        url: "https://app.rdex.finance/swap?first=rMATIC&second=FIS",
+      },
+      {
+        type: DexType.Quickswap,
+        tokenStandard: TokenStandard.ERC20,
+        url: "https://quickswap.exchange/#/swap?inputCurrency=0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270&outputCurrency=0x9f28e2455f9ffcfac9ebd6084853417362bc5dbb",
+      },
+    ];
+  }
   return [];
+}
+
+export function getWalletIcon(walletType: WalletType) {
+  if (walletType === WalletType.MetaMask) {
+    return metaMask;
+  }
+  if (walletType === WalletType.Polkadot) {
+    return polkadot;
+  }
+  return undefined;
 }

@@ -31,28 +31,33 @@ export function connectMetaMask(targetChainId: number | undefined) {
   } else if (targetChainId === getMetamaskEthChainId()) {
     metaMask.activate(getMetaMaskEthConnectConfig());
   } else if (targetChainId === getMetamaskMaticChainId()) {
-		metaMask.activate(getMetamaskMaticChainId());
-	}
+    metaMask.activate(getMetamaskMaticChainId());
+  }
 }
 
 export function connectPolkadot() {
-	const conn = async () => {
-		const { web3Enable, web3Accounts } = await import('@polkadot/extension-dapp');
-		const accounts = await web3Enable('stafi/rtoken')
-			.then(async () => await web3Accounts());
-		const keyringInstance = new KeyringServer().init(Symbol.Fis);
-		const fisAccounts: FisAccount[] = accounts.map(account => {
-			const address = keyringInstance.encodeAddress(keyringInstance.decodeAddress(account.address));
-			return {
-				name: account.meta.name,
-				address,
-				balance: '--',
-			};
-		});
-		return fisAccounts;
-	}
+  const conn = async () => {
+    const { web3Enable, web3Accounts } = await import(
+      "@polkadot/extension-dapp"
+    );
+    const accounts = await web3Enable("stafi/rtoken").then(
+      async () => await web3Accounts()
+    );
+    const keyringInstance = new KeyringServer().init(Symbol.Fis);
+    const fisAccounts: FisAccount[] = accounts.map((account) => {
+      const address = keyringInstance.encodeAddress(
+        keyringInstance.decodeAddress(account.address)
+      );
+      return {
+        name: account.meta.name,
+        address,
+        balance: "--",
+      };
+    });
+    return fisAccounts;
+  };
 
-	return conn();
+  return conn();
 }
 
 export async function getErc20AssetBalance(
