@@ -261,7 +261,7 @@ export function useRTokenReward(
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, updateFlag15s]);
 
   return {
     requestStatus,

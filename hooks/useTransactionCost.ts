@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { getTransactionFees } from "redux/reducers/FisSlice";
-import { getUnbondCommision, getUnbondFees } from "redux/reducers/MaticSlice";
+// import { getTransactionFees } from "redux/reducers/FisSlice";
+import { getMaticUnbondTransactionFees, getUnbondCommision, getUnbondFees } from "redux/reducers/MaticSlice";
 import { RootState } from "redux/store";
 import { useAppDispatch, useAppSelector } from "./common";
 
@@ -16,7 +16,6 @@ export function useTransactionCost() {
 	});
 
 	useEffect(() => {
-		dispatch(getTransactionFees());
 		dispatch(getUnbondCommision());
 		dispatch(getUnbondFees());
 	}, [dispatch]);

@@ -12,7 +12,7 @@ import { createWeb3 } from "utils/web3Utils";
 import Web3 from 'web3';
 import { addNotice, setIsLoading, setStakeLoadingParams } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
-import { bond, fisUnbond } from "./FisSlice";
+import { bond, fisUnbond, getUnbondTransactionFees } from "./FisSlice";
 import keyring from 'servers/keyring';
 import { u8aToHex } from "@polkadot/util";
 import { CANCELLED_MESSAGE } from "utils/constants";
@@ -75,6 +75,9 @@ export const maticSlice = createSlice({
 		setUnbondCommision: (state: MaticState, action: PayloadAction<string>) => {
 			state.unbondCommision = action.payload;
 		},
+		setTransactionFees: (state: MaticState, action: PayloadAction<string>) => {
+			state.transactionFees = action.payload;
+		},
 	}
 });
 
@@ -86,6 +89,7 @@ export const {
 	setValidPools,
 	setUnbondCommision,
 	setUnbondFees,
+	setTransactionFees,
 } = maticSlice.actions;
 
 export default maticSlice.reducer;
@@ -501,6 +505,23 @@ export const getUnbondFees = (): AppThunk =>
 	async (dispatch, getState) => {
 		const unbondFees = await commonSlice.getUnbondFees(rSymbol.Matic);
 		dispatch(
-			setUnbondFees(unbondFees as string)
+			setUnbondFees(Number(unbondFees).toString())
+		);
+	}
+
+export const getMaticUnbondTransactionFees =
+	(amount: string, recipient: string): AppThunk =>
+	async (dispatch, getState) => {
+		const validPools = getState().matic.validPools;
+		console.log({validPools})
+		let selectedPool = commonSlice.getPoolForUnbond(amount, validPools, rSymbol.Matic);
+		console.log({selectedPool})
+		if (!selectedPool) {
+			return;
+		}
+		const keyringInstance = keyring.init(Symbol.Matic);
+		console.log('22')
+		dispatch(
+			getUnbondTransactionFees(amount, rSymbol.Matic, u8aToHex(keyringInstance.decodeAddress(recipient)), selectedPool.poolPubKey)
 		);
 	}

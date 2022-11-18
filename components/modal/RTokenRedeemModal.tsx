@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@mui/material";
+import { Dialog, DialogContent, Divider, Popover } from "@mui/material";
 import { Card } from "components/common/card";
 import { CustomInput } from "components/common/CustomInput";
 import { MyTooltip } from "components/common/MyTooltip";
@@ -26,12 +26,17 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
-import { getUnbondCommision, getUnbondFees, handleMaticStake, unbondRMatic } from "redux/reducers/MaticSlice";
+import { getMaticUnbondTransactionFees, getUnbondCommision, getUnbondFees, handleMaticStake, unbondRMatic } from "redux/reducers/MaticSlice";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { RootState } from "redux/store";
-import { getTransactionFees } from "redux/reducers/FisSlice";
 import numberUtil from "utils/numberUtil";
 import { useTransactionCost } from "hooks/useTransactionCost";
+import downIcon from 'public/icon_down.png';
+import { bindPopover } from "material-ui-popup-state";
+import { bindHover, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
+import HoverPopover from 'material-ui-popup-state/HoverPopover';
+import { useTokenPrice } from "hooks/useTokenPrice";
+import { rSymbol, Symbol } from "keyring/defaults";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -56,11 +61,14 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const [targetAddress, setTargetAddress] = useState("");
   const [redeemAmount, setRedeemAmount] = useState("");
 	const [expandUserAddress, setExpandUserAddress] = useState(false);
+	const [txCostDetailVisible, setTxCostDetailVisible] = useState(false);
+
+	const fisPrice = useTokenPrice('FIS');
 
 	const tokenStandard = useTokenStandard(props.tokenName);
  
 	const { unbondCommision, unbondFees, transactionFees } = useTransactionCost();
-	const transactionFee = 0.0129;
+	const defaultTransactionFee = 0.0129;
 
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
@@ -98,14 +106,23 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 	}, [unbondCommision, rTokenRatio]);
 
 	const transactionCost = useMemo(() => {
+		let txFee = transactionFees || defaultTransactionFee;
 		if (
-			isNaN(Number(transactionFee)) ||
+			isNaN(Number(txFee)) ||
 			isNaN(Number(unbondFees))
 		) {
 			return '--';
 		}
-		return Number(numberUtil.fisAmountToHuman(unbondFees)) + Number(transactionFee) + '';
-	}, [unbondFees, transactionFee]);
+		return Number(numberUtil.fisAmountToHuman(unbondFees)) + Number(txFee) + '';
+	}, [unbondFees, transactionFees]);
+
+	const transactionCostValue = useMemo(() => {
+		if (
+			isNaN(Number(transactionCost)) ||
+			isNaN(Number(fisPrice))
+		) return '--';
+		return Number(transactionCost) * Number(fisPrice) + '';
+	}, [transactionCost, fisPrice]);
 
   const { isLoading } = useAppSlice();
 
@@ -125,8 +142,6 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   useEffect(() => {
     resetState();
   }, [visible]);
-
-	console.log({unbondCommision, unbondFees})
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
@@ -187,6 +202,18 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 			);
 		}
   };
+
+	useEffect(() => {
+		dispatch(
+			getMaticUnbondTransactionFees(redeemAmount || '1', targetAddress)
+		)
+		console.log('getMaticUnbondTransactionFees')
+	}, [targetAddress]);
+
+	const txCostPopupState = usePopupState({
+		variant: 'popover',
+		popupId: 'txCost',
+	});
 
   return (
     <Dialog
@@ -405,9 +432,61 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Transcation Cost</div>
-                <div className="mt-[.15rem] text-text1 text-[.24rem]">
+                <div
+									className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
+									{...bindHover(txCostPopupState)}
+									// onMouseEnter={}
+								>
 									{formatNumber(transactionCost, { decimals: 2 })} FIS
+									<div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
+										<Image src={downIcon} layout="fill" alt="down" />
+									</div>
                 </div>
+
+								<HoverPopover
+									{...bindPopover(txCostPopupState)}
+									transformOrigin={{
+										horizontal: 'center',
+										vertical: 'top'
+									}}
+									anchorOrigin={{
+										vertical: 'bottom',
+										horizontal: 'center',
+									}}
+									sx={{
+										marginTop: '.1rem',
+										"& .MuiPopover-paper": {
+											background: "rgba(9, 15, 23, 0.25)",
+											border: "1px solid #26494E",
+											backdropFilter: "blur(.4rem)",
+											borderRadius: ".16rem",
+											padding: '.2rem',
+										},
+										"& .MuiTypography-root": {
+											padding: "0px",
+										},
+									}}
+								>
+									<div className="text-text2">
+										<div className="flex justify-between">
+											<div>Relay Fee</div>
+											<div>{numberUtil.fisAmountToHuman(unbondFees)} FIS</div>
+										</div>
+										<div className="flex justify-between my-[.18rem]">
+											<div>Transaction Fee</div>
+											<div>{formatNumber(transactionFees, { decimals: 2 })} FIS</div>
+										</div>
+										<div
+											className="h-[1px] bg-text3 my-[.1rem]"
+										/>
+										<div className="text-text1">
+											Overall Transaction Cost: <span className="ml-[.1rem]" /> {formatNumber(transactionCost, { decimals: 2 })} FIS
+										</div>
+										<div className="mt-[.18rem] text-right">
+											~${formatNumber(transactionCostValue, { decimals: 2 })}
+										</div>
+									</div>
+								</HoverPopover>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
