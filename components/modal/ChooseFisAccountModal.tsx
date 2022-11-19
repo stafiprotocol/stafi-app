@@ -1,4 +1,5 @@
 import { Box, Card, Modal } from "@mui/material";
+import classNames from "classnames";
 import { Icomoon } from "components/icon/Icomoon";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
@@ -10,6 +11,7 @@ import {
   updatePolkadotExtensionAccountsBalances,
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
+import commonStyles from "styles/Common.module.scss";
 
 interface Props {}
 
@@ -46,7 +48,7 @@ export const ChooseFisAccountModal = (props: Props) => {
         sx={{
           border: "1px solid #1A2835",
           backgroundColor: "#0A131B",
-          width: "6rem",
+          width: "6.04rem",
           borderRadius: "0.16rem",
           outline: "none",
           position: "fixed",
@@ -55,7 +57,7 @@ export const ChooseFisAccountModal = (props: Props) => {
           transform: "translate(-50%, -50%)",
         }}
       >
-        <div className="flex flex-col items-stretch px-[.56rem] pb-[.6rem] relative">
+        <div className="flex flex-col items-stretch px-[.4rem] relative">
           <div
             className="absolute right-[.16rem] top-[.16rem] cursor-pointer"
             onClick={() => dispatch(setChooseAccountVisible(false))}
@@ -63,45 +65,69 @@ export const ChooseFisAccountModal = (props: Props) => {
             <Icomoon icon="close" size="0.24rem" color="#5B6872" />
           </div>
 
-          <div className="text-center mt-[0.56rem] text-white font-[700] text-[.42rem]">
+          <div className="text-center mt-[0.56rem] text-white font-[500] text-[.32rem]">
             Change Polkadot Address
           </div>
 
-          <div className="text-center text-[.16rem] text-text1 mt-[.24rem]">
-            Connect following wallets below to stake your tokens
-          </div>
-
-          <div className="py-[.32rem]">
+          <div
+            className={classNames(
+              "py-[.32rem] max-h-[5rem] overflow-auto",
+              commonStyles["hide-scrollbar"]
+            )}
+          >
             {polkadotExtensionAccounts.map((account) => (
-              <Card
-                key={account.address}
-                onClick={() => changeAccount(account.address)}
-                sx={{
-                  border:
-                    account.address === polkadotAccount
-                      ? "1px solid #00F3AB"
-                      : "1px solid #1A2835",
-                  margin: ".2rem 0",
-                  padding: ".16rem",
-                  backgroundColor:
-                    account.address === polkadotAccount ? "#163a3e" : "#0A131B",
-                  height: "1rem",
-                }}
-              >
-                <div className="flex flex-col justify-between h-full">
-                  <div className="flex justify-between text-[.18rem] text-white">
-                    <div>{account.meta?.name}</div>
-                    <div>{account.balance}</div>
-                  </div>
-                  <div className="text-text1 text-[.16rem]">
-                    {account.address}
-                  </div>
+              <div key={account.address} className="flex items-center">
+                <div className="w-[.24rem] min-w-[.24rem]">
+                  {account.address === polkadotAccount ? (
+                    <Icomoon icon="active" size=".24rem" />
+                  ) : (
+                    <div className="border-[1px] border-solid rounded-full border-white/50 w-[.24rem] h-[.24rem]" />
+                  )}
                 </div>
-              </Card>
+
+                <Card
+                  onClick={() => changeAccount(account.address)}
+                  sx={{
+                    borderRadius: ".16rem",
+                    border:
+                      account.address === polkadotAccount
+                        ? "1px solid rgba(0, 243, 171, 0.5)"
+                        : "1px solid rgba(157, 175, 190, 0.2)",
+                    margin: ".2rem 0 .2rem .24rem",
+                    padding: ".24rem",
+                    backgroundColor:
+                      account.address === polkadotAccount
+                        ? "rgba(0, 243, 171, 0.1)"
+                        : "transparent",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div className="flex flex-col justify-between h-full">
+                    <div
+                      className={classNames(
+                        "flex justify-between",
+                        account.address === polkadotAccount
+                          ? "text-primary"
+                          : "text-white"
+                      )}
+                    >
+                      <div className="flex items-center">
+                        <div className="text-[.28rem]">
+                          {account.meta?.name}
+                        </div>
+                      </div>
+                      <div className="text-[.22rem]">{account.balance}</div>
+                    </div>
+                    <div className="text-text2 text-[.16rem] break-all mt-[.2rem]">
+                      {account.address}
+                    </div>
+                  </div>
+                </Card>
+              </div>
             ))}
           </div>
 
-          <div className="text-text2 text-[.16rem] leading-tight invisible">
+          <div className="text-text2 text-[.16rem] leading-tight hidden">
             Need a Native StaFi Wallet? Create a new wallet or import your
             existing wallet by following our{" "}
             <a
