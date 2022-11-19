@@ -9,7 +9,6 @@ import { stringToHex, u8aToHex } from "@polkadot/util";
 import { setStakeLoadingParams } from "./AppSlice";
 import { getLocalStorageItem } from "utils/common";
 import { connectPolkadot } from "utils/web3Utils";
-import { setTransactionFees } from "./MaticSlice";
 import snackbarUtil from "utils/snackbarUtils";
 import { CANCELLED_MESSAGE } from "utils/constants";
 
@@ -472,6 +471,7 @@ export const fisUnbond =
 		);
 
 		unbondResult
+			// @ts-ignore
 			.signAndSend(address, { signer: injector.signer }, (result: any) => {
 				try {
 					if (result.status.isInBlock) {
