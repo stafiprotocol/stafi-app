@@ -304,7 +304,6 @@ export const getMinting =
 					},
 					minting: {
 						totalStatus: 'loading',
-						broadcastStatus: 'loading',
 					}
 				}
 			})
@@ -336,9 +335,6 @@ export const getMinting =
 								},
 								minting: {
 									totalStatus: 'success',
-									broadcastStatus: 'success',
-									packStatus: 'success',
-									finalizeStatus: 'success',
 								}
 							}
 						})
@@ -357,27 +353,27 @@ export const rTokenSeriesBondStates =
 
 		let bondState = result.toJSON();
 		if (bondState === 'Success') {
-			dispatch(
-				setStakeLoadingParams({
-					progressDetail: {
-						sending: {
-							totalStatus: 'success',
-							broadcastStatus: 'success',
-							packStatus: 'success',
-							finalizeStatus: 'success',
-						},
-						staking: {
-							totalStatus: 'success',
-							broadcastStatus: 'success',
-							packStatus: 'success',
-							finalizeStatus: 'success',
-						},
-						minting: {
-							broadcastStatus: 'success',
-						}
-					}
-				})
-			);
+			// dispatch(
+			// 	setStakeLoadingParams({
+			// 		progressDetail: {
+			// 			sending: {
+			// 				totalStatus: 'success',
+			// 				broadcastStatus: 'success',
+			// 				packStatus: 'success',
+			// 				finalizeStatus: 'success',
+			// 			},
+			// 			staking: {
+			// 				totalStatus: 'success',
+			// 				broadcastStatus: 'success',
+			// 				packStatus: 'success',
+			// 				finalizeStatus: 'success',
+			// 			},
+			// 			minting: {
+			// 				broadcastStatus: 'success',
+			// 			}
+			// 		}
+			// 	})
+			// );
 			cb && cb('successful');
 			console.log('success')
 		} else if (bondState === 'Fail') {
@@ -399,7 +395,6 @@ export const rTokenSeriesBondStates =
 						},
 						minting: {
 							totalStatus: 'error',
-							broadcastStatus: 'error',
 						}
 					}
 				})
@@ -436,7 +431,6 @@ export const rTokenSeriesBondStates =
 						},
 						minting: {
 							totalStatus: 'error',
-							broadcastStatus: 'error',
 						}
 					}
 				})
@@ -566,6 +560,7 @@ export const getBondTransactionFees =
 		amount: string,
 		rsymbol: rSymbol,
 		chainId: number,
+		poolAddress: string,
 		cb?: (fee: string) => void,
 	): AppThunk =>
 	async (dispatch, getState) => {
@@ -579,7 +574,7 @@ export const getBondTransactionFees =
 					.liquidityBond(
 						address,
 						'',
-						address,
+						poolAddress,
 						'',
 						'',
 						amount,
@@ -591,7 +586,7 @@ export const getBondTransactionFees =
 					.liquidityBondAndSwap(
 						address,
 						'',
-						address,
+						poolAddress,
 						'',
 						'',
 						amount,
@@ -601,6 +596,7 @@ export const getBondTransactionFees =
 					)
 					.paymentInfo(address);
 			}
+			console.log(txInfo.partialFee.toHuman())
 			const txFee = txInfo.partialFee.toNumber() / 1000000000000;
 			cb && cb(txFee.toString());
 		} catch (err) {

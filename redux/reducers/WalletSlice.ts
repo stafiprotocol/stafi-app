@@ -37,7 +37,8 @@ export interface WalletState {
 const initialState: WalletState = {
   metaMaskAccount: undefined,
   polkadotWalletStatus: "pending",
-  polkadotAccount: "",
+  // polkadotAccount: "34bwmgT1NtcL8FayGiFSB9F1qZFGPjhbDfTaZRoM2AXgjrpo",
+	polkadotAccount: '',
   polkadotExtensionAccounts: [],
   polkadotBalance: "--",
 };

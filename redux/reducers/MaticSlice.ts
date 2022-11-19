@@ -354,13 +354,11 @@ export const getPools =
 	async (dispatch, getState) => {
 		commonSlice.getPools(rSymbol.Matic, Symbol.Matic, (data: any) => {
 			dispatch(setValidPools(data));
-			console.log('pools', data);
 			cb && cb();
 		});
 
 		const data = await commonSlice.poolBalanceLimit(rSymbol.Matic);
 		dispatch(setPoolLimit(data));
-		console.log('poolLimit', data);
 	}
 
 export const getRMaticRate =
@@ -375,7 +373,7 @@ export const getRMaticRate =
 	}
 
 export const unbondRMatic =
-	(amount: string, recipient: string, cb?: Function): AppThunk =>
+	(amount: string, recipient: string, newTotalStakedAmount: string, cb?: Function): AppThunk =>
 	async (dispatch, getState) => {
 		dispatch(setIsLoading(true));
 		dispatch(
@@ -385,6 +383,7 @@ export const unbondRMatic =
 				tokenName: TokenName.MATIC,
 				amount: amount,
 				userAction: 'redeem',
+				newTotalStakedAmount,
 				progressDetail: {
 					sending: {
 						totalStatus: 'loading',
@@ -530,7 +529,6 @@ export const getUnbondFees = (): AppThunk =>
 export const getBondFees = (): AppThunk =>
 	async (dispatch, getState) => {
 		const bondFees = await commonSlice.getBondFees(rSymbol.Matic);
-		console.log(bondFees)
 		dispatch(
 			setBondFees(Number(bondFees).toString())
 		);
@@ -541,15 +539,21 @@ export const getMaticUnbondTxFees =
 	async (dispatch, getState) => {
 		if (!recipient) return;
 		const validPools = getState().matic.validPools;
-		console.log({validPools})
 		let selectedPool = commonSlice.getPoolForUnbond(amount, validPools, rSymbol.Matic);
-		console.log({selectedPool})
 		if (!selectedPool) {
 			return;
 		}
 		const keyringInstance = keyring.init(Symbol.Matic);
 		dispatch(
-			getUnbondTransactionFees(amount, rSymbol.Matic, u8aToHex(keyringInstance.decodeAddress(recipient)), selectedPool.poolPubKey)
+			getUnbondTransactionFees(
+				amount,
+				rSymbol.Matic,
+				u8aToHex(keyringInstance.decodeAddress(recipient)),
+				selectedPool.poolPubKey,
+				(fee: string) => {
+					dispatch(setUnbondTxFees(fee))
+				}
+			)
 		);
 	}
 
@@ -564,8 +568,14 @@ export const getMaticBondTransactionFees =
 		} else if (tokenStandard === TokenStandard.SPL) {
 			chainId = 4;
 		}
+		const validPools = getState().matic.validPools;
+		let selectedPool = commonSlice.getPoolForUnbond('0', validPools, rSymbol.Matic);
+		if (!selectedPool) {
+			return;
+		}
+
 		dispatch(
-			getBondTransactionFees('1', rSymbol.Matic, 1, (fee: string) => {
+			getBondTransactionFees('1', rSymbol.Matic, chainId, selectedPool.poolPubKey, (fee: string) => {
 				dispatch(
 					setBondTxFees(fee)
 				);

@@ -8,6 +8,7 @@ import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskMaticChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
@@ -32,6 +33,7 @@ const RMaticStakePage = () => {
 
   const { polkadotAccount } = useWalletAccount();
 
+	// const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.MATIC);
   const { balance } = useAppSelector((state: RootState) => {
     return { balance: state.matic.balance };
   });
@@ -95,7 +97,7 @@ const RMaticStakePage = () => {
         tokenName={TokenName.MATIC}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
-        balance={balance}
+        balance={balance || '--'}
       />
     </div>
   );

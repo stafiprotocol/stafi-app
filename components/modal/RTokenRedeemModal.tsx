@@ -37,6 +37,7 @@ import { bindHover, bindTrigger, usePopupState } from "material-ui-popup-state/h
 import HoverPopover from 'material-ui-popup-state/HoverPopover';
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { rSymbol, Symbol } from "keyring/defaults";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -69,6 +70,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 	const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost();
 	const defaultTransactionFee = 0.0129;
 
+	const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
@@ -122,6 +124,19 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 		) return '--';
 		return Number(transactionCost) * Number(fisPrice) + '';
 	}, [transactionCost, fisPrice]);
+
+	const newTotalStakedAmount = useMemo(() => {
+		if (
+			isNaN(Number(rTokenBalance)) ||
+			isNaN(Number(redeemAmount)) ||
+			isNaN(Number(rTokenRatio))
+		) {
+			return '--';
+		}
+		return (
+			(Number(rTokenBalance) - Number(redeemAmount)) * Number(rTokenRatio) + ''
+		);
+	}, [rTokenBalance, rTokenRatio, redeemAmount]);
 
   const { isLoading } = useAppSlice();
 
@@ -194,6 +209,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 				unbondRMatic(
 					redeemAmount,
 					targetAddress,
+					newTotalStakedAmount,
 					() => {
 						dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
 					}
@@ -358,7 +374,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance)} r{tokenName}
+                    {balance} r{tokenName}
                   </div>
                 </div>
               </div>

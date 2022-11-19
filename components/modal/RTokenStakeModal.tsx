@@ -65,6 +65,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
+	const { polkadotBalance } = useWalletAccount();
 
   const { metaMaskAccount } = useWalletAccount();
 
@@ -185,6 +186,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 		} else {
 			if (Number(stakeAmount) > Number(balance)) {
 				return [true, "Insufficient Balance"];
+			}
+			if (!isNaN(Number(transactionCost)) && Number(polkadotBalance) <= Number(transactionCost)) {
+				return [true, 'Insufficient FIS Balance'];
 			}
 		}
     if (!addressCorrect) {
@@ -434,7 +438,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance)} {tokenName}
+                    {balance} {tokenName}
                   </div>
                 </div>
               </div>
@@ -560,23 +564,27 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 											<div>{numberUtil.fisAmountToHuman(bondFees)} FIS</div>
 										</div>
 										<div className="flex justify-between my-[.18rem]">
-											<div>Transaction Fee</div>
-											<div>{formatNumber(bondTxFees, { decimals: 2 })} FIS</div>
+											<div>Stafi Chain Tx Fee</div>
+											<div>{formatNumber(bondTxFees, { decimals: 3 })} FIS</div>
+										</div>
+										<div className="flex justify-between my-[.18rem]">
+											<div>ETH Tx Fee</div>
+											<div>{formatNumber(estimateFee)} ETH</div>
 										</div>
 										{tokenStandard !== TokenStandard.Native &&
 											<div className="flex justify-between my-[.18rem]">
 												<div>Bridge Fee</div>
-												<div>{formatNumber(erc20BridgeFees, { decimals: 2 })} FIS</div>
+												<div>{formatNumber(erc20BridgeFees, { decimals: 3 })} FIS</div>
 											</div>
 										}
 										<div
 										className="h-[1px] bg-text3 my-[.1rem]"
 										/>
 										<div className="text-text1">
-											Overall Transaction Cost: <span className="ml-[.1rem]" /> {formatNumber(transactionCost, { decimals: 2 })} FIS
+											Overall Transaction Cost: <span className="ml-[.1rem]" /> {formatNumber(transactionCost, { decimals: 3 })} FIS
 										</div>
 										<div className="mt-[.18rem] text-right">
-											~${formatNumber(transactionCostValue, { decimals: 2 })}
+											~${formatNumber(transactionCostValue, { decimals: 3 })}
 										</div>
 									</div>
 								</HoverPopover>
