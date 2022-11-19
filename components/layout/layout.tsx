@@ -132,7 +132,7 @@ export const Layout = (props: LayoutProps) => {
       }}
     >
       <div className="">
-        {/* <Particles
+        <Particles
           id="1"
           height="100px"
           init={particlesInit}
@@ -247,7 +247,7 @@ export const Layout = (props: LayoutProps) => {
             retina_detect: true,
           }}
         />
- */}
+
         <Head>
           <title>StaFi rToken APP</title>
           <meta
