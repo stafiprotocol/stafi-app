@@ -1,4 +1,4 @@
-import { Box, Modal } from "@mui/material";
+import { Box, Modal, useMediaQuery } from "@mui/material";
 import classNames from "classnames";
 import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { Icomoon } from "components/icon/Icomoon";
@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import checkFileError from "public/check_file_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { setStakeLoadingParams } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
@@ -24,6 +24,10 @@ export const RTokenStakeLoadingModal = () => {
       stakeLoadingParams: state.app.stakeLoadingParams,
     };
   });
+
+	const userAction = useMemo(() => {
+		return stakeLoadingParams?.userAction || 'staking';
+	}, [stakeLoadingParams]);
 
   useEffect(() => {
     if (!stakeLoadingParams) {
@@ -88,7 +92,7 @@ export const RTokenStakeLoadingModal = () => {
                 )} ${stakeLoadingParams?.tokenName}`
               : stakeLoadingParams?.status === "error"
               ? "Transaction Failed"
-              : `You are now ${stakeLoadingParams?.userAction || 'staking'} ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`}
+              : `You are now ${userAction} ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`}
           </div>
 
           <div
@@ -97,10 +101,10 @@ export const RTokenStakeLoadingModal = () => {
             )}
           >
             {stakeLoadingParams?.status === "success"
-              ? `Staking operation was successful`
+              ? `${userAction.charAt(0).toUpperCase() + userAction.slice(1)} operation was successful`
               : stakeLoadingParams?.status === "error"
               ? "Something went wrong, please try again"
-              : `Staking ${stakeLoadingParams?.amount} ${
+              : `${userAction.charAt(0).toUpperCase() + userAction.slice(1)} ${stakeLoadingParams?.amount} ${
                   stakeLoadingParams?.tokenName
                 }, you will receive ${formatNumber(
                   stakeLoadingParams?.willReceiveAmount

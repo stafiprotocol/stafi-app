@@ -4,7 +4,7 @@ import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
 import { useRTokenReward } from "hooks/useRTokenReward";
 import { TokenName } from "interfaces/common";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { formatNumber } from "utils/number";
 import { getRewardText } from "utils/rToken";
 
@@ -18,6 +18,11 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
   const list = [1, 2];
 
   const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
+
+	const getExchangeRateUpdateTime = useCallback(() => {
+		if (tokenName === TokenName.ETH) return 8;
+		if (tokenName === TokenName.MATIC) return 24;
+	}, [tokenName]);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
@@ -38,7 +43,7 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
           <div className="flex justify-center">
             <MyTooltip
               text={`r${tokenName}/${tokenName}`}
-              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every 8 hours`}
+              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime()} hours`}
             />
           </div>
           <div className="flex justify-center">

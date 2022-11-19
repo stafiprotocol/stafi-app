@@ -108,4 +108,10 @@ export default class CommonSlice {
 		const unbondCommision = numberUtil.fisFeeToHuman(result.toJSON());
 		return unbondCommision;
 	}
+
+	async getBondFees(rsymbol: rSymbol) {
+		const stafiApi = await stafiServer.createStafiApi();
+		const result = await stafiApi.query.rTokenSeries.bondFees(rsymbol);
+		return result.toJSON();
+	}
 }

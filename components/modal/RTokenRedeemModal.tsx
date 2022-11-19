@@ -26,7 +26,7 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
-import { getMaticUnbondTransactionFees, getUnbondCommision, getUnbondFees, handleMaticStake, unbondRMatic } from "redux/reducers/MaticSlice";
+import { getMaticUnbondTxFees, unbondRMatic } from "redux/reducers/MaticSlice";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { RootState } from "redux/store";
 import numberUtil from "utils/numberUtil";
@@ -61,13 +61,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const [targetAddress, setTargetAddress] = useState("");
   const [redeemAmount, setRedeemAmount] = useState("");
 	const [expandUserAddress, setExpandUserAddress] = useState(false);
-	const [txCostDetailVisible, setTxCostDetailVisible] = useState(false);
 
 	const fisPrice = useTokenPrice('FIS');
 
 	const tokenStandard = useTokenStandard(props.tokenName);
  
-	const { unbondCommision, unbondFees, transactionFees } = useTransactionCost();
+	const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost();
 	const defaultTransactionFee = 0.0129;
 
   const rTokenRatio = useRTokenRatio(tokenName);
@@ -106,7 +105,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 	}, [unbondCommision, rTokenRatio]);
 
 	const transactionCost = useMemo(() => {
-		let txFee = transactionFees || defaultTransactionFee;
+		let txFee = unbondTxFees || defaultTransactionFee;
 		if (
 			isNaN(Number(txFee)) ||
 			isNaN(Number(unbondFees))
@@ -114,7 +113,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 			return '--';
 		}
 		return Number(numberUtil.fisAmountToHuman(unbondFees)) + Number(txFee) + '';
-	}, [unbondFees, transactionFees]);
+	}, [unbondFees, unbondTxFees]);
 
 	const transactionCostValue = useMemo(() => {
 		if (
@@ -205,7 +204,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
 	useEffect(() => {
 		dispatch(
-			getMaticUnbondTransactionFees(redeemAmount || '1', targetAddress)
+			getMaticUnbondTxFees(redeemAmount || '1', targetAddress)
 		)
 		console.log('getMaticUnbondTransactionFees')
 	}, [targetAddress]);
@@ -359,7 +358,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {balance} r{tokenName}
+                    {formatNumber(balance)} r{tokenName}
                   </div>
                 </div>
               </div>
@@ -474,7 +473,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 										</div>
 										<div className="flex justify-between my-[.18rem]">
 											<div>Transaction Fee</div>
-											<div>{formatNumber(transactionFees, { decimals: 2 })} FIS</div>
+											<div>{formatNumber(unbondTxFees, { decimals: 2 })} FIS</div>
 										</div>
 										<div
 											className="h-[1px] bg-text3 my-[.1rem]"
