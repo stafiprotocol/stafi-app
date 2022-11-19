@@ -438,7 +438,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {balance} {tokenName}
+                    {formatNumber(balance, { decimals: 6, toReadable: false })} {tokenName}
                   </div>
                 </div>
               </div>

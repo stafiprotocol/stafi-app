@@ -374,7 +374,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {balance} r{tokenName}
+                    {formatNumber(balance, { decimals: 6, toReadable: false })} r{tokenName}
                   </div>
                 </div>
               </div>
