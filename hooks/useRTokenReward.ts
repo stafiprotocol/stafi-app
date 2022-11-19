@@ -145,7 +145,8 @@ export function useRTokenReward(
                 tokenSymbol = getTokenSymbol(tokenName);
               }
               return formatNumber(
-                chainAmountToHuman(item, tokenSymbol)
+                chainAmountToHuman(item, tokenSymbol),
+								{ toReadable: false, withSplit: false }
               );
             })
             ?.reverse() || []

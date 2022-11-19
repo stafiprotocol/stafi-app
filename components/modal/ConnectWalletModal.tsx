@@ -90,7 +90,7 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
             existing wallet by following our{" "}
             <a
               className="text-primary underline cursor-pointer"
-              href="https://www.google.com"
+              href="https://docs.stafi.io/chain-library/guides/account-creation"
               target="_blank"
               rel="noreferrer"
             >

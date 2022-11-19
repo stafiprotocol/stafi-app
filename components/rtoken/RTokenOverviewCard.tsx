@@ -1,7 +1,7 @@
 import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
-import { getMetamaskEthChainId } from "config/metaMask";
+import { getMetamaskEthChainId, getMetamaskMaticChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
@@ -38,7 +38,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           setConnectWalletModalParams({
             visible: true,
             walletList: [WalletType.MetaMask],
-            targetMetaMaskChainId: getMetamaskEthChainId(),
+            targetMetaMaskChainId:  getMetamaskEthChainId(),
           })
         );
         return;
@@ -60,7 +60,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         setConnectWalletModalParams({
           visible: true,
           walletList: walletTypes,
-          targetMetaMaskChainId: getMetamaskEthChainId(),
+          targetMetaMaskChainId: getMetamaskMaticChainId(),
         })
       );
     }

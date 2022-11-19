@@ -3,6 +3,7 @@ import React from "react";
 import { graphic } from "echarts";
 import { height } from "@mui/system";
 import { TokenName } from "interfaces/common";
+import { formatNumber } from "utils/number";
 
 interface CustomChartProps {
   xData: string[];
@@ -31,7 +32,8 @@ export const CustomChart = (props: CustomChartProps) => {
         formatter: (params: any) => {
           if (params && params.length > 0) {
             const stakedValue = params[0].data;
-            let formatStakedValue = stakedValue;
+            // let formatStakedValue = stakedValue;
+						let formatStakedValue = formatNumber(stakedValue);
             const parts = formatStakedValue.split(".");
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             formatStakedValue = parts.join(".");
