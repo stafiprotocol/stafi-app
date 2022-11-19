@@ -45,7 +45,7 @@ export default class CommonSlice {
 								active,
 							});
 					})
-					.catch(err => {
+					.catch((err: any) => {
 						console.log('getPools error:', err);
 						cb && cb(null);
 					});
