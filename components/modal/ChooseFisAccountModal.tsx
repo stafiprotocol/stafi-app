@@ -4,7 +4,9 @@ import { Icomoon } from "components/icon/Icomoon";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
 import { useWalletAccount } from "hooks/useWalletAccount";
+import Image from "next/image";
 import { useEffect } from "react";
+import defaultAvatar from "public/default_avatar.svg";
 import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
   setPolkadotAccount,
@@ -112,6 +114,13 @@ export const ChooseFisAccountModal = (props: Props) => {
                       )}
                     >
                       <div className="flex items-center">
+                        <div className="w-[.28rem] h-[.28rem] relative mr-[.16rem]">
+                          <Image
+                            src={defaultAvatar}
+                            alt="avatar"
+                            layout="fill"
+                          />
+                        </div>
                         <div className="text-[.28rem]">
                           {account.meta?.name}
                         </div>
