@@ -37,8 +37,8 @@ export interface WalletState {
 const initialState: WalletState = {
   metaMaskAccount: undefined,
   polkadotWalletStatus: "pending",
-  polkadotAccount: "34bwmgT1NtcL8FayGiFSB9F1qZFGPjhbDfTaZRoM2AXgjrpo",
-	// polkadotAccount: '',
+  // polkadotAccount: "34bwmgT1NtcL8FayGiFSB9F1qZFGPjhbDfTaZRoM2AXgjrpo",
+	polkadotAccount: '',
   polkadotExtensionAccounts: [],
   polkadotBalance: "--",
 };
@@ -64,7 +64,7 @@ export const walletSlice = createSlice({
       action: PayloadAction<string | undefined>
     ) => {
       saveStorage(STORAGE_KEY_POLKADOT_ACCOUNT, action.payload || "");
-      // state.polkadotAccount = action.payload;
+      state.polkadotAccount = action.payload;
     },
     setPolkadotExtensionAccounts: (
       state: WalletState,
