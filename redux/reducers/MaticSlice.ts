@@ -12,7 +12,7 @@ import { createWeb3 } from "utils/web3Utils";
 import Web3 from 'web3';
 import { addNotice, setIsLoading, setStakeLoadingParams } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
-import { bond, fisUnbond, getUnbondTransactionFees } from "./FisSlice";
+import { bond, fisUnbond, getBondTransactionFees, getUnbondTransactionFees } from "./FisSlice";
 import keyring from 'servers/keyring';
 import { u8aToHex } from "@polkadot/util";
 import { CANCELLED_MESSAGE } from "utils/constants";
@@ -30,9 +30,12 @@ export interface MaticState {
 	stakedAmount: string;
 	validPools: any[];
 	poolLimit: any;
-	unbondFees: string;
-	unbondCommision: string;
-	transactionFees: string;
+	unbondFees: string; // unbond relay fee
+	unbondCommision: string; // unbond commision fee
+	bondTxFees: string; // bond transaction fee
+	unbondTxFees: string; // unbond transaction fee
+	erc20BridgeFees: string; // erc20 bridge swap fee
+	bondFees: string; // bond relay fee
 }
 
 const initialState: MaticState = {
@@ -43,7 +46,10 @@ const initialState: MaticState = {
 	poolLimit: 0,
 	unbondCommision: '--',
 	unbondFees: '--',
-	transactionFees: '--',
+	bondTxFees: '--',
+	unbondTxFees: '--',
+	erc20BridgeFees: '--',
+	bondFees: '--',
 }
 
 export const maticSlice = createSlice({
@@ -75,8 +81,17 @@ export const maticSlice = createSlice({
 		setUnbondCommision: (state: MaticState, action: PayloadAction<string>) => {
 			state.unbondCommision = action.payload;
 		},
-		setTransactionFees: (state: MaticState, action: PayloadAction<string>) => {
-			state.transactionFees = action.payload;
+		setBondTxFees: (state: MaticState, action: PayloadAction<string>) => {
+			state.bondTxFees = action.payload;
+		},
+		setUnbondTxFees: (state: MaticState, action: PayloadAction<string>) => {
+			state.unbondTxFees = action.payload;
+		},
+		setErc20BridgeFees: (state: MaticState, action: PayloadAction<string>) => {
+			state.erc20BridgeFees = action.payload;
+		},
+		setBondFees: (state: MaticState, action: PayloadAction<string>) => {
+			state.bondFees = action.payload;
 		},
 	}
 });
@@ -89,7 +104,10 @@ export const {
 	setValidPools,
 	setUnbondCommision,
 	setUnbondFees,
-	setTransactionFees,
+	setUnbondTxFees,
+	setBondTxFees,
+	setErc20BridgeFees,
+	setBondFees,
 } = maticSlice.actions;
 
 export default maticSlice.reducer;
@@ -152,6 +170,7 @@ export const handleMaticStake =
 					amount: stakeAmount,
 					willReceiveAmount: willReceiveAmount,
 					newTotalStakedAmount,
+					userAction: undefined,
 					progressDetail: {
 						sending: {
 							totalStatus: 'loading',
@@ -269,7 +288,6 @@ export const handleMaticStake =
 								totalStatus: 'success',
 								broadcastStatus: 'success',
 								packStatus: 'success',
-								finalizeStatus: 'success',
 							},
 							staking: {
 								totalStatus: 'loading',
@@ -509,9 +527,19 @@ export const getUnbondFees = (): AppThunk =>
 		);
 	}
 
-export const getMaticUnbondTransactionFees =
+export const getBondFees = (): AppThunk =>
+	async (dispatch, getState) => {
+		const bondFees = await commonSlice.getBondFees(rSymbol.Matic);
+		console.log(bondFees)
+		dispatch(
+			setBondFees(Number(bondFees).toString())
+		);
+	}
+
+export const getMaticUnbondTxFees =
 	(amount: string, recipient: string): AppThunk =>
 	async (dispatch, getState) => {
+		if (!recipient) return;
 		const validPools = getState().matic.validPools;
 		console.log({validPools})
 		let selectedPool = commonSlice.getPoolForUnbond(amount, validPools, rSymbol.Matic);
@@ -520,8 +548,38 @@ export const getMaticUnbondTransactionFees =
 			return;
 		}
 		const keyringInstance = keyring.init(Symbol.Matic);
-		console.log('22')
 		dispatch(
 			getUnbondTransactionFees(amount, rSymbol.Matic, u8aToHex(keyringInstance.decodeAddress(recipient)), selectedPool.poolPubKey)
 		);
+	}
+
+export const getMaticBondTransactionFees =
+	(tokenStandard: TokenStandard | undefined): AppThunk =>
+	async (dispatch, getState) => {
+		let chainId = 1;
+		if (tokenStandard === TokenStandard.ERC20) {
+			chainId = 2;
+		} else if (tokenStandard === TokenStandard.BEP20) {
+			chainId = 3;
+		} else if (tokenStandard === TokenStandard.SPL) {
+			chainId = 4;
+		}
+		dispatch(
+			getBondTransactionFees('1', rSymbol.Matic, 1, (fee: string) => {
+				dispatch(
+					setBondTxFees(fee)
+				);
+			})
+		);
+	}
+
+export const getErc20BridgeFees =
+	(): AppThunk =>
+	async (dispatch, getState) => {
+		const api = await stafiServer.createStafiApi();
+		const result = await api.query.bridgeCommon.chainFees(2);
+    if (result.toJSON()) {
+      let estimateFee = numberUtil.fisAmountToHuman(result.toJSON());
+      dispatch(setErc20BridgeFees(numberUtil.handleFisAmountToFixed(estimateFee)));
+    }
 	}

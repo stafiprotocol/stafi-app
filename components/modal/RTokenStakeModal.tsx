@@ -25,10 +25,16 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
-import { handleMaticStake, mockProcess } from "redux/reducers/MaticSlice";
+import { getMaticBondTransactionFees, handleMaticStake, mockProcess } from "redux/reducers/MaticSlice";
 import classNames from "classnames";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useWalletAccount } from "hooks/useWalletAccount";
+import { usePopupState, bindHover, bindPopover } from "material-ui-popup-state/hooks";
+import { useTransactionCost } from "hooks/useTransactionCost";
+import numberUtil from "utils/numberUtil";
+import { useTokenPrice } from "hooks/useTokenPrice";
+import downIcon from 'public/icon_down.png';
+import HoverPopover from "material-ui-popup-state/HoverPopover";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -61,6 +67,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const ethGasPrice = useEthGasPrice();
 
   const { metaMaskAccount } = useWalletAccount();
+
+	const { bondFees, bondTxFees, erc20BridgeFees } = useTransactionCost();
+	const defaultTransactionFee = 0.0129;
+
+	const fisPrice = useTokenPrice('FIS');
 
   const userAddress = useMemo(() => {
     if (walletType === WalletType.MetaMask) {
@@ -117,6 +128,36 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
     return "--";
   }, [ethGasPrice, tokenName]);
+
+	const transactionCost = useMemo(() => {
+		let txFee = bondTxFees || defaultTransactionFee;
+		if (tokenStandard !== TokenStandard.Native) {
+			if (
+				isNaN(Number(txFee)) ||
+				isNaN(Number(bondFees)) ||
+				isNaN(Number(erc20BridgeFees))
+			) {
+				return '--';
+			}
+			return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + Number(erc20BridgeFees) + '';
+		} else {
+			if (
+				isNaN(Number(txFee)) ||
+				isNaN(Number(bondFees))
+			) {
+				return '--';
+			}
+			return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + '';
+		}
+	}, [bondFees, bondTxFees, erc20BridgeFees, tokenStandard]);
+
+	const transactionCostValue = useMemo(() => {
+		if (
+			isNaN(Number(transactionCost)) ||
+			isNaN(Number(fisPrice))
+		) return '--';
+		return Number(transactionCost) * Number(fisPrice) + '';
+	}, [transactionCost, fisPrice]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
@@ -215,6 +256,17 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       );
     }
   };
+
+	useEffect(() => {
+		dispatch(
+			getMaticBondTransactionFees(tokenStandard)
+		);
+	}, [targetAddress]);
+
+	const txCostPopupState = usePopupState({
+		variant: 'popover',
+		popupId: 'txCost',
+	});
 
   return (
     <Dialog
@@ -382,7 +434,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {balance} {tokenName}
+                    {formatNumber(balance)} {tokenName}
                   </div>
                 </div>
               </div>
@@ -463,10 +515,72 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Transaction Cost</div>
-                <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  Est. {formatNumber(estimateFee)} ETH
-                </div>
-              </div>
+								{tokenName === TokenName.ETH ?
+									<div className="mt-[.15rem] text-text1 text-[.24rem]">
+										Est. {formatNumber(estimateFee)} ETH
+									</div>
+									:
+									<div
+										className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
+										{...bindHover(txCostPopupState)}
+									>
+										{formatNumber(transactionCost, { decimals: 2 })} FIS
+										<div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
+											<Image src={downIcon} layout="fill" alt="down" />
+										</div>
+									</div>
+								}
+								<HoverPopover
+									{...bindPopover(txCostPopupState)}
+									transformOrigin={{
+										horizontal: 'center',
+										vertical: 'top'
+									}}
+									anchorOrigin={{
+										vertical: 'bottom',
+										horizontal: 'center',
+									}}
+									sx={{
+										marginTop: '.1rem',
+										"& .MuiPopover-paper": {
+											background: "rgba(9, 15, 23, 0.25)",
+											border: "1px solid #26494E",
+											backdropFilter: "blur(.4rem)",
+											borderRadius: ".16rem",
+											padding: '.2rem',
+										},
+										"& .MuiTypography-root": {
+											padding: "0px",
+										},
+									}}
+								>
+									<div className="text-text2">
+										<div className="flex justify-between">
+											<div>Relay Fee</div>
+											<div>{numberUtil.fisAmountToHuman(bondFees)} FIS</div>
+										</div>
+										<div className="flex justify-between my-[.18rem]">
+											<div>Transaction Fee</div>
+											<div>{formatNumber(bondTxFees, { decimals: 2 })} FIS</div>
+										</div>
+										{tokenStandard !== TokenStandard.Native &&
+											<div className="flex justify-between my-[.18rem]">
+												<div>Bridge Fee</div>
+												<div>{formatNumber(erc20BridgeFees, { decimals: 2 })} FIS</div>
+											</div>
+										}
+										<div
+										className="h-[1px] bg-text3 my-[.1rem]"
+										/>
+										<div className="text-text1">
+											Overall Transaction Cost: <span className="ml-[.1rem]" /> {formatNumber(transactionCost, { decimals: 2 })} FIS
+										</div>
+										<div className="mt-[.18rem] text-right">
+											~${formatNumber(transactionCostValue, { decimals: 2 })}
+										</div>
+									</div>
+								</HoverPopover>
+								</div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
                   <MyTooltip

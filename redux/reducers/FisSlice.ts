@@ -10,6 +10,8 @@ import { setStakeLoadingParams } from "./AppSlice";
 import { getLocalStorageItem } from "utils/common";
 import { connectPolkadot } from "utils/web3Utils";
 import { setTransactionFees } from "./MaticSlice";
+import snackbarUtil from "utils/snackbarUtils";
+import { CANCELLED_MESSAGE } from "utils/constants";
 
 declare const ethereum: any;
 
@@ -60,21 +62,6 @@ export const bond =
 		cb?: Function
 	): AppThunk =>
 	async (dispatch, getState) => {
-		dispatch(
-			setStakeLoadingParams({
-				progressDetail: {
-					sending: {
-						totalStatus: 'success',
-						broadcastStatus: 'success',
-						packStatus: 'success',
-						finalizeStatus: 'success',
-					},
-					staking: {
-						broadcastStatus: 'loading',
-					}
-				}
-			})
-		);
 		const fisAddress = getState().wallet.polkadotAccount;
 		const keyringInstance = keyring.init(Symbol.Fis);
 		let signature = '';
@@ -532,16 +519,30 @@ export const fisUnbond =
 				}
 			})
 			.catch((err: any) => {
-				if (err === 'Error: Cancelled') {
+				console.log(err)
+				if ((err + '').startsWith('Error: Cancelled')) {
 					cb && cb('Cancel');
+					snackbarUtil.error(CANCELLED_MESSAGE);
+					dispatch(setStakeLoadingParams(undefined));
 				} else {
-
+					snackbarUtil.error(err.message);
+					dispatch(
+						setStakeLoadingParams({
+							status: 'error',
+						})
+					);
 				}
 			});
 	};
 
 export const getUnbondTransactionFees =
-	(amount: string, rsymbol: rSymbol, recipient: string, selectedPool: string): AppThunk =>
+	(
+		amount: string,
+		rsymbol: rSymbol,
+		recipient: string,
+		selectedPool: string,
+		cb?: (fee: string) => void,
+	): AppThunk =>
 	async (dispatch, getState) => {
 		const address = getState().wallet.polkadotAccount as string;
 		const api = await stafiServer.createStafiApi();
@@ -554,8 +555,54 @@ export const getUnbondTransactionFees =
 				recipient,
 			).paymentInfo(address);
 			const txFee = txInfo.partialFee.toNumber() / 1000000000000;
-			console.log(txInfo.partialFee.toString())
-			dispatch(setTransactionFees(txFee.toString()));
+			cb && cb(txFee.toString());
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
+export const getBondTransactionFees =
+	(
+		amount: string,
+		rsymbol: rSymbol,
+		chainId: number,
+		cb?: (fee: string) => void,
+	): AppThunk =>
+	async (dispatch, getState) => {
+		const address = getState().wallet.polkadotAccount as string;
+		if (!address) return;
+		const api = await stafiServer.createStafiApi();
+		try {
+			let txInfo;
+			if (chainId === 1) {
+				txInfo = await api.tx.rTokenSeries
+					.liquidityBond(
+						address,
+						'',
+						address,
+						'',
+						'',
+						amount,
+						rsymbol,
+					)
+					.paymentInfo(address);
+			} else {
+				txInfo = await api.tx.rTokenSeries
+					.liquidityBondAndSwap(
+						address,
+						'',
+						address,
+						'',
+						'',
+						amount,
+						rsymbol,
+						address,
+						chainId,
+					)
+					.paymentInfo(address);
+			}
+			const txFee = txInfo.partialFee.toNumber() / 1000000000000;
+			cb && cb(txFee.toString());
 		} catch (err) {
 			console.log(err);
 		}
