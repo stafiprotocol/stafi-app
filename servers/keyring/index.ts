@@ -1,3 +1,4 @@
+import { TokenSymbol } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { KeyringStruct } from "keyring/SubstrateKeyring";
 import StafiServer from "servers/stafi";
@@ -14,9 +15,9 @@ export class KeyringServer {
 		}
 	}
 
-	public initByRSymbol(symbol: rSymbol): KeyringStruct {
+	public initByTokenSymbol(symbol: TokenSymbol | undefined): KeyringStruct {
 		switch (symbol) {
-			case rSymbol.Fis:
+			case TokenSymbol.FIS:
 				return new StafiServer();
 			// todo:
 			default:

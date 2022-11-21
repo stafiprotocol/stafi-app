@@ -2,12 +2,19 @@ import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
+import { UnbondModel, useRTokenUnbond } from "hooks/useRTokenUnbond";
+import { TokenName } from "interfaces/common";
 import { useState } from "react";
+import numberUtil from "utils/numberUtil";
+import { getShortAddress } from "utils/string";
 
-export const StakeMyUnbondList = () => {
+interface Props {
+  tokenName: TokenName,
+};
+
+export const StakeMyUnbondList = (props: Props) => {
   const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const list: any[] = [];
+  const { unbondList, totalCount } = useRTokenUnbond(props.tokenName, page);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
@@ -17,24 +24,24 @@ export const StakeMyUnbondList = () => {
           style={{ height: "auto", gridTemplateColumns: "20% 20% 20% 20% 20%" }}
         >
           <div className="flex justify-center">
-            <MyTooltip text="Era" title="Era" />
+            <MyTooltip text="Amount" title="Amount" />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Stake ETH" title="Stake ETH" />
+            <MyTooltip text="Total Period" title="Total Period" />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="rETH/ETH" title="rETH/ETH" />
+            <MyTooltip text="Days Left" title="Days Left" />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Get rETH" title="Get rETH" />
+            <MyTooltip text="Receive Address" title="Receive Address" />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Est Reward" title="Est Reward" />
+            <MyTooltip text="Status" title="Status" />
           </div>
         </div>
       )}
 
-      {list.map((item, index) => (
+      {unbondList.map((item: UnbondModel, index) => (
         <div
           key={index}
           className="grid h-[1.1rem]"
@@ -45,19 +52,24 @@ export const StakeMyUnbondList = () => {
           }}
         >
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            29384
+            {item.formatTokenAmount === '--' ?
+              '--'
+              : Number(item.formatTokenAmount) > 0 && Number(item.formatTokenAmount) < 0.001
+              ? '<0.001'
+              : numberUtil.handleAmountFloorToFixed(item.formatTokenAmount, 3)
+            }
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            24.5 ETH
+            {item.lockTotalTimeInDays} D
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            1.03
+            {item.lockLeftTimeInDays} D
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            1.03
+            {getShortAddress(item.formatReceiveAddress, 4)}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
-            +0.03 ETH
+            {item.hasReceived ? 'Unbonded' : 'Waiting'}
           </div>
         </div>
       ))}

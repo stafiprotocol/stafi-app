@@ -96,7 +96,7 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
 
       {tab === "reward" && <StakeMyRewardList tokenName={props.tokenName} />}
 
-      {tab === "unbond" && <StakeMyUnbondList />}
+      {tab === "unbond" && <StakeMyUnbondList tokenName={props.tokenName} />}
     </CollapseCard>
   );
 };

@@ -65,7 +65,7 @@ export function useRTokenReward(
 			return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
 		}
     return "";
-  }, [tokenStandard, metaMaskAccount]);
+  }, [tokenStandard, metaMaskAccount, polkadotAccount]);
 
   const fetchData = useCallback(async () => {
     const chainType =

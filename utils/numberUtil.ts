@@ -1,3 +1,4 @@
+import { TokenSymbol } from 'interfaces/common';
 import { rSymbol } from 'keyring/defaults';
 import { create, floorDependencies, divideDependencies } from 'mathjs';
 import Web3Utils from 'web3-utils';
@@ -16,7 +17,7 @@ const numberUtil = {
 	fisAmountToHuman(amount: any) {
 		return amount / 1000000000000;
 	},
-	tokenAmountToHuman(amount: any, symbol: rSymbol) {
+	tokenAmountToHuman(amount: any, symbol: rSymbol | TokenSymbol) {
 		if (isNaN(Number(amount))) return '--';
 		let factor: BigInt;
 		switch (symbol) {
@@ -99,6 +100,16 @@ const numberUtil = {
 	fisFeeToHuman(fee: any) {
 		return fee / 1000000000;
 	},
+  handleAmountCeilToFixed(amount: any, powNumber: number) {
+    if (isNaN(Number(amount))) return '--';
+    const factor = Math.pow(10, powNumber);
+    return (Math.ceil(Number(amount) * factor) / factor).toFixed(powNumber);
+  },
+  handleAmountFloorToFixed(amount: any, powNumber: number) {
+    if (isNaN(Number(amount))) return '--';
+    const factor = Math.pow(10, powNumber);
+    return (Math.floor(Number(amount) * factor) / factor).toFixed(powNumber);
+  }
 }
 
 export default numberUtil;
