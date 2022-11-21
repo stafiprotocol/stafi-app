@@ -75,11 +75,12 @@ export const Layout = (props: LayoutProps) => {
   }, [metaMaskChainId, targetMetaMaskChainId]);
 
   const isWrongNetwork = useMemo(() => {
-    if (walletType === WalletType.MetaMask) {
-      return isWrongMetaMaskNetwork;
-    }
+    return isWrongMetaMaskNetwork;
+    // if (walletType === WalletType.MetaMask) {
+    //   return isWrongMetaMaskNetwork;
+    // }
     return false;
-  }, [walletType, isWrongMetaMaskNetwork]);
+  }, [isWrongMetaMaskNetwork]);
 
   const walletNotConnected = useMemo(() => {
     if (walletType === WalletType.MetaMask) {

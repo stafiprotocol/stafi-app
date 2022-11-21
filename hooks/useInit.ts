@@ -3,8 +3,15 @@ import dayjs from "dayjs";
 import { useEffect } from "react";
 import { setUnreadNoticeFlag, setUpdateFlag15s } from "redux/reducers/AppSlice";
 import { updateRTokenPriceList } from "redux/reducers/RTokenSlice";
-import { setMetaMaskAccount } from "redux/reducers/WalletSlice";
-import { getStorage, STORAGE_KEY_UNREAD_NOTICE } from "utils/storage";
+import {
+  connectPolkadotJs,
+  setMetaMaskAccount,
+} from "redux/reducers/WalletSlice";
+import {
+  getStorage,
+  STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG,
+  STORAGE_KEY_UNREAD_NOTICE,
+} from "utils/storage";
 import { useAppDispatch } from "./common";
 import { useAppSlice } from "./selector";
 import { useInterval } from "./useInterval";
@@ -38,4 +45,11 @@ export function useInit() {
     }
     dispatch(setMetaMaskAccount(metaMaskAccount));
   }, [dispatch, metaMaskAccount]);
+
+  useEffect(() => {
+    // Auto connect polkadot.js if connected before.
+    if (getStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG)) {
+      dispatch(connectPolkadotJs());
+    }
+  }, [dispatch]);
 }

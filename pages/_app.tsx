@@ -37,6 +37,13 @@ const useStyles = makeStyles({
     fontSize: "16px !important",
     fontFamily: "Helvetica, sans-serif",
   },
+  warningSnackbar: {
+    backgroundColor: "rgba(255, 204, 0, 0.5) !important",
+    border: "1px solid rgba(255, 204, 0, 0.8)",
+    color: "#ffffff !important",
+    fontSize: "16px !important",
+    fontFamily: "Helvetica, sans-serif",
+  },
 });
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
@@ -91,6 +98,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
               root: classes.root,
               variantSuccess: classes.successSnackbar,
               variantError: classes.errorSnackbar,
+              variantWarning: classes.warningSnackbar,
             }}
           >
             <SnackbarUtilsConfigurator />

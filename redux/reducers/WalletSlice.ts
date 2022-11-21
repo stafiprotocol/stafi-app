@@ -13,6 +13,7 @@ import { chainAmountToHuman } from "utils/number";
 import { TokenSymbol } from "interfaces/common";
 import { setChooseAccountVisible } from "./FisSlice";
 import { cloneDeep } from "lodash";
+import snackbarUtil from "utils/snackbarUtils";
 
 export interface InjectedPolkadotAccountWithMeta
   extends ExtType.InjectedAccountWithMeta {
@@ -38,7 +39,7 @@ const initialState: WalletState = {
   metaMaskAccount: undefined,
   polkadotWalletStatus: "pending",
   // polkadotAccount: "34bwmgT1NtcL8FayGiFSB9F1qZFGPjhbDfTaZRoM2AXgjrpo",
-	polkadotAccount: '',
+  polkadotAccount: "",
   polkadotExtensionAccounts: [],
   polkadotBalance: "--",
 };
@@ -118,6 +119,11 @@ export const connectPolkadotJs =
         })
       );
 
+      if (accounts.length === 0) {
+        snackbarUtil.warning("No account detected");
+        return;
+      }
+
       // Check local selected account.
       const savedPolkadotAccount = getStorage(STORAGE_KEY_POLKADOT_ACCOUNT);
 
@@ -133,11 +139,11 @@ export const connectPolkadotJs =
       }
 
       if (matchAccount) {
-        dispatch(setPolkadotAccount(savedPolkadotAccount || ""));
+        dispatch(setPolkadotAccount(matchAccount.address || ""));
       }
       dispatch(setPolkadotExtensionAccounts(accounts));
 
-      if (showSelectAccountModal) {
+      if (showSelectAccountModal && accounts.length > 1) {
         dispatch(setChooseAccountVisible(true));
       }
 

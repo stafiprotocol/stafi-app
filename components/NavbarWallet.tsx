@@ -140,7 +140,7 @@ export const NavbarWallet = () => {
     if (polkadotConnected) {
       res.push(`${formatNumber(polkadotBalance)} FIS`);
     }
-    if (walletType === WalletType.MetaMask) {
+    if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
       if (metaMaskConnected) {
         res.push(
           `${formatNumber(displayMetaMaskBalance)} ${displayMetaMaskTokenName}`
@@ -155,6 +155,7 @@ export const NavbarWallet = () => {
     polkadotBalance,
     displayMetaMaskTokenName,
     displayMetaMaskBalance,
+    isWrongMetaMaskNetwork,
   ]);
 
   const [displayAddress] = useMemo(() => {
@@ -192,12 +193,15 @@ export const NavbarWallet = () => {
       >
         {!showConnectWallet ? (
           <div className="flex items-center">
-            <div
-              className="flex items-center cursor-pointer"
-              // onClick={clickAccountLeftArea}
-            >
+            <div className="flex items-center cursor-pointer">
               {isWrongNetwork && (
-                <div className="flex items-center">
+                <div
+                  className="flex items-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    clickAccountLeftArea();
+                  }}
+                >
                   <div className="bg-error w-[.12rem] h-[.12rem] rounded-full" />
                   <div className="ml-[.12rem] text-error text-[.24rem]">
                     Wrong Net
