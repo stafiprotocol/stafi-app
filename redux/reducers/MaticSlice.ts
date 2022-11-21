@@ -17,6 +17,10 @@ import keyring from 'servers/keyring';
 import { u8aToHex } from "@polkadot/util";
 import { CANCELLED_MESSAGE } from "utils/constants";
 import { updateRTokenBalance } from "./RTokenSlice";
+import { addRTokenUnbondRecords } from "utils/storage";
+import { stafiUuid } from "utils/common";
+import dayjs from "dayjs";
+import { estimateUnbondDays } from "config/unbond";
 
 declare const ethereum: any;
 
@@ -404,12 +408,21 @@ export const unbondRMatic =
 					u8aToHex(keyringInstance.decodeAddress(recipient)),
 					selectedPool.poolPubKey,
 					// todo:
-					'Unbond succeeded, unbonding period is around',
+					`Unbond succeeded, unbonding period is around ${estimateUnbondDays(TokenName.MATIC)} days`,
 					(r?: string, txHash?: string) => {
-
+            if (r === 'Success') {
+              const uuid = stafiUuid();
+              addRTokenUnbondRecords(TokenName.MATIC, {
+                id: uuid,
+                txHash,
+                estimateSuccessTime: dayjs().add(estimateUnbondDays(TokenName.MATIC), 'd').valueOf(),
+                amount: willReceiveAmount,
+                recipient,
+              });
+            }
 					}
 				)
-			)
+			);
 		} catch (err: any) {
 			console.error(err);
 		} finally {

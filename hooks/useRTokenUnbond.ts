@@ -10,6 +10,9 @@ import { getTokenSymbol } from "utils/rToken";
 import { PAGE_SIZE } from "utils/constants";
 import numberUtil from "utils/numberUtil";
 import keyring from 'servers/keyring';
+import { getRTokenUnbondRecords } from "utils/storage";
+import dayjs from "dayjs";
+import { estimateUnbondDays } from "config/unbond";
 
 export interface UnbondModel {
   txHash?: string;
@@ -124,8 +127,25 @@ export function useRTokenUnbond(
         });
 
         // todo: local items
+        const localRecords = getRTokenUnbondRecords(tokenName);
+        const insertRecords: UnbondModel[] = [];
+        localRecords.forEach((record: any) => {
+          if (dayjs().valueOf() - record.timestamp < 1000 * 2 * 60) {
+            const match = formatUnbondList.find((item: UnbondModel) => {
+              return item.txHash === record.txHash;
+            });
+            if (!match) {
+              insertRecords.push({
+                lockTotalTimeInDays: estimateUnbondDays(tokenName),
+                lockLeftTimeInDays: estimateUnbondDays(tokenName),
+                formatReceiveAddress: record.recipient,
+                formatTokenAmount: record.amount,
+              });
+            }
+          }
+        });
 
-        setUnbondList([...formatUnbondList]);
+        setUnbondList([...insertRecords, ...formatUnbondList]);
         setTotalCount(formatUnbondList.length);
       }
     } catch {

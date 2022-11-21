@@ -81,3 +81,7 @@ export function getLocalStorageItem(key: string) {
 	}
 	return null;
 }
+
+export function stafiUuid() {
+  return Date.now().toString(36);
+}
