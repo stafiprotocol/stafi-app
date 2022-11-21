@@ -12,7 +12,7 @@ import maticIcon from "public/matic_type_green.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
-import { useAppDispatch } from "hooks/common";
+import { useAppDispatch, useAppSelector } from "hooks/common";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import { formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
@@ -35,6 +35,7 @@ import numberUtil from "utils/numberUtil";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import downIcon from 'public/icon_down.png';
 import HoverPopover from "material-ui-popup-state/HoverPopover";
+import { RootState } from "redux/store";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -66,6 +67,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
 	const { polkadotBalance } = useWalletAccount();
+
+  const { ethBalance } = useAppSelector((state: RootState) => {
+    return {
+      ethBalance: state.eth.balance,
+    };
+  });
 
   const { metaMaskAccount } = useWalletAccount();
 
@@ -175,6 +182,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     if (Number(stakeAmount) < 0.01) {
       return [true, `Minimal Stake Amount is 0.01 ${tokenName}`];
     }
+
 		if (tokenName === TokenName.ETH) {
 			if (
 				Number(stakeAmount) +
@@ -190,7 +198,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 			if (!isNaN(Number(transactionCost)) && Number(polkadotBalance) <= Number(transactionCost)) {
 				return [true, 'Insufficient FIS Balance'];
 			}
+      if (Number(ethBalance) <= Number(estimateFee)) {
+        return [true, 'Insufficient ETH Balance'];
+      }
 		}
+
     if (!addressCorrect) {
       return [true, "Invalid Receiving Address"];
     }
