@@ -126,6 +126,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 	}, [transactionCost, fisPrice]);
 
 	const newTotalStakedAmount = useMemo(() => {
+    console.log(rTokenBalance, redeemAmount, rTokenRatio)
 		if (
 			isNaN(Number(rTokenBalance)) ||
 			isNaN(Number(redeemAmount)) ||
@@ -160,6 +161,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
       return [true, "Redeem"];
+    }
+    if (isNaN(Number(balance))) {
+      return [true, 'Insufficient Balance'];
     }
     if (!redeemAmount || Number(redeemAmount) === 0 || isNaN(Number(balance))) {
       return [true, "Redeem"];
@@ -209,6 +213,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 				unbondRMatic(
 					redeemAmount,
 					targetAddress,
+          willReceiveAmount,
 					newTotalStakedAmount,
 					() => {
 						dispatch(updateRTokenBalance(tokenStandard, props.tokenName));

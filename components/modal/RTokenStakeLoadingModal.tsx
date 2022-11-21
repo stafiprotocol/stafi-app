@@ -105,10 +105,10 @@ export const RTokenStakeLoadingModal = () => {
               : stakeLoadingParams?.status === "error"
               ? "Something went wrong, please try again"
               : `${userAction.charAt(0).toUpperCase() + userAction.slice(1)} ${stakeLoadingParams?.amount} ${
-                  stakeLoadingParams?.tokenName
+                stakeLoadingParams?.userAction === 'redeem' ? `r${stakeLoadingParams?.tokenName}` : stakeLoadingParams?.tokenName
                 }, you will receive ${formatNumber(
                   stakeLoadingParams?.willReceiveAmount
-                )} r${stakeLoadingParams?.tokenName}`}
+                )} ${stakeLoadingParams?.userAction === 'redeem' ? stakeLoadingParams.tokenName : `r${stakeLoadingParams?.tokenName}`}`}
           </div>
 
           {stakeLoadingParams?.status === "loading" && (

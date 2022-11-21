@@ -34,7 +34,6 @@ export interface MaticState {
 	unbondCommision: string; // unbond commision fee
 	bondTxFees: string; // bond transaction fee
 	unbondTxFees: string; // unbond transaction fee
-	erc20BridgeFees: string; // erc20 bridge swap fee
 	bondFees: string; // bond relay fee
 }
 
@@ -48,7 +47,6 @@ const initialState: MaticState = {
 	unbondFees: '--',
 	bondTxFees: '--',
 	unbondTxFees: '--',
-	erc20BridgeFees: '--',
 	bondFees: '--',
 }
 
@@ -87,9 +85,6 @@ export const maticSlice = createSlice({
 		setUnbondTxFees: (state: MaticState, action: PayloadAction<string>) => {
 			state.unbondTxFees = action.payload;
 		},
-		setErc20BridgeFees: (state: MaticState, action: PayloadAction<string>) => {
-			state.erc20BridgeFees = action.payload;
-		},
 		setBondFees: (state: MaticState, action: PayloadAction<string>) => {
 			state.bondFees = action.payload;
 		},
@@ -106,7 +101,6 @@ export const {
 	setUnbondFees,
 	setUnbondTxFees,
 	setBondTxFees,
-	setErc20BridgeFees,
 	setBondFees,
 } = maticSlice.actions;
 
@@ -373,8 +367,9 @@ export const getRMaticRate =
 	}
 
 export const unbondRMatic =
-	(amount: string, recipient: string, newTotalStakedAmount: string, cb?: Function): AppThunk =>
+	(amount: string, recipient: string, willReceiveAmount: string, newTotalStakedAmount: string, cb?: Function): AppThunk =>
 	async (dispatch, getState) => {
+    console.log(newTotalStakedAmount)
 		dispatch(setIsLoading(true));
 		dispatch(
 			setStakeLoadingParams({
@@ -383,6 +378,7 @@ export const unbondRMatic =
 				tokenName: TokenName.MATIC,
 				amount: amount,
 				userAction: 'redeem',
+        willReceiveAmount,
 				newTotalStakedAmount,
 				progressDetail: {
 					sending: {
@@ -583,13 +579,3 @@ export const getMaticBondTransactionFees =
 		);
 	}
 
-export const getErc20BridgeFees =
-	(): AppThunk =>
-	async (dispatch, getState) => {
-		const api = await stafiServer.createStafiApi();
-		const result = await api.query.bridgeCommon.chainFees(2);
-    if (result.toJSON()) {
-      let estimateFee = numberUtil.fisAmountToHuman(result.toJSON());
-      dispatch(setErc20BridgeFees(numberUtil.handleFisAmountToFixed(estimateFee)));
-    }
-	}
