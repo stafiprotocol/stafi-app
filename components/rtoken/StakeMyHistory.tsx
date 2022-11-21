@@ -1,7 +1,9 @@
 import { CollapseCard } from "components/common/CollapseCard";
+import { EmptyContent } from "components/common/EmptyContent";
+import { MyLayoutContext } from "components/layout/layout";
 import { TokenName } from "interfaces/common";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { StakeMyRewardList } from "./StakeMyRewardList";
 import { StakeMyUnbondList } from "./StakeMyUnbondList";
 import { StakeOverallList } from "./StakeOverallList";
@@ -13,6 +15,22 @@ interface StakeMyHistoryProps {
 export const StakeMyHistory = (props: StakeMyHistoryProps) => {
   const router = useRouter();
   const [tab, setTab] = useState<"overall" | "reward" | "unbond">("overall");
+
+  const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
+
+  if (isWrongMetaMaskNetwork) {
+    return (
+      <CollapseCard
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={<div className="text-white text-[.32rem]">My History</div>}
+      >
+        <div className="pb-[.3rem]">
+          <EmptyContent mt="0.2rem" size=".8rem" />
+        </div>
+      </CollapseCard>
+    );
+  }
 
   return (
     <CollapseCard

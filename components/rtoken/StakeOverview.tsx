@@ -240,7 +240,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   ${" "}
-                  {false
+                  {isWrongMetaMaskNetwork
                     ? "--"
                     : formatNumber(stakedValue, { decimals: 2 })}
                 </div>
@@ -261,13 +261,13 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   ${" "}
-                  {false
+                  {isWrongMetaMaskNetwork
                     ? "--"
                     : formatNumber(totalRewardValue, { decimals: 2 })}
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {false ? "--" : formatNumber(totalReward)}{" "}
+                  {isWrongMetaMaskNetwork ? "--" : formatNumber(totalReward)}{" "}
                   {props.tokenName}
                 </div>
               </div>
@@ -281,7 +281,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  {false
+                  {isWrongMetaMaskNetwork
                     ? "--"
                     : formatNumber(rTokenRatio, { decimals: 4 })}
                 </div>

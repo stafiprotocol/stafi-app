@@ -8,7 +8,7 @@ import { CustomChart } from "../data/CustomChart";
 import ethIcon from "public/eth_type_green.svg";
 import maticIcon from 'public/matic_type_green.svg';
 import { Card } from "components/common/card";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useRTokenReward } from "hooks/useRTokenReward";
 import { getChartDuSeconds } from "utils/common";
 import { useTokenStandard } from "hooks/useTokenStandard";
@@ -16,6 +16,7 @@ import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { Icomoon } from "components/icon/Icomoon";
+import { MyLayoutContext } from "components/layout/layout";
 
 interface RewardChartPanelProps {
   tokenName: TokenName;
@@ -42,6 +43,8 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     chartYData,
     lastEraReward,
   } = useRTokenReward(tokenName, 1, getChartDuSeconds(chartDu));
+
+  const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
 
   // Total reward value.
   const totalRewardValue = useMemo(() => {
@@ -81,7 +84,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     };
   }, []);
 
-  if (totalCount === 0) {
+  if (isWrongMetaMaskNetwork || totalCount === 0) {
     return (
       <div className="flex flex-col items-center pb-[.3rem]">
         <div
