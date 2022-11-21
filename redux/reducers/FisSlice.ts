@@ -310,12 +310,10 @@ export const getMinting =
 		let bondSuccessParamArr: any[] = [];
 		bondSuccessParamArr.push(blockHash);
 		bondSuccessParamArr.push(txHash);
-		let statusObj = {
-			num: 0,
-		};
+
 		dispatch(
-			rTokenSeriesBondStates(type, bondSuccessParamArr, statusObj, (e: string) => {
-				if (e === 'successful') {
+			queryRTokenBondState(type, bondSuccessParamArr, (result: string) => {
+				if (result === 'successful') {
 					dispatch(
 						setStakeLoadingParams({
 							status: 'success',
@@ -338,105 +336,56 @@ export const getMinting =
 							}
 						})
 					);
-				}
+				} else if (result === 'failure') {
+          dispatch(
+            setStakeLoadingParams({
+							status: 'error',
+							progressDetail: {
+								sending: {
+									totalStatus: 'success',
+									broadcastStatus: 'success',
+									packStatus: 'success',
+									finalizeStatus: 'success',
+								},
+								staking: {
+									totalStatus: 'success',
+									broadcastStatus: 'success',
+									packStatus: 'success',
+									finalizeStatus: 'success',
+								},
+								minting: {
+									totalStatus: 'error',
+								}
+							}
+            })
+          );
+        }
 			})
 		);
 	}
 
-export const rTokenSeriesBondStates =
-	(type: number, bondSuccessParamArr: any, statusObj: any, cb?: Function): AppThunk =>
+export const queryRTokenBondState =
+	(type: number, bondSuccessParamArr: any, cb?: Function): AppThunk =>
 	async (dispatch, getState) => {
-		statusObj.num = statusObj.num + 1;
 		const stafiApi = await stafiServer.createStafiApi();
 		const result = await stafiApi.query.rTokenSeries.bondStates(type, bondSuccessParamArr);
 
 		let bondState = result.toJSON();
-		if (bondState === 'Success') {
-			// dispatch(
-			// 	setStakeLoadingParams({
-			// 		progressDetail: {
-			// 			sending: {
-			// 				totalStatus: 'success',
-			// 				broadcastStatus: 'success',
-			// 				packStatus: 'success',
-			// 				finalizeStatus: 'success',
-			// 			},
-			// 			staking: {
-			// 				totalStatus: 'success',
-			// 				broadcastStatus: 'success',
-			// 				packStatus: 'success',
-			// 				finalizeStatus: 'success',
-			// 			},
-			// 			minting: {
-			// 				broadcastStatus: 'success',
-			// 			}
-			// 		}
-			// 	})
-			// );
-			cb && cb('successful');
-			console.log('success')
-		} else if (bondState === 'Fail') {
-			dispatch(
-				setStakeLoadingParams({
-					status: 'error',
-					progressDetail: {
-						sending: {
-							totalStatus: 'success',
-							broadcastStatus: 'success',
-							packStatus: 'success',
-							finalizeStatus: 'success',
-						},
-						staking: {
-							totalStatus: 'success',
-							broadcastStatus: 'success',
-							packStatus: 'success',
-							finalizeStatus: 'success',
-						},
-						minting: {
-							totalStatus: 'error',
-						}
-					}
-				})
-			);
-			cb && cb('failure');
-			console.log('failer')
-		} else if (bondState === null) {
-			cb && cb('stakingFailure');
-			console.log('stakingFailure')
-		} else if (statusObj.num <= 40) {
-			cb && cb('pending');
-			setTimeout(() => {
-				dispatch(
-					rTokenSeriesBondStates(type, bondSuccessParamArr, statusObj, cb)
-				);
-			}, 15000);
-			console.log('pending')
-		} else {
-			dispatch(
-				setStakeLoadingParams({
-					status: 'error',
-					progressDetail: {
-						sending: {
-							totalStatus: 'success',
-							broadcastStatus: 'success',
-							packStatus: 'success',
-							finalizeStatus: 'success',
-						},
-						staking: {
-							totalStatus: 'success',
-							broadcastStatus: 'success',
-							packStatus: 'success',
-							finalizeStatus: 'success',
-						},
-						minting: {
-							totalStatus: 'error',
-						}
-					}
-				})
-			);
-			cb && cb('failure');
-			console.log('failure')
-		}
+    if (bondState === null || bondState === 'Fail') {
+      console.log('mint failure');
+      cb && cb('failure');
+    } else if (bondState === 'Success') {
+      console.log('mint success');
+      cb && cb('successful');
+    } else {
+      console.log('mint pending');
+      cb && cb('pending');
+      setTimeout(() => {
+        dispatch(
+          queryRTokenBondState(type, bondSuccessParamArr, cb)
+        );
+      }, 15000);
+    }
 	}
 
 function sleep(ms: number) {
