@@ -36,6 +36,7 @@ import { useTokenPrice } from "hooks/useTokenPrice";
 import downIcon from 'public/icon_down.png';
 import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { RootState } from "redux/store";
+import { useBridgeFees } from 'hooks/useBridgeFees';
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -76,8 +77,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
   const { metaMaskAccount } = useWalletAccount();
 
-	const { bondFees, bondTxFees, erc20BridgeFees } = useTransactionCost();
-	const defaultTransactionFee = 0.0129;
+	const { bondFees, bondTxFees } = useTransactionCost();
+
+  const { erc20BridgeFee, bep20BridgeFee, solBridgeFee } = useBridgeFees();
 
 	const fisPrice = useTokenPrice('FIS');
 
@@ -138,26 +140,35 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   }, [ethGasPrice, tokenName]);
 
 	const transactionCost = useMemo(() => {
-		let txFee = bondTxFees || defaultTransactionFee;
-		if (tokenStandard !== TokenStandard.Native) {
-			if (
-				isNaN(Number(txFee)) ||
-				isNaN(Number(bondFees)) ||
-				isNaN(Number(erc20BridgeFees))
-			) {
-				return '--';
-			}
-			return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + Number(erc20BridgeFees) + '';
-		} else {
-			if (
-				isNaN(Number(txFee)) ||
-				isNaN(Number(bondFees))
-			) {
-				return '--';
-			}
+		let txFee = bondTxFees;
+    if (tokenStandard === TokenStandard.Native) {
+      if (
+        isNaN(Number(txFee)) ||
+        isNaN(Number(bondFees))
+      ) {
+        return '--';
+      }
 			return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + '';
-		}
-	}, [bondFees, bondTxFees, erc20BridgeFees, tokenStandard]);
+    } else {
+      let bridgeFee: string = '--';
+      if (tokenStandard === TokenStandard.ERC20) {
+        bridgeFee = erc20BridgeFee;
+      } else if (tokenStandard === TokenStandard.BEP20) {
+        bridgeFee = bep20BridgeFee;
+      } else if (tokenStandard === TokenStandard.SPL) {
+        bridgeFee = solBridgeFee;
+      }
+
+      if (
+        isNaN(Number(txFee)) ||
+        isNaN(Number(bondFees)) ||
+        isNaN(Number(bridgeFee))
+      ) {
+        return '--';
+      }
+			return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + Number(bridgeFee) + '';
+    }
+	}, [bondFees, bondTxFees, erc20BridgeFee, bep20BridgeFee, solBridgeFee, tokenStandard]);
 
 	const transactionCostValue = useMemo(() => {
 		if (
@@ -283,6 +294,24 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 		variant: 'popover',
 		popupId: 'txCost',
 	});
+
+  const renderBridgeFee = () => {
+    let bridgeFee: string = '--';
+    if (tokenStandard === TokenStandard.ERC20) {
+      bridgeFee = erc20BridgeFee;
+    } else if (tokenStandard === TokenStandard.BEP20) {
+      bridgeFee = bep20BridgeFee;
+    } else if (tokenStandard === TokenStandard.SPL) {
+      bridgeFee = solBridgeFee;
+    }
+
+    return (
+      <div className="flex justify-between my-[.18rem]">
+        <div>Bridge Fee</div>
+        <div>{formatNumber(bridgeFee, { decimals: 3 })} FIS</div>
+      </div>
+    );
+  }
 
   return (
     <Dialog
@@ -583,12 +612,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 											<div>ETH Tx Fee</div>
 											<div>{formatNumber(estimateFee)} ETH</div>
 										</div>
-										{tokenStandard !== TokenStandard.Native &&
-											<div className="flex justify-between my-[.18rem]">
-												<div>Bridge Fee</div>
-												<div>{formatNumber(erc20BridgeFees, { decimals: 3 })} FIS</div>
-											</div>
-										}
+										{tokenStandard !== TokenStandard.Native && renderBridgeFee()}
 										<div
 										className="h-[1px] bg-text3 my-[.1rem]"
 										/>
