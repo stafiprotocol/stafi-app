@@ -7,13 +7,15 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import Image from "next/image";
 import { useEffect } from "react";
 import defaultAvatar from "public/default_avatar.svg";
-import { setChooseAccountVisible } from "redux/reducers/FisSlice";
+import { setChooseAccountVisible, setRouteNextPage } from "redux/reducers/FisSlice";
 import {
   setPolkadotAccount,
   updatePolkadotExtensionAccountsBalances,
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import commonStyles from "styles/Common.module.scss";
+import { useRouter } from "next/router";
+import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 
 interface Props {}
 
@@ -21,9 +23,12 @@ export const ChooseFisAccountModal = (props: Props) => {
   const { api } = usePolkadotApi();
   const dispatch = useAppDispatch();
 
-  const { chooseAccountVisible } = useAppSelector((state: RootState) => {
+  const router = useRouter();
+
+  const { chooseAccountVisible, routeNextPage } = useAppSelector((state: RootState) => {
     return {
       chooseAccountVisible: state.fis.chooseAccountVisible,
+      routeNextPage: state.fis.routeNextPage,
     };
   });
 
@@ -38,6 +43,12 @@ export const ChooseFisAccountModal = (props: Props) => {
   const changeAccount = (address: string) => {
     // dispatch(setFisAccount(account));
     dispatch(setPolkadotAccount(address));
+    dispatch(setChooseAccountVisible(false));
+    if (routeNextPage) {
+      dispatch(setConnectWalletModalParams(undefined));
+      router.push(routeNextPage);
+      dispatch(setRouteNextPage(undefined));
+    }
   };
 
   return (

@@ -26,10 +26,12 @@ export interface FisAccount {
 
 export interface FisState {
 	chooseAccountVisible: boolean;
+  routeNextPage: string | undefined;
 }
 
 const initialState: FisState = {
 	chooseAccountVisible: false,
+  routeNextPage: undefined,
 };
 
 const FisSlice = createSlice({
@@ -39,11 +41,15 @@ const FisSlice = createSlice({
 		setChooseAccountVisible(state: FisState, action: PayloadAction<boolean>) {
 			state.chooseAccountVisible = action.payload;
 		},
+    setRouteNextPage(state: FisState, action: PayloadAction<string | undefined>) {
+      state.routeNextPage = action.payload;
+    },
 	},
 });
 
 export const {
 	setChooseAccountVisible,
+  setRouteNextPage,
 } = FisSlice.actions;
 
 export default FisSlice.reducer;

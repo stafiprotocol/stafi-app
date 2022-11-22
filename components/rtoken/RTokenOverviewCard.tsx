@@ -16,6 +16,7 @@ import maticLogo from "public/matic_type_black.svg";
 import maticChainLogo from 'public/matic_logo_black.svg';
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
+import { setRouteNextPage } from 'redux/reducers/FisSlice';
 
 interface RTokenOverviewCardProps {
   tokenName: TokenName;
@@ -35,6 +36,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
       if (!metaMaskAccount || metaMaskChainId !== getMetamaskEthChainId()) {
+        dispatch(
+          setRouteNextPage('/rtoken/stake/ETH')
+        );
         dispatch(
           setConnectWalletModalParams({
             visible: true,
@@ -57,6 +61,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
       // if (!polkadotAccount) {
       walletTypes.push(WalletType.Polkadot);
       // }
+      dispatch(
+        setRouteNextPage('/rtoken/stake/MATIC')
+      );
       dispatch(
         setConnectWalletModalParams({
           visible: true,

@@ -156,17 +156,6 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
               if (walletType === WalletType.MetaMask) {
                 connectMetaMask(targetMetaMaskChainId);
               } else if (walletType === WalletType.Polkadot) {
-                // connectPolkadot()
-                //   .then((accounts: FisAccount[]) => {
-                //     if (accounts.length === 0) return;
-                //     dispatch(setAccounts(accounts));
-                //     dispatch(setFisAccount(accounts[0]));
-                //     dispatch(setChooseAccountVisible(true));
-                //     dispatch(setConnectWalletModalParams(undefined));
-                //   })
-                //   .catch((err) => {
-                //     console.error(err);
-                //   });
                 dispatch(connectPolkadotJs(true));
               }
             }}
