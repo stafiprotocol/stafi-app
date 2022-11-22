@@ -97,7 +97,7 @@ export const RTokenStakeLoadingModal = () => {
 
           <div
             className={classNames(
-              "mt-[.24rem] text-[.2rem] text-text2 text-center"
+              "mt-[.24rem] text-[.2rem] text-text2 text-center leading-[.3rem]"
             )}
           >
             {stakeLoadingParams?.status === "success"

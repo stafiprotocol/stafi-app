@@ -432,13 +432,29 @@ export const unbondRMatic =
 	}
 
 export const mockProcess =
-	(): AppThunk =>
+	(
+		stakeAmount: string,
+		willReceiveAmount: string,
+		tokenStandard: TokenStandard | undefined,
+		targetAddress: string,
+		newTotalStakedAmount: string,
+  ): AppThunk =>
 	async (dispatch, getState) => {
 		console.log('mock')
     dispatch(
       setStakeLoadingParams({
         modalVisible: true,
-        status: 'error',
+        status: 'loading',
+        tokenName: TokenName.MATIC,
+        amount: stakeAmount,
+        willReceiveAmount: willReceiveAmount,
+        newTotalStakedAmount,
+        userAction: undefined,
+        progressDetail: {
+          sending: {
+            totalStatus: 'loading',
+          },
+        },
       })
     );
     await sleep(5000);

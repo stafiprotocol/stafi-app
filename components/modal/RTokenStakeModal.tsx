@@ -287,7 +287,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             }
           }
         )
-        // mockProcess()
+        // mockProcess(stakeAmount, willReceiveAmount, tokenStandard, newTotalStakedAmount)
       );
     }
   };
