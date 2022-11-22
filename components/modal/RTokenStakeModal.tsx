@@ -9,6 +9,7 @@ import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
 import maticIcon from "public/matic_type_green.svg";
+import userAvatar from 'public/userAvatar.svg';
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
@@ -474,9 +475,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
                       <div className="w-[.28rem] h-[.28rem] relative">
                         <Image
-                          src={
-                            tokenName === TokenName.MATIC ? maticIcon : ethIcon
-                          }
+                          src={userAvatar}
                           alt="icon"
                           layout="fill"
                         />

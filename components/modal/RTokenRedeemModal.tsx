@@ -9,6 +9,7 @@ import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
 import maticIcon from 'public/matic_type_green.svg';
+import userAvatar from 'public/userAvatar.svg';
 import maticBlackIcon from 'public/matic_type_black.svg';
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
@@ -370,7 +371,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 											)}
 
                       <div className="w-[.28rem] h-[.28rem] relative">
-                        <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="icon" layout="fill" />
+                        <Image src={userAvatar} alt="icon" layout="fill" />
                       </div>
                     </div>
                   </Card>

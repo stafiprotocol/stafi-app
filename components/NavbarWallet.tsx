@@ -162,7 +162,7 @@ export const NavbarWallet = () => {
   ]);
 
   const [displayAddress] = useMemo(() => {
-    if (walletType === WalletType.MetaMask) {
+    if (walletType === WalletType.MetaMask || router.pathname === '/rtoken') {
       return [metaMaskAccount];
     }
     return [polkadotAccount];
