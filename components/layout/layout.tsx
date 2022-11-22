@@ -113,7 +113,7 @@ export const Layout = (props: LayoutProps) => {
       setTargetMetaMaskChainId(getMetamaskMaticChainId());
       setWalletType(WalletType.MetaMask);
     } else {
-      setTargetMetaMaskChainId(getMetamaskEthChainId());
+      setTargetMetaMaskChainId(getMetamaskMaticChainId());
       setWalletType(WalletType.Polkadot);
     }
   }, [router.pathname]);
@@ -194,7 +194,7 @@ export const Layout = (props: LayoutProps) => {
               },
               move: {
                 enable: true,
-                speed: 1,
+                speed: 0.2,
                 direction: "none",
                 random: true,
                 straight: false,
@@ -249,7 +249,7 @@ export const Layout = (props: LayoutProps) => {
             retina_detect: true,
           }}
         />
-        */}
+          */}
 
         <Head>
           <title>StaFi rToken APP</title>
