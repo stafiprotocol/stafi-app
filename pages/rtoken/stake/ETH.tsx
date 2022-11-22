@@ -183,7 +183,6 @@ const RTokenStakePage = () => {
 
       <RTokenStakeModal
         tokenName={TokenName.ETH}
-        editAddressDisabled
         defaultReceivingAddress={metaMaskAccount}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
