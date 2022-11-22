@@ -125,14 +125,26 @@ export const NavbarWallet = () => {
     if (isWrongMetaMaskNetwork) {
       return "--";
     }
-    if (targetMetaMaskChainId === getMetamaskMaticChainId() && router.pathname === '/rtoken/stake/MATIC') {
+    if (
+      targetMetaMaskChainId === getMetamaskMaticChainId() &&
+      router.pathname === "/rtoken/stake/MATIC"
+    ) {
       return maticBalance;
     }
     return ethBalance;
-  }, [targetMetaMaskChainId, isWrongMetaMaskNetwork, ethBalance, maticBalance, router.pathname]);
+  }, [
+    targetMetaMaskChainId,
+    isWrongMetaMaskNetwork,
+    ethBalance,
+    maticBalance,
+    router.pathname,
+  ]);
 
   const displayMetaMaskTokenName = useMemo(() => {
-    if (targetMetaMaskChainId === getMetamaskMaticChainId() && router.pathname === '/rtoken/stake/MATIC') {
+    if (
+      targetMetaMaskChainId === getMetamaskMaticChainId() &&
+      router.pathname === "/rtoken/stake/MATIC"
+    ) {
       return "MATIC";
     }
     return "ETH";
@@ -162,7 +174,7 @@ export const NavbarWallet = () => {
   ]);
 
   const [displayAddress] = useMemo(() => {
-    if (walletType === WalletType.MetaMask || router.pathname === '/rtoken') {
+    if (walletType === WalletType.MetaMask || router.pathname === "/rtoken") {
       return [metaMaskAccount];
     }
     return [polkadotAccount];
@@ -287,9 +299,9 @@ export const NavbarWallet = () => {
           "& .MuiPopover-paper": {
             background: "rgba(25, 38, 52, 0.3)",
             border: "1px solid #26494E",
-            backdropFilter: "blur(200px)",
+            backdropFilter: "blur(2rem)",
             borderRadius: ".16rem",
-            boxShadow: '0 2px 0 rgba(25, 38, 52, 0.3)',
+            // boxShadow: "0 .02rem 0 rgba(25, 38, 52, 0.35)",
           },
           "& .MuiTypography-root": {
             padding: "0px",
@@ -315,12 +327,14 @@ export const NavbarWallet = () => {
             connected={!!metaMaskAccount}
             address={metaMaskAccount || ""}
             balance={
-              (targetMetaMaskChainId === getMetamaskMaticChainId() && router.pathname === '/rtoken/stake/MATIC')
+              targetMetaMaskChainId === getMetamaskMaticChainId() &&
+              router.pathname === "/rtoken/stake/MATIC"
                 ? maticBalance
                 : ethBalance
             }
             tokenName={
-              (targetMetaMaskChainId === getMetamaskMaticChainId() && router.pathname === '/rtoken/stake/MATIC')
+              targetMetaMaskChainId === getMetamaskMaticChainId() &&
+              router.pathname === "/rtoken/stake/MATIC"
                 ? "MATIC"
                 : "ETH"
             }
@@ -416,7 +430,11 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             </div>
           )}
 
-          <div className={`-rotate-90 w-[.19rem] h-[0.1rem] relative ${props.connected && 'opacity-50'}`}>
+          <div
+            className={`-rotate-90 w-[.19rem] h-[0.1rem] relative ${
+              props.connected && "opacity-50"
+            }`}
+          >
             <Image src={downIcon} layout="fill" alt="down" />
           </div>
         </div>
