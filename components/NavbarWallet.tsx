@@ -16,6 +16,7 @@ import {
   usePopupState,
 } from "material-ui-popup-state/hooks";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import ethereumLogo from "public/eth_logo.png";
 import downIcon from "public/icon_down.png";
 import { useContext, useEffect, useMemo } from "react";
@@ -62,6 +63,8 @@ export const NavbarWallet = () => {
       maticBalance: state.matic.balance,
     };
   });
+
+  const router = useRouter();
 
   const { metaMaskConnected, polkadotConnected } = useMemo(() => {
     return {
@@ -122,18 +125,18 @@ export const NavbarWallet = () => {
     if (isWrongMetaMaskNetwork) {
       return "--";
     }
-    if (targetMetaMaskChainId === getMetamaskMaticChainId()) {
+    if (targetMetaMaskChainId === getMetamaskMaticChainId() && router.pathname === '/rtoken/stake/MATIC') {
       return maticBalance;
     }
     return ethBalance;
-  }, [targetMetaMaskChainId, isWrongMetaMaskNetwork, ethBalance, maticBalance]);
+  }, [targetMetaMaskChainId, isWrongMetaMaskNetwork, ethBalance, maticBalance, router.pathname]);
 
   const displayMetaMaskTokenName = useMemo(() => {
-    if (targetMetaMaskChainId === getMetamaskMaticChainId()) {
+    if (targetMetaMaskChainId === getMetamaskMaticChainId() && router.pathname === '/rtoken/stake/MATIC') {
       return "MATIC";
     }
     return "ETH";
-  }, [targetMetaMaskChainId]);
+  }, [targetMetaMaskChainId, router.pathname]);
 
   const displayBalanceList = useMemo(() => {
     const res: string[] = [];
@@ -282,10 +285,11 @@ export const NavbarWallet = () => {
         sx={{
           marginTop: ".3rem",
           "& .MuiPopover-paper": {
-            background: "rgba(25, 38, 52, 0.35)",
+            background: "rgba(25, 38, 52, 0.3)",
             border: "1px solid #26494E",
-            backdropFilter: "blur(.4rem)",
+            backdropFilter: "blur(200px)",
             borderRadius: ".16rem",
+            boxShadow: '0 2px 0 rgba(25, 38, 52, 0.3)',
           },
           "& .MuiTypography-root": {
             padding: "0px",
@@ -311,12 +315,12 @@ export const NavbarWallet = () => {
             connected={!!metaMaskAccount}
             address={metaMaskAccount || ""}
             balance={
-              targetMetaMaskChainId === getMetamaskMaticChainId()
+              (targetMetaMaskChainId === getMetamaskMaticChainId() && router.pathname === '/rtoken/stake/MATIC')
                 ? maticBalance
                 : ethBalance
             }
             tokenName={
-              targetMetaMaskChainId === getMetamaskMaticChainId()
+              (targetMetaMaskChainId === getMetamaskMaticChainId() && router.pathname === '/rtoken/stake/MATIC')
                 ? "MATIC"
                 : "ETH"
             }
@@ -412,7 +416,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             </div>
           )}
 
-          <div className="-rotate-90 w-[.19rem] h-[0.1rem] relative">
+          <div className={`-rotate-90 w-[.19rem] h-[0.1rem] relative ${props.connected && 'opacity-50'}`}>
             <Image src={downIcon} layout="fill" alt="down" />
           </div>
         </div>
