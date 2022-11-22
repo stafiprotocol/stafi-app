@@ -11,7 +11,7 @@ import {
 } from "utils/storage";
 import { chainAmountToHuman } from "utils/number";
 import { TokenSymbol } from "interfaces/common";
-import { setChooseAccountVisible } from "./FisSlice";
+import { setChooseAccountVisible, setRouteNextPage } from "./FisSlice";
 import { cloneDeep } from "lodash";
 import snackbarUtil from "utils/snackbarUtils";
 
@@ -145,6 +145,8 @@ export const connectPolkadotJs =
 
       if (showSelectAccountModal && accounts.length > 1) {
         dispatch(setChooseAccountVisible(true));
+      } else {
+        dispatch(setRouteNextPage(undefined));
       }
 
       saveStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG, "1");
