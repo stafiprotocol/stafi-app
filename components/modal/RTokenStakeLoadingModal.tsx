@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "hooks/common";
 import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import checkFileError from "public/check_file_error.svg";
+import checkFileError from "public/transaction_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
 import { useEffect, useMemo, useState } from "react";
 import { setStakeLoadingParams } from "redux/reducers/AppSlice";
@@ -125,7 +125,7 @@ export const RTokenStakeLoadingModal = () => {
 
           {stakeLoadingParams?.status === "error" && (
             <div className="mt-[.56rem] w-[1.2rem] h-[1.2rem] relative">
-              <Image src={checkFileError} layout="fill" alt="error" />
+              <Image src={checkFileError} layout="fill" alt="error" style={{color: '#FF52C4'}} />
             </div>
           )}
 

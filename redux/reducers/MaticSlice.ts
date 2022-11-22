@@ -435,6 +435,13 @@ export const mockProcess =
 	(): AppThunk =>
 	async (dispatch, getState) => {
 		console.log('mock')
+    dispatch(
+      setStakeLoadingParams({
+        modalVisible: true,
+        status: 'error',
+      })
+    );
+    await sleep(5000);
 		dispatch(
 			setStakeLoadingParams({
 				modalVisible: true,

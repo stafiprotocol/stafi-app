@@ -47,7 +47,7 @@ export const StakeLoadingProgressItem = (
           </div>
         ) : data.totalStatus === "error" ? (
           <div className="ml-[.26rem]">
-            <Icomoon icon="error" size=".27rem" color="#0095EB" />
+            <Icomoon icon="error" size=".27rem" color="#FF52C4" />
           </div>
         ) : (
           <div className="ml-[.26rem]">
@@ -69,9 +69,11 @@ export const StakeLoadingProgressItem = (
           )}
         >
           <div className="mr-[.1rem]">Broadcasting...</div>
+          {/*
           {data.broadcastStatus === "success" && (
             <Icomoon icon="nike" size=".18rem" color="#0095EB" />
           )}
+          */}
         </div>
         <div
           className={classNames(
@@ -85,9 +87,11 @@ export const StakeLoadingProgressItem = (
           )}
         >
           <div className="mr-[.1rem]">Packing...</div>
+          {/*
           {data.packStatus === "success" && (
             <Icomoon icon="nike" size=".18rem" color="#0095EB" />
           )}
+          */}
         </div>
         <div
           className={classNames(
@@ -101,9 +105,11 @@ export const StakeLoadingProgressItem = (
           )}
         >
           <div className="mr-[.1rem]">Finalizing...</div>
+          {/*
           {data.finalizeStatus === "success" && (
             <Icomoon icon="nike" size=".18rem" color="#0095EB" />
           )}
+          */}
         </div>
         {txHash && (
           <div className="mt-[.12rem] text-text1">
