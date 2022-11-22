@@ -38,6 +38,7 @@ import HoverPopover from 'material-ui-popup-state/HoverPopover';
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
+import { validateETHAddress } from "utils/validator";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -142,11 +143,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const { isLoading } = useAppSlice();
 
   const addressCorrect = useMemo(() => {
-    if (tokenName === TokenName.ETH) {
-      return checkMetaMaskAddress(targetAddress);
-    }
-    return true;
-  }, [targetAddress, tokenName]);
+    return validateETHAddress(targetAddress);
+  }, [targetAddress]);
 
   useEffect(() => {
     if (visible) {
@@ -224,11 +222,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   };
 
 	useEffect(() => {
-		dispatch(
-			getMaticUnbondTxFees(redeemAmount || '1', targetAddress)
-		)
-		console.log('getMaticUnbondTransactionFees')
-	}, [targetAddress]);
+    if (addressCorrect) {
+      dispatch(
+        getMaticUnbondTxFees(redeemAmount || '1', targetAddress)
+      )
+    }
+	}, [targetAddress, addressCorrect]);
 
 	const txCostPopupState = usePopupState({
 		variant: 'popover',
@@ -298,22 +297,20 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                           />
                         </div>
                       </Card>
-                      {addressCorrect && (
-                        <div
-													className="ml-[.32rem] cursor-pointer"
-													onClick={() => {
-														if (editAddress) {
-															setEditAddress(false);
-														}
-													}}
-												>
-                          <Icomoon
-                            icon="complete-outline"
-                            size=".38rem"
-                            color="#00F3AB"
-                          />
-                        </div>
-                      )}
+                      <div
+                        className="ml-[.32rem] cursor-pointer"
+                        onClick={() => {
+                          if (editAddress || addressCorrect) {
+                            setEditAddress(false);
+                          }
+                        }}
+                      >
+                        <Icomoon
+                          icon="complete-outline"
+                          size=".38rem"
+                          color={addressCorrect ? '#00F3AB' : '#5B6872'}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <Card

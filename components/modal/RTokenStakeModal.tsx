@@ -37,6 +37,7 @@ import downIcon from 'public/icon_down.png';
 import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { RootState } from "redux/store";
 import { useBridgeFees } from 'hooks/useBridgeFees';
+import { validateETHAddress, validateSS58Address } from "utils/validator";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -105,10 +106,16 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
   const addressCorrect = useMemo(() => {
     if (tokenName === TokenName.ETH) {
-      return checkMetaMaskAddress(targetAddress);
+      return validateETHAddress(targetAddress);
+    } else if (tokenName === TokenName.MATIC) {
+      if (tokenStandard === TokenStandard.Native) {
+        return validateSS58Address(targetAddress);
+      } else {
+        return validateETHAddress(targetAddress);
+      }
     }
     return true;
-  }, [targetAddress, tokenName]);
+  }, [targetAddress, tokenName, tokenStandard]);
 
   useEffect(() => {
     if (visible) {
@@ -285,7 +292,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   };
 
 	useEffect(() => {
-		dispatch(
+ 		dispatch(
 			getMaticBondTransactionFees(tokenStandard)
 		);
 	}, [targetAddress]);
@@ -391,22 +398,21 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                           />
                         </div>
                       </Card>
-                      {addressCorrect && (
-                        <div
-													className="ml-[.32rem] cursor-pointer"
-													onClick={() => {
-														if (editAddress) {
-															setEditAddress(false);
-														}
-													}}
-												>
-                          <Icomoon
-                            icon="complete-outline"
-                            size=".38rem"
-                            color="#00F3AB"
-                          />
-                        </div>
-                      )}
+
+                      <div
+                        className="ml-[.32rem] cursor-pointer"
+                        onClick={() => {
+                          if (editAddress && addressCorrect) {
+                            setEditAddress(false);
+                          }
+                        }}
+                      >
+                        <Icomoon
+                          icon="complete-outline"
+                          size=".38rem"
+                          color={addressCorrect ? '#00F3AB' : '#5B6872'}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <Card
