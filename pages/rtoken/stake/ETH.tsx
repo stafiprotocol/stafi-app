@@ -181,6 +181,36 @@ const RTokenStakePage = () => {
         </div>
       </CollapseCard>
 
+      {/* <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            What are the commissions and fees in rETH?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          Stake ETH: N * Ethereum Gas Fee
+          <br />
+          <br />
+          Staking Reward Fee: 10% Staking Reward Commission(based on the total
+          staking rewards generated).
+          <br />
+          <br />
+          Details:{" "}
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://docs.stafi.io/rtoken-app/reth-solution/faq"
+            target="_blank"
+            rel="noreferrer"
+          >
+            https://docs.stafi.io/rtoken-app/reth-solution/faq
+          </a>
+        </div>
+      </CollapseCard> */}
+
       <RTokenStakeModal
         tokenName={TokenName.ETH}
         defaultReceivingAddress={metaMaskAccount}
