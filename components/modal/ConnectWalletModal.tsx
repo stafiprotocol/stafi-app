@@ -81,7 +81,7 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
           <div
             className={classNames("text-text2 text-[.16rem] leading-tight", {
               invisible:
-                connectWalletModalParams.walletList.indexOf(
+                false && connectWalletModalParams.walletList.indexOf(
                   WalletType.Polkadot
                 ) < 0,
             })}
