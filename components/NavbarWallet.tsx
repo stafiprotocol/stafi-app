@@ -432,7 +432,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
 
           <div
             className={`-rotate-90 w-[.19rem] h-[0.1rem] relative ${
-              props.connected && "opacity-50"
+              props.connected && "opacity-30"
             }`}
           >
             <Image src={downIcon} layout="fill" alt="down" />
