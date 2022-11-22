@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import circulate from "public/circulate.svg";
 import ethLogo from "public/eth_type_black.svg";
 import maticLogo from "public/matic_type_black.svg";
+import maticChainLogo from 'public/matic_logo_black.svg';
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
 
@@ -85,7 +86,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         </div>
 
         <div
-          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.1rem]"
+          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.04rem]"
           style={{
             background: "rgba(25, 38, 52, 0.4)",
             border: "1px solid #1A2835",
@@ -93,7 +94,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           }}
         >
           <div className="w-full h-full relative">
-            <Image src={circulate} layout="fill" alt="circulate" />
+            <Image src={tokenName === TokenName.MATIC ? maticChainLogo : ethLogo} layout="fill" alt="circulate" />
           </div>
         </div>
 
