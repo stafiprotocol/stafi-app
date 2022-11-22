@@ -180,30 +180,38 @@ export const RTokenStakeLoadingModal = () => {
               }}
             >
               {/* Sending progress */}
-              <StakeLoadingProgressItem
-                name="Sending"
-                data={stakeLoadingParams?.progressDetail?.sending}
-                txHash={stakeLoadingParams?.txHash}
-                scanUrl={stakeLoadingParams?.scanUrl}
-              />
+              {stakeLoadingParams?.steps && stakeLoadingParams?.steps.includes('sending') &&
+                <StakeLoadingProgressItem
+                  name="Sending"
+                  data={stakeLoadingParams?.progressDetail?.sending}
+                  txHash={stakeLoadingParams?.txHash}
+                  scanUrl={stakeLoadingParams?.scanUrl}
+                />
+              }
 
               {/* Staking progress */}
-              <StakeLoadingProgressItem
-                name="Staking"
-                data={stakeLoadingParams?.progressDetail?.staking}
-              />
+              {stakeLoadingParams?.steps && stakeLoadingParams?.steps.includes('staking') &&
+                <StakeLoadingProgressItem
+                  name="Staking"
+                  data={stakeLoadingParams?.progressDetail?.staking}
+                />
+              }
 
               {/* Minting progress */}
-              <StakeLoadingProgressItem
-                name="Minting"
-                data={stakeLoadingParams?.progressDetail?.minting}
-              />
+              {stakeLoadingParams?.steps && stakeLoadingParams?.steps.includes('minting') &&
+                <StakeLoadingProgressItem
+                  name="Minting"
+                  data={stakeLoadingParams?.progressDetail?.minting}
+                />
+              }
 
               {/* Swapping progress */}
-              <StakeLoadingProgressItem
-                name="Swapping"
-                data={stakeLoadingParams?.progressDetail?.swapping}
-              />
+              {stakeLoadingParams?.steps && stakeLoadingParams?.steps.includes('swapping') &&
+                <StakeLoadingProgressItem
+                  name="Swapping"
+                  data={stakeLoadingParams?.progressDetail?.swapping}
+                />
+              }
             </div>
           )}
         </div>

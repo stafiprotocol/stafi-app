@@ -168,11 +168,14 @@ export const handleMaticStake =
 					amount: stakeAmount,
 					willReceiveAmount: willReceiveAmount,
 					newTotalStakedAmount,
+          steps: ['sending', 'staking', 'minting'],
 					userAction: undefined,
 					progressDetail: {
 						sending: {
 							totalStatus: 'loading',
 						},
+            staking: {},
+            minting: {},
 					},
 				})
 			);
@@ -207,7 +210,9 @@ export const handleMaticStake =
 					progressDetail: {
 						sending: {
 							broadcastStatus: 'loading',
-						}
+						},
+            staking: {},
+            minting: {},
 					}
 				})
 			)
@@ -220,7 +225,9 @@ export const handleMaticStake =
 							sending: {
 								broadcastStatus: 'success',
 								packStatus: 'loading',
-							}
+							},
+              staking: {},
+              minting: {},
 						}
 					})
 				);
@@ -268,7 +275,9 @@ export const handleMaticStake =
 								sending: {
 									totalStatus: 'error',
 									broadcastStatus: 'error',
-								}
+								},
+                staking: {},
+                minting: {},
 							}
 						})
 					);
@@ -286,10 +295,12 @@ export const handleMaticStake =
 								totalStatus: 'success',
 								broadcastStatus: 'success',
 								packStatus: 'success',
+                finalizeStatus: 'success',
 							},
 							staking: {
 								totalStatus: 'loading',
-							}
+							},
+              minting: {},
 						}
 					})
 				);
@@ -320,7 +331,9 @@ export const handleMaticStake =
 							sending: {
 								totalStatus: 'error',
 								broadcastStatus: 'error',
-							}
+							},
+              staking: {},
+              minting: {},
 						}
 					})
 				);
@@ -450,29 +463,17 @@ export const mockProcess =
         willReceiveAmount: willReceiveAmount,
         newTotalStakedAmount,
         userAction: undefined,
+        steps: ['sending', 'staking', 'minting'],
         progressDetail: {
           sending: {
             totalStatus: 'loading',
           },
+          staking: {},
+          minting: {},
         },
       })
     );
     await sleep(5000);
-		dispatch(
-			setStakeLoadingParams({
-				modalVisible: true,
-				status: 'loading',
-				tokenName: TokenName.MATIC,
-				amount: '1',
-				willReceiveAmount: '1',
-				progressDetail: {
-					sending: {
-						totalStatus: 'loading',
-					}
-				}
-			})
-		);
-		await sleep(2000);
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {

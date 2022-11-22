@@ -94,7 +94,8 @@ export const bond =
 								staking: {
 									totalStatus: 'error',
 									broadcastStatus: 'error',
-								}
+								},
+                minting: {},
 							}
 						})
 					);
@@ -173,7 +174,8 @@ export const bond =
 										staking: {
 											broadcastStatus: 'success',
 											packStatus: 'loading',
-										}
+										},
+                    minting: {},
 									}
 								})
 							);
@@ -209,7 +211,8 @@ export const bond =
 													staking: {
 														totalStatus: 'error',
 														packStatus: 'error',
-													}
+													},
+                          minting: {},
 												}
 											})
 										);
@@ -226,7 +229,8 @@ export const bond =
 													staking: {
 														packStatus: 'success',
 														finalizeStatus: 'loading',
-													}
+													},
+                          minting: {},
 												}
 											})
 										);
@@ -277,7 +281,8 @@ export const bond =
 								staking: {
 									totalStatus: 'error',
 									broadcastStatus: 'error',
-								}
+								},
+                minting: {},
 							}
 						})
 					);
@@ -338,6 +343,9 @@ export const getMinting =
 								},
 								minting: {
 									totalStatus: 'success',
+                  broadcastStatus: 'success',
+                  packStatus: 'success',
+                  finalizeStatus: 'success',
 								}
 							}
 						})
@@ -413,7 +421,7 @@ export const fisUnbond =
 				progressDetail: {
 					sending: {
 						broadcastStatus: 'loading',
-					}
+					},
 				}
 			})
 		);

@@ -49,10 +49,12 @@ export const StakeLoadingProgressItem = (
           <div className="ml-[.26rem]">
             <Icomoon icon="error" size=".27rem" color="#FF52C4" />
           </div>
-        ) : (
+        ) : data.totalStatus === 'loading' ? (
           <div className="ml-[.26rem]">
             <CircularLoading color="info" size=".24rem" />
           </div>
+        ) : (
+          <></>
         )}
       </div>
 
@@ -60,7 +62,7 @@ export const StakeLoadingProgressItem = (
         <div
           className={classNames(
             "flex items-center",
-            { hidden: !data.broadcastStatus },
+            //{ hidden: !data.broadcastStatus },
             data.broadcastStatus === "success"
               ? "text-active"
               : data.broadcastStatus === "error"
@@ -78,7 +80,7 @@ export const StakeLoadingProgressItem = (
         <div
           className={classNames(
             "mt-[.08rem] flex items-center",
-            { hidden: !data.packStatus },
+            //{ hidden: !data.packStatus },
             data.packStatus === "success"
               ? "text-active"
               : data.packStatus === "error"
@@ -96,7 +98,7 @@ export const StakeLoadingProgressItem = (
         <div
           className={classNames(
             "mt-[.08rem] flex items-center",
-            { hidden: !data.finalizeStatus },
+            //{ hidden: !data.finalizeStatus },
             data.finalizeStatus === "success"
               ? "text-active"
               : data.finalizeStatus === "error"

@@ -16,6 +16,7 @@ import { AppThunk } from "../store";
 
 interface StakeLoadingParams {
   modalVisible?: boolean;
+  steps?: string[];
   status?: "loading" | "success" | "error";
   tokenName?: TokenName;
   tokenStandard?: TokenStandard;
