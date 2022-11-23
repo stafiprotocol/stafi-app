@@ -124,6 +124,7 @@ const RMaticStakePage = () => {
           </a>
           . Please refer to this guide to swap native rMATIC into ERC20 format:
           <br />
+          <br />
           <a
             className="text-primary cursor-pointer underline"
             href="https://docs.stafi.io/rtoken-app/rasset/swap-guide"
@@ -156,6 +157,7 @@ const RMaticStakePage = () => {
             0x3dbb00c9be5a327e25caf4f650844c5dba81e34b
           </a>
           <br />
+          <br />
           rMATIC BEP20 Contract Address:{' '}
           <a
             className="text-primary cursor-pointer underline"
@@ -166,6 +168,7 @@ const RMaticStakePage = () => {
             0x117eefdde5e5aed6626ffedbb5d2ac955f64dbf3
           </a>
           <br />
+          <br />
           rMATIC Contract Address on Polygon:{' '}
           <a
             className="text-primary cursor-pointer underline"
@@ -175,6 +178,7 @@ const RMaticStakePage = () => {
           >
             0x9f28e2455f9ffcfac9ebd6084853417362bc5dbb
           </a>
+          <br />
           <br />
           MATIC ERC20 Contract Address:{' '}
           <a
@@ -203,8 +207,10 @@ const RMaticStakePage = () => {
           and the payment is made by native FIS. 
           In most cases, N is set to 2.
           <br />
+          <br />
           <span className="font-semibold">Unbond MATIC</span>: 0.2% redemption fee(based on the amount of unbonded rMATIC) 
           and 10% Staking Reward Commission(based on the total staking rewards generated).
+          <br />
           <br />
           Details:{' '}
           <a
@@ -231,10 +237,13 @@ const RMaticStakePage = () => {
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           <span className="font-semibold">Staking Reward Fee</span>: 10% of your staking reward( your total staking reward minus validator commission)
           <br />
+          <br />
           <span className="font-semibold">Relay Fee</span>: The fee charged by the relayers to pay for the cross-chain contract 
           interaction service fee between StaFi chain and designated chain.
           <br />
+          <br />
           <span className="font-semibold">Redemption Fee</span>: 0.2% of your redeemed rMATIC tokens.
+          <br />
           <br />
           Those fees are split between node operators and the StaFi DAO, as well as developers who contribute to the stafi ecosystem.
         </div>
@@ -253,9 +262,9 @@ const RMaticStakePage = () => {
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           Reward normally is updated every 24 hours.
           <br />
+          <br />
           rMATIC liquid staking rewards are mainly decided by the Polygon chain&apos;s staking APY, 
           delegation strategy and the original validator’s slash risks.
-          <br />
         </div>
       </CollapseCard>
 
@@ -288,6 +297,7 @@ const RMaticStakePage = () => {
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           rMATIC on-chain rate is recording how many MATICs could be redeemed with 1 rMATIC token. 
           It will start from 1 and gradually increase along with the staking rewards generated continuously.
+          <br />
           <br />
           You could refer to{' '}
           <a
