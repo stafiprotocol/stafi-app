@@ -5,7 +5,7 @@ import ethLogo from "public/eth_logo.png";
 import erc20Logo from 'public/mintType/erc20.png';
 import bep20Logo from 'public/mintType/bep20.png';
 import nativeLogo from 'public/mintType/native.png';
-import maticLogo from 'public/matic_logo_black.svg';
+import maticLogo from 'public/matic_logo.svg';
 import maticLogoBlack from 'public/matic_logo_black.svg';
 
 export function getWhiteTokenIcon(tokenName: TokenName) {
