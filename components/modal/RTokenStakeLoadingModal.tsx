@@ -33,6 +33,9 @@ export const RTokenStakeLoadingModal = () => {
     if (!stakeLoadingParams) {
       return;
     }
+    if (stakeLoadingParams.tokenName === TokenName.ETH) {
+      setShowDetail(false);
+    }
     if (
       (stakeLoadingParams.status === "success" ||
         stakeLoadingParams.status === "error") &&

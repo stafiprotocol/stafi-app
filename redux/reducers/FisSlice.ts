@@ -11,6 +11,7 @@ import { getLocalStorageItem } from "utils/common";
 import { connectPolkadot } from "utils/web3Utils";
 import snackbarUtil from "utils/snackbarUtils";
 import { CANCELLED_MESSAGE } from "utils/constants";
+import { ChainId } from "interfaces/common";
 
 declare const ethereum: any;
 
@@ -62,7 +63,7 @@ export const bond =
 		amount: string,
 		poolAddress: string,
 		type: rSymbol,
-		chainId: number,
+		chainId: ChainId,
 		targetAddress: string,
 		cb?: Function
 	): AppThunk =>
@@ -165,13 +166,8 @@ export const bond =
 							dispatch(
 								setStakeLoadingParams({
 									progressDetail: {
-										sending: {
-											totalStatus: 'success',
-											broadcastStatus: 'success',
-											packStatus: 'success',
-											finalizeStatus: 'success',
-										},
 										staking: {
+                      totalStatus: 'loading',
 											broadcastStatus: 'success',
 											packStatus: 'loading',
 										},
@@ -220,13 +216,8 @@ export const bond =
 										dispatch(
 											setStakeLoadingParams({
 												progressDetail: {
-													sending: {
-														totalStatus: 'success',
-														broadcastStatus: 'success',
-														packStatus: 'success',
-														finalizeStatus: 'success',
-													},
 													staking: {
+                            totalStatus: 'loading',
 														packStatus: 'success',
 														finalizeStatus: 'loading',
 													},
@@ -272,12 +263,6 @@ export const bond =
 						setStakeLoadingParams({
 							status: 'error',
 							progressDetail: {
-								sending: {
-									totalStatus: 'success',
-									broadcastStatus: 'success',
-									packStatus: 'success',
-									finalizeStatus: 'success',
-								},
 								staking: {
 									totalStatus: 'error',
 									broadcastStatus: 'error',
@@ -300,12 +285,6 @@ export const getMinting =
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {
-					sending: {
-						totalStatus: 'success',
-						broadcastStatus: 'success',
-						packStatus: 'success',
-						finalizeStatus: 'success',
-					},
 					staking: {
 						totalStatus: 'success',
 						broadcastStatus: 'success',
@@ -329,18 +308,6 @@ export const getMinting =
 						setStakeLoadingParams({
 							status: 'success',
 							progressDetail: {
-								sending: {
-									totalStatus: 'success',
-									broadcastStatus: 'success',
-									packStatus: 'success',
-									finalizeStatus: 'success',
-								},
-								staking: {
-									totalStatus: 'success',
-									broadcastStatus: 'success',
-									packStatus: 'success',
-									finalizeStatus: 'success',
-								},
 								minting: {
 									totalStatus: 'success',
                   broadcastStatus: 'success',
@@ -355,18 +322,6 @@ export const getMinting =
             setStakeLoadingParams({
 							status: 'error',
 							progressDetail: {
-								sending: {
-									totalStatus: 'success',
-									broadcastStatus: 'success',
-									packStatus: 'success',
-									finalizeStatus: 'success',
-								},
-								staking: {
-									totalStatus: 'success',
-									broadcastStatus: 'success',
-									packStatus: 'success',
-									finalizeStatus: 'success',
-								},
 								minting: {
 									totalStatus: 'error',
 								}
@@ -420,6 +375,7 @@ export const fisUnbond =
 			setStakeLoadingParams({
 				progressDetail: {
 					sending: {
+            totalStatus: 'loading',
 						broadcastStatus: 'loading',
 					},
 				}
@@ -451,6 +407,7 @@ export const fisUnbond =
 											progressDetail: {
 												sending: {
 													totalStatus: 'success',
+                          broadcastStatus: 'success',
 												}
 											}
 										})

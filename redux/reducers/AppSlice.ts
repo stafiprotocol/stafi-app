@@ -93,6 +93,10 @@ export const appSlice = createSlice({
         const newParams = {
           ...state.stakeLoadingParams,
           ...action.payload,
+          progressDetail: {
+            ...state.stakeLoadingParams?.progressDetail,
+            ...action.payload.progressDetail,
+          },
         };
         state.stakeLoadingParams = newParams;
       }

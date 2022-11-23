@@ -258,6 +258,10 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   };
 
   const clickStake = () => {
+    /*
+    dispatch(mockProcess(stakeAmount, willReceiveAmount, tokenStandard, targetAddress, newTotalStakedAmount));
+    return;
+    */
     if (tokenName === TokenName.ETH) {
       dispatch(
         handleEthTokenStake(

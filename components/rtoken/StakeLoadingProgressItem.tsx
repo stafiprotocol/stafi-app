@@ -67,7 +67,9 @@ export const StakeLoadingProgressItem = (
               ? "text-active"
               : data.broadcastStatus === "error"
               ? "text-error"
-              : "text-text1"
+              : data.broadcastStatus === 'loading'
+              ? "text-active"
+              : 'text-text1'
           )}
         >
           <div className="mr-[.1rem]">Broadcasting...</div>
@@ -84,7 +86,9 @@ export const StakeLoadingProgressItem = (
             data.packStatus === "success"
               ? "text-active"
               : data.packStatus === "error"
-              ? "text-error"
+              ? 'text-error'
+              : data.packStatus === 'loading'
+              ? 'text-active'
               : "text-text1"
           )}
         >
@@ -103,7 +107,9 @@ export const StakeLoadingProgressItem = (
               ? "text-active"
               : data.finalizeStatus === "error"
               ? "text-error"
-              : "text-text1"
+              : data.finalizeStatus === 'loading'
+              ? "text-active"
+              : 'text-text1'
           )}
         >
           <div className="mr-[.1rem]">Finalizing...</div>

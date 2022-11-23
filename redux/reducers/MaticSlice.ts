@@ -2,7 +2,7 @@ import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { getEtherScanTxUrl } from "config/explorer";
 import { getMaticAbi, getMaticTokenAddress } from "config/matic";
-import { TokenName, TokenStandard } from "interfaces/common";
+import { ChainId, TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
@@ -149,13 +149,13 @@ export const handleMaticStake =
 		cb?: (success: boolean) => void,
 	): AppThunk => 
 	async (dispatch, getState) => {
-		let chainId = 1;
+		let chainId = ChainId.STAFI;
 		if (tokenStandard === TokenStandard.ERC20) {
-			chainId = 2;
+			chainId = ChainId.ETH;
 		} else if (tokenStandard === TokenStandard.BEP20) {
-			chainId = 3;
+			chainId = ChainId.BSC;
 		} else if (tokenStandard === TokenStandard.SPL) {
-			chainId = 4;
+			chainId = ChainId.SOL;
 		}
 
 		try {
@@ -209,6 +209,7 @@ export const handleMaticStake =
 				setStakeLoadingParams({
 					progressDetail: {
 						sending: {
+              totalStatus: 'loading',
 							broadcastStatus: 'loading',
 						},
             staking: {},
@@ -223,6 +224,7 @@ export const handleMaticStake =
 					setStakeLoadingParams({
 						progressDetail: {
 							sending: {
+                totalStatus: 'loading',
 								broadcastStatus: 'success',
 								packStatus: 'loading',
 							},
@@ -287,7 +289,6 @@ export const handleMaticStake =
 				console.log('sending succeeded, proceeding signature');
 				dispatch(
 					setStakeLoadingParams({
-						status: 'loading',
 						txHash: txHash,
 						scanUrl: getEtherScanTxUrl(txHash),
 						progressDetail: {
@@ -397,6 +398,7 @@ export const unbondRMatic =
 				userAction: 'redeem',
         willReceiveAmount,
 				newTotalStakedAmount,
+        steps: ['sending'],
 				progressDetail: {
 					sending: {
 						totalStatus: 'loading',
@@ -462,8 +464,8 @@ export const mockProcess =
         amount: stakeAmount,
         willReceiveAmount: willReceiveAmount,
         newTotalStakedAmount,
-        userAction: undefined,
         steps: ['sending', 'staking', 'minting'],
+        userAction: undefined,
         progressDetail: {
           sending: {
             totalStatus: 'loading',
@@ -473,7 +475,7 @@ export const mockProcess =
         },
       })
     );
-    await sleep(5000);
+    await sleep(3000);
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {
@@ -500,6 +502,7 @@ export const mockProcess =
 				progressDetail: {
 					sending: {
 						totalStatus: 'success',
+            finalizeStatus: 'success',
 					},
 					staking: {
 						totalStatus: 'loading',
@@ -511,9 +514,6 @@ export const mockProcess =
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {
-					sending: {
-						totalStatus: 'success',
-					},
 					staking: {
 						broadcastStatus: 'loading'
 					}
@@ -524,12 +524,9 @@ export const mockProcess =
 		dispatch(
 			setStakeLoadingParams({
 				progressDetail: {
-					sending: {
-						totalStatus: 'success',
-					},
-					staking: {
-						totalStatus: 'success',
-					},
+          staking: {
+            broadcastStatus: 'success',
+          },
 					minting: {
 						totalStatus: 'loading'
 					}
