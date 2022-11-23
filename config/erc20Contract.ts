@@ -48,6 +48,7 @@ export function getErc20ContractConfig(): Erc20ContractConfig {
 
 interface Erc20TokenContractConfig {
   rETH: string;
+  rMATIC: string;
 }
 
 export function getErc20TokenContractConfig(): Erc20TokenContractConfig {
@@ -58,10 +59,12 @@ export function getErc20TokenContractConfig(): Erc20TokenContractConfig {
     // };
     return {
       rETH: "0xE6b876ED4e9191645484FC8940A35784381c2f9B",
+      rMATIC: '0x97dce48fb450590f3fc7e8caf4868c374804dd9e',
     };
   }
 
   return {
     rETH: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593",
+    rMATIC: '0xcc75b43d3e43a7a26efd88c1c1e231fc42487bb8',
   };
 }

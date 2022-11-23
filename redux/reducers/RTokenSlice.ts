@@ -4,7 +4,7 @@ import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getApiHost, getDropHost } from "config/env";
 import { getErc20REthTokenAbi } from "config/erc20Abi";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
-import { getMaticAbi, getMaticTokenAddress } from "config/matic";
+import { getBSCRMaticAbi, getERCMaticAbi } from "config/matic";
 import { getWeb3ProviderUrlConfig } from "config/metaMask";
 import { TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol } from "keyring/defaults";
@@ -164,12 +164,15 @@ export const updateRTokenBalance =
         if (tokenName === TokenName.ETH) {
           tokenAbi = getBep20REthTokenAbi();
           tokenAddress = bep20TokenContractConfig.rETH;
-        } else {
+        } else if (tokenName === TokenName.MATIC) {
+          tokenAbi = getBSCRMaticAbi();
+          tokenAddress = bep20TokenContractConfig.rMATIC;
         }
         newBalance = await getBep20AssetBalance(
           metaMaskAccount,
           tokenAbi,
-          tokenAddress
+          tokenAddress,
+          tokenName,
         );
       } else if (tokenStandard === TokenStandard.ERC20) {
         // Query erc20 rToken balance.
@@ -180,13 +183,14 @@ export const updateRTokenBalance =
           tokenAbi = getErc20REthTokenAbi();
           tokenAddress = erc20TokenContractConfig.rETH;
         } else if (tokenName === TokenName.MATIC) {
-					tokenAbi = getMaticAbi();
-					tokenAddress = getMaticTokenAddress();
+					tokenAbi = getERCMaticAbi();
+					tokenAddress = erc20TokenContractConfig.rMATIC;
         }
         newBalance = await getErc20AssetBalance(
           metaMaskAccount,
           tokenAbi,
-          tokenAddress
+          tokenAddress,
+          tokenName,
         );
       }
 

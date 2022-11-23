@@ -63,15 +63,19 @@ export function connectPolkadot() {
 export async function getErc20AssetBalance(
   userAddress: string | undefined,
   tokenAbi: AbiItem | AbiItem[],
-  tokenAddress: string | undefined
+  tokenAddress: string | undefined,
+  tokenName?: TokenName,
 ) {
   if (!userAddress || !tokenAbi || !tokenAddress) {
     return "--";
   }
   try {
-    const web3 = createWeb3(
+    let web3 = createWeb3(
       new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
     );
+    if (tokenName === TokenName.MATIC && window.ethereum) {
+      web3 = createWeb3(window.ethereum);
+    }
 
     let contract = new web3.eth.Contract(tokenAbi, tokenAddress, {
       from: userAddress,
@@ -79,7 +83,8 @@ export async function getErc20AssetBalance(
     const result = await contract.methods.balanceOf(userAddress).call();
     let balance = web3.utils.fromWei(result, "ether");
     return balance;
-  } catch {
+  } catch (err: any) {
+    console.log(err);
     return "--";
   }
 }
@@ -87,17 +92,21 @@ export async function getErc20AssetBalance(
 export async function getBep20AssetBalance(
   userAddress: string | undefined,
   tokenAbi: AbiItem | AbiItem[],
-  tokenAddress: string | undefined
+  tokenAddress: string | undefined,
+  tokenName?: TokenName,
 ) {
   if (!userAddress || !tokenAbi || !tokenAddress) {
     return "--";
   }
   try {
-    const web3 = createWeb3(
+    let web3 = createWeb3(
       isDev()
         ? new Web3.providers.HttpProvider(getWeb3ProviderUrlConfig().bsc)
         : new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().bsc)
     );
+    if (tokenName === TokenName.MATIC && window.ethereum) {
+      web3 = createWeb3(window.ethereum);
+    }
 
     let contract = new web3.eth.Contract(tokenAbi, tokenAddress, {
       from: userAddress,
