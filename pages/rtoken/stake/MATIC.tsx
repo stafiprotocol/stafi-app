@@ -141,7 +141,7 @@ const RMaticStakePage = () => {
         mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">
-            What's the contract address of rMATIC?
+            What&apos;s the contract address of rMATIC?
           </div>
         }
       >
@@ -246,14 +246,14 @@ const RMaticStakePage = () => {
         mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">
-            What're the factors that affect the staking rewards?
+            What&apos;re the factors that affect the staking rewards?
           </div>
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           Reward normally is updated every 24 hours.
           <br />
-          rMATIC liquid staking rewards are mainly decided by the Polygon chain's staking APY, 
+          rMATIC liquid staking rewards are mainly decided by the Polygon chain&apos;s staking APY, 
           delegation strategy and the original validator’s slash risks.
           <br />
         </div>
@@ -270,7 +270,7 @@ const RMaticStakePage = () => {
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
-          After completing the "Redeem" operation, plz wait for around 9 days to get the redeemed MATIC tokens, 
+          After completing the &quot;Redeem&quot; operation, plz wait for around 9 days to get the redeemed MATIC tokens, 
           which will be automatically sent to your designated account after the lock-up period.
         </div>
       </CollapseCard>
