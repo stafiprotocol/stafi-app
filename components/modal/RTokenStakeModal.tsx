@@ -234,6 +234,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     addressCorrect,
     estimateFee,
     tokenName,
+    ethBalance,
+    polkadotBalance,
+    transactionCost,
   ]);
 
   const newTotalStakedAmount = useMemo(() => {
@@ -296,7 +299,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
  		dispatch(
 			getMaticBondTransactionFees(tokenStandard)
 		);
-	}, [targetAddress]);
+	}, [dispatch, targetAddress, tokenStandard]);
 
 	const txCostPopupState = usePopupState({
 		variant: 'popover',

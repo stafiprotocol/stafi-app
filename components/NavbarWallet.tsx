@@ -178,7 +178,7 @@ export const NavbarWallet = () => {
       return [metaMaskAccount];
     }
     return [polkadotAccount];
-  }, [walletType, polkadotAccount, metaMaskAccount]);
+  }, [walletType, polkadotAccount, metaMaskAccount, router.pathname]);
 
   const showConnectWallet = useMemo(() => {
     return !displayAddress;

@@ -228,7 +228,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
         getMaticUnbondTxFees(redeemAmount || '1', targetAddress)
       )
     }
-	}, [targetAddress, addressCorrect]);
+	}, [dispatch, targetAddress, addressCorrect, redeemAmount]);
 
 	const txCostPopupState = usePopupState({
 		variant: 'popover',
