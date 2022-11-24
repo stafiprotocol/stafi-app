@@ -12,12 +12,12 @@ import { StakeLoadingParams } from "redux/reducers/AppSlice";
 export interface LocalNotice {
   id: string;
   type: NoticeType;
-  timestamp: number;
-  txDetail: NoticeTxDetail;
   data: NoticeDataType;
-  scanUrl: string;
   status: NoticeStatus;
-  stakeLoadingParams: StakeLoadingParams | undefined;
+  txDetail?: NoticeTxDetail;
+  scanUrl?: string;
+  stakeLoadingParams?: StakeLoadingParams | undefined;
+  timestamp?: number;
 }
 
 export type NoticeType =
@@ -55,40 +55,33 @@ export interface NoticeRTokenStakeData {
   tokenName: TokenName;
 }
 
-export function addNoticeInternal(
-  id: string,
-  type: NoticeType,
-  txDetail: NoticeTxDetail,
-  data: NoticeDataType,
-  scanUrl: string,
-  status: NoticeStatus,
-  stakeLoadingParams: StakeLoadingParams | undefined
-) {
+export function addNoticeInternal(newNotice: LocalNotice) {
   const noticeList = getNoticeList();
 
-  const newLength = noticeList.unshift({
-    id,
-    type,
-    txDetail,
-    data,
-    timestamp: dayjs().valueOf(),
-    scanUrl,
-    status,
-    stakeLoadingParams,
+  const targetNotice = _.remove(noticeList, (value) => {
+    return value.id === newNotice.id;
   });
+  if (targetNotice.length > 0) {
+    updateNoticeInternal(newNotice.id, newNotice);
+  } else {
+    const newLength = noticeList.unshift({
+      ...newNotice,
+      timestamp: dayjs().valueOf(),
+    });
 
-  if (newLength > 10) {
-    noticeList.pop();
+    if (newLength > 10) {
+      noticeList.pop();
+    }
+
+    saveStorage(STORAGE_KEY_NOTICE, JSON.stringify(noticeList));
+    saveStorage(STORAGE_KEY_UNREAD_NOTICE, "1");
   }
-
-  saveStorage(STORAGE_KEY_NOTICE, JSON.stringify(noticeList));
-  saveStorage(STORAGE_KEY_UNREAD_NOTICE, "1");
 }
 
 export function updateNoticeInternal(
   id: string,
-  newStatus: NoticeStatus,
-  newData?: Partial<NoticeDataType>
+  // newStatus: NoticeStatus,
+  newNotice: Partial<LocalNotice>
 ) {
   const noticeList = getNoticeList();
 
@@ -98,20 +91,12 @@ export function updateNoticeInternal(
 
   if (targetNotice.length === 1) {
     let matched = targetNotice[0];
-    if (newData) {
-      matched = {
-        ...matched,
-        data: {
-          ...matched.data,
-          ...newData,
-        },
-      };
-    }
-
-    noticeList.unshift({
+    matched = {
       ...matched,
-      status: newStatus,
-    });
+      ...newNotice,
+    };
+
+    noticeList.unshift(matched);
 
     saveStorage(STORAGE_KEY_NOTICE, JSON.stringify(noticeList));
     saveStorage(STORAGE_KEY_UNREAD_NOTICE, "1");

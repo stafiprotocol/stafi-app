@@ -9,7 +9,7 @@ import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
 import maticIcon from "public/matic_type_green.svg";
-import userAvatar from 'public/userAvatar.svg';
+import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
@@ -26,18 +26,26 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import Web3 from "web3";
-import { getMaticBondTransactionFees, handleMaticStake, mockProcess } from "redux/reducers/MaticSlice";
+import {
+  getMaticBondTransactionFees,
+  handleMaticStake,
+  mockProcess,
+} from "redux/reducers/MaticSlice";
 import classNames from "classnames";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { usePopupState, bindHover, bindPopover } from "material-ui-popup-state/hooks";
+import {
+  usePopupState,
+  bindHover,
+  bindPopover,
+} from "material-ui-popup-state/hooks";
 import { useTransactionCost } from "hooks/useTransactionCost";
 import numberUtil from "utils/numberUtil";
 import { useTokenPrice } from "hooks/useTokenPrice";
-import downIcon from 'public/icon_down.png';
+import downIcon from "public/icon_down.png";
 import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { RootState } from "redux/store";
-import { useBridgeFees } from 'hooks/useBridgeFees';
+import { useBridgeFees } from "hooks/useBridgeFees";
 import { validateETHAddress, validateSS58Address } from "utils/validator";
 import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 
@@ -70,7 +78,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
-	const { polkadotBalance } = useWalletAccount();
+  const { polkadotBalance } = useWalletAccount();
 
   const { ethBalance } = useAppSelector((state: RootState) => {
     return {
@@ -80,11 +88,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
   const { metaMaskAccount } = useWalletAccount();
 
-	const { bondFees, bondTxFees } = useTransactionCost();
+  const { bondFees, bondTxFees } = useTransactionCost();
 
   const { erc20BridgeFee, bep20BridgeFee, solBridgeFee } = useBridgeFees();
 
-	const fisPrice = useTokenPrice('FIS');
+  const fisPrice = useTokenPrice("FIS");
 
   const userAddress = useMemo(() => {
     if (walletType === WalletType.MetaMask) {
@@ -148,18 +156,15 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return "--";
   }, [ethGasPrice, tokenName]);
 
-	const transactionCost = useMemo(() => {
-		let txFee = bondTxFees;
+  const transactionCost = useMemo(() => {
+    let txFee = bondTxFees;
     if (tokenStandard === TokenStandard.Native) {
-      if (
-        isNaN(Number(txFee)) ||
-        isNaN(Number(bondFees))
-      ) {
-        return '--';
+      if (isNaN(Number(txFee)) || isNaN(Number(bondFees))) {
+        return "--";
       }
-			return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + '';
+      return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + "";
     } else {
-      let bridgeFee: string = '--';
+      let bridgeFee: string = "--";
       if (tokenStandard === TokenStandard.ERC20) {
         bridgeFee = erc20BridgeFee;
       } else if (tokenStandard === TokenStandard.BEP20) {
@@ -173,19 +178,28 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         isNaN(Number(bondFees)) ||
         isNaN(Number(bridgeFee))
       ) {
-        return '--';
+        return "--";
       }
-			return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + Number(bridgeFee) + '';
+      return (
+        Number(numberUtil.fisAmountToHuman(bondFees)) +
+        Number(txFee) +
+        Number(bridgeFee) +
+        ""
+      );
     }
-	}, [bondFees, bondTxFees, erc20BridgeFee, bep20BridgeFee, solBridgeFee, tokenStandard]);
+  }, [
+    bondFees,
+    bondTxFees,
+    erc20BridgeFee,
+    bep20BridgeFee,
+    solBridgeFee,
+    tokenStandard,
+  ]);
 
-	const transactionCostValue = useMemo(() => {
-		if (
-			isNaN(Number(transactionCost)) ||
-			isNaN(Number(fisPrice))
-		) return '--';
-		return Number(transactionCost) * Number(fisPrice) + '';
-	}, [transactionCost, fisPrice]);
+  const transactionCostValue = useMemo(() => {
+    if (isNaN(Number(transactionCost)) || isNaN(Number(fisPrice))) return "--";
+    return Number(transactionCost) * Number(fisPrice) + "";
+  }, [transactionCost, fisPrice]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
@@ -203,25 +217,28 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       return [true, `Minimal Stake Amount is 0.01 ${tokenName}`];
     }
 
-		if (tokenName === TokenName.ETH) {
-			if (
-				Number(stakeAmount) +
-					(isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
-				Number(balance)
-			) {
-				return [true, "Insufficient Balance"];
-			}
-		} else {
-			if (Number(stakeAmount) > Number(balance)) {
-				return [true, "Insufficient Balance"];
-			}
-			if (!isNaN(Number(transactionCost)) && Number(polkadotBalance) <= Number(transactionCost)) {
-				return [true, 'Insufficient FIS Balance'];
-			}
-      if (Number(ethBalance) <= Number(estimateFee)) {
-        return [true, 'Insufficient ETH Balance'];
+    if (tokenName === TokenName.ETH) {
+      if (
+        Number(stakeAmount) +
+          (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
+        Number(balance)
+      ) {
+        return [true, "Insufficient Balance"];
       }
-		}
+    } else {
+      if (Number(stakeAmount) > Number(balance)) {
+        return [true, "Insufficient Balance"];
+      }
+      if (
+        !isNaN(Number(transactionCost)) &&
+        Number(polkadotBalance) <= Number(transactionCost)
+      ) {
+        return [true, "Insufficient FIS Balance"];
+      }
+      if (Number(ethBalance) <= Number(estimateFee)) {
+        return [true, "Insufficient ETH Balance"];
+      }
+    }
 
     if (!addressCorrect) {
       return [true, "Invalid Receiving Address"];
@@ -270,6 +287,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           stakeAmount,
           willReceiveAmount,
           newTotalStakedAmount,
+          false,
           (success) => {
             if (success) {
               resetState();
@@ -287,6 +305,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           tokenStandard,
           targetAddress,
           newTotalStakedAmount,
+          false,
           (success) => {
             if (success) {
               resetState();
@@ -300,19 +319,17 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     }
   };
 
-	useEffect(() => {
- 		dispatch(
-			getMaticBondTransactionFees(tokenStandard)
-		);
-	}, [dispatch, targetAddress, tokenStandard]);
+  useEffect(() => {
+    dispatch(getMaticBondTransactionFees(tokenStandard));
+  }, [dispatch, targetAddress, tokenStandard]);
 
-	const txCostPopupState = usePopupState({
-		variant: 'popover',
-		popupId: 'txCost',
-	});
+  const txCostPopupState = usePopupState({
+    variant: "popover",
+    popupId: "txCost",
+  });
 
   const renderBridgeFee = () => {
-    let bridgeFee: string = '--';
+    let bridgeFee: string = "--";
     if (tokenStandard === TokenStandard.ERC20) {
       bridgeFee = erc20BridgeFee;
     } else if (tokenStandard === TokenStandard.BEP20) {
@@ -327,7 +344,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         <div>{formatNumber(bridgeFee, { decimals: 3 })} FIS</div>
       </div>
     );
-  }
+  };
 
   return (
     <Dialog
@@ -419,7 +436,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                         <Icomoon
                           icon="complete-outline"
                           size=".38rem"
-                          color={addressCorrect ? '#00F3AB' : '#5B6872'}
+                          color={addressCorrect ? "#00F3AB" : "#5B6872"}
                         />
                       </div>
                     </div>
@@ -482,17 +499,14 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                       )}
 
                       <div className="w-[.28rem] h-[.28rem] relative">
-                        <Image
-                          src={userAvatar}
-                          alt="icon"
-                          layout="fill"
-                        />
+                        <Image src={userAvatar} alt="icon" layout="fill" />
                       </div>
                     </div>
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance, { decimals: 6, toReadable: false })} {tokenName}
+                    {formatNumber(balance, { decimals: 6, toReadable: false })}{" "}
+                    {tokenName}
                   </div>
                 </div>
               </div>
@@ -535,11 +549,14 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   ) {
                     return;
                   }
-									let amount = Number(balance);
-									if (tokenName === TokenName.ETH) {
-										amount = Math.max(Number(balance) - Number(estimateFee) * 1.5, 0);
-									}
-									setStakeAmount(amount.toString());
+                  let amount = Number(balance);
+                  if (tokenName === TokenName.ETH) {
+                    amount = Math.max(
+                      Number(balance) - Number(estimateFee) * 1.5,
+                      0
+                    );
+                  }
+                  setStakeAmount(amount.toString());
                 }}
               >
                 Max
@@ -573,71 +590,71 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Transaction Cost</div>
-								{tokenName === TokenName.ETH ?
-									<div className="mt-[.15rem] text-text1 text-[.24rem]">
-										Est. {formatNumber(estimateFee)} ETH
-									</div>
-									:
-									<div
-										className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
-										{...bindHover(txCostPopupState)}
-									>
-										{formatNumber(transactionCost, { decimals: 2 })} FIS
-										<div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
-											<Image src={downIcon} layout="fill" alt="down" />
-										</div>
-									</div>
-								}
-								<HoverPopover
-									{...bindPopover(txCostPopupState)}
-									transformOrigin={{
-										horizontal: 'center',
-										vertical: 'top'
-									}}
-									anchorOrigin={{
-										vertical: 'bottom',
-										horizontal: 'center',
-									}}
-									sx={{
-										marginTop: '.1rem',
-										"& .MuiPopover-paper": {
-											background: "rgba(9, 15, 23, 0.25)",
-											border: "1px solid #26494E",
-											backdropFilter: "blur(.4rem)",
-											borderRadius: ".16rem",
-											padding: '.2rem',
-										},
-										"& .MuiTypography-root": {
-											padding: "0px",
-										},
-									}}
-								>
-									<div className="text-text2">
-										<div className="flex justify-between">
-											<div>Relay Fee</div>
-											<div>{numberUtil.fisAmountToHuman(bondFees)} FIS</div>
-										</div>
-										<div className="flex justify-between my-[.18rem]">
-											<div>Stafi Chain Tx Fee</div>
-											<div>{formatNumber(bondTxFees, { decimals: 3 })} FIS</div>
-										</div>
-										<div className="flex justify-between my-[.18rem]">
-											<div>ETH Tx Fee</div>
-											<div>{formatNumber(estimateFee)} ETH</div>
-										</div>
-										{tokenStandard !== TokenStandard.Native && renderBridgeFee()}
-										<div
-										className="h-[1px] bg-text3 my-[.1rem]"
-										/>
-										<div className="text-text1">
-											Overall Transaction Cost: <span className="ml-[.1rem]" /> {formatNumber(transactionCost, { decimals: 3 })} FIS
-										</div>
-										<div className="mt-[.18rem] text-right">
-											~${formatNumber(transactionCostValue, { decimals: 3 })}
-										</div>
-									</div>
-								</HoverPopover>
-								</div>
+                {tokenName === TokenName.ETH ? (
+                  <div className="mt-[.15rem] text-text1 text-[.24rem]">
+                    Est. {formatNumber(estimateFee)} ETH
+                  </div>
+                ) : (
+                  <div
+                    className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
+                    {...bindHover(txCostPopupState)}
+                  >
+                    {formatNumber(transactionCost, { decimals: 2 })} FIS
+                    <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
+                      <Image src={downIcon} layout="fill" alt="down" />
+                    </div>
+                  </div>
+                )}
+                <HoverPopover
+                  {...bindPopover(txCostPopupState)}
+                  transformOrigin={{
+                    horizontal: "center",
+                    vertical: "top",
+                  }}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                  sx={{
+                    marginTop: ".1rem",
+                    "& .MuiPopover-paper": {
+                      background: "rgba(9, 15, 23, 0.25)",
+                      border: "1px solid #26494E",
+                      backdropFilter: "blur(.4rem)",
+                      borderRadius: ".16rem",
+                      padding: ".2rem",
+                    },
+                    "& .MuiTypography-root": {
+                      padding: "0px",
+                    },
+                  }}
+                >
+                  <div className="text-text2">
+                    <div className="flex justify-between">
+                      <div>Relay Fee</div>
+                      <div>{numberUtil.fisAmountToHuman(bondFees)} FIS</div>
+                    </div>
+                    <div className="flex justify-between my-[.18rem]">
+                      <div>Stafi Chain Tx Fee</div>
+                      <div>{formatNumber(bondTxFees, { decimals: 3 })} FIS</div>
+                    </div>
+                    <div className="flex justify-between my-[.18rem]">
+                      <div>ETH Tx Fee</div>
+                      <div>{formatNumber(estimateFee)} ETH</div>
+                    </div>
+                    {tokenStandard !== TokenStandard.Native &&
+                      renderBridgeFee()}
+                    <div className="h-[1px] bg-text3 my-[.1rem]" />
+                    <div className="text-text1">
+                      Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
+                      {formatNumber(transactionCost, { decimals: 3 })} FIS
+                    </div>
+                    <div className="mt-[.18rem] text-right">
+                      ~${formatNumber(transactionCostValue, { decimals: 3 })}
+                    </div>
+                  </div>
+                </HoverPopover>
+              </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
                   <MyTooltip
@@ -672,7 +689,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           </div>
         </Card>
 
-				<RTokenStakeLoadingSidebar />
+        <RTokenStakeLoadingSidebar />
       </DialogContent>
     </Dialog>
   );

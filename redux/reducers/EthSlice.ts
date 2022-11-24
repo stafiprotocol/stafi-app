@@ -12,7 +12,12 @@ import { getEtherScanTxUrl } from "config/explorer";
 import { TokenName, TokenStandard } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import { stafiUuid } from "utils/common";
-import { CANCELLED_MESSAGE, COMMON_ERROR_MESSAGE } from "utils/constants";
+import {
+  CANCELLED_MESSAGE,
+  COMMON_ERROR_MESSAGE,
+  TRANSACTION_FAILED_MESSAGE,
+} from "utils/constants";
+import { LocalNotice } from "utils/notice";
 import snackbarUtil from "utils/snackbarUtils";
 import {
   removeStorage,
@@ -25,6 +30,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  updateNotice,
   updateStakeLoadingParams,
 } from "./AppSlice";
 
@@ -259,18 +265,21 @@ export const handleEthValidatorDeposit =
 
       if (result?.status) {
         dispatch(
-          addNotice(
-            result.transactionHash,
-            "ETH Deposit",
-            { transactionHash: result.transactionHash, sender: address },
-            {
+          addNotice({
+            id: result.transactionHash,
+            type: "ETH Deposit",
+            txDetail: {
+              transactionHash: result.transactionHash,
+              sender: address,
+            },
+            data: {
               type,
               amount: (type === "solo" ? 4 * pubkeys.length : 0) + "",
               pubkeys,
             },
-            getEtherScanTxUrl(result.transactionHash),
-            "Confirmed"
-          )
+            scanUrl: getEtherScanTxUrl(result.transactionHash),
+            status: "Confirmed",
+          })
         );
       } else {
         throw new Error(COMMON_ERROR_MESSAGE);
@@ -352,18 +361,21 @@ export const handleEthValidatorStake =
         );
 
         dispatch(
-          addNotice(
-            result.transactionHash,
-            "ETH Stake",
-            { transactionHash: result.transactionHash, sender: address },
-            {
+          addNotice({
+            id: result.transactionHash,
+            type: "ETH Stake",
+            txDetail: {
+              transactionHash: result.transactionHash,
+              sender: address,
+            },
+            data: {
               type,
               amount: 32 * pubkeys.length + "",
               pubkeys,
             },
-            getEtherScanTxUrl(result.transactionHash),
-            "Confirmed"
-          )
+            scanUrl: getEtherScanTxUrl(result.transactionHash),
+            status: "Confirmed",
+          })
         );
       } else {
         throw new Error(COMMON_ERROR_MESSAGE);
@@ -386,10 +398,20 @@ export const handleEthTokenStake =
     stakeAmount: string,
     willReceiveAmount: string,
     newTotalStakedAmount: string,
+    isReTry: boolean,
     callback?: (success: boolean, result: any) => void
   ): AppThunk =>
   async (dispatch, getState) => {
-    const noticeUuid = stafiUuid();
+    const noticeUuid = isReTry
+      ? getState().app.stakeLoadingParams?.noticeUuid
+      : stafiUuid();
+    const sendingParams = {
+      amount: stakeAmount,
+      willReceiveAmount,
+      tokenStandard,
+      targetAddress: "",
+      newTotalStakedAmount,
+    };
     try {
       if (!tokenStandard) {
         return;
@@ -399,6 +421,7 @@ export const handleEthTokenStake =
       dispatch(
         resetStakeLoadingParams({
           modalVisible: true,
+          noticeUuid,
           status: "loading",
           tokenStandard,
           tokenName: TokenName.ETH,
@@ -410,6 +433,7 @@ export const handleEthTokenStake =
             sending: {
               totalStatus: "loading",
             },
+            sendingParams,
           },
         })
       );
@@ -439,35 +463,39 @@ export const handleEthTokenStake =
         snackbarUtil.success("Deposit successful");
         const txHash = result.transactionHash;
         dispatch(
-          addNotice(
-            noticeUuid,
-            "rToken Stake",
-            { transactionHash: txHash, sender: metaMaskAccount },
+          updateStakeLoadingParams(
             {
-              tokenName: TokenName.ETH,
-              amount: Number(stakeAmount) + "",
-              willReceiveAmount: Number(willReceiveAmount) + "",
-            },
-            getEtherScanTxUrl(result.transactionHash),
-            "Confirmed"
-          )
-        );
-        dispatch(
-          updateStakeLoadingParams({
-            status: "success",
-            txHash: txHash,
-            scanUrl: getEtherScanTxUrl(txHash),
-            progressDetail: {
-              sending: {
-                totalStatus: "success",
-                broadcastStatus: "success",
-                packStatus: "success",
+              status: "success",
+              txHash: txHash,
+              scanUrl: getEtherScanTxUrl(txHash),
+              progressDetail: {
+                sending: {
+                  totalStatus: "success",
+                  broadcastStatus: "success",
+                  packStatus: "success",
+                },
               },
             },
-          })
+            (newParams) => {
+              const newNotice: LocalNotice = {
+                id: noticeUuid || stafiUuid(),
+                type: "rToken Stake",
+                txDetail: { transactionHash: txHash, sender: metaMaskAccount },
+                data: {
+                  tokenName: TokenName.MATIC,
+                  amount: Number(stakeAmount) + "",
+                  willReceiveAmount: Number(willReceiveAmount) + "",
+                },
+                scanUrl: getEtherScanTxUrl(result.transactionHash),
+                status: "Pending",
+                stakeLoadingParams: newParams,
+              };
+              dispatch(addNotice(newNotice));
+            }
+          )
         );
       } else {
-        throw new Error("Error! Please try again");
+        throw new Error(TRANSACTION_FAILED_MESSAGE);
       }
     } catch (err: unknown) {
       if ((err as any).code === 4001) {
@@ -476,26 +504,33 @@ export const handleEthTokenStake =
       } else {
         snackbarUtil.error((err as any).message);
         dispatch(
-          updateStakeLoadingParams({
-            status: "error",
-          })
-        );
-
-        dispatch(
-          addNotice(
-            noticeUuid,
-            "rToken Stake",
+          updateStakeLoadingParams(
             {
-              transactionHash: "",
-              sender: "",
+              status: "error",
+              errorMsg: TRANSACTION_FAILED_MESSAGE,
+              errorStep: "sending",
+              progressDetail: {
+                sending: {
+                  totalStatus: "error",
+                  broadcastStatus: "error",
+                },
+              },
             },
-            {
-              tokenName: TokenName.ETH,
-              amount: Number(stakeAmount) + "",
-              willReceiveAmount: Number(willReceiveAmount) + "",
-            },
-            "",
-            "Error"
+            (newParams) => {
+              dispatch(
+                addNotice({
+                  id: noticeUuid || stafiUuid(),
+                  type: "rToken Stake",
+                  data: {
+                    tokenName: TokenName.ETH,
+                    amount: Number(stakeAmount) + "",
+                    willReceiveAmount: Number(willReceiveAmount) + "",
+                  },
+                  status: "Error",
+                  stakeLoadingParams: newParams,
+                })
+              );
+            }
           )
         );
       }

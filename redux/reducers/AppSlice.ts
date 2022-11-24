@@ -1,11 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TokenName, TokenStandard, WalletType } from "interfaces/common";
+import {
+  ChainId,
+  TokenName,
+  TokenStandard,
+  WalletType,
+} from "interfaces/common";
+import { rSymbol } from "keyring/defaults";
 import {
   addNoticeInternal,
-  NoticeDataType,
-  NoticeStatus,
-  NoticeTxDetail,
-  NoticeType,
+  LocalNotice,
+  updateNoticeInternal,
 } from "utils/notice";
 import {
   removeStorage,
@@ -16,8 +20,11 @@ import { AppThunk } from "../store";
 
 export interface StakeLoadingParams {
   modalVisible?: boolean;
+  noticeUuid?: string;
   steps?: string[];
   status?: "loading" | "success" | "error";
+  errorMsg?: string;
+  errorStep?: "sending" | "staking" | "minting";
   tokenName?: TokenName;
   tokenStandard?: TokenStandard;
   amount?: string;
@@ -33,10 +40,27 @@ export interface StakeLoadingParams {
 }
 
 interface StakeLoadingProgressDetail {
-  sending?: StakeLoadingProgressDetailItem;
-  staking?: StakeLoadingProgressDetailItem;
+  sending?: StakeLoadingSendingDetailItem;
+  staking?: StakeLoadingStakingDetailItem;
   minting?: StakeLoadingProgressDetailItem;
   swapping?: StakeLoadingProgressDetailItem;
+  sendingParams?: {
+    amount: string;
+    willReceiveAmount: string;
+    tokenStandard: TokenStandard | undefined;
+    targetAddress: string;
+    newTotalStakedAmount: string;
+  };
+  stakingParams?: {
+    address: string;
+    amount: string;
+    txHash: string;
+    blockHash: string;
+    poolAddress: string;
+    targetAddress: string;
+    type: rSymbol;
+    chainId: ChainId;
+  };
 }
 
 interface ConnectWalletModalParams {
@@ -46,6 +70,20 @@ interface ConnectWalletModalParams {
 }
 
 export interface StakeLoadingProgressDetailItem {
+  totalStatus?: "loading" | "success" | "error";
+  broadcastStatus?: "loading" | "success" | "error";
+  packStatus?: "loading" | "success" | "error";
+  finalizeStatus?: "loading" | "success" | "error";
+}
+
+export interface StakeLoadingSendingDetailItem {
+  totalStatus?: "loading" | "success" | "error";
+  broadcastStatus?: "loading" | "success" | "error";
+  packStatus?: "loading" | "success" | "error";
+  finalizeStatus?: "loading" | "success" | "error";
+}
+
+export interface StakeLoadingStakingDetailItem {
   totalStatus?: "loading" | "success" | "error";
   broadcastStatus?: "loading" | "success" | "error";
   packStatus?: "loading" | "success" | "error";
@@ -119,7 +157,10 @@ export const resetStakeLoadingParams =
   };
 
 export const updateStakeLoadingParams =
-  (stakeLoadingParams: StakeLoadingParams): AppThunk =>
+  (
+    stakeLoadingParams: StakeLoadingParams,
+    cb?: (newParams: StakeLoadingParams | undefined) => void
+  ): AppThunk =>
   async (dispatch, getState) => {
     let newParams;
     if (!stakeLoadingParams) {
@@ -136,30 +177,28 @@ export const updateStakeLoadingParams =
     }
 
     dispatch(setStakeLoadingParams(newParams));
+    cb && cb(newParams);
   };
 
 /**
  * Add notice record.
  */
 export const addNotice =
-  (
-    id: string,
-    type: NoticeType,
-    txDetail: NoticeTxDetail,
-    data: NoticeDataType,
-    explorerUrl: string,
-    status: NoticeStatus = "Pending"
-  ): AppThunk =>
+  (notice: LocalNotice): AppThunk =>
   async (dispatch, getState) => {
-    const stakeLoadingParams = getState().app.stakeLoadingParams;
-    addNoticeInternal(
-      id,
-      type,
-      txDetail,
-      data,
-      explorerUrl,
-      status,
-      stakeLoadingParams
-    );
+    addNoticeInternal(notice);
+    dispatch(setUnreadNoticeFlag(true));
+  };
+
+/**
+ * Update notice status.
+ */
+export const updateNotice =
+  (id: string | undefined, newNotice: Partial<LocalNotice>): AppThunk =>
+  async (dispatch, getState) => {
+    if (!id) {
+      return;
+    }
+    updateNoticeInternal(id, newNotice);
     dispatch(setUnreadNoticeFlag(true));
   };

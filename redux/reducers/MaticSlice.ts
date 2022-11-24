@@ -14,6 +14,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  StakeLoadingSendingDetailItem,
   updateStakeLoadingParams,
 } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
@@ -25,12 +26,17 @@ import {
 } from "./FisSlice";
 import keyring from "servers/keyring";
 import { u8aToHex } from "@polkadot/util";
-import { CANCELLED_MESSAGE } from "utils/constants";
+import {
+  BLOCK_HASH_NOT_FOUND_MESSAGE,
+  CANCELLED_MESSAGE,
+  TRANSACTION_FAILED_MESSAGE,
+} from "utils/constants";
 import { updateRTokenBalance } from "./RTokenSlice";
 import { addRTokenUnbondRecords } from "utils/storage";
 import { stafiUuid } from "utils/common";
 import dayjs from "dayjs";
 import { estimateUnbondDays } from "config/unbond";
+import { LocalNotice } from "utils/notice";
 
 declare const ethereum: any;
 
@@ -160,6 +166,7 @@ export const handleMaticStake =
     tokenStandard: TokenStandard | undefined,
     targetAddress: string,
     newTotalStakedAmount: string,
+    isReTry: boolean,
     cb?: (success: boolean) => void
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -172,11 +179,23 @@ export const handleMaticStake =
       chainId = ChainId.SOL;
     }
 
+    const noticeUuid = isReTry
+      ? getState().app.stakeLoadingParams?.noticeUuid
+      : stafiUuid();
+    const sendingParams = {
+      amount: stakeAmount,
+      willReceiveAmount,
+      tokenStandard,
+      newTotalStakedAmount,
+      targetAddress,
+    };
+
     try {
       dispatch(setIsLoading(true)); // stake button loading
       dispatch(
         resetStakeLoadingParams({
           modalVisible: true,
+          noticeUuid,
           status: "loading",
           tokenName: TokenName.MATIC,
           amount: stakeAmount,
@@ -190,6 +209,7 @@ export const handleMaticStake =
             sending: {
               totalStatus: "loading",
             },
+            sendingParams,
             staking: {},
             minting: {},
           },
@@ -249,22 +269,6 @@ export const handleMaticStake =
             },
           })
         );
-        // dispatch(
-        // 	addNotice(
-        // 		txHash,
-        // 		'rToken Stake',
-        // 		{
-        // 			transactionHash: txHash,
-        // 			sender: metaMaskAccount,
-        // 		},
-        // 		{
-        // 			tokenName: TokenName.MATIC,
-        // 			amount: stakeAmount,
-        // 		},
-        // 		getEtherScanTxUrl(result.transactionHash),
-        // 		'Confirmed',
-        // 	)
-        // );
 
         let txDetail;
         while (true) {
@@ -286,43 +290,48 @@ export const handleMaticStake =
 
         const blockHash = txDetail && txDetail.blockHash;
         if (!blockHash) {
-          dispatch(
-            updateStakeLoadingParams({
-              status: "error",
-              progressDetail: {
-                sending: {
-                  totalStatus: "error",
-                  broadcastStatus: "error",
-                },
-                staking: {},
-                minting: {},
-              },
-            })
-          );
-          dispatch(setIsLoading(false));
-          console.error("blockHash error");
+          throw new Error(BLOCK_HASH_NOT_FOUND_MESSAGE);
         }
 
         console.log("sending succeeded, proceeding signature");
         dispatch(
-          updateStakeLoadingParams({
-            txHash: txHash,
-            scanUrl: getEtherScanTxUrl(txHash),
-            blockHash: blockHash,
-            poolPubKey: selectedPool.poolPubKey,
-            progressDetail: {
-              sending: {
-                totalStatus: "success",
-                broadcastStatus: "success",
-                packStatus: "success",
-                finalizeStatus: "success",
+          updateStakeLoadingParams(
+            {
+              txHash: txHash,
+              scanUrl: getEtherScanTxUrl(txHash),
+              blockHash: blockHash,
+              poolPubKey: selectedPool.poolPubKey,
+              progressDetail: {
+                sending: {
+                  totalStatus: "success",
+                  broadcastStatus: "success",
+                  packStatus: "success",
+                  finalizeStatus: "success",
+                },
+                sendingParams,
+                staking: {
+                  totalStatus: "loading",
+                },
+                minting: {},
               },
-              staking: {
-                totalStatus: "loading",
-              },
-              minting: {},
             },
-          })
+            (newParams) => {
+              const newNotice: LocalNotice = {
+                id: noticeUuid || stafiUuid(),
+                type: "rToken Stake",
+                txDetail: { transactionHash: txHash, sender: metaMaskAccount },
+                data: {
+                  tokenName: TokenName.MATIC,
+                  amount: Number(stakeAmount) + "",
+                  willReceiveAmount: Number(willReceiveAmount) + "",
+                },
+                scanUrl: getEtherScanTxUrl(result.transactionHash),
+                status: "Pending",
+                stakeLoadingParams: newParams,
+              };
+              dispatch(addNotice(newNotice));
+            }
+          )
         );
 
         dispatch(reloadData());
@@ -342,35 +351,55 @@ export const handleMaticStake =
             )
           );
       } else {
-        const txHash = result.transactionHash;
-        dispatch(
-          updateStakeLoadingParams({
-            status: "error",
-            txHash: txHash,
-            progressDetail: {
-              sending: {
-                totalStatus: "error",
-                broadcastStatus: "error",
-              },
-              staking: {},
-              minting: {},
-            },
-          })
-        );
-        dispatch(setIsLoading(false));
-        snackbarUtil.error("Error! Please try again");
+        throw new Error(TRANSACTION_FAILED_MESSAGE);
       }
     } catch (err: any) {
       console.error(err);
+      dispatch(setIsLoading(false));
       if (err.code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
         dispatch(resetStakeLoadingParams(undefined));
       } else {
         snackbarUtil.error(err.message);
+        let sendingDetail: StakeLoadingSendingDetailItem = {
+          totalStatus: "error",
+          broadcastStatus: "error",
+        };
+        if (err.message === BLOCK_HASH_NOT_FOUND_MESSAGE) {
+          sendingDetail = {
+            totalStatus: "error",
+            broadcastStatus: "success",
+            packStatus: "error",
+          };
+        }
         dispatch(
-          updateStakeLoadingParams({
-            status: "error",
-          })
+          updateStakeLoadingParams(
+            {
+              errorMsg: err.message,
+              errorStep: "sending",
+              status: "error",
+              progressDetail: {
+                sending: sendingDetail,
+                staking: {},
+                minting: {},
+              },
+            },
+            (newParams) => {
+              dispatch(
+                addNotice({
+                  id: noticeUuid || stafiUuid(),
+                  type: "rToken Stake",
+                  data: {
+                    tokenName: TokenName.MATIC,
+                    amount: Number(stakeAmount) + "",
+                    willReceiveAmount: Number(willReceiveAmount) + "",
+                  },
+                  status: "Error",
+                  stakeLoadingParams: newParams,
+                })
+              );
+            }
+          )
         );
       }
       dispatch(setIsLoading(false));
@@ -405,26 +434,26 @@ export const retryStake =
       chainId = ChainId.SOL;
     }
 
-		dispatch(
-			updateStakeLoadingParams({
-				txHash: txHash,
-				scanUrl: getEtherScanTxUrl(txHash as string),
-				blockHash: blockHash,
-				poolPubKey: poolPubKey as string,
-				progressDetail: {
-					sending: {
-						totalStatus: "success",
-						broadcastStatus: "success",
-						packStatus: "success",
-						finalizeStatus: "success",
-					},
-					staking: {
-						totalStatus: "loading",
-					},
-					minting: {},
-				},
-			})
-		);
+    dispatch(
+      updateStakeLoadingParams({
+        txHash: txHash,
+        scanUrl: getEtherScanTxUrl(txHash as string),
+        blockHash: blockHash,
+        poolPubKey: poolPubKey as string,
+        progressDetail: {
+          sending: {
+            totalStatus: "success",
+            broadcastStatus: "success",
+            packStatus: "success",
+            finalizeStatus: "success",
+          },
+          staking: {
+            totalStatus: "loading",
+          },
+          minting: {},
+        },
+      })
+    );
 
     dispatch(
       bond(

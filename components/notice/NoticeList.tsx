@@ -1,26 +1,35 @@
 import { Box, Stack } from "@mui/material";
 import classNames from "classnames";
 import { EmptyContent } from "components/common/EmptyContent";
-import { useAppDispatch } from "hooks/common";
+import { useAppDispatch, useAppSelector } from "hooks/common";
+import { TokenName } from "interfaces/common";
 import { useEffect, useState } from "react";
 import {
   resetStakeLoadingParams,
   setUnreadNoticeFlag,
+  updateStakeLoadingParams,
 } from "redux/reducers/AppSlice";
+import { RootState } from "redux/store";
 import { openLink } from "utils/common";
 import {
   getNoticeList,
   LocalNotice,
   NoticeEthDepositData,
   NoticeRTokenStakeData,
+  NoticeType,
 } from "utils/notice";
 import { formatNumber } from "utils/number";
+import snackbarUtil from "utils/snackbarUtils";
 import { removeStorage, STORAGE_KEY_UNREAD_NOTICE } from "utils/storage";
 import { formatDate } from "utils/time";
 
 export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
   const dispatch = useAppDispatch();
   const [noticeList, setNoticeList] = useState<LocalNotice[]>([]);
+
+  const { stakeLoadingParams } = useAppSelector((state: RootState) => {
+    return { stakeLoadingParams: state.app.stakeLoadingParams };
+  });
 
   useEffect(() => {
     if (props.isOpen) {
@@ -81,6 +90,53 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
     return "";
   };
 
+  const openStakeLoadingModal = (notice: LocalNotice) => {
+    if (notice.stakeLoadingParams) {
+      if (stakeLoadingParams) {
+        if (
+          notice.stakeLoadingParams.noticeUuid === stakeLoadingParams.noticeUuid
+        ) {
+          dispatch(
+            updateStakeLoadingParams({
+              modalVisible: true,
+            })
+          );
+        } else {
+          snackbarUtil.warning(
+            "A stake process is going on, please wait a moment."
+          );
+        }
+      } else {
+        dispatch(
+          resetStakeLoadingParams({
+            ...notice.stakeLoadingParams,
+            modalVisible: true,
+          })
+        );
+      }
+    } else {
+      snackbarUtil.error("Missing data");
+    }
+  };
+
+  const clickStatus = (notice: LocalNotice) => {
+    props.onClose();
+    if (notice.status !== "Confirmed") {
+      openStakeLoadingModal(notice);
+    } else {
+      if (notice.type === "rToken Stake") {
+        const noticeData = notice.data as NoticeRTokenStakeData;
+        if (noticeData.tokenName === TokenName.ETH) {
+          openLink(getNoticeUrl(notice));
+        } else {
+          openStakeLoadingModal(notice);
+        }
+      } else {
+        openLink(getNoticeUrl(notice));
+      }
+    }
+  };
+
   return (
     <Box width="5rem" px=".24rem" py=".1rem">
       <Box
@@ -106,7 +162,7 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
 
             <Stack direction="row" justifyContent="space-between" mt=".15rem">
               <div className="text-text1 text-[.16rem]">
-                {formatDate(notice.timestamp)}
+                {formatDate(notice.timestamp || 0)}
               </div>
 
               <div
@@ -118,21 +174,7 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
                     ? "text-text1"
                     : "text-error"
                 )}
-                onClick={() => {
-                  props.onClose();
-                  if (notice.status === "Confirmed") {
-                    openLink(getNoticeUrl(notice));
-                  } else {
-                    if (notice.stakeLoadingParams) {
-                      dispatch(
-                        resetStakeLoadingParams({
-                          ...notice.stakeLoadingParams,
-                          modalVisible: true,
-                        })
-                      );
-                    }
-                  }
-                }}
+                onClick={() => clickStatus(notice)}
               >
                 {notice.status}
               </div>

@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import checkFileSuccess from "public/check_file_success.svg";
 import checkFileError from "public/transaction_error.svg";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   resetStakeLoadingParams,
   updateStakeLoadingParams,
@@ -20,6 +20,7 @@ import {
   retryStake as retryMaticStake,
 } from "redux/reducers/MaticSlice";
 import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
+import { bond } from "redux/reducers/FisSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
@@ -35,6 +36,10 @@ export const RTokenStakeLoadingModal = () => {
     };
   });
 
+  useEffect(() => {
+    setShowDetail(false);
+  }, [stakeLoadingParams?.modalVisible]);
+
   const userAction = useMemo(() => {
     return stakeLoadingParams?.userAction || "staking";
   }, [stakeLoadingParams]);
@@ -48,96 +53,62 @@ export const RTokenStakeLoadingModal = () => {
   };
 
   const clickRetry = () => {
-    if (!stakeLoadingParams) {
+    if (
+      !stakeLoadingParams ||
+      !stakeLoadingParams.progressDetail ||
+      !stakeLoadingParams.errorStep
+    ) {
       return;
     }
-    if (stakeLoadingParams.tokenName === TokenName.ETH) {
-      if (
-        !stakeLoadingParams.amount ||
-        !stakeLoadingParams.willReceiveAmount ||
-        !stakeLoadingParams.newTotalStakedAmount
-      ) {
+    const { errorStep } = stakeLoadingParams;
+    const { sendingParams, stakingParams } = stakeLoadingParams.progressDetail;
+
+    if (errorStep === "sending") {
+      if (!sendingParams) {
+        snackbarUtil.error("Invalid params, please retry manually");
+        return;
+      }
+      if (stakeLoadingParams.tokenName === TokenName.ETH) {
+        dispatch(
+          handleEthTokenStake(
+            sendingParams.tokenStandard,
+            sendingParams.amount,
+            sendingParams.willReceiveAmount,
+            sendingParams.newTotalStakedAmount,
+            true
+          )
+        );
+      } else if (stakeLoadingParams.tokenName === TokenName.MATIC) {
+        dispatch(
+          handleMaticStake(
+            sendingParams.amount,
+            sendingParams.willReceiveAmount,
+            sendingParams.tokenStandard,
+            sendingParams.targetAddress,
+            sendingParams.newTotalStakedAmount,
+            true
+          )
+        );
+      }
+    }
+
+    if (errorStep === "staking") {
+      if (!stakingParams) {
         snackbarUtil.error("Invalid params, please retry manually");
         return;
       }
       dispatch(
-        handleEthTokenStake(
-          stakeLoadingParams.tokenStandard,
-          stakeLoadingParams.amount,
-          stakeLoadingParams.willReceiveAmount,
-          stakeLoadingParams.newTotalStakedAmount
+        bond(
+          stakingParams.address,
+          stakingParams.txHash,
+          stakingParams.blockHash,
+          stakingParams.amount,
+          stakingParams.poolAddress,
+          stakingParams.type,
+          stakingParams.chainId,
+          stakingParams.targetAddress
         )
       );
-    } else if (stakeLoadingParams.tokenName === TokenName.MATIC) {
-      if (stakeLoadingParams.progressDetail) {
-        if (
-          stakeLoadingParams.progressDetail.staking &&
-          stakeLoadingParams.progressDetail.sending?.totalStatus
-        ) {
-          if (
-            !stakeLoadingParams.amount ||
-            !stakeLoadingParams.willReceiveAmount ||
-            !stakeLoadingParams.newTotalStakedAmount ||
-            !stakeLoadingParams.targetAddress ||
-            !stakeLoadingParams.tokenStandard ||
-            !stakeLoadingParams.blockHash ||
-            !stakeLoadingParams.txHash ||
-            !stakeLoadingParams.poolPubKey
-          ) {
-            snackbarUtil.error("Invalid params, please retry manually");
-            return;
-          }
-          dispatch(
-            retryMaticStake((success: boolean) => {
-              if (success) {
-                dispatch(
-                  updateRTokenBalance(
-                    stakeLoadingParams.tokenStandard,
-                    TokenName.MATIC
-                  )
-                );
-              }
-            })
-          );
-        } else if (
-          stakeLoadingParams.progressDetail.sending &&
-          stakeLoadingParams.progressDetail.sending.totalStatus
-        ) {
-          if (
-            !stakeLoadingParams.amount ||
-            !stakeLoadingParams.willReceiveAmount ||
-            !stakeLoadingParams.newTotalStakedAmount ||
-            !stakeLoadingParams.targetAddress ||
-            !stakeLoadingParams.tokenStandard
-          ) {
-            snackbarUtil.error("Invalid params, please retry manually");
-            return;
-          }
-          dispatch(
-            handleMaticStake(
-              stakeLoadingParams.amount,
-              stakeLoadingParams.willReceiveAmount,
-              stakeLoadingParams.tokenStandard,
-              stakeLoadingParams.targetAddress,
-              stakeLoadingParams.newTotalStakedAmount,
-              (success: boolean) => {
-                if (success) {
-                  dispatch(
-                    updateRTokenBalance(
-                      stakeLoadingParams.tokenStandard,
-                      TokenName.MATIC
-                    )
-                  );
-                }
-              }
-            )
-          );
-        } else {
-          snackbarUtil.error("Invalid params, please retry manually");
-        }
-      } else {
-        snackbarUtil.error("Invalid params, please retry manually");
-      }
     }
   };
 
@@ -202,7 +173,8 @@ export const RTokenStakeLoadingModal = () => {
                   userAction.charAt(0).toUpperCase() + userAction.slice(1)
                 } operation was successful`
               : stakeLoadingParams?.status === "error"
-              ? "Something went wrong, please try again"
+              ? stakeLoadingParams?.errorMsg ||
+                "Something went wrong, please try again"
               : `${userAction.charAt(0).toUpperCase() + userAction.slice(1)} ${
                   stakeLoadingParams?.amount
                 } ${
@@ -241,7 +213,7 @@ export const RTokenStakeLoadingModal = () => {
             </div>
           )}
 
-          <div className="mt-[.42rem]">
+          <div className="mt-[.42rem] flex flex-col items-center">
             {stakeLoadingParams?.scanUrl && (
               <a
                 className="mt-[.15rem] text-warning text-[.24rem]"
