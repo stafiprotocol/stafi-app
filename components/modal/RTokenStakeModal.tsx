@@ -39,6 +39,7 @@ import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { RootState } from "redux/store";
 import { useBridgeFees } from 'hooks/useBridgeFees';
 import { validateETHAddress, validateSS58Address } from "utils/validator";
+import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -670,6 +671,8 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             </div>
           </div>
         </Card>
+
+				<RTokenStakeLoadingSidebar />
       </DialogContent>
     </Dialog>
   );
