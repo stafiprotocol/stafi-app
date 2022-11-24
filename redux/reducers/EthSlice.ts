@@ -452,27 +452,27 @@ export const handleEthTokenStake =
         }
       );
 
-      let gasPrice = web3.utils.toWei("10", "gwei");
-      const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const resJson = await response.json();
-      if (resJson && resJson.status === "80000") {
-        gasPrice = web3.utils.toWei(
-          Number(resJson.data?.baseFee) +
-            Number(resJson.data?.priorityFee) +
-            "",
-          "gwei"
-        );
-      }
+      // let gasPrice = web3.utils.toWei("10", "gwei");
+      // const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
+      //   method: "GET",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
+      // const resJson = await response.json();
+      // if (resJson && resJson.status === "80000") {
+      //   gasPrice = web3.utils.toWei(
+      //     Number(resJson.data?.baseFee) +
+      //       Number(resJson.data?.priorityFee) +
+      //       "",
+      //     "gwei"
+      //   );
+      // }
 
       const stakeAmountInWei = web3.utils.toWei(stakeAmount.toString());
       const result = await contract.methods
         .deposit()
-        .send({ value: stakeAmountInWei, gasPrice });
+        .send({ value: stakeAmountInWei });
       console.log("stake result", result);
 
       callback && callback(result.status, result);
