@@ -27,6 +27,9 @@ export interface StakeLoadingParams {
   txHash?: string;
   progressDetail?: StakeLoadingProgressDetail;
   userAction?: string; // 'staking' | 'redeem'
+	targetAddress?: string;
+	blockHash?: string;
+	poolPubKey?: string;
 }
 
 interface StakeLoadingProgressDetail {

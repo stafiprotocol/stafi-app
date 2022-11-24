@@ -6,7 +6,11 @@ import numberUtil from "utils/numberUtil";
 import keyring from "servers/keyring";
 import StafiServer from "servers/stafi";
 import { stringToHex, u8aToHex } from "@polkadot/util";
-import { resetStakeLoadingParams, setIsLoading, updateStakeLoadingParams } from "./AppSlice";
+import {
+  resetStakeLoadingParams,
+  setIsLoading,
+  updateStakeLoadingParams,
+} from "./AppSlice";
 import { getLocalStorageItem } from "utils/common";
 import { connectPolkadot } from "utils/web3Utils";
 import snackbarUtil from "utils/snackbarUtils";
@@ -104,7 +108,7 @@ export const bond =
               },
             })
           );
-					dispatch(setIsLoading(false));
+          dispatch(setIsLoading(false));
           console.error(err);
         });
       console.log("signature succeeded, proceeding staking");
@@ -224,7 +228,7 @@ export const bond =
                         },
                       })
                     );
-										dispatch(setIsLoading(false));
+                    dispatch(setIsLoading(false));
                   } else if (data.event.method === "ExtrinsicSuccess") {
                     dispatch(
                       updateStakeLoadingParams({
@@ -282,7 +286,7 @@ export const bond =
                 },
               })
             );
-						dispatch(setIsLoading(false));
+            dispatch(setIsLoading(false));
           }
           console.log(err);
         });
@@ -329,7 +333,7 @@ export const getMinting =
               },
             })
           );
-					dispatch(setIsLoading(false));
+          dispatch(setIsLoading(false));
         } else if (result === "failure") {
           dispatch(
             updateStakeLoadingParams({
@@ -341,7 +345,7 @@ export const getMinting =
               },
             })
           );
-					dispatch(setIsLoading(false));
+          dispatch(setIsLoading(false));
         }
       })
     );
@@ -408,6 +412,13 @@ export const fisUnbond =
           },
         },
       })
+    );
+
+    const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
+      symbol,
+      selectedPool,
+      numberUtil.tokenAmountToChain(amount, symbol).toString(),
+      recipient
     );
 
     unbondResult

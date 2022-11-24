@@ -15,6 +15,11 @@ import {
   updateStakeLoadingParams,
 } from "redux/reducers/AppSlice";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
+import {
+  handleMaticStake,
+  retryStake as retryMaticStake,
+} from "redux/reducers/MaticSlice";
+import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
@@ -63,6 +68,76 @@ export const RTokenStakeLoadingModal = () => {
           stakeLoadingParams.newTotalStakedAmount
         )
       );
+    } else if (stakeLoadingParams.tokenName === TokenName.MATIC) {
+      if (stakeLoadingParams.progressDetail) {
+        if (
+          stakeLoadingParams.progressDetail.staking &&
+          stakeLoadingParams.progressDetail.sending?.totalStatus
+        ) {
+          if (
+            !stakeLoadingParams.amount ||
+            !stakeLoadingParams.willReceiveAmount ||
+            !stakeLoadingParams.newTotalStakedAmount ||
+            !stakeLoadingParams.targetAddress ||
+            !stakeLoadingParams.tokenStandard ||
+            !stakeLoadingParams.blockHash ||
+            !stakeLoadingParams.txHash ||
+            !stakeLoadingParams.poolPubKey
+          ) {
+            snackbarUtil.error("Invalid params, please retry manually");
+            return;
+          }
+          dispatch(
+            retryMaticStake((success: boolean) => {
+              if (success) {
+                dispatch(
+                  updateRTokenBalance(
+                    stakeLoadingParams.tokenStandard,
+                    TokenName.MATIC
+                  )
+                );
+              }
+            })
+          );
+        } else if (
+          stakeLoadingParams.progressDetail.sending &&
+          stakeLoadingParams.progressDetail.sending.totalStatus
+        ) {
+          if (
+            !stakeLoadingParams.amount ||
+            !stakeLoadingParams.willReceiveAmount ||
+            !stakeLoadingParams.newTotalStakedAmount ||
+            !stakeLoadingParams.targetAddress ||
+            !stakeLoadingParams.tokenStandard
+          ) {
+            snackbarUtil.error("Invalid params, please retry manually");
+            return;
+          }
+          dispatch(
+            handleMaticStake(
+              stakeLoadingParams.amount,
+              stakeLoadingParams.willReceiveAmount,
+              stakeLoadingParams.tokenStandard,
+              stakeLoadingParams.targetAddress,
+              stakeLoadingParams.newTotalStakedAmount,
+              (success: boolean) => {
+                if (success) {
+                  dispatch(
+                    updateRTokenBalance(
+                      stakeLoadingParams.tokenStandard,
+                      TokenName.MATIC
+                    )
+                  );
+                }
+              }
+            )
+          );
+        } else {
+          snackbarUtil.error("Invalid params, please retry manually");
+        }
+      } else {
+        snackbarUtil.error("Invalid params, please retry manually");
+      }
     }
   };
 

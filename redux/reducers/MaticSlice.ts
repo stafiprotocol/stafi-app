@@ -182,6 +182,8 @@ export const handleMaticStake =
           amount: stakeAmount,
           willReceiveAmount: willReceiveAmount,
           newTotalStakedAmount,
+          targetAddress,
+          tokenStandard,
           steps: ["sending", "staking", "minting"],
           userAction: undefined,
           progressDetail: {
@@ -297,7 +299,7 @@ export const handleMaticStake =
               },
             })
           );
-					dispatch(setIsLoading(false));
+          dispatch(setIsLoading(false));
           console.error("blockHash error");
         }
 
@@ -306,6 +308,8 @@ export const handleMaticStake =
           updateStakeLoadingParams({
             txHash: txHash,
             scanUrl: getEtherScanTxUrl(txHash),
+            blockHash: blockHash,
+            poolPubKey: selectedPool.poolPubKey,
             progressDetail: {
               sending: {
                 totalStatus: "success",
@@ -353,7 +357,7 @@ export const handleMaticStake =
             },
           })
         );
-				dispatch(setIsLoading(false));
+        dispatch(setIsLoading(false));
         snackbarUtil.error("Error! Please try again");
       }
     } catch (err: any) {
@@ -369,11 +373,72 @@ export const handleMaticStake =
           })
         );
       }
-			dispatch(setIsLoading(false));
+      dispatch(setIsLoading(false));
     } finally {
       // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
     }
+  };
+
+export const retryStake =
+  (cb?: (success: boolean) => void): AppThunk =>
+  async (dispatch, getState) => {
+    const stakeLoadingParams = getState().app.stakeLoadingParams;
+    if (!stakeLoadingParams) return;
+
+    const metaMaskAccount = getState().wallet.metaMaskAccount;
+    const {
+      txHash,
+      blockHash,
+      amount,
+      poolPubKey,
+      targetAddress,
+      tokenStandard,
+    } = stakeLoadingParams;
+
+    let chainId = ChainId.STAFI;
+    if (tokenStandard === TokenStandard.ERC20) {
+      chainId = ChainId.ETH;
+    } else if (tokenStandard === TokenStandard.BEP20) {
+      chainId = ChainId.BSC;
+    } else if (tokenStandard === TokenStandard.SPL) {
+      chainId = ChainId.SOL;
+    }
+
+		dispatch(
+			updateStakeLoadingParams({
+				txHash: txHash,
+				scanUrl: getEtherScanTxUrl(txHash as string),
+				blockHash: blockHash,
+				poolPubKey: poolPubKey as string,
+				progressDetail: {
+					sending: {
+						totalStatus: "success",
+						broadcastStatus: "success",
+						packStatus: "success",
+						finalizeStatus: "success",
+					},
+					staking: {
+						totalStatus: "loading",
+					},
+					minting: {},
+				},
+			})
+		);
+
+    dispatch(
+      bond(
+        metaMaskAccount as string,
+        txHash as string,
+        blockHash as string,
+        amount as string,
+        poolPubKey as string,
+        rSymbol.Matic,
+        chainId,
+        targetAddress as string,
+        cb
+      )
+    );
   };
 
 const sleep = (ms: number) => {
