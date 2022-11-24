@@ -69,19 +69,31 @@ export function convertToSS58(
 }
 
 export function setLocalStorageItem(key: string, val: any) {
-	if (typeof window === 'undefined') return;
-	localStorage.setItem(key, JSON.stringify(val));
+  if (typeof window === "undefined") return;
+  localStorage.setItem(key, JSON.stringify(val));
 }
 
 export function getLocalStorageItem(key: string) {
-	if (typeof window === 'undefined') return null;
-	const val = localStorage.getItem(key);
-	if (val) {
-		return JSON.parse(val);
-	}
-	return null;
+  if (typeof window === "undefined") return null;
+  const val = localStorage.getItem(key);
+  if (val) {
+    return JSON.parse(val);
+  }
+  return null;
 }
 
 export function stafiUuid() {
-  return Date.now().toString(36);
+  try {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+
+        return v.toString(16);
+      }
+    );
+  } catch {
+    return "";
+  }
 }

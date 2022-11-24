@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { getApiHost } from "config/env";
 import {
   getStafiLightNodeAbi,
   getStafiNetworkSettingsAbi,
@@ -6,10 +7,11 @@ import {
   getStafiSuperNodeAbi,
   getStafiUserDepositAbi,
 } from "config/erc20Abi";
-import { getEtherScanTxUrl } from "config/explorer";
 import { getErc20ContractConfig } from "config/erc20Contract";
+import { getEtherScanTxUrl } from "config/explorer";
 import { TokenName, TokenStandard } from "interfaces/common";
 import { AppThunk } from "redux/store";
+import { stafiUuid } from "utils/common";
 import { CANCELLED_MESSAGE, COMMON_ERROR_MESSAGE } from "utils/constants";
 import snackbarUtil from "utils/snackbarUtils";
 import {
@@ -19,8 +21,12 @@ import {
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
-import { addNotice, setIsLoading, setStakeLoadingParams } from "./AppSlice";
-import { getApiHost } from "config/env";
+import {
+  addNotice,
+  resetStakeLoadingParams,
+  setIsLoading,
+  updateStakeLoadingParams,
+} from "./AppSlice";
 
 interface EthStakeParams {
   type: "solo" | "trusted";
@@ -383,6 +389,7 @@ export const handleEthTokenStake =
     callback?: (success: boolean, result: any) => void
   ): AppThunk =>
   async (dispatch, getState) => {
+    const noticeUuid = stafiUuid();
     try {
       if (!tokenStandard) {
         return;
@@ -390,7 +397,7 @@ export const handleEthTokenStake =
 
       dispatch(setIsLoading(true));
       dispatch(
-        setStakeLoadingParams({
+        resetStakeLoadingParams({
           modalVisible: true,
           status: "loading",
           tokenStandard,
@@ -398,7 +405,7 @@ export const handleEthTokenStake =
           amount: Number(stakeAmount) + "",
           willReceiveAmount,
           newTotalStakedAmount,
-					userAction: undefined,
+          userAction: undefined,
           progressDetail: {
             sending: {
               totalStatus: "loading",
@@ -433,7 +440,7 @@ export const handleEthTokenStake =
         const txHash = result.transactionHash;
         dispatch(
           addNotice(
-            txHash,
+            noticeUuid,
             "rToken Stake",
             { transactionHash: txHash, sender: metaMaskAccount },
             {
@@ -446,7 +453,7 @@ export const handleEthTokenStake =
           )
         );
         dispatch(
-          setStakeLoadingParams({
+          updateStakeLoadingParams({
             status: "success",
             txHash: txHash,
             scanUrl: getEtherScanTxUrl(txHash),
@@ -460,34 +467,36 @@ export const handleEthTokenStake =
           })
         );
       } else {
-        const txHash = result.transactionHash;
+        throw new Error("Error! Please try again");
+      }
+    } catch (err: unknown) {
+      if ((err as any).code === 4001) {
+        snackbarUtil.error(CANCELLED_MESSAGE);
+        dispatch(resetStakeLoadingParams(undefined));
+      } else {
+        snackbarUtil.error((err as any).message);
+        dispatch(
+          updateStakeLoadingParams({
+            status: "error",
+          })
+        );
 
         dispatch(
           addNotice(
-            txHash,
+            noticeUuid,
             "rToken Stake",
-            { transactionHash: txHash, sender: metaMaskAccount },
+            {
+              transactionHash: "",
+              sender: "",
+            },
             {
               tokenName: TokenName.ETH,
               amount: Number(stakeAmount) + "",
               willReceiveAmount: Number(willReceiveAmount) + "",
             },
-            getEtherScanTxUrl(result.transactionHash),
+            "",
             "Error"
           )
-        );
-        snackbarUtil.error("Error! Please try again");
-      }
-    } catch (err: unknown) {
-      if ((err as any).code === 4001) {
-        snackbarUtil.error(CANCELLED_MESSAGE);
-        dispatch(setStakeLoadingParams(undefined));
-      } else {
-        snackbarUtil.error((err as any).message);
-        dispatch(
-          setStakeLoadingParams({
-            status: "error",
-          })
         );
       }
     } finally {

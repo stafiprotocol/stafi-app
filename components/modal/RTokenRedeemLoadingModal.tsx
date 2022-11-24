@@ -1,4 +1,4 @@
-import { Modal, Box } from "@mui/material";
+import { Box, Modal } from "@mui/material";
 import classNames from "classnames";
 import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { Icomoon } from "components/icon/Icomoon";
@@ -9,13 +9,13 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import checkFileError from "public/check_file_error.svg";
 import checkFileSuccess from "public/check_file_success.svg";
-import { useEffect, useState } from "react";
-import { setStakeLoadingParams } from "redux/reducers/AppSlice";
+import { useState } from "react";
+import { updateStakeLoadingParams } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 
 export const RTokenRedeemLoadingModal = () => {
-	const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const [showDetail, setShowDetail] = useState(false);
 
@@ -25,27 +25,14 @@ export const RTokenRedeemLoadingModal = () => {
     };
   });
 
-  useEffect(() => {
-    if (!stakeLoadingParams) {
-      return;
-    }
-    if (
-      (stakeLoadingParams.status === "success" ||
-        stakeLoadingParams.status === "error") &&
-      !stakeLoadingParams.modalVisible
-    ) {
-      dispatch(setStakeLoadingParams(undefined));
-    }
-  }, [dispatch, stakeLoadingParams]);
-
-	return (
-		<Modal
-			open={stakeLoadingParams?.modalVisible === true}
-			sx={{
-				backgroundColor: "#0A131Bba",
-			}}
-		>
-			<Box
+  return (
+    <Modal
+      open={stakeLoadingParams?.modalVisible === true}
+      sx={{
+        backgroundColor: "#0A131Bba",
+      }}
+    >
+      <Box
         pt="0"
         pl=".32rem"
         pr=".32rem"
@@ -67,8 +54,7 @@ export const RTokenRedeemLoadingModal = () => {
             className="self-end mr-[-0.16rem] mt-[.16rem] cursor-pointer"
             onClick={() => {
               dispatch(
-                setStakeLoadingParams({
-                  ...(stakeLoadingParams || {}),
+                updateStakeLoadingParams({
                   modalVisible: false,
                 })
               );
@@ -186,6 +172,6 @@ export const RTokenRedeemLoadingModal = () => {
           )}
         </div>
       </Box>
-		</Modal>
-	)
-}
+    </Modal>
+  );
+};

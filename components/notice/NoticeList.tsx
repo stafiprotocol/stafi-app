@@ -1,22 +1,25 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
+import classNames from "classnames";
+import { EmptyContent } from "components/common/EmptyContent";
+import { useAppDispatch } from "hooks/common";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { setUnreadNoticeFlag } from "redux/reducers/AppSlice";
 import {
+  resetStakeLoadingParams,
+  setUnreadNoticeFlag,
+} from "redux/reducers/AppSlice";
+import { openLink } from "utils/common";
+import {
+  getNoticeList,
   LocalNotice,
   NoticeEthDepositData,
   NoticeRTokenStakeData,
 } from "utils/notice";
-import { openLink } from "utils/common";
-import { getNoticeList } from "utils/notice";
+import { formatNumber } from "utils/number";
 import { removeStorage, STORAGE_KEY_UNREAD_NOTICE } from "utils/storage";
 import { formatDate } from "utils/time";
-import { EmptyContent } from "components/common/EmptyContent";
-import classNames from "classnames";
-import { formatNumber } from "utils/number";
 
 export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [noticeList, setNoticeList] = useState<LocalNotice[]>([]);
 
   useEffect(() => {
@@ -117,7 +120,18 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
                 )}
                 onClick={() => {
                   props.onClose();
-                  openLink(getNoticeUrl(notice));
+                  if (notice.status === "Confirmed") {
+                    openLink(getNoticeUrl(notice));
+                  } else {
+                    if (notice.stakeLoadingParams) {
+                      dispatch(
+                        resetStakeLoadingParams({
+                          ...notice.stakeLoadingParams,
+                          modalVisible: true,
+                        })
+                      );
+                    }
+                  }
                 }}
               >
                 {notice.status}

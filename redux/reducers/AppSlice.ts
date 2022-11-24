@@ -14,7 +14,7 @@ import {
 } from "utils/storage";
 import { AppThunk } from "../store";
 
-interface StakeLoadingParams {
+export interface StakeLoadingParams {
   modalVisible?: boolean;
   steps?: string[];
   status?: "loading" | "success" | "error";
@@ -26,7 +26,7 @@ interface StakeLoadingParams {
   scanUrl?: string;
   txHash?: string;
   progressDetail?: StakeLoadingProgressDetail;
-	userAction?: string; // 'staking' | 'redeem'
+  userAction?: string; // 'staking' | 'redeem'
 }
 
 interface StakeLoadingProgressDetail {
@@ -87,19 +87,7 @@ export const appSlice = createSlice({
       state: AppState,
       action: PayloadAction<StakeLoadingParams | undefined>
     ) => {
-      if (!action.payload) {
-        state.stakeLoadingParams = undefined;
-      } else {
-        const newParams = {
-          ...state.stakeLoadingParams,
-          ...action.payload,
-          progressDetail: {
-            ...state.stakeLoadingParams?.progressDetail,
-            ...action.payload.progressDetail,
-          },
-        };
-        state.stakeLoadingParams = newParams;
-      }
+      state.stakeLoadingParams = action.payload;
     },
     setConnectWalletModalParams: (
       state: AppState,
@@ -110,15 +98,42 @@ export const appSlice = createSlice({
   },
 });
 
+const { setStakeLoadingParams } = appSlice.actions;
+
 export const {
   setIsLoading,
   setUnreadNoticeFlag,
   setUpdateFlag15s,
-  setStakeLoadingParams,
   setConnectWalletModalParams,
 } = appSlice.actions;
 
 export default appSlice.reducer;
+
+export const resetStakeLoadingParams =
+  (stakeLoadingParams: StakeLoadingParams | undefined): AppThunk =>
+  async (dispatch, getState) => {
+    dispatch(setStakeLoadingParams(stakeLoadingParams));
+  };
+
+export const updateStakeLoadingParams =
+  (stakeLoadingParams: StakeLoadingParams): AppThunk =>
+  async (dispatch, getState) => {
+    let newParams;
+    if (!stakeLoadingParams) {
+      newParams = undefined;
+    } else {
+      newParams = {
+        ...getState().app.stakeLoadingParams,
+        ...stakeLoadingParams,
+        progressDetail: {
+          ...getState().app.stakeLoadingParams?.progressDetail,
+          ...stakeLoadingParams.progressDetail,
+        },
+      };
+    }
+
+    dispatch(setStakeLoadingParams(newParams));
+  };
 
 /**
  * Add notice record.
@@ -133,6 +148,15 @@ export const addNotice =
     status: NoticeStatus = "Pending"
   ): AppThunk =>
   async (dispatch, getState) => {
-    addNoticeInternal(id, type, txDetail, data, explorerUrl, status);
+    const stakeLoadingParams = getState().app.stakeLoadingParams;
+    addNoticeInternal(
+      id,
+      type,
+      txDetail,
+      data,
+      explorerUrl,
+      status,
+      stakeLoadingParams
+    );
     dispatch(setUnreadNoticeFlag(true));
   };

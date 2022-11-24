@@ -7,6 +7,7 @@ import {
 import * as _ from "lodash";
 import dayjs from "dayjs";
 import { TokenName } from "interfaces/common";
+import { StakeLoadingParams } from "redux/reducers/AppSlice";
 
 export interface LocalNotice {
   id: string;
@@ -16,6 +17,7 @@ export interface LocalNotice {
   data: NoticeDataType;
   scanUrl: string;
   status: NoticeStatus;
+  stakeLoadingParams: StakeLoadingParams | undefined;
 }
 
 export type NoticeType =
@@ -59,7 +61,8 @@ export function addNoticeInternal(
   txDetail: NoticeTxDetail,
   data: NoticeDataType,
   scanUrl: string,
-  status: NoticeStatus
+  status: NoticeStatus,
+  stakeLoadingParams: StakeLoadingParams | undefined
 ) {
   const noticeList = getNoticeList();
 
@@ -71,6 +74,7 @@ export function addNoticeInternal(
     timestamp: dayjs().valueOf(),
     scanUrl,
     status,
+    stakeLoadingParams,
   });
 
   if (newLength > 10) {
