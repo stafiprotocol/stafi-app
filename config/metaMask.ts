@@ -22,6 +22,13 @@ export function getMetamaskMaticChainId() {
 	return 1;
 }
 
+export function getMetamaskBscChainId() {
+	if (isDev()) {
+		return 0x61;
+	}
+	return 0x38;
+}
+
 export function getMetaMaskValidatorConnectConfig() {
   if (isDev()) {
     return getMetaMaskStafiTestnetConfig();
@@ -72,4 +79,31 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
     bsc: "wss://speedy-nodes-nyc.moralis.io/5a284cffde906505c6eb2af8/bsc/mainnet/ws",
     polygon: "wss://rpc-mainnet.matic.network",
   };
+}
+
+export function getMetaMaskBscConfig(): AddEthereumChainParameter {
+	if (isDev()) {
+		return {
+			chainId: 0x61,
+			chainName: 'BSC Testnet',
+			nativeCurrency: {
+				name: 'BNB',
+				symbol: 'BNB',
+				decimals: 18,
+			},
+			rpcUrls: ['https://data-seed-prebsc-2-s3.binance.org:8545/'],
+			blockExplorerUrls: ['https://testnet.bscscan.com'],
+		}
+	}
+	return {
+		chainId: 0x38,
+    chainName: 'BSC Mainnet',
+    nativeCurrency: {
+      name: 'BNB',
+      symbol: 'BNB',
+      decimals: 18,
+    },
+    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+    blockExplorerUrls: ['https://bscscan.com'],
+	}
 }

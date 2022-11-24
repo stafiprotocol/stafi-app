@@ -111,7 +111,7 @@ export const Layout = (props: LayoutProps) => {
       setTargetMetaMaskChainId(getMetamaskEthChainId());
       setWalletType(WalletType.MetaMask);
     } else if (router.pathname === "/rtoken/stake/MATIC") {
-      setTargetMetaMaskChainId(getMetamaskMaticChainId());
+			setTargetMetaMaskChainId(getMetamaskMaticChainId());
       setWalletType(WalletType.MetaMask);
     } else {
       setTargetMetaMaskChainId(getMetamaskMaticChainId());

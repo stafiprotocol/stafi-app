@@ -15,6 +15,6 @@ export function getBep20TokenContractConfig(): Bep20TokenContractConfig {
 
   return {
     rETH: "0xa7a0a9fda65cd786b3dc718616cee25afb110544",
-    rMATIC: '0x482030aac2d537d6e9a5805a66e3a4023a2e401f',
+    rMATIC: '0x117eefdde5e5aed6626ffedbb5d2ac955f64dbf3',
   };
 }
