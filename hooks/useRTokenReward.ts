@@ -63,6 +63,8 @@ export function useRTokenReward(
 			if (!polkadotAccount) return '';
 			const keyringInstance = keyring.init(Symbol.Fis);
 			return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
+		} else if (tokenStandard === TokenStandard.BEP20) {
+			return metaMaskAccount;
 		}
     return "";
   }, [tokenStandard, metaMaskAccount, polkadotAccount]);

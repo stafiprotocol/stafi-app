@@ -6,7 +6,7 @@ import numberUtil from "utils/numberUtil";
 import keyring from "servers/keyring";
 import StafiServer from "servers/stafi";
 import { stringToHex, u8aToHex } from "@polkadot/util";
-import { resetStakeLoadingParams, updateStakeLoadingParams } from "./AppSlice";
+import { resetStakeLoadingParams, setIsLoading, updateStakeLoadingParams } from "./AppSlice";
 import { getLocalStorageItem } from "utils/common";
 import { connectPolkadot } from "utils/web3Utils";
 import snackbarUtil from "utils/snackbarUtils";
@@ -104,6 +104,7 @@ export const bond =
               },
             })
           );
+					dispatch(setIsLoading(false));
           console.error(err);
         });
       console.log("signature succeeded, proceeding staking");
@@ -118,8 +119,7 @@ export const bond =
     const injector = await web3FromSource("polkadot-js");
 
     let bondResult: any;
-    if (chainId === 1) {
-      // stafi chain id
+    if (chainId === ChainId.STAFI) {
       bondResult = await stafiApi.tx.rTokenSeries.liquidityBond(
         pubkey,
         signature,
@@ -140,7 +140,7 @@ export const bond =
       });
     } else {
       let swapAddress;
-      if (chainId === 4) {
+      if (chainId === ChainId.SOL) {
         // sol chain id
         // todo:
       } else {
@@ -224,6 +224,7 @@ export const bond =
                         },
                       })
                     );
+										dispatch(setIsLoading(false));
                   } else if (data.event.method === "ExtrinsicSuccess") {
                     dispatch(
                       updateStakeLoadingParams({
@@ -281,6 +282,7 @@ export const bond =
                 },
               })
             );
+						dispatch(setIsLoading(false));
           }
           console.log(err);
         });
@@ -327,6 +329,7 @@ export const getMinting =
               },
             })
           );
+					dispatch(setIsLoading(false));
         } else if (result === "failure") {
           dispatch(
             updateStakeLoadingParams({
@@ -338,6 +341,7 @@ export const getMinting =
               },
             })
           );
+					dispatch(setIsLoading(false));
         }
       })
     );

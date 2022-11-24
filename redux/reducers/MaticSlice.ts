@@ -297,6 +297,7 @@ export const handleMaticStake =
               },
             })
           );
+					dispatch(setIsLoading(false));
           console.error("blockHash error");
         }
 
@@ -352,6 +353,7 @@ export const handleMaticStake =
             },
           })
         );
+				dispatch(setIsLoading(false));
         snackbarUtil.error("Error! Please try again");
       }
     } catch (err: any) {
@@ -367,8 +369,9 @@ export const handleMaticStake =
           })
         );
       }
+			dispatch(setIsLoading(false));
     } finally {
-      dispatch(setIsLoading(false));
+      // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
     }
   };
