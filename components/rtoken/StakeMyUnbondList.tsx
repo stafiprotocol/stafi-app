@@ -24,7 +24,7 @@ export const StakeMyUnbondList = (props: Props) => {
           style={{ height: "auto", gridTemplateColumns: "20% 20% 20% 20% 20%" }}
         >
           <div className="flex justify-center">
-            <MyTooltip text="Amount" title="Amount" />
+            <MyTooltip text="Amount" title="The unbonded amount of rTokens" />
           </div>
           <div className="flex justify-center">
             <MyTooltip text="Total Period" title="Total Period" />
