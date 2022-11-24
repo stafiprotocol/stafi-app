@@ -499,12 +499,12 @@ export const handleEthTokenStake =
                 type: "rToken Stake",
                 txDetail: { transactionHash: txHash, sender: metaMaskAccount },
                 data: {
-                  tokenName: TokenName.MATIC,
+                  tokenName: TokenName.ETH,
                   amount: Number(stakeAmount) + "",
                   willReceiveAmount: Number(willReceiveAmount) + "",
                 },
                 scanUrl: getEtherScanTxUrl(result.transactionHash),
-                status: "Pending",
+                status: "Confirmed",
                 stakeLoadingParams: newParams,
               };
               dispatch(addNotice(newNotice));
