@@ -3,8 +3,9 @@ import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
 import { useRTokenReward } from "hooks/useRTokenReward";
+import { useRTokenUnbond } from "hooks/useRTokenUnbond";
 import { TokenName } from "interfaces/common";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { formatNumber } from "utils/number";
 import { getRewardText } from "utils/rToken";
 
@@ -18,11 +19,17 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
   const list = [1, 2];
 
   const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
+	const { unbondList } = useRTokenUnbond(tokenName, page);
 
 	const getExchangeRateUpdateTime = useCallback(() => {
 		if (tokenName === TokenName.ETH) return 8;
 		if (tokenName === TokenName.MATIC) return 24;
 	}, [tokenName]);
+
+	const allList = useMemo(() => {
+		console.log(rewardList);
+		console.log(unbondList)
+	}, [rewardList, unbondList]);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
