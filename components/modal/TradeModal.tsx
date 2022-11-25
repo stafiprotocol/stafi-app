@@ -6,6 +6,7 @@ import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import rectangle from "public/rectangle_h.svg";
+import { openLink } from "utils/common";
 import { getDexList } from "utils/rToken";
 
 interface TradeModalProps {
@@ -68,12 +69,18 @@ export const TradeModal = (props: TradeModalProps) => {
             }}
           >
             {getDexList(props.tokenName).map((item) => (
-              <TradeDexCardItem
-                key={item.type}
-                type={item.type}
-                tokenStandard={item.tokenStandard}
-                url={item.url}
-              />
+							<div
+								key={item.type}
+								onClick={() => {
+									openLink(item.url)
+								}}
+							>
+								<TradeDexCardItem
+									type={item.type}
+									tokenStandard={item.tokenStandard}
+									url={item.url}
+								/>
+							</div>
             ))}
           </div>
 
