@@ -1,7 +1,10 @@
 import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
-import { getMetamaskEthChainId, getMetamaskMaticChainId } from "config/metaMask";
+import {
+  getMetamaskEthChainId,
+  getMetamaskMaticChainId,
+} from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
@@ -13,10 +16,10 @@ import { useRouter } from "next/router";
 import circulate from "public/circulate.svg";
 import ethLogo from "public/eth_type_black.svg";
 import maticLogo from "public/matic_type_black.svg";
-import maticChainLogo from 'public/matic_logo_black.svg';
+import maticChainLogo from "public/matic_logo_black.svg";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
-import { setRouteNextPage } from 'redux/reducers/FisSlice';
+import { setRouteNextPage } from "redux/reducers/FisSlice";
 
 interface RTokenOverviewCardProps {
   tokenName: TokenName;
@@ -27,8 +30,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
-  const { metaMaskAccount } = useWalletAccount();
-  const { polkadotAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
   const { stakedMaticValue, stakedMaticAmount, maticApr } = useMaticPoolData();
@@ -36,39 +38,36 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
       if (!metaMaskAccount || metaMaskChainId !== getMetamaskEthChainId()) {
-        dispatch(
-          setRouteNextPage('/rtoken/stake/ETH')
-        );
+        dispatch(setRouteNextPage("/rtoken/stake/ETH"));
         dispatch(
           setConnectWalletModalParams({
             visible: true,
             walletList: [WalletType.MetaMask],
-            targetMetaMaskChainId:  getMetamaskEthChainId(),
+            targetMetaMaskChainId: getMetamaskEthChainId(),
+            targetUrl: "/rtoken/stake/ETH",
           })
         );
         return;
       }
       router.push("/rtoken/stake/ETH");
     } else if (tokenName === TokenName.MATIC) {
-      if (metaMaskAccount && polkadotAccount) {
+      if (
+        metaMaskAccount &&
+        polkadotAccount &&
+        metaMaskChainId === getMetamaskMaticChainId()
+      ) {
         router.push("/rtoken/stake/MATIC");
         return;
       }
       let walletTypes: WalletType[] = [];
-      // if (!metaMaskAccount) {
       walletTypes.push(WalletType.MetaMask);
-      // }
-      // if (!polkadotAccount) {
       walletTypes.push(WalletType.Polkadot);
-      // }
-      dispatch(
-        setRouteNextPage('/rtoken/stake/MATIC')
-      );
       dispatch(
         setConnectWalletModalParams({
           visible: true,
           walletList: walletTypes,
           targetMetaMaskChainId: getMetamaskMaticChainId(),
+          targetUrl: "/rtoken/stake/MATIC",
         })
       );
     }
@@ -101,7 +100,11 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           }}
         >
           <div className="w-full h-full relative">
-            <Image src={tokenName === TokenName.MATIC ? maticChainLogo : ethLogo} layout="fill" alt="circulate" />
+            <Image
+              src={tokenName === TokenName.MATIC ? maticChainLogo : ethLogo}
+              layout="fill"
+              alt="circulate"
+            />
           </div>
         </div>
 

@@ -2,10 +2,14 @@ import { Box, Modal } from "@mui/material";
 import classNames from "classnames";
 import { Icomoon } from "components/icon/Icomoon";
 import { ConnectWalletItem } from "components/rtoken/ConnectWalletItem";
+import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useWalletAccount } from "hooks/useWalletAccount";
 import { WalletType } from "interfaces/common";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import metaMask from "public/wallet/metaMask.svg";
+import { useEffect } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
 import { connectMetaMask } from "utils/web3Utils";
@@ -13,12 +17,54 @@ import { connectMetaMask } from "utils/web3Utils";
 interface ConnectWalletModalProps {}
 
 export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { connectWalletModalParams } = useAppSelector((state: RootState) => {
     return {
       connectWalletModalParams: state.app.connectWalletModalParams,
     };
   });
+
+  const { useChainId: useMetaMaskChainId } = hooks;
+  const metaMaskChainId = useMetaMaskChainId();
+  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
+
+  useEffect(() => {
+    if (!connectWalletModalParams) {
+      return;
+    }
+    if (connectWalletModalParams.targetMetaMaskChainId !== undefined) {
+      if (metaMaskChainId !== connectWalletModalParams.targetMetaMaskChainId) {
+        return;
+      }
+    }
+
+    let notConnected = false;
+    connectWalletModalParams.walletList.forEach((item) => {
+      if (item === WalletType.MetaMask) {
+        if (!metaMaskAccount) {
+          notConnected = true;
+        }
+      }
+      if (item === WalletType.Polkadot) {
+        if (!polkadotAccount) {
+          notConnected = true;
+        }
+      }
+    });
+
+    if (!notConnected) {
+      router.push(connectWalletModalParams.targetUrl);
+      dispatch(setConnectWalletModalParams(undefined));
+    }
+  }, [
+    dispatch,
+    router,
+    connectWalletModalParams,
+    metaMaskAccount,
+    polkadotAccount,
+    metaMaskChainId,
+  ]);
 
   if (!connectWalletModalParams) {
     return null;
@@ -78,9 +124,7 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
             ))}
           </div>
 
-          <div
-            className={classNames("text-text2 text-[.16rem] leading-tight")}
-          >
+          <div className={classNames("text-text2 text-[.16rem] leading-tight")}>
             Need a Native StaFi Wallet? Create a new wallet or import your
             existing wallet by following our{" "}
             <a

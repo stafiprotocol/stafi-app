@@ -34,9 +34,9 @@ export interface StakeLoadingParams {
   txHash?: string;
   progressDetail?: StakeLoadingProgressDetail;
   userAction?: string; // 'staking' | 'redeem'
-	targetAddress?: string;
-	blockHash?: string;
-	poolPubKey?: string;
+  targetAddress?: string;
+  blockHash?: string;
+  poolPubKey?: string;
 }
 
 interface StakeLoadingProgressDetail {
@@ -65,6 +65,7 @@ interface StakeLoadingProgressDetail {
 
 interface ConnectWalletModalParams {
   visible: boolean;
+  targetUrl: string;
   walletList: WalletType[];
   targetMetaMaskChainId?: number;
 }
