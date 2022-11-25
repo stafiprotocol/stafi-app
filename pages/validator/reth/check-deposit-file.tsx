@@ -81,7 +81,7 @@ const CheckFile = () => {
             ? contract.methods.getLightNodePubkeyStatus
             : contract.methods.getSuperNodePubkeyStatus;
         const status = await method(pubkey).call();
-        console.log("status", status);
+        // console.log("status", status);
         return status;
       })();
     });
@@ -91,7 +91,7 @@ const CheckFile = () => {
       let changeStatus = true;
       let newStatus = "";
       statusList.every((status) => {
-        console.log("status", status);
+        // console.log("status", status);
 
         if (status) {
           if (status === "4") {

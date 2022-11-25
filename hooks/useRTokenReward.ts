@@ -26,7 +26,7 @@ import keyring from 'servers/keyring';
 import { Symbol } from "keyring/defaults";
 import { u8aToHex } from "@polkadot/util";
 
-interface EraRewardModel {
+export interface EraRewardModel {
   era: number;
   rate: string;
   stakeValue: string;
@@ -34,6 +34,8 @@ interface EraRewardModel {
   rTokenBalance: string;
   addedRTokenAmount: string;
   reward: string;
+	startTimestamp: number;
+	endTimestamp: number;
 }
 
 export function useRTokenReward(
@@ -241,6 +243,8 @@ export function useRTokenReward(
               rTokenBalance: newRTokenBalance,
               addedRTokenAmount,
               reward: newReward,
+							startTimestamp: element.startTimestamp * 1000,
+							endTimestamp: element.endTimestamp * 1000,
             };
           }
         );

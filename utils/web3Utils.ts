@@ -84,7 +84,7 @@ export async function getErc20AssetBalance(
     let balance = web3.utils.fromWei(result, "ether");
     return balance;
   } catch (err: any) {
-    console.log(err);
+    // console.log(err);
     return "--";
   }
 }
@@ -115,7 +115,7 @@ export async function getBep20AssetBalance(
     let balance = web3.utils.fromWei(result, "ether");
     return balance;
   } catch (err: unknown) {
-    console.log(err);
+    // console.log(err);
     return "--";
   }
 }

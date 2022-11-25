@@ -28,7 +28,7 @@ export async function getNativeRTokenBalance(
     data = chainAmountToHuman(data ? data.free + "" : "0", tokenSymbol);
     return data;
   } catch (err: unknown) {
-    console.log(err);
+    // console.log(err);
     return "--";
   }
 }

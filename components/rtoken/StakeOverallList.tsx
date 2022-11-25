@@ -1,11 +1,12 @@
+import { Tooltip } from "@mui/material";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
+import dayjs from "dayjs";
 import { useRTokenReward } from "hooks/useRTokenReward";
-import { useRTokenUnbond } from "hooks/useRTokenUnbond";
 import { TokenName } from "interfaces/common";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { formatNumber } from "utils/number";
 import { getRewardText } from "utils/rToken";
 
@@ -19,17 +20,11 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
   const list = [1, 2];
 
   const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
-	const { unbondList } = useRTokenUnbond(tokenName, page);
 
-	const getExchangeRateUpdateTime = useCallback(() => {
-		if (tokenName === TokenName.ETH) return 8;
-		if (tokenName === TokenName.MATIC) return 24;
-	}, [tokenName]);
-
-	const allList = useMemo(() => {
-		console.log(rewardList);
-		console.log(unbondList)
-	}, [rewardList, unbondList]);
+  const getExchangeRateUpdateTime = useCallback(() => {
+    if (tokenName === TokenName.ETH) return 8;
+    if (tokenName === TokenName.MATIC) return 24;
+  }, [tokenName]);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
@@ -79,13 +74,22 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
           }}
         >
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.era}
+            <Tooltip
+              title={dayjs(item.startTimestamp).format("YYYY-MM-DD HH:mm:ss")}
+            >
+              <span>{item.era}</span>
+            </Tooltip>
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {formatNumber(item.stakeValue)}{" "}
             {Number(formatNumber(item.addedStakeAmount)) > 0 && (
               <span className="text-primary ml-[.1rem]">
                 +{formatNumber(item.addedStakeAmount)}
+              </span>
+            )}
+            {Number(formatNumber(item.addedStakeAmount)) < 0 && (
+              <span className="text-error ml-[.1rem]">
+                {formatNumber(item.addedStakeAmount)}
               </span>
             )}
           </div>
@@ -99,9 +103,17 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
                 +{formatNumber(item.addedRTokenAmount)}
               </span>
             )}
+            {Number(formatNumber(item.addedRTokenAmount)) < 0 && (
+              <span className="text-error ml-[.1rem]">
+                {formatNumber(item.addedRTokenAmount)}
+              </span>
+            )}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
-            {getRewardText(item.reward)} {tokenName}
+            {Number(formatNumber(item.addedRTokenAmount)) < 0
+              ? "0"
+              : getRewardText(item.reward)}{" "}
+            {tokenName}
           </div>
         </div>
       ))}

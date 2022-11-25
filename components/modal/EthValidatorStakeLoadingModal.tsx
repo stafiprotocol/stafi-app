@@ -91,7 +91,7 @@ export const EthValidatorStakeLoadingModal = (
             ? contract.methods.getLightNodePubkeyStatus
             : contract.methods.getSuperNodePubkeyStatus;
         const status = await method(pubkey).call();
-        console.log("statusstatus", status);
+        // console.log("statusstatus", status);
         if (Number(status) >= 3) {
           const params = {
             pubkey,
@@ -121,7 +121,7 @@ export const EthValidatorStakeLoadingModal = (
       let changeStatus = true;
       let newStatus = "";
       statusList.every((status) => {
-        console.log("status", status);
+        // console.log("status", status);
 
         if (status) {
           if (status === "4") {
@@ -136,7 +136,7 @@ export const EthValidatorStakeLoadingModal = (
           }
         }
       });
-      console.log("prev", newStatus);
+      // console.log("prev", newStatus);
       if (changeStatus) {
         dispatch(
           setEthValidatorStakeParams({

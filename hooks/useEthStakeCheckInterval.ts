@@ -77,7 +77,7 @@ export function useEthStakeCheckInterval() {
       let changeStatus = true;
       let newStatus = "";
       statusList.every((status) => {
-        console.log("status", status);
+        // console.log("status", status);
 
         if (status) {
           if (status === "4") {
@@ -92,7 +92,7 @@ export function useEthStakeCheckInterval() {
           }
         }
       });
-      console.log("prev", newStatus);
+      // console.log("prev", newStatus);
       if (changeStatus) {
         dispatch(
           setEthValidatorStakeParams({

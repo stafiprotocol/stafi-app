@@ -191,15 +191,15 @@ export const bond =
         amount.toString(),
         type
       );
-      console.log({
-        pubkey,
-        signature,
-        poolPubKey,
-        blockHash,
-        txHash,
-        amount,
-        type,
-      });
+      // console.log({
+      //   pubkey,
+      //   signature,
+      //   poolPubKey,
+      //   blockHash,
+      //   txHash,
+      //   amount,
+      //   type,
+      // });
     } else {
       let swapAddress;
       if (chainId === ChainId.SOL) {
@@ -220,11 +220,11 @@ export const bond =
         chainId
       );
     }
-    console.log(bondResult);
+    // console.log(bondResult);
 
     try {
       let index = 0;
-      console.log(fisAddress, injector.signer);
+      // console.log(fisAddress, injector.signer);
       bondResult
         .signAndSend(fisAddress, { signer: injector.signer }, (result: any) => {
           if (index === 0) {
@@ -245,12 +245,12 @@ export const bond =
                   },
                 })
               );
-              console.log("inBlock");
+              // console.log("inBlock");
               // console.log('events', result.events);
               result.events
                 .filter((e: any) => e.event.section === "system")
                 .forEach((data: any) => {
-                  console.log(data.event.method);
+                  // console.log(data.event.method);
                   if (data.event.method === "ExtrinsicFailed") {
                     const [dispatchError] = data.event.data;
                     if (dispatchError.isModule) {
@@ -268,11 +268,11 @@ export const bond =
                         if (error.name === "") {
                           msgStr = "";
                         }
-                        msgStr && console.log(msgStr);
+                        // msgStr && console.log(msgStr);
                       } catch (err) {
                         console.error(err);
                       }
-                      console.log("fail");
+                      // console.log("fail");
                     }
                     dispatch(
                       updateStakeLoadingParams(
@@ -323,11 +323,11 @@ export const bond =
                       )
                     );
                     dispatch(getMinting(type, txHash, blockHash));
-                    console.log("loading");
+                    // console.log("loading");
                   }
                 });
             } else if (result.isError) {
-              console.log(result.toHuman());
+              // console.log(result.toHuman());
             }
             if (result.status.isFinalized) {
               // dispatch(
@@ -487,13 +487,13 @@ export const queryRTokenBondState =
 
     let bondState = result.toJSON();
     if (bondState === null || bondState === "Fail") {
-      console.log("mint failure");
+      // console.log("mint failure");
       cb && cb("failure");
     } else if (bondState === "Success") {
-      console.log("mint success");
+      // console.log("mint success");
       cb && cb("successful");
     } else {
-      console.log("mint pending");
+      // console.log("mint pending");
       cb && cb("pending");
       setTimeout(() => {
         dispatch(queryRTokenBondState(type, bondSuccessParamArr, cb));
@@ -529,15 +529,9 @@ export const fisUnbond =
       })
     );
 
-    dispatch(
-      updateStakeLoadingParams({
-        progressDetail: {
-          sending: {
-            broadcastStatus: "loading",
-          },
-        },
-      })
-    );
+		const { web3Enable, web3FromSource } = await import('@polkadot/extension-dapp');
+		web3Enable(stafiServer.getWeb3EnableName());
+		const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
 
     const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
       symbol,
@@ -557,7 +551,7 @@ export const fisUnbond =
                 if (data.event.method === "ExtrinsicSuccess") {
                   const txHash = unbondResult.hash.toHex();
                   cb && cb("Success", txHash);
-                  console.log("success");
+                  // console.log("success");
                   dispatch(
                     updateStakeLoadingParams({
                       status: "success",
@@ -565,13 +559,15 @@ export const fisUnbond =
                         sending: {
                           totalStatus: "success",
                           broadcastStatus: "success",
+													packStatus: 'success',
+													finalizeStatus: 'success',
                         },
                       },
                     })
                   );
                 } else if (data.event.method === "ExtrinsicFailed") {
                   cb && cb("Failed");
-                  console.error("failed");
+                  // console.error("failed");
                   dispatch(
                     updateStakeLoadingParams({
                       status: "error",
@@ -669,7 +665,7 @@ export const getBondTransactionFees =
           )
           .paymentInfo(address);
       }
-      console.log(txInfo.partialFee.toHuman());
+      // console.log(txInfo.partialFee.toHuman());
       const txFee = txInfo.partialFee.toNumber() / 1000000000000;
       cb && cb(txFee.toString());
     } catch (err) {

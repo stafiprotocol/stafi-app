@@ -1,10 +1,12 @@
+import { Tooltip } from "@mui/material";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
-import { useRTokenReward } from "hooks/useRTokenReward";
+import dayjs from "dayjs";
+import { EraRewardModel, useRTokenReward } from "hooks/useRTokenReward";
 import { TokenName } from "interfaces/common";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { formatNumber } from "utils/number";
 import { getRewardText } from "utils/rToken";
 
@@ -18,10 +20,27 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
 
   const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
 
-	const getExchangeRateUpdateTime = useCallback(() => {
-		if (tokenName === TokenName.ETH) return 8;
-		if (tokenName === TokenName.MATIC) return 24;
-	}, [tokenName]);
+  const getExchangeRateUpdateTime = useCallback(() => {
+    if (tokenName === TokenName.ETH) return 8;
+    if (tokenName === TokenName.MATIC) return 24;
+  }, [tokenName]);
+
+  const [filteredRewardList, filteredUnbondList] = useMemo(() => {
+    const newRewardList: EraRewardModel[] = [];
+    const newUnbondList: EraRewardModel[] = [];
+    rewardList.forEach((item) => {
+      if (Number(item.addedRTokenAmount) < 0) {
+        newUnbondList.push(item);
+      } else {
+        newRewardList.push(item);
+      }
+    });
+    return [newRewardList, newUnbondList];
+  }, [rewardList]);
+
+  const filteredTotalCount = useMemo(() => {
+    return totalCount - filteredUnbondList.length;
+  }, [filteredUnbondList, totalCount]);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
@@ -60,7 +79,7 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
         </div>
       )}
 
-      {rewardList.map((item, index) => (
+      {filteredRewardList.map((item, index) => (
         <div
           key={index}
           className="grid h-[1.1rem]"
@@ -71,7 +90,11 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           }}
         >
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.era}
+            <Tooltip
+              title={dayjs(item.startTimestamp).format("YYYY-MM-DD HH:mm:ss")}
+            >
+              <span>{item.era}</span>
+            </Tooltip>
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {formatNumber(item.stakeValue)}
@@ -88,17 +111,17 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
         </div>
       ))}
 
-      {totalCount > 0 && (
+      {filteredTotalCount > 0 && (
         <div className="mt-[.36rem] flex justify-center">
           <CustomPagination
-            totalCount={totalCount}
+            totalCount={filteredTotalCount}
             page={page}
             onChange={setPage}
           />
         </div>
       )}
 
-      {totalCount === 0 && (
+      {filteredTotalCount === 0 && (
         <div className="flex flex-col items-center pb-[.3rem]">
           <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />

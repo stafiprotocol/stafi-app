@@ -283,7 +283,7 @@ export const handleMaticStake =
             });
 
           if (txDetail.blockHash || !txDetail) {
-            console.log("txDetail", txDetail);
+            // console.log("txDetail", txDetail);
             break;
           }
         }
@@ -506,7 +506,7 @@ export const unbondRMatic =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
-    console.log(newTotalStakedAmount);
+    // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
       resetStakeLoadingParams({

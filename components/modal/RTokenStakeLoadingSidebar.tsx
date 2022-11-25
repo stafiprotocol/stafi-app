@@ -18,9 +18,9 @@ export const RTokenStakeLoadingSidebar = () => {
     };
   });
 
-  useEffect(() => {
-    console.log("stakeLoadingParams", stakeLoadingParams);
-  }, [stakeLoadingParams]);
+  // useEffect(() => {
+  //   console.log("stakeLoadingParams", stakeLoadingParams);
+  // }, [stakeLoadingParams]);
 
   return (
     <div

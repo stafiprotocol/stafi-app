@@ -128,7 +128,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 	}, [transactionCost, fisPrice]);
 
 	const newTotalStakedAmount = useMemo(() => {
-    console.log(rTokenBalance, redeemAmount, rTokenRatio)
+    // console.log(rTokenBalance, redeemAmount, rTokenRatio)
 		if (
 			isNaN(Number(rTokenBalance)) ||
 			isNaN(Number(redeemAmount)) ||
