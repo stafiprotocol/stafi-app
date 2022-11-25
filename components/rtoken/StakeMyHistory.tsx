@@ -1,6 +1,7 @@
 import { CollapseCard } from "components/common/CollapseCard";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyLayoutContext } from "components/layout/layout";
+import { useTokenStandard } from "hooks/useTokenStandard";
 import { TokenName } from "interfaces/common";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
@@ -14,7 +15,9 @@ interface StakeMyHistoryProps {
 
 export const StakeMyHistory = (props: StakeMyHistoryProps) => {
   const router = useRouter();
-  const [tab, setTab] = useState<"overall" | "reward" | "unbond">("overall");
+  const [tab, setTab] = useState<"overall" | "reward" | "unstake">("overall");
+
+	const selectedStandard = useTokenStandard(props.tokenName);
 
   const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
 
@@ -23,7 +26,12 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
       <CollapseCard
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
-        title={<div className="text-white text-[.32rem]">My History</div>}
+        title={
+					<div className="text-white text-[.32rem]">
+						My History
+						<span className="ml-[.2rem] text-text2 text-[.24rem] leading-1">Display balance about {selectedStandard} r{props.tokenName} only</span>
+					</div>
+				}
       >
         <div className="pb-[.3rem]">
           <EmptyContent mt="0.2rem" size=".8rem" />
@@ -36,7 +44,12 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
     <CollapseCard
       background="rgba(26, 40, 53, 0.2)"
       mt=".36rem"
-      title={<div className="text-white text-[.32rem]">My History</div>}
+      title={
+				<div className="text-white text-[.32rem]">
+					My History
+					<span className="ml-[.2rem] text-text2 text-[.24rem] leading-1">Display balance about {selectedStandard} r{props.tokenName} only</span>
+				</div>
+			}
     >
       <div className="mx-[.56rem] flex items-center justify-between">
         <div
@@ -78,16 +91,16 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
             className="cursor-pointer w-[1.6rem] h-full rounded-[.33rem] flex items-center justify-center text-[.24rem]"
             style={{
               background:
-                tab === "unbond"
+                tab === "unstake"
                   ? "linear-gradient(140.73deg, #0093ed 4.72%, #00f3ab 96.52%)"
                   : "#1a2835",
-              border: tab === "unbond" ? "1px solid rgba(38, 73, 78, 0.5)" : "",
-              color: tab === "unbond" ? "#1a2835" : "#9dafbe",
-              backdropFilter: tab === "unbond" ? "blur(1.35rem)" : "",
+              border: tab === "unstake" ? "1px solid rgba(38, 73, 78, 0.5)" : "",
+              color: tab === "unstake" ? "#1a2835" : "#9dafbe",
+              backdropFilter: tab === "unstake" ? "blur(1.35rem)" : "",
             }}
-            onClick={() => setTab("unbond")}
+            onClick={() => setTab("unstake")}
           >
-            Unbond
+            Unstake
           </div>
         </div>
       </div>
@@ -96,7 +109,7 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
 
       {tab === "reward" && <StakeMyRewardList tokenName={props.tokenName} />}
 
-      {tab === "unbond" && <StakeMyUnbondList tokenName={props.tokenName} />}
+      {tab === "unstake" && <StakeMyUnbondList tokenName={props.tokenName} />}
     </CollapseCard>
   );
 };

@@ -159,13 +159,13 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
-      return [true, "Redeem"];
+      return [true, "Unstake"];
     }
     if (isNaN(Number(balance))) {
       return [true, 'Insufficient Balance'];
     }
     if (!redeemAmount || Number(redeemAmount) === 0 || isNaN(Number(balance))) {
-      return [true, "Redeem"];
+      return [true, "Unstake"];
     }
     if (Number(redeemAmount) > Number(balance)) {
       return [true, "Insufficient Balance"];
@@ -173,7 +173,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (!addressCorrect) {
       return [true, "Invalid Receiving Address"];
     }
-    return [false, "Redeem"];
+    return [false, "Unstake"];
   }, [
     walletType,
     isWrongMetaMaskNetwork,
@@ -272,7 +272,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             </div>
 
             <div className="text-center mt-[0rem] text-white font-[700] text-[.42rem]">
-              Redeem {tokenName}
+              Unstake {tokenName}
             </div>
 
             <div className="mt-[.76rem] flex items-center justify-between">
@@ -350,7 +350,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
               <div className="flex flex-col items-end">
                 <div className="text-text1 text-[.24rem]">
-                  Available to redeem:
+                  Available to unstake:
                 </div>
 
                 <div className="mt-[.15rem] flex items-center">
@@ -398,7 +398,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               <div className="flex-1 mx-[.34rem]">
                 <CustomNumberInput
                   fontSize=".32rem"
-                  placeholder="Redeem Amount"
+                  placeholder="Unstake Amount"
                   value={redeemAmount}
                   handleValueChange={setRedeemAmount}
                 />
@@ -508,7 +508,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
-                  <MyTooltip text="Redeem Fee" title="Redeem Fee" />
+                  <MyTooltip text="Unstake Fee" title="Unstake Fee" />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
                   {formatNumber(unbondCommision, { decimals: 3 })} r{tokenName} (~{formatNumber(redeemFee, { decimals: 3 })} {tokenName})

@@ -33,7 +33,7 @@ export interface StakeLoadingParams {
   scanUrl?: string;
   txHash?: string;
   progressDetail?: StakeLoadingProgressDetail;
-  userAction?: string; // 'staking' | 'redeem'
+  userAction?: string; // 'staking' | 'unstake'
   targetAddress?: string;
   blockHash?: string;
   poolPubKey?: string;

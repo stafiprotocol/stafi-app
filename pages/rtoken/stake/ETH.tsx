@@ -130,7 +130,7 @@ const RTokenStakePage = () => {
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
-          rETH on-chain rate is recording how many ETHs could be redeemed with 1
+          rETH on-chain rate is recording how many ETHs could be unstaked with 1
           rETH token. It will start from 1 and gradually increase along with the
           staking rewards generated continuously.
           <br />
@@ -151,8 +151,8 @@ const RTokenStakePage = () => {
           secondary markets like DEXes including Uniswap and Curve. Sometimes
           the rETH peg could be lower or higher than the on-chain rate due to
           the secondary market trading, but the rETH token holders could always
-          redeem the ETHs back according to the on-chain rate from StaFi when
-          the Etherum beacons chain supports the withdraw function.
+          unstake the ETHs back according to the on-chain rate from StaFi when
+          the Etherum beacons chain supports the unstake function.
         </div>
       </CollapseCard>
 

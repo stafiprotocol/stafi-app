@@ -157,7 +157,7 @@ export const RTokenStakeLoadingModal = () => {
               : stakeLoadingParams?.status === "error"
               ? "Transaction Failed"
               : `You are now ${userAction} ${stakeLoadingParams?.amount} ${
-                  stakeLoadingParams?.userAction === "redeem"
+                  stakeLoadingParams?.userAction === "unstake"
                     ? `r${stakeLoadingParams?.tokenName}`
                     : stakeLoadingParams?.tokenName
                 }`}
@@ -178,13 +178,13 @@ export const RTokenStakeLoadingModal = () => {
               : `${userAction.charAt(0).toUpperCase() + userAction.slice(1)} ${
                   stakeLoadingParams?.amount
                 } ${
-                  stakeLoadingParams?.userAction === "redeem"
+                  stakeLoadingParams?.userAction === "unstake"
                     ? `r${stakeLoadingParams?.tokenName}`
                     : stakeLoadingParams?.tokenName
                 }, you will receive ${formatNumber(
                   stakeLoadingParams?.willReceiveAmount
                 )} ${
-                  stakeLoadingParams?.userAction === "redeem"
+                  stakeLoadingParams?.userAction === "unstake"
                     ? stakeLoadingParams.tokenName
                     : `r${stakeLoadingParams?.tokenName}`
                 }`}

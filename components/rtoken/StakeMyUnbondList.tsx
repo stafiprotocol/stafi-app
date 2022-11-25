@@ -24,7 +24,7 @@ export const StakeMyUnbondList = (props: Props) => {
           style={{ height: "auto", gridTemplateColumns: "20% 20% 20% 20% 20%" }}
         >
           <div className="flex justify-center">
-            <MyTooltip text="Amount" title="The unbonded amount of rTokens" />
+            <MyTooltip text="Amount" title="The unstaked amount of rTokens" />
           </div>
           <div className="flex justify-center">
             <MyTooltip text="Total Period" title="Total Period" />
@@ -69,7 +69,7 @@ export const StakeMyUnbondList = (props: Props) => {
             {getShortAddress(item.formatReceiveAddress, 4)}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
-            {item.hasReceived ? 'Unbonded' : 'Waiting'}
+            {item.hasReceived ? 'Unstaked' : 'Waiting'}
           </div>
         </div>
       ))}

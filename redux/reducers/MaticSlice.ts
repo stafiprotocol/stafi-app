@@ -514,7 +514,7 @@ export const unbondRMatic =
         status: "loading",
         tokenName: TokenName.MATIC,
         amount: amount,
-        userAction: "redeem",
+        userAction: "unstake",
         willReceiveAmount,
         newTotalStakedAmount,
         steps: ["sending"],
@@ -546,7 +546,7 @@ export const unbondRMatic =
           u8aToHex(keyringInstance.decodeAddress(recipient)),
           selectedPool.poolPubKey,
           // todo:
-          `Unbond succeeded, unbonding period is around ${estimateUnbondDays(
+          `Unstake succeeded, unstaking period is around ${estimateUnbondDays(
             TokenName.MATIC
           )} days`,
           (r?: string, txHash?: string) => {

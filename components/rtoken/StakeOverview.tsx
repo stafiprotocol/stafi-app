@@ -335,7 +335,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 									}
                 }}
               >
-                Redeem
+                Unstake
               </div>
             </div>
           </div>
@@ -353,7 +353,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         onClose={() => {
           setEthRedeemWarningModalVisible(false);
         }}
-        content="Redemption will be supported once Ethereum withdraw is enabled"
+        content="Unstake function will be supported once Ethereum withdraw is enabled"
       />
 
 			<RTokenRedeemModal

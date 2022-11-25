@@ -571,7 +571,7 @@ export const fisUnbond =
                   dispatch(
                     updateStakeLoadingParams({
                       status: "error",
-                      errorMsg: "Unbond failed",
+                      errorMsg: "Unstake failed",
                       progressDetail: {
                         sending: {
                           totalStatus: "error",

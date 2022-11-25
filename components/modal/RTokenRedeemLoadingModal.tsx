@@ -74,7 +74,7 @@ export const RTokenRedeemLoadingModal = () => {
                 )} ${stakeLoadingParams?.tokenName}`
               : stakeLoadingParams?.status === "error"
               ? "Transaction Failed"
-              : `You are now redeem ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`}
+              : `You are now unstaking ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`}
           </div>
 
           <div
@@ -86,7 +86,7 @@ export const RTokenRedeemLoadingModal = () => {
               ? `Staking operation was successful`
               : stakeLoadingParams?.status === "error"
               ? "Something went wrong, please try again"
-              : `Redeem r${stakeLoadingParams?.amount} ${
+              : `Unstake r${stakeLoadingParams?.amount} ${
                   stakeLoadingParams?.tokenName
                 }, you will receive ${formatNumber(
                   stakeLoadingParams?.willReceiveAmount

@@ -208,7 +208,7 @@ const RMaticStakePage = () => {
           In most cases, N is set to 2.
           <br />
           <br />
-          <span className="font-semibold">Unbond MATIC</span>: 0.2% redemption fee(based on the amount of unbonded rMATIC) 
+          <span className="font-semibold">Unstake MATIC</span>: 0.2% unstake fee(based on the amount of unstaked rMATIC) 
           and 10% Staking Reward Commission(based on the total staking rewards generated).
           <br />
           <br />
@@ -242,7 +242,7 @@ const RMaticStakePage = () => {
           interaction service fee between StaFi chain and designated chain.
           <br />
           <br />
-          <span className="font-semibold">Redemption Fee</span>: 0.2% of your redeemed rMATIC tokens.
+          <span className="font-semibold">Unstake Fee</span>: 0.2% of your unstaked rMATIC tokens.
           <br />
           <br />
           Those fees are split between node operators and the StaFi DAO, as well as developers who contribute to the stafi ecosystem.
@@ -279,7 +279,7 @@ const RMaticStakePage = () => {
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
-          After completing the &quot;Redeem&quot; operation, plz wait for around 9 days to get the redeemed MATIC tokens, 
+          After completing the &quot;Unstake&quot; operation, plz wait for around 9 days to get the unstaked MATIC tokens, 
           which will be automatically sent to your designated account after the lock-up period.
         </div>
       </CollapseCard>
@@ -295,7 +295,7 @@ const RMaticStakePage = () => {
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
-          rMATIC on-chain rate is recording how many MATICs could be redeemed with 1 rMATIC token. 
+          rMATIC on-chain rate is recording how many MATICs could be unstaked with 1 rMATIC token. 
           It will start from 1 and gradually increase along with the staking rewards generated continuously.
           <br />
           <br />
@@ -333,7 +333,7 @@ const RMaticStakePage = () => {
             Quickswap
           </a>{' '}
           DEX. Sometimes the rMATIC peg could be lower or higher than the on-chain rate due to the secondary market trading, 
-          but the rMATIC token holders could always redeem the MATICs back according to the on-chain rate from StaFi.
+          but the rMATIC token holders could always unstake the MATICs back according to the on-chain rate from StaFi.
         </div>
       </CollapseCard>
     </div>
