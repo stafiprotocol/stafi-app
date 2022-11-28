@@ -13,14 +13,15 @@ import {
   updateStakeLoadingParams,
 } from "./AppSlice";
 import { getLocalStorageItem } from "utils/common";
-import { connectPolkadot } from "utils/web3Utils";
+import { connectPolkadot, getErc20AssetBalance } from "utils/web3Utils";
 import snackbarUtil from "utils/snackbarUtils";
 import {
   CANCELLED_MESSAGE,
   SIGN_ERROR_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
 } from "utils/constants";
-import { ChainId } from "interfaces/common";
+import { ChainId, TokenStandard } from "interfaces/common";
+import { getMaticAbi, getRMaticTokenAddress } from "config/matic";
 
 declare const ethereum: any;
 
@@ -71,7 +72,7 @@ export const bond =
     blockHash: string,
     amount: string,
     poolAddress: string,
-    type: rSymbol,
+    rsymbol: rSymbol,
     chainId: ChainId,
     targetAddress: string,
     cb?: Function
@@ -97,7 +98,7 @@ export const bond =
               blockHash,
               amount,
               poolAddress,
-              type,
+              type: rsymbol,
               chainId,
               targetAddress,
             },
@@ -121,7 +122,7 @@ export const bond =
     let pubkey = "";
     let poolPubKey = poolAddress;
     // todo: other rTokens, here only rMatic
-    if (type === rSymbol.Matic) {
+    if (rsymbol === rSymbol.Matic) {
       await sleep(3000);
 
       const metaMaskAccount = getState().wallet.metaMaskAccount;
@@ -189,7 +190,7 @@ export const bond =
         blockHash,
         txHash,
         amount.toString(),
-        type
+        rsymbol
       );
       // console.log({
       //   pubkey,
@@ -215,7 +216,7 @@ export const bond =
         blockHash,
         txHash,
         amount,
-        type,
+        rsymbol,
         swapAddress,
         chainId
       );
@@ -242,6 +243,7 @@ export const bond =
                       packStatus: "loading",
                     },
                     minting: {},
+                    swapping: {},
                   },
                 })
               );
@@ -322,7 +324,7 @@ export const bond =
                         }
                       )
                     );
-                    dispatch(getMinting(type, txHash, blockHash));
+                    dispatch(getMinting(rsymbol, txHash, blockHash, chainId));
                     // console.log("loading");
                   }
                 });
@@ -389,7 +391,13 @@ export const bond =
   };
 
 export const getMinting =
-  (type: number, txHash: string, blockHash: string, cb?: Function): AppThunk =>
+  (
+    rsymbol: rSymbol,
+    txHash: string,
+    blockHash: string,
+    chainId: ChainId,
+    cb?: Function
+  ): AppThunk =>
   async (dispatch, getState) => {
     dispatch(
       updateStakeLoadingParams(
@@ -421,12 +429,18 @@ export const getMinting =
     bondSuccessParamArr.push(txHash);
 
     dispatch(
-      queryRTokenBondState(type, bondSuccessParamArr, (result: string) => {
-        if (result === "successful") {
-          dispatch(
-            updateStakeLoadingParams(
-              {
-                status: "success",
+      queryRTokenBondState(
+        rsymbol,
+        bondSuccessParamArr,
+        async (result: string) => {
+          if (result === "successful") {
+            const tokenStandard =
+              getState().app.stakeLoadingParams?.tokenStandard;
+            const targetAddress =
+              getState().app.stakeLoadingParams?.targetAddress;
+            const amount = getState().app.stakeLoadingParams?.amount;
+            dispatch(
+              updateStakeLoadingParams({
                 progressDetail: {
                   minting: {
                     totalStatus: "success",
@@ -435,53 +449,149 @@ export const getMinting =
                     finalizeStatus: "success",
                   },
                 },
-              },
-              (newParams) => {
-                dispatch(
-                  updateNotice(newParams?.noticeUuid, {
-                    status: "Confirmed",
-                    stakeLoadingParams: newParams,
-                  })
-                );
+              })
+            );
+            if (tokenStandard === TokenStandard.Native) {
+              dispatch(
+                updateStakeLoadingParams(
+                  {
+                    status: "success",
+                  },
+                  (newParams) => {
+                    dispatch(
+                      updateNotice(newParams?.noticeUuid, {
+                        status: "Confirmed",
+                        stakeLoadingParams: newParams,
+                      })
+                    );
+                  }
+                )
+              );
+              dispatch(setIsLoading(false));
+            } else {
+              let tokenAbi: any = "";
+              let tokenAddress: any = "";
+              if (rsymbol === rSymbol.Matic) {
+                tokenAbi = getMaticAbi();
+                tokenAddress = getRMaticTokenAddress();
               }
-            )
-          );
-          dispatch(setIsLoading(false));
-        } else if (result === "failure") {
-          dispatch(
-            updateStakeLoadingParams(
-              {
-                status: "error",
-                errorMsg: "Mint failed",
-                errorStep: "minting",
-                progressDetail: {
-                  minting: {
-                    totalStatus: "error",
+              const oldBalance = await getErc20AssetBalance(
+                targetAddress,
+                tokenAbi,
+                tokenAddress
+              );
+              dispatch(
+                updateStakeLoadingParams(
+                  {
+                    status: "loading",
+                    progressDetail: {
+                      swapping: {
+                        totalStatus: "loading",
+                      },
+                    },
+                  },
+                  (newParams) => {
+                    dispatch(
+                      updateNotice(newParams?.noticeUuid, {
+                        status: "Pending",
+                        stakeLoadingParams: newParams,
+                      })
+                    );
+                  }
+                )
+              );
+              queryRTokenSwapState(
+                chainId,
+                targetAddress as string,
+                rsymbol,
+                oldBalance,
+                amount as string,
+                (result: string) => {
+                  if (result === "successful") {
+                    dispatch(
+                      updateStakeLoadingParams(
+                        {
+                          status: "success",
+                          progressDetail: {
+                            swapping: {
+                              totalStatus: "success",
+                            },
+                          },
+                        },
+                        (newParams) => {
+                          dispatch(
+                            updateNotice(newParams?.noticeUuid, {
+                              status: "Confirmed",
+                              stakeLoadingParams: newParams,
+                            })
+                          );
+                        }
+                      )
+                    );
+                  } else if (result === "failure") {
+                    dispatch(
+                      updateStakeLoadingParams(
+                        {
+                          status: "error",
+                          errorMsg: "Swap failed",
+                          errorStep: "swapping",
+                          progressDetail: {
+                            swapping: {
+                              totalStatus: "error",
+                            },
+                          },
+                        },
+                        (newParams) => {
+                          dispatch(
+                            updateNotice(newParams?.noticeUuid, {
+                              status: "Error",
+                              stakeLoadingParams: newParams,
+                            })
+                          );
+                        }
+                      )
+                    );
+                  }
+                }
+              );
+            }
+            // todo: swapping
+          } else if (result === "failure") {
+            dispatch(
+              updateStakeLoadingParams(
+                {
+                  status: "error",
+                  errorMsg: "Mint failed",
+                  errorStep: "minting",
+                  progressDetail: {
+                    minting: {
+                      totalStatus: "error",
+                    },
                   },
                 },
-              },
-              (newParams) => {
-                dispatch(
-                  updateNotice(newParams?.noticeUuid, {
-                    status: "Error",
-                    stakeLoadingParams: newParams,
-                  })
-                );
-              }
-            )
-          );
-          dispatch(setIsLoading(false));
+                (newParams) => {
+                  dispatch(
+                    updateNotice(newParams?.noticeUuid, {
+                      status: "Error",
+                      stakeLoadingParams: newParams,
+                    })
+                  );
+                }
+              )
+            );
+            dispatch(setIsLoading(false));
+          }
         }
-      })
+      )
     );
   };
 
 export const queryRTokenBondState =
-  (type: number, bondSuccessParamArr: any, cb?: Function): AppThunk =>
+  (rsymbol: rSymbol, bondSuccessParamArr: any, cb?: Function): AppThunk =>
   async (dispatch, getState) => {
     const stafiApi = await stafiServer.createStafiApi();
     const result = await stafiApi.query.rTokenSeries.bondStates(
-      type,
+      rsymbol,
       bondSuccessParamArr
     );
 
@@ -496,8 +606,53 @@ export const queryRTokenBondState =
       // console.log("mint pending");
       cb && cb("pending");
       setTimeout(() => {
-        dispatch(queryRTokenBondState(type, bondSuccessParamArr, cb));
+        dispatch(queryRTokenBondState(rsymbol, bondSuccessParamArr, cb));
       }, 15000);
+    }
+  };
+
+export const queryRTokenSwapState =
+  (
+    chainId: ChainId,
+    targetAddress: string,
+    rsymbol: rSymbol,
+    oldBalance: string,
+    amount: string,
+    cb?: Function
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    let tokenAbi: any = "";
+    let tokenAddress: any = "";
+    if (rsymbol === rSymbol.Matic) {
+      tokenAbi = getMaticAbi();
+      tokenAddress = getRMaticTokenAddress();
+    }
+
+    if (chainId === ChainId.ETH || chainId === ChainId.BSC) {
+      const balance = await getErc20AssetBalance(
+        targetAddress,
+        tokenAbi,
+        tokenAddress
+      );
+      if (
+        Number(balance) - Number(oldBalance) <= Number(amount) * 1.1 &&
+        Number(balance) - Number(oldBalance) >= Number(amount) * 0.9
+      ) {
+        cb && cb("successful");
+      } else {
+        setTimeout(() => {
+          dispatch(
+            queryRTokenSwapState(
+              chainId,
+              targetAddress,
+              rsymbol,
+              oldBalance,
+              amount,
+              cb
+            )
+          );
+        }, 3000);
+      }
     }
   };
 
@@ -529,9 +684,11 @@ export const fisUnbond =
       })
     );
 
-		const { web3Enable, web3FromSource } = await import('@polkadot/extension-dapp');
-		web3Enable(stafiServer.getWeb3EnableName());
-		const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
+    const { web3Enable, web3FromSource } = await import(
+      "@polkadot/extension-dapp"
+    );
+    web3Enable(stafiServer.getWeb3EnableName());
+    const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
 
     const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
       symbol,
@@ -559,8 +716,8 @@ export const fisUnbond =
                         sending: {
                           totalStatus: "success",
                           broadcastStatus: "success",
-													packStatus: 'success',
-													finalizeStatus: 'success',
+                          packStatus: "success",
+                          finalizeStatus: "success",
                         },
                       },
                     })

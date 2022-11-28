@@ -279,6 +279,7 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("sending") && (
                   <StakeLoadingProgressItem
                     name="Sending"
+										tokenName={stakeLoadingParams?.tokenName}
                     data={stakeLoadingParams?.progressDetail?.sending}
                     txHash={stakeLoadingParams?.txHash}
                     scanUrl={stakeLoadingParams?.scanUrl}
@@ -299,6 +300,7 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("minting") && (
                   <StakeLoadingProgressItem
                     name="Minting"
+										tokenName={stakeLoadingParams?.tokenName}
                     data={stakeLoadingParams?.progressDetail?.minting}
                   />
                 )}
@@ -308,6 +310,7 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("swapping") && (
                   <StakeLoadingProgressItem
                     name="Swapping"
+										tokenName={stakeLoadingParams?.tokenName}
                     data={stakeLoadingParams?.progressDetail?.swapping}
                   />
                 )}

@@ -2,6 +2,7 @@ import { Tooltip } from "@mui/material";
 import classNames from "classnames";
 import { CircularLoading } from "components/common/CircularLoading";
 import { Icomoon } from "components/icon/Icomoon";
+import { TokenName } from "interfaces/common";
 import { StakeLoadingProgressDetailItem } from "redux/reducers/AppSlice";
 import { getShortAddress } from "utils/string";
 
@@ -10,6 +11,7 @@ interface StakeLoadingProgressItemProps {
   data: StakeLoadingProgressDetailItem | undefined;
   txHash?: string | undefined;
   scanUrl?: string | undefined;
+  tokenName?: TokenName;
 }
 
 export const StakeLoadingProgressItem = (
@@ -49,7 +51,7 @@ export const StakeLoadingProgressItem = (
           <div className="ml-[.26rem]">
             <Icomoon icon="error" size=".27rem" color="#FF52C4" />
           </div>
-        ) : data.totalStatus === 'loading' ? (
+        ) : data.totalStatus === "loading" ? (
           <div className="ml-[.26rem]">
             <CircularLoading color="info" size=".24rem" />
           </div>
@@ -62,14 +64,18 @@ export const StakeLoadingProgressItem = (
         <div
           className={classNames(
             "flex items-center",
-            //{ hidden: !data.broadcastStatus },
+            {
+              hidden:
+                (props.name === "Minting" || props.name === "Swapping") &&
+                props.tokenName === TokenName.MATIC,
+            },
             data.broadcastStatus === "success"
               ? "text-active"
               : data.broadcastStatus === "error"
               ? "text-error"
-              : data.broadcastStatus === 'loading'
+              : data.broadcastStatus === "loading"
               ? "text-active"
-              : 'text-text1'
+              : "text-text1"
           )}
         >
           <div className="mr-[.1rem]">Broadcasting...</div>
@@ -82,13 +88,17 @@ export const StakeLoadingProgressItem = (
         <div
           className={classNames(
             "mt-[.08rem] flex items-center",
-            //{ hidden: !data.packStatus },
+            {
+              hidden:
+                (props.name === "Minting" || props.name === "Swapping") &&
+                props.tokenName === TokenName.MATIC,
+            },
             data.packStatus === "success"
               ? "text-active"
               : data.packStatus === "error"
-              ? 'text-error'
-              : data.packStatus === 'loading'
-              ? 'text-active'
+              ? "text-error"
+              : data.packStatus === "loading"
+              ? "text-active"
               : "text-text1"
           )}
         >
@@ -102,14 +112,14 @@ export const StakeLoadingProgressItem = (
         <div
           className={classNames(
             "mt-[.08rem] flex items-center",
-            //{ hidden: !data.finalizeStatus },
+            { hidden: props.tokenName === TokenName.MATIC },
             data.finalizeStatus === "success"
               ? "text-active"
               : data.finalizeStatus === "error"
               ? "text-error"
-              : data.finalizeStatus === 'loading'
+              : data.finalizeStatus === "loading"
               ? "text-active"
-              : 'text-text1'
+              : "text-text1"
           )}
         >
           <div className="mr-[.1rem]">Finalizing...</div>

@@ -24,7 +24,7 @@ export interface StakeLoadingParams {
   steps?: string[];
   status?: "loading" | "success" | "error";
   errorMsg?: string;
-  errorStep?: "sending" | "staking" | "minting";
+  errorStep?: "sending" | "staking" | "minting" | "swapping";
   tokenName?: TokenName;
   tokenStandard?: TokenStandard;
   amount?: string;

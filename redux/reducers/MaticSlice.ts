@@ -192,6 +192,10 @@ export const handleMaticStake =
 
     try {
       dispatch(setIsLoading(true)); // stake button loading
+			let steps = ["sending", "staking", "minting"];
+			if (tokenStandard !== TokenStandard.Native) {
+				steps.push('swapping');
+			}
       dispatch(
         resetStakeLoadingParams({
           modalVisible: true,
@@ -203,7 +207,7 @@ export const handleMaticStake =
           newTotalStakedAmount,
           targetAddress,
           tokenStandard,
-          steps: ["sending", "staking", "minting"],
+          steps,
           userAction: undefined,
           progressDetail: {
             sending: {
@@ -212,6 +216,7 @@ export const handleMaticStake =
             sendingParams,
             staking: {},
             minting: {},
+						swapping: {},
           },
         })
       );
@@ -250,6 +255,7 @@ export const handleMaticStake =
             },
             staking: {},
             minting: {},
+						swapping: {},
           },
         })
       );
@@ -266,6 +272,7 @@ export const handleMaticStake =
               },
               staking: {},
               minting: {},
+							swapping: {},
             },
           })
         );
@@ -313,6 +320,7 @@ export const handleMaticStake =
                   totalStatus: "loading",
                 },
                 minting: {},
+								swapping: {},
               },
             },
             (newParams) => {
