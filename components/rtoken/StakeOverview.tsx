@@ -25,7 +25,7 @@ import { TokenStandardSelector } from "./TokenStandardSelector";
 import classNames from "classnames";
 import { getValidatorSiteHost } from "config/env";
 import { useRTokenReward } from "hooks/useRTokenReward";
-import { RTokenRedeemModal } from 'components/modal/RTokenRedeemModal';
+import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 import { useWalletAccount } from "hooks/useWalletAccount";
 
 interface StakeOverviewProps {
@@ -47,9 +47,10 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   const [tradeModalVisible, setTradeModalVisible] = useState(false);
   const [ethRedeemWarningModalVisible, setEthRedeemWarningModalVisible] =
     useState(false);
-	const [rTokenRedeemModalVisible, setRTokenRedeemModalVisible] = useState(false);
+  const [rTokenRedeemModalVisible, setRTokenRedeemModalVisible] =
+    useState(false);
 
-	const { metaMaskAccount } = useWalletAccount();
+  const { metaMaskAccount } = useWalletAccount();
 
   const selectedStandard = useTokenStandard(props.tokenName);
   const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
@@ -158,6 +159,10 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 onClick={() => {
                   if (props.tokenName === TokenName.ETH) {
                     openLink("https://docs.stafi.io/rtoken-app/reth-solution");
+                  } else if (props.tokenName === TokenName.MATIC) {
+                    openLink(
+                      "https://docs.stafi.io/rtoken-app/rmatic-solution"
+                    );
                   }
                 }}
               >
@@ -246,8 +251,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {false ? "--" : formatNumber(stakedAmount)}{" "}
-                  {props.tokenName}
+                  {false ? "--" : formatNumber(stakedAmount)} {props.tokenName}
                 </div>
               </div>
 
@@ -330,9 +334,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                     setEthRedeemWarningModalVisible(true);
                     return;
                   } else if (props.tokenName === TokenName.MATIC) {
-										setRTokenRedeemModalVisible(true);
-										return;
-									}
+                    setRTokenRedeemModalVisible(true);
+                    return;
+                  }
                 }}
               >
                 Unstake
@@ -356,13 +360,13 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         content="Unstake function will be supported once Ethereum withdraw is enabled"
       />
 
-			<RTokenRedeemModal
-				visible={rTokenRedeemModalVisible}
-				onClose={() => setRTokenRedeemModalVisible(false)}
-				tokenName={props.tokenName}
-				balance={rTokenBalance || '--'}
-				defaultReceivingAddress={metaMaskAccount}
-			/>
+      <RTokenRedeemModal
+        visible={rTokenRedeemModalVisible}
+        onClose={() => setRTokenRedeemModalVisible(false)}
+        tokenName={props.tokenName}
+        balance={rTokenBalance || "--"}
+        defaultReceivingAddress={metaMaskAccount}
+      />
     </div>
   );
 };
