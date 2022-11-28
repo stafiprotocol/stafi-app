@@ -245,7 +245,7 @@ const RMaticStakePage = () => {
           <span className="font-semibold">Unstake Fee</span>: 0.2% of your unstaked rMATIC tokens.
           <br />
           <br />
-          Those fees are split between node operators and the StaFi DAO, as well as developers who contribute to the stafi ecosystem.
+          Those fees are split between node operators and the StaFi DAO, as well as developers who contribute to the StaFi ecosystem.
         </div>
       </CollapseCard>
 
