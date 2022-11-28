@@ -29,7 +29,7 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
         title={
 					<div className="text-white text-[.32rem]">
 						My History
-						<span className="ml-[.2rem] text-text2 text-[.24rem] leading-1">Display balance about {selectedStandard} r{props.tokenName} only</span>
+						<span className="ml-[.2rem] text-text2 text-[16px] leading-1">Display balance about {selectedStandard} r{props.tokenName} only</span>
 					</div>
 				}
       >
@@ -47,7 +47,7 @@ export const StakeMyHistory = (props: StakeMyHistoryProps) => {
       title={
 				<div className="text-white text-[.32rem]">
 					My History
-					<span className="ml-[.2rem] text-text2 text-[.24rem] leading-1">Display balance about {selectedStandard} r{props.tokenName} only</span>
+					<span className="ml-[.2rem] text-text2 text-[16px] leading-1">Display balance about {selectedStandard} r{props.tokenName} only</span>
 				</div>
 			}
     >
