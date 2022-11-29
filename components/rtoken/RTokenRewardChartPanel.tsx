@@ -207,11 +207,11 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
 
             <div className="flex items-center mt-[.23rem]">
               <div className="text-[.32rem] text-white">
-                ${formatNumber(totalRewardValue, { decimals: 2 })}
+                {formatNumber(totalReward)} {tokenName}
               </div>
               <div className="h-[.2rem] w-[1px] bg-text2 mx-[.18rem] opacity-50" />
               <div className="text-text2 text-[.18rem]">
-                {formatNumber(totalReward)} {tokenName}
+                ${formatNumber(totalRewardValue, { decimals: 2 })}
               </div>
             </div>
 
@@ -224,11 +224,11 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
 
             <div className="flex items-center mt-[.23rem]">
               <div className="text-[.32rem] text-white">
-                ${formatNumber(lastEraRewardValue, { decimals: 2 })}
+                {formatNumber(lastEraReward)} {tokenName}
               </div>
               <div className="h-[.2rem] w-[1px] bg-text2 mx-[.18rem] opacity-50" />
               <div className="text-text2 text-[.18rem]">
-                {formatNumber(lastEraReward)} {tokenName}
+                ${formatNumber(lastEraRewardValue, { decimals: 2 })}
               </div>
             </div>
           </div>
