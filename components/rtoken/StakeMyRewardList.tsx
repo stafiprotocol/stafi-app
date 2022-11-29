@@ -8,7 +8,11 @@ import { EraRewardModel, useRTokenReward } from "hooks/useRTokenReward";
 import { TokenName } from "interfaces/common";
 import { useCallback, useMemo, useState } from "react";
 import { formatNumber } from "utils/number";
-import { getRewardText } from "utils/rToken";
+import {
+  getEraEstTimeTip,
+  getExchangeRateUpdateTime,
+  getRewardText,
+} from "utils/rToken";
 
 interface StakeMyRewardListProps {
   tokenName: TokenName;
@@ -19,11 +23,6 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
   const [page, setPage] = useState(1);
 
   const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
-
-  const getExchangeRateUpdateTime = useCallback(() => {
-    if (tokenName === TokenName.ETH) return 8;
-    if (tokenName === TokenName.MATIC) return 24;
-  }, [tokenName]);
 
   const [filteredRewardList, filteredUnbondList] = useMemo(() => {
     const newRewardList: EraRewardModel[] = [];
@@ -61,7 +60,9 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           <div className="flex justify-center">
             <MyTooltip
               text={`r${tokenName}/${tokenName}`}
-              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime()} hours`}
+              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime(
+                tokenName
+              )} hours`}
             />
           </div>
           <div className="flex justify-center">
@@ -106,7 +107,11 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
             {formatNumber(item.rTokenBalance)}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
-            {getRewardText(item.reward)} {tokenName}
+            <Tooltip title={getEraEstTimeTip(item, tokenName)}>
+              <span>
+                {getRewardText(item.reward)} {tokenName}
+              </span>
+            </Tooltip>
           </div>
         </div>
       ))}

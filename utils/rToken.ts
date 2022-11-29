@@ -15,6 +15,8 @@ import { getMetamaskMaticChainId } from "config/metaMask";
 import quickswapIcon from "public/dex/quick_swap.png";
 import metaMask from "public/wallet/metaMask.svg";
 import polkadot from "public/wallet/polkadot.svg";
+import { EraRewardModel } from "hooks/useRTokenReward";
+import dayjs from "dayjs";
 
 export interface DexItem {
   type: DexType;
@@ -57,6 +59,35 @@ export function getRewardText(reward: string) {
       ? "<0.000001"
       : `+${formatNumber(reward)}`
     : "--";
+}
+
+export function getEraEstTimeTip(
+  rewardItem: EraRewardModel,
+  tokenName: TokenName
+) {
+  if (
+    Number(rewardItem.addedRTokenAmount) < 0 ||
+    getRewardText(rewardItem.reward) !== "--"
+  ) {
+    return "";
+  }
+  const updateTime = getExchangeRateUpdateTime(tokenName);
+  const passedTime = (updateTime * 60 * 60 * 1000 - new Date().getTime() + rewardItem.startTimestamp) / 1000;
+  const leftHours = Math.floor(passedTime / (60 * 60));
+  let leftMinutes = Math.floor((passedTime - leftHours * 60 * 60) / 60);
+  if (leftMinutes < 1) {
+    leftMinutes = 1;
+  }
+  if (leftHours < 1) {
+    return `${leftMinutes} mins left for data refresh`;
+  }
+  return `${leftHours} hours ${leftMinutes} mins left for data refresh`;
+}
+
+export function getExchangeRateUpdateTime(tokenName: TokenName) {
+  if (tokenName === TokenName.ETH) return 8;
+  if (tokenName === TokenName.MATIC) return 24;
+	return 24;
 }
 
 export function getDexIcon(type: DexType): any {

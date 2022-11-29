@@ -4,11 +4,15 @@ import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
 import dayjs from "dayjs";
-import { useRTokenReward } from "hooks/useRTokenReward";
+import { EraRewardModel, useRTokenReward } from "hooks/useRTokenReward";
 import { TokenName } from "interfaces/common";
 import { useCallback, useState } from "react";
 import { formatNumber } from "utils/number";
-import { getRewardText } from "utils/rToken";
+import {
+  getEraEstTimeTip,
+  getExchangeRateUpdateTime,
+  getRewardText,
+} from "utils/rToken";
 
 interface StakeOverallListProps {
   tokenName: TokenName;
@@ -20,11 +24,6 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
   const list = [1, 2];
 
   const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
-
-  const getExchangeRateUpdateTime = useCallback(() => {
-    if (tokenName === TokenName.ETH) return 8;
-    if (tokenName === TokenName.MATIC) return 24;
-  }, [tokenName]);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
@@ -45,7 +44,9 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
           <div className="flex justify-center">
             <MyTooltip
               text={`r${tokenName}/${tokenName}`}
-              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime()} hours`}
+              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime(
+                tokenName
+              )} hours`}
             />
           </div>
           <div className="flex justify-center">
@@ -116,10 +117,14 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
             )}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
-            {Number(formatNumber(item.addedRTokenAmount)) < 0
-              ? "0"
-              : getRewardText(item.reward)}{" "}
-            {tokenName}
+            <Tooltip title={getEraEstTimeTip(item, tokenName)}>
+              <span>
+                {Number(formatNumber(item.addedRTokenAmount)) < 0
+                  ? "0"
+                  : getRewardText(item.reward)}{" "}
+                {tokenName}
+              </span>
+            </Tooltip>
           </div>
         </div>
       ))}
