@@ -8,9 +8,9 @@ import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
-import maticIcon from 'public/matic_type_green.svg';
-import userAvatar from 'public/userAvatar.svg';
-import maticBlackIcon from 'public/matic_type_black.svg';
+import maticIcon from "public/matic_type_green.svg";
+import userAvatar from "public/userAvatar.svg";
+import maticBlackIcon from "public/matic_type_black.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
@@ -32,10 +32,14 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { RootState } from "redux/store";
 import numberUtil from "utils/numberUtil";
 import { useTransactionCost } from "hooks/useTransactionCost";
-import downIcon from 'public/icon_down.png';
+import downIcon from "public/icon_down.png";
 import { bindPopover } from "material-ui-popup-state";
-import { bindHover, bindTrigger, usePopupState } from "material-ui-popup-state/hooks";
-import HoverPopover from 'material-ui-popup-state/HoverPopover';
+import {
+  bindHover,
+  bindTrigger,
+  usePopupState,
+} from "material-ui-popup-state/hooks";
+import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
@@ -63,28 +67,39 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const [editAddress, setEditAddress] = useState(false);
   const [targetAddress, setTargetAddress] = useState("");
   const [redeemAmount, setRedeemAmount] = useState("");
-	const [expandUserAddress, setExpandUserAddress] = useState(false);
+  const [expandUserAddress, setExpandUserAddress] = useState(false);
 
-	const fisPrice = useTokenPrice('FIS');
+  const fisPrice = useTokenPrice("FIS");
 
-	const tokenStandard = useTokenStandard(props.tokenName);
- 
-	const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost();
-	const defaultTransactionFee = 0.0129;
+  const tokenStandard = useTokenStandard(props.tokenName);
 
-	const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
+  const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost();
+  const defaultTransactionFee = 0.0129;
+
+  const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
 
-	const { metaMaskAccount } = useWalletAccount();
+  const { metaMaskAccount } = useWalletAccount();
 
-	const userAddress = useMemo(() => {
-		if (walletType === WalletType.MetaMask) {
-			return metaMaskAccount;
-		}
-		return '';
-	}, [walletType, metaMaskAccount]);
+  const commisionFee = useMemo(() => {
+    if (
+      isNaN(Number(unbondCommision)) ||
+      isNaN(Number(redeemAmount)) ||
+      Number(redeemAmount) === 0
+    ) {
+      return "--";
+    }
+    return Number(redeemAmount) * Number(unbondCommision);
+  }, [redeemAmount, unbondCommision]);
+
+  const userAddress = useMemo(() => {
+    if (walletType === WalletType.MetaMask) {
+      return metaMaskAccount;
+    }
+    return "";
+  }, [walletType, metaMaskAccount]);
 
   const willReceiveAmount = useMemo(() => {
     if (
@@ -97,49 +112,43 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     return Number(redeemAmount) * Number(rTokenRatio) + "";
   }, [redeemAmount, rTokenRatio]);
 
-	const redeemFee = useMemo(() => {
-		if (
-			isNaN(Number(unbondCommision)) ||
-			isNaN(Number(rTokenRatio)) ||
-			Number(unbondCommision) === 0
-		) {
-			return '--';
-		}
-		return Number(unbondCommision) * Number(rTokenRatio) + '';
-	}, [unbondCommision, rTokenRatio]);
+  const redeemFee = useMemo(() => {
+    if (
+      isNaN(Number(commisionFee)) ||
+      isNaN(Number(rTokenRatio)) ||
+      Number(commisionFee) === 0
+    ) {
+      return "--";
+    }
+    return Number(commisionFee) * Number(rTokenRatio) + "";
+  }, [commisionFee, rTokenRatio]);
 
-	const transactionCost = useMemo(() => {
-		let txFee = unbondTxFees || defaultTransactionFee;
-		if (
-			isNaN(Number(txFee)) ||
-			isNaN(Number(unbondFees))
-		) {
-			return '--';
-		}
-		return Number(numberUtil.fisAmountToHuman(unbondFees)) + Number(txFee) + '';
-	}, [unbondFees, unbondTxFees]);
+  const transactionCost = useMemo(() => {
+    let txFee = unbondTxFees || defaultTransactionFee;
+    if (isNaN(Number(txFee)) || isNaN(Number(unbondFees))) {
+      return "--";
+    }
+    return Number(numberUtil.fisAmountToHuman(unbondFees)) + Number(txFee) + "";
+  }, [unbondFees, unbondTxFees]);
 
-	const transactionCostValue = useMemo(() => {
-		if (
-			isNaN(Number(transactionCost)) ||
-			isNaN(Number(fisPrice))
-		) return '--';
-		return Number(transactionCost) * Number(fisPrice) + '';
-	}, [transactionCost, fisPrice]);
+  const transactionCostValue = useMemo(() => {
+    if (isNaN(Number(transactionCost)) || isNaN(Number(fisPrice))) return "--";
+    return Number(transactionCost) * Number(fisPrice) + "";
+  }, [transactionCost, fisPrice]);
 
-	const newTotalStakedAmount = useMemo(() => {
+  const newTotalStakedAmount = useMemo(() => {
     // console.log(rTokenBalance, redeemAmount, rTokenRatio)
-		if (
-			isNaN(Number(rTokenBalance)) ||
-			isNaN(Number(redeemAmount)) ||
-			isNaN(Number(rTokenRatio))
-		) {
-			return '--';
-		}
-		return (
-			(Number(rTokenBalance) - Number(redeemAmount)) * Number(rTokenRatio) + ''
-		);
-	}, [rTokenBalance, rTokenRatio, redeemAmount]);
+    if (
+      isNaN(Number(rTokenBalance)) ||
+      isNaN(Number(redeemAmount)) ||
+      isNaN(Number(rTokenRatio))
+    ) {
+      return "--";
+    }
+    return (
+      (Number(rTokenBalance) - Number(redeemAmount)) * Number(rTokenRatio) + ""
+    );
+  }, [rTokenBalance, rTokenRatio, redeemAmount]);
 
   const { isLoading } = useAppSlice();
 
@@ -162,7 +171,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
       return [true, "Unstake"];
     }
     if (isNaN(Number(balance))) {
-      return [true, 'Insufficient Balance'];
+      return [true, "Insufficient Balance"];
     }
     if (!redeemAmount || Number(redeemAmount) === 0 || isNaN(Number(balance))) {
       return [true, "Unstake"];
@@ -184,9 +193,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const estimateFee = useMemo(() => {
     let gasLimit = 146316;
-		if (tokenName === TokenName.MATIC) {
-			gasLimit = 36928;
-		}
+    if (tokenName === TokenName.MATIC) {
+      gasLimit = 36928;
+    }
     if (tokenName === TokenName.ETH || tokenName === TokenName.MATIC) {
       if (isNaN(Number(ethGasPrice))) {
         return "--";
@@ -208,32 +217,30 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const clickRedeem = () => {
     if (tokenName === TokenName.MATIC) {
-			dispatch(
-				unbondRMatic(
-					redeemAmount,
-					targetAddress,
+      dispatch(
+        unbondRMatic(
+          redeemAmount,
+          targetAddress,
           willReceiveAmount,
-					newTotalStakedAmount,
-					() => {
-						dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
-					}
-				)
-			);
-		}
+          newTotalStakedAmount,
+          () => {
+            dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+          }
+        )
+      );
+    }
   };
 
-	useEffect(() => {
+  useEffect(() => {
     if (addressCorrect) {
-      dispatch(
-        getMaticUnbondTxFees(redeemAmount || '1', targetAddress)
-      )
+      dispatch(getMaticUnbondTxFees(redeemAmount || "1", targetAddress));
     }
-	}, [dispatch, targetAddress, addressCorrect, redeemAmount]);
+  }, [dispatch, targetAddress, addressCorrect, redeemAmount]);
 
-	const txCostPopupState = usePopupState({
-		variant: 'popover',
-		popupId: 'txCost',
-	});
+  const txCostPopupState = usePopupState({
+    variant: "popover",
+    popupId: "txCost",
+  });
 
   return (
     <Dialog
@@ -287,7 +294,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                       <Card
                         background="rgba(25, 38, 52, 0.35)"
                         borderColor="#1A2835"
-												ml="0.24rem"
+                        ml="0.24rem"
                       >
                         <div className="h-[.68rem] w-[5.3rem] px-[.24rem] flex items-center">
                           <CustomInput
@@ -309,7 +316,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                         <Icomoon
                           icon="complete-outline"
                           size=".38rem"
-                          color={addressCorrect ? '#00F3AB' : '#5B6872'}
+                          color={addressCorrect ? "#00F3AB" : "#5B6872"}
                         />
                       </div>
                     </div>
@@ -359,16 +366,16 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                     borderColor="#1A2835"
                   >
                     <div
-											className="px-[.24rem] h-[.68rem] flex items-center justify-center cursor-pointer"
-											onClick={() => {
-												setExpandUserAddress(!expandUserAddress);
-											}}
-										>
-											{expandUserAddress && (
-												<div className="text-text2 text-[.24rem] mr-[.14rem]">
-													{getShortAddress(userAddress, 5)}
-												</div>
-											)}
+                      className="px-[.24rem] h-[.68rem] flex items-center justify-center cursor-pointer"
+                      onClick={() => {
+                        setExpandUserAddress(!expandUserAddress);
+                      }}
+                    >
+                      {expandUserAddress && (
+                        <div className="text-text2 text-[.24rem] mr-[.14rem]">
+                          {getShortAddress(userAddress, 5)}
+                        </div>
+                      )}
 
                       <div className="w-[.28rem] h-[.28rem] relative">
                         <Image src={userAvatar} alt="icon" layout="fill" />
@@ -377,7 +384,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance, { decimals: 6, toReadable: false })} r{tokenName}
+                    {formatNumber(balance, { decimals: 6, toReadable: false })}{" "}
+                    r{tokenName}
                   </div>
                 </div>
               </div>
@@ -390,10 +398,16 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image src={tokenName === TokenName.MATIC ? maticBlackIcon : ethIcon} alt="icon" layout="fill" />
+                <Image
+                  src={tokenName === TokenName.MATIC ? maticBlackIcon : ethIcon}
+                  alt="icon"
+                  layout="fill"
+                />
               </div>
 
-              <div className="ml-[.35rem] text-text2 text-[.32rem]">r{props.tokenName}</div>
+              <div className="ml-[.35rem] text-text2 text-[.32rem]">
+                r{props.tokenName}
+              </div>
 
               <div className="flex-1 mx-[.34rem]">
                 <CustomNumberInput
@@ -414,9 +428,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   ) {
                     return;
                   }
-                  setRedeemAmount(
-										balance
-                  );
+                  setRedeemAmount(balance);
                 }}
               >
                 Max
@@ -451,67 +463,72 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Transcation Cost</div>
                 <div
-									className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
-									{...bindHover(txCostPopupState)}
-									// onMouseEnter={}
-								>
-									{formatNumber(transactionCost, { decimals: 2 })} FIS
-									<div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
-										<Image src={downIcon} layout="fill" alt="down" />
-									</div>
+                  className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
+                  {...bindHover(txCostPopupState)}
+                  // onMouseEnter={}
+                >
+                  {formatNumber(transactionCost, { decimals: 2 })} FIS
+                  <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
+                    <Image src={downIcon} layout="fill" alt="down" />
+                  </div>
                 </div>
 
-								<HoverPopover
-									{...bindPopover(txCostPopupState)}
-									transformOrigin={{
-										horizontal: 'center',
-										vertical: 'top'
-									}}
-									anchorOrigin={{
-										vertical: 'bottom',
-										horizontal: 'center',
-									}}
-									sx={{
-										marginTop: '.1rem',
-										"& .MuiPopover-paper": {
-											background: "rgba(9, 15, 23, 0.25)",
-											border: "1px solid #26494E",
-											backdropFilter: "blur(.4rem)",
-											borderRadius: ".16rem",
-											padding: '.2rem',
-										},
-										"& .MuiTypography-root": {
-											padding: "0px",
-										},
-									}}
-								>
-									<div className="text-text2">
-										<div className="flex justify-between">
-											<div>Relay Fee</div>
-											<div>{numberUtil.fisAmountToHuman(unbondFees)} FIS</div>
-										</div>
-										<div className="flex justify-between my-[.18rem]">
-											<div>Transaction Fee</div>
-											<div>{formatNumber(unbondTxFees, { decimals: 2 })} FIS</div>
-										</div>
-										<div
-											className="h-[1px] bg-text3 my-[.1rem]"
-										/>
-										<div className="text-text1">
-											Overall Transaction Cost: <span className="ml-[.1rem]" /> {formatNumber(transactionCost, { decimals: 2 })} FIS
-										</div>
-										<div className="mt-[.18rem] text-right">
-											~${formatNumber(transactionCostValue, { decimals: 2 })}
-										</div>
-									</div>
-								</HoverPopover>
+                <HoverPopover
+                  {...bindPopover(txCostPopupState)}
+                  transformOrigin={{
+                    horizontal: "center",
+                    vertical: "top",
+                  }}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                  sx={{
+                    marginTop: ".1rem",
+                    "& .MuiPopover-paper": {
+                      background: "rgba(9, 15, 23, 0.25)",
+                      border: "1px solid #26494E",
+                      backdropFilter: "blur(.4rem)",
+                      borderRadius: ".16rem",
+                      padding: ".2rem",
+                    },
+                    "& .MuiTypography-root": {
+                      padding: "0px",
+                    },
+                  }}
+                >
+                  <div className="text-text2">
+                    <div className="flex justify-between">
+                      <div>Relay Fee</div>
+                      <div>{numberUtil.fisAmountToHuman(unbondFees)} FIS</div>
+                    </div>
+                    <div className="flex justify-between my-[.18rem]">
+                      <div>Transaction Fee</div>
+                      <div>
+                        {formatNumber(unbondTxFees, { decimals: 2 })} FIS
+                      </div>
+                    </div>
+                    <div className="h-[1px] bg-text3 my-[.1rem]" />
+                    <div className="text-text1">
+                      Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
+                      {formatNumber(transactionCost, { decimals: 2 })} FIS
+                    </div>
+                    <div className="mt-[.18rem] text-right">
+                      ~${formatNumber(transactionCostValue, { decimals: 2 })}
+                    </div>
+                  </div>
+                </HoverPopover>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
                   <MyTooltip text="Unstake Fee" title="Unstake Fee" />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(unbondCommision, { decimals: 3 })} r{tokenName} (~{formatNumber(redeemFee, { decimals: 3 })} {tokenName})
+                  {commisionFee === "--"
+                    ? "--"
+                    : formatNumber(commisionFee, { decimals: 4 })}{" "}
+                  r{tokenName} (~{formatNumber(redeemFee, { decimals: 4 })}{" "}
+                  {tokenName})
                 </div>
               </div>
             </div>
