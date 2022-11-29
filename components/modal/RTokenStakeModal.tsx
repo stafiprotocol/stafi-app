@@ -396,10 +396,23 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     );
                   }}
                 >
-                  <div>Mint Type</div>
-                  <div className="flex items-center ml-[.08rem]">
-                    <Icomoon icon="question" size="0.16rem" color="#9DAFBE" />
-                  </div>
+                  {tokenName === TokenName.ETH ? (
+                    <MyTooltip
+                      title="Your mint address is the same as your stake account"
+                      text="Mint Type"
+                    />
+                  ) : (
+                    <>
+                      <div>Mint Type</div>
+                      <div className="flex items-center ml-[.08rem]">
+                        <Icomoon
+                          icon="question"
+                          size="0.16rem"
+                          color="#9DAFBE"
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex items-center mt-[.15rem]">
