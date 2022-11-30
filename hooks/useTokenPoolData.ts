@@ -5,7 +5,7 @@ import { useAppSelector } from "./common";
 export function useTokenPoolData(tokenName: TokenName) {
   const { stakedAmount, stakedValue } = useAppSelector((state: RootState) => {
     const poolData = state.rToken.tokenPoolData[tokenName];
-    return poolData || { stakedAmount: "--", stakedValue: "--" };
+    return poolData || { stakedAmount: undefined, stakedValue: undefined };
   });
 
   return {
