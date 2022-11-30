@@ -81,7 +81,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
 
-  const { metaMaskAccount } = useWalletAccount();
+  const { polkadotAccount } = useWalletAccount();
 
   const commisionFee = useMemo(() => {
     if (
@@ -95,11 +95,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   }, [redeemAmount, unbondCommision]);
 
   const userAddress = useMemo(() => {
-    if (walletType === WalletType.MetaMask) {
-      return metaMaskAccount;
-    }
-    return "";
-  }, [walletType, metaMaskAccount]);
+    return polkadotAccount;
+  }, [polkadotAccount]);
 
   const willReceiveAmount = useMemo(() => {
     if (

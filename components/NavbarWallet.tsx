@@ -9,7 +9,7 @@ import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { WalletType } from "interfaces/common";
+import { TokenStandard, WalletType } from "interfaces/common";
 import {
   bindPopover,
   bindTrigger,
@@ -174,14 +174,11 @@ export const NavbarWallet = () => {
   ]);
 
   const [displayAddress, displayWalletType] = useMemo(() => {
-    if (walletType === WalletType.MetaMask) {
-      if (metaMaskAccount) {
-        return [metaMaskAccount, WalletType.MetaMask];
-      }
-      if (polkadotAccount) {
-        return [polkadotAccount, WalletType.Polkadot];
-      }
-    } else {
+    const tokenStandard = router.query.tokenStandard;
+    if (
+      walletType === WalletType.Polkadot ||
+      tokenStandard === TokenStandard.Native
+    ) {
       if (polkadotAccount) {
         return [polkadotAccount, WalletType.Polkadot];
       }
@@ -189,9 +186,17 @@ export const NavbarWallet = () => {
         return [metaMaskAccount, WalletType.MetaMask];
       }
     }
+    if (walletType === WalletType.MetaMask) {
+      if (metaMaskAccount) {
+        return [metaMaskAccount, WalletType.MetaMask];
+      }
+      if (polkadotAccount) {
+        return [polkadotAccount, WalletType.Polkadot];
+      }
+    }
 
     return ["", undefined];
-  }, [walletType, polkadotAccount, metaMaskAccount]);
+  }, [walletType, polkadotAccount, metaMaskAccount, router]);
 
   const showConnectWallet = useMemo(() => {
     return !displayAddress;
