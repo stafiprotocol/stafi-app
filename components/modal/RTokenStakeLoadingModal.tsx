@@ -279,7 +279,8 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("sending") && (
                   <StakeLoadingProgressItem
                     name="Sending"
-										tokenName={stakeLoadingParams?.tokenName}
+                    stepIndex={stakeLoadingParams?.steps.indexOf("sending")}
+                    tokenName={stakeLoadingParams?.tokenName}
                     data={stakeLoadingParams?.progressDetail?.sending}
                     txHash={stakeLoadingParams?.txHash}
                     scanUrl={stakeLoadingParams?.scanUrl}
@@ -291,6 +292,7 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("staking") && (
                   <StakeLoadingProgressItem
                     name="Staking"
+                    stepIndex={stakeLoadingParams?.steps.indexOf("staking")}
                     data={stakeLoadingParams?.progressDetail?.staking}
                   />
                 )}
@@ -300,7 +302,8 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("minting") && (
                   <StakeLoadingProgressItem
                     name="Minting"
-										tokenName={stakeLoadingParams?.tokenName}
+                    stepIndex={stakeLoadingParams?.steps.indexOf("minting")}
+                    tokenName={stakeLoadingParams?.tokenName}
                     data={stakeLoadingParams?.progressDetail?.minting}
                   />
                 )}
@@ -310,7 +313,8 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("swapping") && (
                   <StakeLoadingProgressItem
                     name="Swapping"
-										tokenName={stakeLoadingParams?.tokenName}
+                    stepIndex={stakeLoadingParams?.steps.indexOf("swapping")}
+                    tokenName={stakeLoadingParams?.tokenName}
                     data={stakeLoadingParams?.progressDetail?.swapping}
                   />
                 )}

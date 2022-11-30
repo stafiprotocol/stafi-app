@@ -69,7 +69,7 @@ export const RTokenStakeLoadingSidebar = () => {
             : "text-text1"
         )}
       >
-        Swap
+        Stake
         <br />
         {stakeLoadingParams?.status === "success"
           ? "Succeed"

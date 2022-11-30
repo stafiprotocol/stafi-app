@@ -7,6 +7,7 @@ import { StakeLoadingProgressDetailItem } from "redux/reducers/AppSlice";
 import { getShortAddress } from "utils/string";
 
 interface StakeLoadingProgressItemProps {
+  stepIndex: number;
   name: "Sending" | "Staking" | "Minting" | "Swapping";
   data: StakeLoadingProgressDetailItem | undefined;
   txHash?: string | undefined;
@@ -26,14 +27,17 @@ export const StakeLoadingProgressItem = (
     <div className="pb-[.3rem] px-[.3rem]">
       <div className="flex items-center">
         <div
-          className="rounded-full w-[.24rem] h-[.24rem] bg-[#1A2835]"
+          className="rounded-full w-[.24rem] h-[.24rem] bg-[#1A2835] flex items-center justify-center text-[.1rem] font-bold"
           style={{
             border:
               data.totalStatus === "success"
                 ? "0.5px solid #0095EB"
                 : "0.5px solid #9DAFBE",
+            color: data.totalStatus === "success" ? "#0095EB" : "#9DAFBE",
           }}
-        />
+        >
+          {props.stepIndex + 1}
+        </div>
         <div
           className={classNames(
             "text-[.2rem] font-[700] ml-[.08rem]",

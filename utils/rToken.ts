@@ -72,7 +72,11 @@ export function getEraEstTimeTip(
     return "";
   }
   const updateTime = getExchangeRateUpdateTime(tokenName);
-  const passedTime = (updateTime * 60 * 60 * 1000 - new Date().getTime() + rewardItem.startTimestamp) / 1000;
+  const passedTime =
+    (updateTime * 60 * 60 * 1000 -
+      new Date().getTime() +
+      rewardItem.startTimestamp) /
+    1000;
   const leftHours = Math.floor(passedTime / (60 * 60));
   let leftMinutes = Math.floor((passedTime - leftHours * 60 * 60) / 60);
   if (leftMinutes < 1) {
@@ -87,7 +91,7 @@ export function getEraEstTimeTip(
 export function getExchangeRateUpdateTime(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) return 8;
   if (tokenName === TokenName.MATIC) return 24;
-	return 24;
+  return 24;
 }
 
 export function getDexIcon(type: DexType): any {
@@ -143,7 +147,7 @@ export function getDexList(tokenName: TokenName): DexItem[] {
   return [];
 }
 
-export function getWalletIcon(walletType: WalletType) {
+export function getWalletIcon(walletType: WalletType | undefined) {
   if (walletType === WalletType.MetaMask) {
     return metaMask;
   }

@@ -173,12 +173,25 @@ export const NavbarWallet = () => {
     isWrongMetaMaskNetwork,
   ]);
 
-  const [displayAddress] = useMemo(() => {
-    if (walletType === WalletType.MetaMask || router.pathname === "/rtoken") {
-      return [metaMaskAccount];
+  const [displayAddress, displayWalletType] = useMemo(() => {
+    if (walletType === WalletType.MetaMask) {
+      if (metaMaskAccount) {
+        return [metaMaskAccount, WalletType.MetaMask];
+      }
+      if (polkadotAccount) {
+        return [polkadotAccount, WalletType.Polkadot];
+      }
+    } else {
+      if (polkadotAccount) {
+        return [polkadotAccount, WalletType.Polkadot];
+      }
+      if (metaMaskAccount) {
+        return [metaMaskAccount, WalletType.MetaMask];
+      }
     }
-    return [polkadotAccount];
-  }, [walletType, polkadotAccount, metaMaskAccount, router.pathname]);
+
+    return ["", undefined];
+  }, [walletType, polkadotAccount, metaMaskAccount]);
 
   const showConnectWallet = useMemo(() => {
     return !displayAddress;
@@ -253,7 +266,7 @@ export const NavbarWallet = () => {
               <div className="flex items-center">
                 <div className="w-[.28rem] h-[.28rem] relative">
                   <Image
-                    src={getWalletIcon(walletType)}
+                    src={getWalletIcon(displayWalletType)}
                     alt="logo"
                     layout="fill"
                   />
