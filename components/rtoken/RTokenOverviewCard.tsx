@@ -2,6 +2,7 @@ import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
 import {
+  getMetamaskBscChainId,
   getMetamaskEthChainId,
   getMetamaskMaticChainId,
 } from "config/metaMask";
@@ -20,6 +21,8 @@ import maticChainLogo from "public/matic_logo_black.svg";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
 import { setRouteNextPage } from "redux/reducers/FisSlice";
+import { useTokenPoolData } from "hooks/useTokenPoolData";
+import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 
 interface RTokenOverviewCardProps {
   tokenName: TokenName;
@@ -33,7 +36,10 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const { metaMaskAccount, polkadotAccount } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
-  const { stakedMaticValue, stakedMaticAmount, maticApr } = useMaticPoolData();
+  const { maticApr } = useMaticPoolData();
+
+	const { stakedAmount, stakedValue } = useTokenPoolData(tokenName);
+	const apr = useRTokenStakerApr(tokenName);
 
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
@@ -70,6 +76,20 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           targetUrl: "/rtoken/stake/MATIC",
         })
       );
+    } else if (tokenName === TokenName.BNB) {
+      if (!metaMaskAccount || metaMaskChainId !== getMetamaskBscChainId()) {
+        dispatch(setRouteNextPage("/rtoken/stake/BNB"));
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.MetaMask],
+            targetMetaMaskChainId: getMetamaskBscChainId(),
+            targetUrl: "/rtoken/stake/BNB",
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/BNB");
     }
   };
 
@@ -125,7 +145,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
-          {formatNumber(tokenName === TokenName.ETH ? stakeApr : maticApr, {
+          {formatNumber(tokenName === TokenName.ETH ? stakeApr : apr, {
             decimals: 2,
           })}
           %
@@ -143,7 +163,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         <div className="text-text2 text-[.16rem]">
           $
           {formatNumber(
-            tokenName === TokenName.ETH ? allEthValue : stakedMaticValue,
+            tokenName === TokenName.ETH ? allEthValue : stakedValue,
             { decimals: 2 }
           )}
         </div>
@@ -159,7 +179,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         </div>
         <div className="text-text2 text-[.16rem]">
           {formatNumber(
-            tokenName === TokenName.ETH ? allEth : stakedMaticAmount,
+            tokenName === TokenName.ETH ? allEth : stakedAmount,
             { decimals: 2 }
           )}
         </div>

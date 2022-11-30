@@ -2,7 +2,7 @@ import { hooks, metaMask } from "connectors/metaMask";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 import { setUnreadNoticeFlag, setUpdateFlag15s } from "redux/reducers/AppSlice";
-import { updateRTokenPriceList } from "redux/reducers/RTokenSlice";
+import { updateRTokenPriceList, updateTokenPoolData } from "redux/reducers/RTokenSlice";
 import {
   connectPolkadotJs,
   setMetaMaskAccount,
@@ -33,6 +33,8 @@ export function useInit() {
   useEffect(() => {
     // Query priceList.
     dispatch(updateRTokenPriceList());
+		// Query pool data
+		dispatch(updateTokenPoolData());
   }, [updateFlag15s, dispatch]);
 
   useInterval(() => {

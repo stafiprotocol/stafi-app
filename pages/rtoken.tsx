@@ -62,6 +62,10 @@ const RTokenPage = () => {
         <div className="ml-[.875rem]">
           <RTokenOverviewCard tokenName={TokenName.MATIC} />
         </div>
+
+        <div className="ml-[.875rem]">
+          <RTokenOverviewCard tokenName={TokenName.BNB} />
+        </div>
       </div>
     </div>
   );
