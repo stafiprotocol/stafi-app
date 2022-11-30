@@ -75,11 +75,8 @@ export function getEraEstTimeTip(
   const passedTime = (updateTime * 60 * 60 * 1000 - new Date().getTime() + rewardItem.startTimestamp) / 1000;
   const leftHours = Math.floor(passedTime / (60 * 60));
   let leftMinutes = Math.floor((passedTime - leftHours * 60 * 60) / 60);
-  if (leftMinutes < 1) {
-    leftMinutes = 1;
-  }
   if (leftHours < 1) {
-    return `${leftMinutes} mins left for data refresh`;
+    return `${leftMinutes < 1 ? 'A few' : leftMinutes} minutes left for data refresh`;
   }
   return `${leftHours} hours ${leftMinutes} mins left for data refresh`;
 }
