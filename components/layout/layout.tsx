@@ -21,6 +21,7 @@ import type { Container, Engine } from "tsparticles-engine";
 import { loadFull } from "tsparticles";
 import { useRouter } from "next/router";
 import {
+  getMetamaskBscChainId,
   getMetamaskEthChainId,
   getMetamaskMaticChainId,
   getMetamaskValidatorChainId,
@@ -111,7 +112,10 @@ export const Layout = (props: LayoutProps) => {
       setTargetMetaMaskChainId(getMetamaskEthChainId());
       setWalletType(WalletType.MetaMask);
     } else if (router.pathname === "/rtoken/stake/MATIC") {
-			setTargetMetaMaskChainId(getMetamaskMaticChainId());
+      setTargetMetaMaskChainId(getMetamaskMaticChainId());
+      setWalletType(WalletType.MetaMask);
+    } else if (router.pathname === "/rtoken/stake/BNB") {
+      setTargetMetaMaskChainId(getMetamaskBscChainId());
       setWalletType(WalletType.MetaMask);
     } else {
       setTargetMetaMaskChainId(getMetamaskMaticChainId());

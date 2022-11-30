@@ -32,9 +32,8 @@ const RBnbStakePage = () => {
 
   const { polkadotAccount } = useWalletAccount();
 
-	// const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.MATIC);
   const { balance } = useAppSelector((state: RootState) => {
-    return { balance: state.matic.balance };
+    return { balance: state.bnb.balance };
   });
 
   useEffect(() => {

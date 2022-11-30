@@ -22,6 +22,7 @@ import {
 } from "utils/constants";
 import { ChainId, TokenStandard } from "interfaces/common";
 import { getMaticAbi, getRMaticTokenAddress } from "config/matic";
+import { getBnbAbi, getRBnbTokenAddress } from "config/bnb";
 
 declare const ethereum: any;
 
@@ -125,6 +126,26 @@ export const bond =
     if (rsymbol === rSymbol.Matic) {
       await sleep(3000);
 
+      const metaMaskAccount = getState().wallet.metaMaskAccount;
+      const fisPubkey = u8aToHex(
+        keyringInstance.decodeAddress(fisAddress as string),
+        -1,
+        false
+      );
+      const msg = stringToHex(fisPubkey);
+      pubkey = address;
+      signature = await ethereum
+        .request({
+          method: "personal_sign",
+          params: [metaMaskAccount, msg],
+        })
+        .catch((err: any) => {
+          dispatch(setIsLoading(false));
+          console.error(err);
+        });
+      console.log("signature succeeded, proceeding staking");
+    } else if (rsymbol === rSymbol.Bnb) {
+      await sleep(3000);
       const metaMaskAccount = getState().wallet.metaMaskAccount;
       const fisPubkey = u8aToHex(
         keyringInstance.decodeAddress(fisAddress as string),
@@ -474,6 +495,9 @@ export const getMinting =
               if (rsymbol === rSymbol.Matic) {
                 tokenAbi = getMaticAbi();
                 tokenAddress = getRMaticTokenAddress();
+              } else if (rsymbol === rSymbol.Bnb) {
+                tokenAbi = getBnbAbi();
+                tokenAddress = getRBnbTokenAddress();
               }
               const oldBalance = await getErc20AssetBalance(
                 targetAddress,
@@ -626,6 +650,9 @@ export const queryRTokenSwapState =
     if (rsymbol === rSymbol.Matic) {
       tokenAbi = getMaticAbi();
       tokenAddress = getRMaticTokenAddress();
+    } else if (rsymbol === rSymbol.Bnb) {
+      tokenAbi = getBnbAbi();
+      tokenAddress = getRBnbTokenAddress();
     }
 
     if (chainId === ChainId.ETH || chainId === ChainId.BSC) {

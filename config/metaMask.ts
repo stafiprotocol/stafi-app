@@ -16,17 +16,24 @@ export function getMetamaskEthChainId() {
 }
 
 export function getMetamaskMaticChainId() {
-	if (isDev()) {
-		return 5; // goerli
-	}
-	return 1;
+  if (isDev()) {
+    return 5; // goerli
+  }
+  return 1;
+}
+
+export function getEthChainId() {
+  if (isDev()) {
+    return "0x5";
+  }
+  return "0x1";
 }
 
 export function getMetamaskBscChainId() {
-	if (isDev()) {
-		return 0x61;
-	}
-	return 0x38;
+  if (isDev()) {
+    return 0x61;
+  }
+  return 0x38;
 }
 
 export function getMetaMaskValidatorConnectConfig() {
@@ -82,28 +89,28 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
 }
 
 export function getMetaMaskBscConfig(): AddEthereumChainParameter {
-	if (isDev()) {
-		return {
-			chainId: 0x61,
-			chainName: 'BSC Testnet',
-			nativeCurrency: {
-				name: 'BNB',
-				symbol: 'BNB',
-				decimals: 18,
-			},
-			rpcUrls: ['https://data-seed-prebsc-2-s3.binance.org:8545/'],
-			blockExplorerUrls: ['https://testnet.bscscan.com'],
-		}
-	}
-	return {
-		chainId: 0x38,
-    chainName: 'BSC Mainnet',
+  if (isDev()) {
+    return {
+      chainId: 0x61,
+      chainName: "BSC Testnet",
+      nativeCurrency: {
+        name: "BNB",
+        symbol: "BNB",
+        decimals: 18,
+      },
+      rpcUrls: ["https://data-seed-prebsc-2-s3.binance.org:8545/"],
+      blockExplorerUrls: ["https://testnet.bscscan.com"],
+    };
+  }
+  return {
+    chainId: 0x38,
+    chainName: "BSC Mainnet",
     nativeCurrency: {
-      name: 'BNB',
-      symbol: 'BNB',
+      name: "BNB",
+      symbol: "BNB",
       decimals: 18,
     },
-    rpcUrls: ['https://bsc-dataseed.binance.org/'],
-    blockExplorerUrls: ['https://bscscan.com'],
-	}
+    rpcUrls: ["https://bsc-dataseed.binance.org/"],
+    blockExplorerUrls: ["https://bscscan.com"],
+  };
 }

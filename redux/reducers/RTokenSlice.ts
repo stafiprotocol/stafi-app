@@ -249,6 +249,11 @@ export const updateRTokenRatio =
         const result = await api.query.rTokenRate.rate(rSymbol.Matic);
         let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
         newRatio = (ratio || 1) + "";
+      } else if (tokenName === TokenName.BNB) {
+        const api = await new StafiServer().createStafiApi();
+        const result = await api.query.rTokenRate.rate(rSymbol.Bnb);
+        let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
+        newRatio = (ratio || 1) + "";
       }
 
       const rTokenRatioStore = getState().rToken.rTokenRatioStore;

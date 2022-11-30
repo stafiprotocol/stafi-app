@@ -20,6 +20,7 @@ import { useRouter } from "next/router";
 import ethereumLogo from "public/eth_logo.png";
 import downIcon from "public/icon_down.png";
 import { useContext, useEffect, useMemo } from "react";
+import { updateBnbBalance } from "redux/reducers/BnbSlice";
 import { updateEthBalance } from "redux/reducers/EthSlice";
 import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
@@ -80,6 +81,9 @@ export const NavbarWallet = () => {
 
   useEffect(() => {
     dispatch(updateEthBalance());
+		if (router.pathname === '/rtoken/stake/BNB') {
+			dispatch(updateBnbBalance());
+		}
   }, [dispatch, metaMaskAccount, metaMaskChainId]);
 
   useEffect(() => {
