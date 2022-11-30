@@ -6,6 +6,7 @@ import rTokenReducer from "./reducers/RTokenSlice";
 import maticReducer from './reducers/MaticSlice';
 import fisReducer from './reducers/FisSlice';
 import bridgeReducer from './reducers/BridgeSlice';
+import bnbReducer from './reducers/BnbSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
 		matic: maticReducer,
 		fis: fisReducer,
     bridge: bridgeReducer,
+		bnb: bnbReducer,
   },
 });
 
