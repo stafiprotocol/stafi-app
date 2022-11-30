@@ -175,7 +175,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         <div className="flex items-center">
           <MyTooltip
             text="Staked Value"
-            title="Overall token staked value in USD, including restake value"
+            title={`Overall token staked value in USD, including compound ${tokenName}`}
             className="text-text2 text-[.16rem]"
           />
         </div>
@@ -192,7 +192,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         <div className="flex items-center">
           <MyTooltip
             text={`Total ${tokenName} Staked`}
-            title={`Overall ${tokenName} staked, including restaked ${tokenName}`}
+            title={`Overall ${tokenName} staked, including compound ${tokenName}`}
             className="text-text2 text-[.16rem]"
           />
         </div>
