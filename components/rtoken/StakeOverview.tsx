@@ -251,7 +251,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {false ? "--" : formatNumber(stakedAmount)} {props.tokenName}
+                  {isWrongMetaMaskNetwork ? "--" : formatNumber(stakedAmount)} {props.tokenName}
                 </div>
               </div>
 

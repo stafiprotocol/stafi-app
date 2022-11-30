@@ -129,7 +129,10 @@ export default maticSlice.reducer;
 export const updateMaticBalance =
   (): AppThunk => async (dispatch, getState) => {
     const account = getState().wallet.metaMaskAccount;
-    if (!account || !window.ethereum) return;
+    if (!account || !window.ethereum) {
+      dispatch(setMaticBalance("--"));
+      return;
+    }
 
     let web3 = new Web3(window.ethereum as any);
     let contract = new web3.eth.Contract(
@@ -145,7 +148,11 @@ export const updateMaticBalance =
         .balanceOf(account)
         .call()
         .then((balance: any) => {
-          dispatch(setMaticBalance(Web3.utils.fromWei(balance.toString())));
+					if (getState().wallet.metaMaskAccount) {
+            dispatch(setMaticBalance(Web3.utils.fromWei(balance.toString())));
+          } else {
+            dispatch(setMaticBalance("--"));
+          }
         })
         .catch((e: any) => {
           console.error(e);
@@ -192,10 +199,10 @@ export const handleMaticStake =
 
     try {
       dispatch(setIsLoading(true)); // stake button loading
-			let steps = ["sending", "staking", "minting"];
-			if (tokenStandard !== TokenStandard.Native) {
-				steps.push('swapping');
-			}
+      let steps = ["sending", "staking", "minting"];
+      if (tokenStandard !== TokenStandard.Native) {
+        steps.push("swapping");
+      }
       dispatch(
         resetStakeLoadingParams({
           modalVisible: true,
@@ -216,7 +223,7 @@ export const handleMaticStake =
             sendingParams,
             staking: {},
             minting: {},
-						swapping: {},
+            swapping: {},
           },
         })
       );
@@ -255,7 +262,7 @@ export const handleMaticStake =
             },
             staking: {},
             minting: {},
-						swapping: {},
+            swapping: {},
           },
         })
       );
@@ -272,7 +279,7 @@ export const handleMaticStake =
               },
               staking: {},
               minting: {},
-							swapping: {},
+              swapping: {},
             },
           })
         );
@@ -320,7 +327,7 @@ export const handleMaticStake =
                   totalStatus: "loading",
                 },
                 minting: {},
-								swapping: {},
+                swapping: {},
               },
             },
             (newParams) => {
