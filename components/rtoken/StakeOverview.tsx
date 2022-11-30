@@ -27,6 +27,7 @@ import { getValidatorSiteHost } from "config/env";
 import { useRTokenReward } from "hooks/useRTokenReward";
 import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 import { useWalletAccount } from "hooks/useWalletAccount";
+import { BubblesLoading } from "components/common/BubblesLoading";
 
 interface StakeOverviewProps {
   tokenName: TokenName;
@@ -60,24 +61,37 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
   // Total reward value.
   const totalRewardValue = useMemo(() => {
-    if (isNaN(Number(totalReward)) || isNaN(Number(tokenPrice))) {
-      return "--";
+    if (
+      !totalReward ||
+      isNaN(Number(totalReward)) ||
+      isNaN(Number(tokenPrice))
+    ) {
+      return undefined;
     }
     return Number(totalReward) * Number(tokenPrice);
   }, [totalReward, tokenPrice]);
 
   // User staked token amount.
   const stakedAmount = useMemo(() => {
-    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenRatio))) {
-      return "--";
+    if (
+      !rTokenBalance ||
+      isNaN(Number(rTokenBalance)) ||
+      !rTokenRatio ||
+      isNaN(Number(rTokenRatio))
+    ) {
+      return undefined;
     }
     return Number(rTokenBalance) * Number(rTokenRatio);
   }, [rTokenBalance, rTokenRatio]);
 
   // User staked token value.
   const stakedValue = useMemo(() => {
-    if (isNaN(Number(stakedAmount)) || isNaN(Number(tokenPrice))) {
-      return "--";
+    if (
+      !stakedAmount ||
+      isNaN(Number(stakedAmount)) ||
+      isNaN(Number(tokenPrice))
+    ) {
+      return undefined;
     }
     return Number(stakedAmount) * Number(tokenPrice);
   }, [stakedAmount, tokenPrice]);
@@ -185,12 +199,15 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         >
           <div className="flex flex-col mr-[.45rem] items-end">
             <div className="text-primary text-[.6rem] font-[600]">
-              {formatNumber(rTokenBalance)}
+              {!rTokenBalance ? (
+                <BubblesLoading size=".15rem" color="#00F3AB" />
+              ) : (
+                <>{formatNumber(rTokenBalance)}</>
+              )}
             </div>
 
             <div className="text-primary text-[.2rem] mr-[.1rem] mt-[.1rem]">
               r{props.tokenName} Balance
-              {/* {formatNumber(stakedAmount)} {props.tokenName} staked */}
             </div>
           </div>
           <div className="w-[.8rem] h-[1.3rem] relative">
@@ -244,14 +261,24 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  ${" "}
-                  {isWrongMetaMaskNetwork
-                    ? "--"
-                    : formatNumber(stakedValue, { decimals: 2 })}
+                  {isWrongMetaMaskNetwork ? (
+                    <>--</>
+                  ) : !stakedValue ? (
+                    <BubblesLoading color="white" />
+                  ) : (
+                    <>$ {formatNumber(stakedValue, { decimals: 2 })}</>
+                  )}
                 </div>
 
-                <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {isWrongMetaMaskNetwork ? "--" : formatNumber(stakedAmount)} {props.tokenName}
+                <div className="mt-[.16rem] text-text2 text-[.24rem] flex items-center">
+                  {isWrongMetaMaskNetwork ? (
+                    <>--</>
+                  ) : !stakedAmount ? (
+                    <BubblesLoading color="#5B6872" />
+                  ) : (
+                    <>{formatNumber(stakedAmount)}</>
+                  )}
+                  <div className="ml-[.06rem]">{props.tokenName}</div>
                 </div>
               </div>
 
@@ -264,15 +291,28 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  ${" "}
-                  {isWrongMetaMaskNetwork
-                    ? "--"
-                    : formatNumber(totalRewardValue, { decimals: 2 })}
+                  {isWrongMetaMaskNetwork ? (
+                    <>$ --</>
+                  ) : !totalRewardValue ? (
+                    <BubblesLoading color="white" />
+                  ) : (
+                    <>$ {formatNumber(totalRewardValue, { decimals: 2 })}</>
+                  )}
                 </div>
 
-                <div className="mt-[.16rem] text-text2 text-[.24rem]">
-                  {isWrongMetaMaskNetwork ? "--" : formatNumber(totalReward)}{" "}
-                  {props.tokenName}
+                <div className="mt-[.16rem] text-text2 text-[.24rem] flex items-center">
+                  {isWrongMetaMaskNetwork ? (
+                    <>--</>
+                  ) : !totalRewardValue ? (
+                    <BubblesLoading />
+                  ) : (
+                    <>
+                      {isWrongMetaMaskNetwork
+                        ? "--"
+                        : formatNumber(totalReward)}
+                    </>
+                  )}
+                  <div className="ml-[.06rem]">{props.tokenName}</div>
                 </div>
               </div>
 
@@ -285,9 +325,13 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 </div>
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
-                  {isWrongMetaMaskNetwork
-                    ? "--"
-                    : formatNumber(rTokenRatio, { decimals: 4 })}
+                  {isWrongMetaMaskNetwork ? (
+                    <>--</>
+                  ) : !rTokenRatio ? (
+                    <BubblesLoading color="white" />
+                  ) : (
+                    <>{formatNumber(rTokenRatio, { decimals: 4 })}</>
+                  )}
                 </div>
 
                 <div className="mt-[.16rem] text-text2 text-[.24rem]">

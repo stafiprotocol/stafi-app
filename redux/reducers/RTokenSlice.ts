@@ -144,7 +144,7 @@ export const clearRTokenBalance =
         return;
       }
 
-      let newBalance = "--";
+      let newBalance = undefined;
       const rTokenBalanceStore = getState().rToken.rTokenBalanceStore;
       const newValue = {
         ...rTokenBalanceStore,
@@ -168,7 +168,7 @@ export const updateRTokenBalance =
         return;
       }
 
-      let newBalance = "--";
+      let newBalance = undefined;
       if (tokenStandard === TokenStandard.Native) {
         newBalance = await getNativeRTokenBalance(
           polkadotAccount,

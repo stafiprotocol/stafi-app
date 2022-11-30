@@ -17,17 +17,15 @@ import {
 } from "material-ui-popup-state/hooks";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import ethereumLogo from "public/eth_logo.png";
 import downIcon from "public/icon_down.png";
 import { useContext, useEffect, useMemo } from "react";
 import { updateEthBalance } from "redux/reducers/EthSlice";
 import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
   connectPolkadotJs,
+  disconnectWallet,
   updatePolkadotExtensionAccountsBalances,
   updateSelectedPolkadotAccountBalance,
-  setPolkadotAccount,
-  setPolkadotBalance,
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
@@ -37,6 +35,7 @@ import { getWalletIcon } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { connectMetaMask } from "utils/web3Utils";
+import { BubblesLoading } from "./common/BubblesLoading";
 import { Icomoon } from "./icon/Icomoon";
 import { MyLayoutContext } from "./layout/layout";
 
@@ -151,15 +150,19 @@ export const NavbarWallet = () => {
   }, [targetMetaMaskChainId, router.pathname]);
 
   const displayBalanceList = useMemo(() => {
-    const res: string[] = [];
+    const res: { balance: string | undefined; tokenName: string }[] = [];
     if (polkadotConnected) {
-      res.push(`${formatNumber(polkadotBalance)} FIS`);
+      res.push({
+        balance: polkadotBalance,
+        tokenName: "FIS",
+      });
     }
     if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
       if (metaMaskConnected) {
-        res.push(
-          `${formatNumber(displayMetaMaskBalance)} ${displayMetaMaskTokenName}`
-        );
+        res.push({
+          balance: displayMetaMaskBalance,
+          tokenName: displayMetaMaskTokenName,
+        });
       }
     }
     return res;
@@ -246,13 +249,28 @@ export const NavbarWallet = () => {
               <div className="text-text1 flex items-center">
                 {displayBalanceList.map((item, index) => (
                   <div key={index} className="flex items-center">
+                    {!item.balance ? (
+                      <BubblesLoading
+                        color={item.tokenName === "FIS" ? "#00F3AB" : "#9DAFBE"}
+                      />
+                    ) : (
+                      <div
+                        className={classNames({
+                          "text-primary": item.tokenName === "FIS",
+                        })}
+                      >
+                        {formatNumber(item.balance)}
+                      </div>
+                    )}
+
                     <div
-                      className={classNames({
-                        "text-primary": item.endsWith("FIS"),
+                      className={classNames("ml-[.06rem]", {
+                        "text-primary": item.tokenName === "FIS",
                       })}
                     >
-                      {item}
+                      {item.tokenName}
                     </div>
+
                     {index !== displayBalanceList.length - 1 && (
                       <div className="w-[1px] h-[.25rem] mx-[.12rem] bg-[#2B3F52]" />
                     )}
@@ -369,7 +387,7 @@ interface WalletAccountItemProps {
   walletType: WalletType;
   connected: boolean;
   address: string;
-  balance: string;
+  balance: string | undefined;
   tokenName: string;
   onClickConnect: () => void;
 }
@@ -439,12 +457,16 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
               Wrong Network
             </div>
           ) : (
-            <div className="text-primary text-[.24rem] mr-[.2rem]">
+            <div className="text-primary text-[.24rem] mr-[.2rem] flex items-center">
               {targetMetaMaskChainId === undefined &&
-              metaMaskChainId !== getMetamaskEthChainId()
-                ? "--"
-                : formatNumber(props.balance)}{" "}
-              {props.tokenName}
+              metaMaskChainId !== getMetamaskEthChainId() ? (
+                "--"
+              ) : !props.balance ? (
+                <BubblesLoading color="#00F3AB" />
+              ) : (
+                formatNumber(props.balance)
+              )}
+              <div className="ml-[.06rem]">{props.tokenName}</div>
             </div>
           )}
 
@@ -543,10 +565,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
                 className="text-center py-[.24rem] cursor-pointer active:text-primary"
                 onClick={() => {
                   menuPopupState.close();
-                  if (props.walletType === WalletType.Polkadot) {
-                    dispatch(setPolkadotAccount(undefined));
-                    dispatch(setPolkadotBalance("--"));
-                  }
+                  dispatch(disconnectWallet(props.walletType));
                 }}
               >
                 Disconnect

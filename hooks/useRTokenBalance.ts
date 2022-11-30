@@ -15,26 +15,33 @@ export function useRTokenBalance(
 ) {
   const dispatch = useAppDispatch();
   const { updateFlag15s } = useAppSlice();
-  const { metaMaskAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
   const balance = useAppSelector((state: RootState) => {
     if (!tokenStandard) {
-      return "--";
+      return undefined;
     }
     const store = state.rToken.rTokenBalanceStore;
     if (store[tokenStandard][tokenName]) {
       return store[tokenStandard][tokenName];
     } else {
-      return "--";
+      return undefined;
     }
   });
 
   useEffect(() => {
     dispatch(clearRTokenBalance(tokenStandard, tokenName));
-  }, [metaMaskAccount, dispatch, tokenStandard, tokenName]);
+  }, [metaMaskAccount, polkadotAccount, dispatch, tokenStandard, tokenName]);
 
   useEffect(() => {
     dispatch(updateRTokenBalance(tokenStandard, tokenName));
-  }, [dispatch, metaMaskAccount, tokenStandard, tokenName, updateFlag15s]);
+  }, [
+    dispatch,
+    metaMaskAccount,
+    polkadotAccount,
+    tokenStandard,
+    tokenName,
+    updateFlag15s,
+  ]);
 
   return balance;
 }
