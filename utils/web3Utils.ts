@@ -1,5 +1,7 @@
 import { isDev } from "config/env";
 import {
+	getMetamaskBscChainId,
+  getMetaMaskBscConfig,
   getMetamaskEthChainId,
   getMetaMaskEthConnectConfig,
   getMetamaskMaticChainId,
@@ -32,7 +34,9 @@ export function connectMetaMask(targetChainId: number | undefined) {
     metaMask.activate(getMetaMaskEthConnectConfig());
   } else if (targetChainId === getMetamaskMaticChainId()) {
     metaMask.activate(getMetamaskMaticChainId());
-  }
+  } else if (targetChainId === getMetamaskBscChainId()) {
+		metaMask.activate(getMetaMaskBscConfig());
+	}
 }
 
 export function connectPolkadot() {
