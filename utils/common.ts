@@ -97,3 +97,17 @@ export function stafiUuid() {
     return "";
   }
 }
+
+export function isEmptyValue(value: string | number | undefined | null) {
+  if (value === undefined || value === null || value === "") {
+    return true;
+  }
+  return false;
+}
+
+export function isInvalidValue(value: string | number | undefined | null) {
+  if (isNaN(Number(value))) {
+    return true;
+  }
+  return false;
+}

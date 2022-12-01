@@ -11,7 +11,7 @@ export function useTokenStandard(tokenName: TokenName) {
 
   useEffect(() => {
     try {
-      if (!router.isReady) {
+      if (!router.isReady || !tokenName) {
         return;
       }
       const tokenStandardQuery = router.query.tokenStandard;
