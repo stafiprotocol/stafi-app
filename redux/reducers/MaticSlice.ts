@@ -14,6 +14,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -526,25 +527,18 @@ export const unbondRMatic =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
-    // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
-      resetStakeLoadingParams({
+      setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
         tokenName: TokenName.MATIC,
-        amount: amount,
-        userAction: "unstake",
+        amount,
         willReceiveAmount,
         newTotalStakedAmount,
-        steps: ["sending"],
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-        },
       })
     );
+
     try {
       const validPools = getState().matic.validPools;
       let selectedPool = commonSlice.getPoolForUnbond(
@@ -586,9 +580,10 @@ export const unbondRMatic =
         )
       );
     } catch (err: any) {
+			dispatch(setIsLoading(false));
       console.error(err);
     } finally {
-      dispatch(setIsLoading(false));
+      // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
     }
   };

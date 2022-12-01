@@ -9,6 +9,7 @@ import { stringToHex, u8aToHex } from "@polkadot/util";
 import {
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   updateNotice,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -689,13 +690,8 @@ export const fisUnbond =
       const api = await stafiServer.createStafiApi();
 
       dispatch(
-        updateStakeLoadingParams({
-          progressDetail: {
-            sending: {
-              totalStatus: "loading",
-              broadcastStatus: "loading",
-            },
-          },
+        setRedeemLoadingParams({
+          broadcastStatus: "loading",
         })
       );
 
@@ -723,34 +719,24 @@ export const fisUnbond =
                   if (data.event.method === "ExtrinsicSuccess") {
                     const txHash = unbondResult.hash.toHex();
                     cb && cb("Success", txHash);
-                    // console.log("success");
                     dispatch(
-                      updateStakeLoadingParams({
+                      setRedeemLoadingParams({
                         status: "success",
-                        progressDetail: {
-                          sending: {
-                            totalStatus: "success",
-                            broadcastStatus: "success",
-                            packStatus: "success",
-                            finalizeStatus: "success",
-                          },
-                        },
+                        broadcastStatus: "success",
+                        packStatus: "success",
+                        finalizeStatus: "success",
                       })
                     );
+										dispatch(setIsLoading(false));
                   } else if (data.event.method === "ExtrinsicFailed") {
                     cb && cb("Failed");
-                    // console.error("failed");
                     dispatch(
-                      updateStakeLoadingParams({
+                      setRedeemLoadingParams({
                         status: "error",
                         errorMsg: "Unstake failed",
-                        progressDetail: {
-                          sending: {
-                            totalStatus: "error",
-                          },
-                        },
                       })
                     );
+										dispatch(setIsLoading(false));
                   }
                 });
             }
@@ -760,14 +746,15 @@ export const fisUnbond =
         })
         .catch((err: any) => {
           console.log(err);
+					dispatch(setIsLoading(false));
           if ((err + "").startsWith("Error: Cancelled")) {
             cb && cb("Cancel");
             snackbarUtil.error(CANCELLED_MESSAGE);
-            dispatch(resetStakeLoadingParams(undefined));
+            dispatch(setRedeemLoadingParams(undefined));
           } else {
             snackbarUtil.error(err.message);
             dispatch(
-              updateStakeLoadingParams({
+              setRedeemLoadingParams({
                 status: "error",
                 errorMsg: "Unbond failed",
               })
