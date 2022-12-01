@@ -518,7 +518,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">
-                  <MyTooltip text="Unstake Fee" title="Unstake Fee" />
+                  <MyTooltip
+                    text="Unstake Fee"
+                    title={`When users unstake the MATICs, StaFi protocol will charge 0.2% of the unstaked r${tokenName} tokens as a commission`}
+                  />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
                   {commisionFee === "--"

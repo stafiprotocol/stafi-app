@@ -10,7 +10,7 @@ export function useRTokenStakerApr(tokenName: TokenName) {
   const { updateFlag15s } = useAppSlice();
   const stakerApr = useAppSelector((state: RootState) => {
     const store = state.rToken.rTokenStakerAprStore;
-    return store[tokenName] || "--";
+    return store[tokenName] || undefined;
   });
 
   useEffect(() => {

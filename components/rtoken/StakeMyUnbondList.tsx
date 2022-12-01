@@ -9,8 +9,8 @@ import numberUtil from "utils/numberUtil";
 import { getShortAddress } from "utils/string";
 
 interface Props {
-  tokenName: TokenName,
-};
+  tokenName: TokenName;
+}
 
 export const StakeMyUnbondList = (props: Props) => {
   const [page, setPage] = useState(1);
@@ -24,19 +24,31 @@ export const StakeMyUnbondList = (props: Props) => {
           style={{ height: "auto", gridTemplateColumns: "20% 20% 20% 20% 20%" }}
         >
           <div className="flex justify-center">
-            <MyTooltip text="Amount" title="The unstaked amount of rTokens" />
+            <MyTooltip
+              text="Amount"
+              title="Amount of the rToken that you choose to unstake"
+            />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Total Period" title="Total Period" />
+            <MyTooltip
+              text="Total Period"
+              title={`Total time required to complete unstaking transaction; After receiving the request of redemption, r${props.tokenName} contracts will automatically unstake and withdraw ${props.tokenName}s from the ${props.tokenName} staking contract deployed on Ethereum, then send the ${props.tokenName} tokens back to user after around 9 days`}
+            />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Days Left" title="Days Left" />
+            <MyTooltip
+              text="Days Left"
+              title="Remaining time required to complete unstaking transaction"
+            />
           </div>
           <div className="flex justify-center">
             <MyTooltip text="Receive Address" title="Receive Address" />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Status" title="Status" />
+            <MyTooltip
+              text="Status"
+              title="Current unstake transaction status"
+            />
           </div>
         </div>
       )}
@@ -52,12 +64,12 @@ export const StakeMyUnbondList = (props: Props) => {
           }}
         >
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.formatTokenAmount === '--' ?
-              '--'
-              : Number(item.formatTokenAmount) > 0 && Number(item.formatTokenAmount) < 0.001
-              ? '<0.001'
-              : numberUtil.handleAmountFloorToFixed(item.formatTokenAmount, 3)
-            }
+            {item.formatTokenAmount === "--"
+              ? "--"
+              : Number(item.formatTokenAmount) > 0 &&
+                Number(item.formatTokenAmount) < 0.001
+              ? "<0.001"
+              : numberUtil.handleAmountFloorToFixed(item.formatTokenAmount, 3)}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {item.lockTotalTimeInDays} D
@@ -69,7 +81,7 @@ export const StakeMyUnbondList = (props: Props) => {
             {getShortAddress(item.formatReceiveAddress, 4)}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
-            {item.hasReceived ? 'Unstaked' : 'Waiting'}
+            {item.hasReceived ? "Unstaked" : "Waiting"}
           </div>
         </div>
       ))}

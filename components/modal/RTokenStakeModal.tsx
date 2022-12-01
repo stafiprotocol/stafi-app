@@ -48,6 +48,7 @@ import { RootState } from "redux/store";
 import { useBridgeFees } from "hooks/useBridgeFees";
 import { validateETHAddress, validateSS58Address } from "utils/validator";
 import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
+import { BubblesLoading } from "components/common/BubblesLoading";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -597,8 +598,14 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Exchange Rate</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(rTokenRatio, { decimals: 4 })} {tokenName} = 1 r
-                  {tokenName}
+                  {!rTokenRatio ? (
+                    <BubblesLoading color="#9DAFBE" />
+                  ) : (
+                    <>
+                      {formatNumber(rTokenRatio, { decimals: 4 })} {tokenName} =
+                      1 r{tokenName}
+                    </>
+                  )}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
@@ -676,8 +683,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(rTokenStakerApr, { decimals: 2 })}% APR
-                  {/* + 463.2 FIS */}
+                  {!rTokenStakerApr ? (
+                    <BubblesLoading color="#9DAFBE" />
+                  ) : (
+                    <> {formatNumber(rTokenStakerApr, { decimals: 2 })}% APR</>
+                  )}
                 </div>
               </div>
             </div>

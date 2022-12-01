@@ -49,12 +49,15 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           style={{ height: "auto", gridTemplateColumns: "20% 20% 20% 20% 20%" }}
         >
           <div className="flex justify-center">
-            <MyTooltip text="Era" title="Era" />
+            <MyTooltip
+              text="Era"
+              title="UTC time record for the onchain transaction"
+            />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text={`Staked ${tokenName}`}
-              title={`Your overall staked ${tokenName} amount, including restaked ${tokenName}`}
+              title={`Your overall staked ${tokenName} amount, including compound ${tokenName}`}
             />
           </div>
           <div className="flex justify-center">

@@ -23,6 +23,8 @@ import { formatNumber } from "utils/number";
 import { setRouteNextPage } from "redux/reducers/FisSlice";
 import { useTokenPoolData } from "hooks/useTokenPoolData";
 import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
+import { BubblesLoading } from "components/common/BubblesLoading";
+import { useMemo } from "react";
 
 interface RTokenOverviewCardProps {
   tokenName: TokenName;
@@ -36,10 +38,21 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const { metaMaskAccount, polkadotAccount } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
-  const { maticApr } = useMaticPoolData();
 
-	const { stakedAmount, stakedValue } = useTokenPoolData(tokenName);
-	const apr = useRTokenStakerApr(tokenName);
+  const { stakedAmount, stakedValue } = useTokenPoolData(tokenName);
+  const apr = useRTokenStakerApr(tokenName);
+
+  const displayApr = useMemo(() => {
+    return tokenName === TokenName.ETH ? stakeApr : apr;
+  }, [tokenName, stakeApr, apr]);
+
+  const displayStakedValue = useMemo(() => {
+    return tokenName === TokenName.ETH ? allEthValue : stakedValue;
+  }, [tokenName, allEthValue, stakedValue]);
+
+  const displayStakedAmount = useMemo(() => {
+    return tokenName === TokenName.ETH ? allEth : stakedAmount;
+  }, [tokenName, allEth, stakedAmount]);
 
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
@@ -145,42 +158,53 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
-          {formatNumber(tokenName === TokenName.ETH ? stakeApr : apr, {
-            decimals: 2,
-          })}
-          %
-        </div>
-      </div>
-
-      <div className="mt-[.23rem] flex items-end justify-between">
-        <div className="flex items-center">
-          <MyTooltip
-            text="Staked Value"
-            title="Overall token staked value in USD, including restake value"
-            className="text-text2 text-[.16rem]"
-          />
-        </div>
-        <div className="text-text2 text-[.16rem]">
-          $
-          {formatNumber(
-            tokenName === TokenName.ETH ? allEthValue : stakedValue,
-            { decimals: 2 }
+          {!displayApr ? (
+            <BubblesLoading size=".15rem" color="#9DAFBE" />
+          ) : (
+            <>
+              {formatNumber(displayApr, {
+                decimals: 2,
+              })}
+              %
+            </>
           )}
         </div>
       </div>
 
-      <div className="mt-[.23rem] flex items-end justify-between">
+      <div className="mt-[.23rem] flex items-center justify-between">
+        <div className="flex items-center">
+          <MyTooltip
+            text="Staked Value"
+            title={`Overall token staked value in USD, including compound ${tokenName}`}
+            className="text-text2 text-[.16rem]"
+          />
+        </div>
+        <div className="text-text2 text-[.16rem] flex items-center">
+          {!displayStakedValue ? (
+            <BubblesLoading />
+          ) : (
+            <>${formatNumber(displayStakedValue, { decimals: 2 })}</>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-[.23rem] flex items-center justify-between">
         <div className="flex items-center">
           <MyTooltip
             text={`Total ${tokenName} Staked`}
-            title={`Overall ${tokenName} staked, including restaked ${tokenName}`}
+            title={`Overall ${tokenName} staked, including compound ${tokenName}`}
             className="text-text2 text-[.16rem]"
           />
         </div>
         <div className="text-text2 text-[.16rem]">
-          {formatNumber(
-            tokenName === TokenName.ETH ? allEth : stakedAmount,
-            { decimals: 2 }
+          {!displayStakedAmount ? (
+            <BubblesLoading />
+          ) : (
+            <>
+              {formatNumber(displayStakedAmount, {
+                decimals: 2,
+              })}
+            </>
           )}
         </div>
       </div>

@@ -5,12 +5,13 @@ import type ExtType from "@polkadot/extension-inject/types";
 import { convertToSS58 } from "utils/common";
 import {
   getStorage,
+  removeStorage,
   saveStorage,
   STORAGE_KEY_POLKADOT_ACCOUNT,
   STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG,
 } from "utils/storage";
 import { chainAmountToHuman } from "utils/number";
-import { TokenSymbol } from "interfaces/common";
+import { TokenSymbol, WalletType } from "interfaces/common";
 import { setChooseAccountVisible, setRouteNextPage } from "./FisSlice";
 import { cloneDeep } from "lodash";
 import snackbarUtil from "utils/snackbarUtils";
@@ -32,7 +33,7 @@ export interface WalletState {
   polkadotWalletStatus: PolkadotWalletStatus;
   polkadotExtensionAccounts: InjectedPolkadotAccountWithMeta[];
   polkadotAccount: string | undefined;
-  polkadotBalance: string;
+  polkadotBalance: string | undefined;
 }
 
 const initialState: WalletState = {
@@ -41,7 +42,7 @@ const initialState: WalletState = {
   // polkadotAccount: "34bwmgT1NtcL8FayGiFSB9F1qZFGPjhbDfTaZRoM2AXgjrpo",
   polkadotAccount: "",
   polkadotExtensionAccounts: [],
-  polkadotBalance: "--",
+  polkadotBalance: undefined,
 };
 
 export const walletSlice = createSlice({
@@ -73,7 +74,10 @@ export const walletSlice = createSlice({
     ) => {
       state.polkadotExtensionAccounts = action.payload;
     },
-    setPolkadotBalance: (state: WalletState, action: PayloadAction<string>) => {
+    setPolkadotBalance: (
+      state: WalletState,
+      action: PayloadAction<string | undefined>
+    ) => {
       state.polkadotBalance = action.payload;
     },
   },
@@ -193,8 +197,8 @@ export const updateSelectedPolkadotAccountBalance =
 
       const address = getState().wallet.polkadotAccount;
 
-      // dispatch(setPolkadotBalance("--"));
       if (!address) {
+        dispatch(setPolkadotBalance("--"));
         return;
       }
 
@@ -205,6 +209,21 @@ export const updateSelectedPolkadotAccountBalance =
           TokenSymbol.FIS
         );
         dispatch(setPolkadotBalance(fisFreeBalance.toString()));
+      }
+    } catch (err: unknown) {}
+  };
+
+/**
+ * Update selected stafi address.
+ */
+export const disconnectWallet =
+  (walletType: WalletType): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      if (walletType === WalletType.Polkadot) {
+        dispatch(setPolkadotAccount(undefined));
+        dispatch(setPolkadotBalance("--"));
+        removeStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG);
       }
     } catch (err: unknown) {}
   };

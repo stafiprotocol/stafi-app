@@ -10,6 +10,7 @@ import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
   connectPolkadotJs,
+  disconnectWallet,
   setPolkadotAccount,
   setPolkadotBalance,
 } from "redux/reducers/WalletSlice";
@@ -124,10 +125,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
                 invisible: walletType !== WalletType.Polkadot,
               })}
               onClick={() => {
-                if (walletType === WalletType.Polkadot) {
-                  dispatch(setPolkadotAccount(undefined));
-                  dispatch(setPolkadotBalance("--"));
-                }
+                dispatch(disconnectWallet(walletType));
               }}
             >
               Disconnect

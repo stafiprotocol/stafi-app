@@ -22,7 +22,7 @@ import { useAppSelector } from "./common";
 import { useAppSlice } from "./selector";
 import { useTokenStandard } from "./useTokenStandard";
 import { useWalletAccount } from "./useWalletAccount";
-import keyring from 'servers/keyring';
+import keyring from "servers/keyring";
 import { Symbol } from "keyring/defaults";
 import { u8aToHex } from "@polkadot/util";
 
@@ -34,8 +34,8 @@ export interface EraRewardModel {
   rTokenBalance: string;
   addedRTokenAmount: string;
   reward: string;
-	startTimestamp: number;
-	endTimestamp: number;
+  startTimestamp: number;
+  endTimestamp: number;
 }
 
 export function useRTokenReward(
@@ -49,7 +49,7 @@ export function useRTokenReward(
     RequestStatus.loading
   );
   const [totalCount, setTotalCount] = useState(0);
-  const [totalReward, setTotalReward] = useState("--");
+  const [totalReward, setTotalReward] = useState<string | undefined>(undefined);
   const [lastEraReward, setLastEraReward] = useState("--");
   const [chartXData, setChartXData] = useState<string[]>([]);
   const [chartYData, setChartYData] = useState<string[]>([]);
@@ -62,12 +62,12 @@ export function useRTokenReward(
     if (tokenStandard === TokenStandard.ERC20) {
       return metaMaskAccount;
     } else if (tokenStandard === TokenStandard.Native) {
-			if (!polkadotAccount) return '';
-			const keyringInstance = keyring.init(Symbol.Fis);
-			return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
-		} else if (tokenStandard === TokenStandard.BEP20) {
-			return metaMaskAccount;
-		}
+      if (!polkadotAccount) return "";
+      const keyringInstance = keyring.init(Symbol.Fis);
+      return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
+    } else if (tokenStandard === TokenStandard.BEP20) {
+      return metaMaskAccount;
+    }
     return "";
   }, [tokenStandard, metaMaskAccount, polkadotAccount]);
 
@@ -148,10 +148,10 @@ export function useRTokenReward(
               } else {
                 tokenSymbol = getTokenSymbol(tokenName);
               }
-              return formatNumber(
-                chainAmountToHuman(item, tokenSymbol),
-								{ toReadable: false, withSplit: false }
-              );
+              return formatNumber(chainAmountToHuman(item, tokenSymbol), {
+                toReadable: false,
+                withSplit: false,
+              });
             })
             ?.reverse() || []
         );
@@ -243,8 +243,8 @@ export function useRTokenReward(
               rTokenBalance: newRTokenBalance,
               addedRTokenAmount,
               reward: newReward,
-							startTimestamp: element.startTimestamp * 1000,
-							endTimestamp: element.endTimestamp * 1000,
+              startTimestamp: element.startTimestamp * 1000,
+              endTimestamp: element.endTimestamp * 1000,
             };
           }
         );
