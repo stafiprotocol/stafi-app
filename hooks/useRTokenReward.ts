@@ -41,7 +41,8 @@ export interface EraRewardModel {
 export function useRTokenReward(
   tokenName: TokenName,
   page: number,
-  chartDuSeconds: number
+  chartDuSeconds: number,
+	isChart?: boolean,
 ) {
   const dispatch = useDispatch();
   const tokenStandard = useTokenStandard(tokenName);
@@ -96,17 +97,25 @@ export function useRTokenReward(
 
     setRequestStatus(RequestStatus.loading);
     try {
-      const url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/reward`;
+      let url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/reward`;
+			if (isChart) {
+				url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/rewardChart`;
+			}
 
-      const params = {
+      let params: any = {
         userAddress,
         chainType,
         rTokenType:
           tokenName === TokenName.ETH ? -1 : getTokenSymbol(tokenName),
-        pageIndex: page,
-        pageCount: PAGE_SIZE,
-        chartDuSeconds,
       };
+			if (isChart) {
+				params['withinSeconds'] = chartDuSeconds;
+				params['countLimit'] = PAGE_SIZE;
+			} else {
+				params['chartDuSeconds'] = chartDuSeconds;
+				params['pageIndex'] = page;
+				params['pageCount'] = PAGE_SIZE;
+			}
 
       const res = await fetch(url, {
         method: "POST",
