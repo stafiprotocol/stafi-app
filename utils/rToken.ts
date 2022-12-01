@@ -29,6 +29,9 @@ export function getSupportedTokenStandards(tokenName: TokenName) {
     // return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
     return [TokenStandard.ERC20];
   }
+	if (tokenName === TokenName.BNB) {
+		return [TokenStandard.Native, TokenStandard.BEP20];
+	}
   return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
 }
 

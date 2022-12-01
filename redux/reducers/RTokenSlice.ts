@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getBep20REthTokenAbi } from "config/bep20Abi";
+import { getBep20RBnbTokenAbi, getBep20REthTokenAbi } from "config/bep20Abi";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getApiHost, getDropHost } from "config/env";
 import { getErc20REthTokenAbi } from "config/erc20Abi";
@@ -185,7 +185,10 @@ export const updateRTokenBalance =
         } else if (tokenName === TokenName.MATIC) {
           tokenAbi = getBSCRMaticAbi();
           tokenAddress = bep20TokenContractConfig.rMATIC;
-        }
+        } else if (tokenName === TokenName.BNB) {
+					tokenAbi = getBep20RBnbTokenAbi();
+					tokenAddress = bep20TokenContractConfig.rBNB;
+				}
         newBalance = await getBep20AssetBalance(
           metaMaskAccount,
           tokenAbi,

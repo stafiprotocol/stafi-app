@@ -64,11 +64,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
   // Total reward value.
   const totalRewardValue = useMemo(() => {
-    if (
-      !totalReward ||
-      isNaN(Number(totalReward)) ||
-      isNaN(Number(tokenPrice))
-    ) {
+    if (isNaN(Number(totalReward)) || isNaN(Number(tokenPrice))) {
       return undefined;
     }
     return Number(totalReward) * Number(tokenPrice);
@@ -76,12 +72,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
   // User staked token amount.
   const stakedAmount = useMemo(() => {
-    if (
-      !rTokenBalance ||
-      isNaN(Number(rTokenBalance)) ||
-      !rTokenRatio ||
-      isNaN(Number(rTokenRatio))
-    ) {
+    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenRatio))) {
       return undefined;
     }
     return Number(rTokenBalance) * Number(rTokenRatio);
@@ -89,11 +80,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
   // User staked token value.
   const stakedValue = useMemo(() => {
-    if (
-      !stakedAmount ||
-      isNaN(Number(stakedAmount)) ||
-      isNaN(Number(tokenPrice))
-    ) {
+    if (isNaN(Number(stakedAmount)) || isNaN(Number(tokenPrice))) {
       return undefined;
     }
     return Number(stakedAmount) * Number(tokenPrice);
@@ -266,7 +253,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   {isWrongMetaMaskNetwork ? (
                     <>--</>
-                  ) : !stakedValue ? (
+                  ) : stakedAmount === undefined ? (
                     <BubblesLoading color="white" />
                   ) : (
                     <>$ {formatNumber(stakedValue, { decimals: 2 })}</>
@@ -276,7 +263,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="mt-[.16rem] text-text2 text-[.24rem] flex items-center">
                   {isWrongMetaMaskNetwork ? (
                     <>--</>
-                  ) : !stakedAmount ? (
+                  ) : stakedAmount === undefined ? (
                     <BubblesLoading color="#5B6872" />
                   ) : (
                     <>{formatNumber(stakedAmount)}</>
@@ -296,7 +283,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   {isWrongMetaMaskNetwork ? (
                     <>$ --</>
-                  ) : !totalRewardValue ? (
+                  ) : totalRewardValue === undefined ? (
                     <BubblesLoading color="white" />
                   ) : (
                     <>$ {formatNumber(totalRewardValue, { decimals: 2 })}</>
@@ -306,14 +293,10 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="mt-[.16rem] text-text2 text-[.24rem] flex items-center">
                   {isWrongMetaMaskNetwork ? (
                     <>--</>
-                  ) : !totalRewardValue ? (
+                  ) : totalReward === undefined ? (
                     <BubblesLoading />
                   ) : (
-                    <>
-                      {isWrongMetaMaskNetwork
-                        ? "--"
-                        : formatNumber(totalReward)}
-                    </>
+                    <>{formatNumber(totalReward)}</>
                   )}
                   <div className="ml-[.06rem]">{props.tokenName}</div>
                 </div>

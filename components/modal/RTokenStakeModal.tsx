@@ -49,6 +49,7 @@ import { useBridgeFees } from "hooks/useBridgeFees";
 import { validateETHAddress, validateSS58Address } from "utils/validator";
 import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 import { BubblesLoading } from "components/common/BubblesLoading";
+import { handleBnbStake } from "redux/reducers/BnbSlice";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -143,7 +144,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     if (tokenName === TokenName.MATIC) {
       gasLimit = 36928;
     }
-    if (tokenName === TokenName.ETH || tokenName === TokenName.MATIC) {
+    if (
+      tokenName === TokenName.ETH ||
+      tokenName === TokenName.MATIC ||
+      tokenName === TokenName.BNB
+    ) {
       if (isNaN(Number(ethGasPrice))) {
         return "--";
       }
@@ -317,7 +322,21 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         )
         //mockProcess(stakeAmount, willReceiveAmount, tokenStandard, newTotalStakedAmount)
       );
-    }
+    } else if (tokenName === TokenName.BNB) {
+			dispatch(
+				handleBnbStake(
+					stakeAmount,
+					willReceiveAmount,
+					tokenStandard,
+					targetAddress,
+					newTotalStakedAmount,
+					false,
+					(success) =>  {
+
+					}
+				)
+			)
+		}
   };
 
   useEffect(() => {
@@ -569,7 +588,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                       Number(balance) - Number(estimateFee) * 1.5,
                       0
                     );
-                  }
+                  } else if (tokenName === TokenName.BNB) {
+										amount = Math.max(
+											Number(balance) - 0.0003,
+											0
+										);
+									}
                   setStakeAmount(amount.toString());
                 }}
               >

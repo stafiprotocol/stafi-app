@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getEthChainId } from "config/metaMask";
-import { ChainId, TokenStandard } from "interfaces/common";
+import { ChainId, TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import { sleep, stafiUuid } from "utils/common";
-import { BLOCK_HASH_NOT_FOUND_MESSAGE } from "utils/constants";
+import { BLOCK_HASH_NOT_FOUND_MESSAGE, CANCELLED_MESSAGE } from "utils/constants";
+import snackbarUtil from "utils/snackbarUtils";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
-import { setIsLoading } from "./AppSlice";
+import { addNotice, resetStakeLoadingParams, setIsLoading, StakeLoadingProgressDetailItem, updateStakeLoadingParams } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
 import { bond } from "./FisSlice";
 
@@ -66,7 +67,6 @@ export const updateBnbBalance = (): AppThunk => async (dispatch, getState) => {
       method: "eth_getBalance",
       params: [account, "latest"],
     });
-    console.log(balance);
     dispatch(setBalance(Web3.utils.fromWei(balance.toString())));
   } catch (err) {
     console.error(err);
@@ -77,7 +77,7 @@ export const handleBnbStake =
   (
     stakeAmount: string,
     willReceiveAmount: string,
-    tokenStandard: TokenStandard,
+    tokenStandard: TokenStandard | undefined,
     targetAddress: string,
     newTotalStakedAmount: string,
     isReTry: boolean,
@@ -107,6 +107,34 @@ export const handleBnbStake =
     dispatch(setIsLoading(true));
 
     let steps = ["sending", "staking", "minting"];
+		if (tokenStandard !== TokenStandard.Native) {
+			steps.push('swapping');
+		}
+
+		dispatch(
+			resetStakeLoadingParams({
+				modalVisible: true,
+				noticeUuid,
+				status: 'loading',
+				tokenName: TokenName.BNB,
+				amount: stakeAmount,
+				willReceiveAmount: willReceiveAmount,
+				newTotalStakedAmount,
+				targetAddress,
+				tokenStandard,
+				steps,
+				userAction: undefined,
+				progressDetail: {
+					sending: {
+						totalStatus: 'loading',
+					},
+					sendingParams,
+					staking: {},
+					minting: {},
+					swapping: {},
+				},
+			})
+		);
 
     const web3 = createWeb3();
     const amount = web3.utils.toWei(stakeAmount, "ether");
@@ -137,6 +165,20 @@ export const handleBnbStake =
         .catch((err: any) => {
           throw err;
         });
+
+			dispatch(
+				updateStakeLoadingParams({
+					progressDetail: {
+						sending: {
+							totalStatus: 'loading',
+							broadcastStatus: 'loading',
+						},
+						staking: {},
+						minting: {},
+						swapping: {},
+					},
+				})
+			);
 
       if (!txHash) {
         throw new Error("tx error");
@@ -176,7 +218,55 @@ export const handleBnbStake =
           targetAddress
         )
       );
-    } catch (err) {}
+    } catch (err: any) {
+			dispatch(setIsLoading(false));
+			if (err.code === 4001) {
+				snackbarUtil.error(CANCELLED_MESSAGE);
+				dispatch(resetStakeLoadingParams(undefined));
+			} else {
+				snackbarUtil.error(err.message);
+				let sendingDetail: StakeLoadingProgressDetailItem = {
+					totalStatus: 'error',
+					broadcastStatus: 'error',
+				};
+				if (err.message === BLOCK_HASH_NOT_FOUND_MESSAGE) {
+					sendingDetail = {
+						totalStatus: 'error',
+						broadcastStatus: 'success',
+						packStatus: 'error',
+					};
+				}
+				dispatch(
+					updateStakeLoadingParams(
+						{
+							errorMsg: err.message,
+							errorStep: 'sending',
+							status: 'error',
+							progressDetail: {
+								sending: sendingDetail,
+								staking: {},
+								minting: {},
+							},
+						},
+						(newParams) => {
+							dispatch(
+								addNotice({
+									id: noticeUuid || stafiUuid(),
+									type: 'rToken Stake',
+									data: {
+										tokenName: TokenName.BNB,
+										amount: stakeAmount,
+										willReceiveAmount: willReceiveAmount,
+									},
+									status: 'Error',
+									stakeLoadingParams: newParams,
+								})
+							);
+						}
+					)
+				);
+			}
+		}
   };
 
 export const getPools = (): AppThunk => async (dispatch, setState) => {
