@@ -2,6 +2,7 @@ import { Popover } from "@mui/material";
 import classNames from "classnames";
 import { getEtherScanUrl, getStafiScanUrl } from "config/explorer";
 import {
+  getMetamaskBscChainId,
   getMetamaskEthChainId,
   getMetamaskMaticChainId,
 } from "config/metaMask";
@@ -80,9 +81,9 @@ export const NavbarWallet = () => {
 
   useEffect(() => {
     dispatch(updateEthBalance());
-		if (router.pathname === '/rtoken/stake/BNB') {
-			dispatch(updateBnbBalance());
-		}
+    if (router.pathname === "/rtoken/stake/BNB") {
+      dispatch(updateBnbBalance());
+    }
   }, [dispatch, metaMaskAccount, metaMaskChainId]);
 
   useEffect(() => {
@@ -149,6 +150,12 @@ export const NavbarWallet = () => {
       router.pathname === "/rtoken/stake/MATIC"
     ) {
       return "MATIC";
+    }
+    if (
+      targetMetaMaskChainId === getMetamaskBscChainId() &&
+      router.pathname === "/rtoken/stake/BNB"
+    ) {
+      return "BNB";
     }
     return "ETH";
   }, [targetMetaMaskChainId, router.pathname]);
@@ -376,6 +383,9 @@ export const NavbarWallet = () => {
               targetMetaMaskChainId === getMetamaskMaticChainId() &&
               router.pathname === "/rtoken/stake/MATIC"
                 ? "MATIC"
+                : targetMetaMaskChainId === getMetamaskBscChainId() &&
+                  router.pathname === "/rtoken/stake/BNB"
+                ? "BNB"
                 : "ETH"
             }
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
