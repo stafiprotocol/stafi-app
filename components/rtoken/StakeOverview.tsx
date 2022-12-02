@@ -1,36 +1,33 @@
+import classNames from "classnames";
+import { BubblesLoading } from "components/common/BubblesLoading";
 import { Button } from "components/common/button";
 import { Card } from "components/common/card";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
+import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 import { TradeModal } from "components/modal/TradeModal";
 import { WarningModal } from "components/modal/WarningModal";
+import { getValidatorSiteHost } from "config/env";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useRTokenRatio } from "hooks/useRTokenRatio";
-import { useTokenStandard } from "hooks/useTokenStandard";
+import { useRTokenReward } from "hooks/useRTokenReward";
 import { useTokenPrice } from "hooks/useTokenPrice";
-import { TokenName, TokenStandard, WalletType } from "interfaces/common";
+import { useTokenStandard } from "hooks/useTokenStandard";
+import { useWalletAccount } from "hooks/useWalletAccount";
+import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import rectangle from "public/rectangle_v.svg";
 import rectangleError from "public/rectangle_v_error.svg";
-import { useContext, useState, useMemo, useEffect } from "react";
-import { openLink } from "utils/common";
+import { useContext, useMemo, useState } from "react";
+import { isEmptyValue, isInvalidValue, openLink } from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
 import { formatNumber } from "utils/number";
-import {
-  getExchangeRateUpdateTime,
-  getSupportedTokenStandards,
-} from "utils/rToken";
+import { getExchangeRateUpdateTime } from "utils/rToken";
 import { connectMetaMask } from "utils/web3Utils";
 import { TokenStandardSelector } from "./TokenStandardSelector";
-import classNames from "classnames";
-import { getValidatorSiteHost } from "config/env";
-import { useRTokenReward } from "hooks/useRTokenReward";
-import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
-import { useWalletAccount } from "hooks/useWalletAccount";
-import { BubblesLoading } from "components/common/BubblesLoading";
 
 interface StakeOverviewProps {
   tokenName: TokenName;
@@ -64,26 +61,35 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
   // Total reward value.
   const totalRewardValue = useMemo(() => {
-    if (isNaN(Number(totalReward)) || isNaN(Number(tokenPrice))) {
+    if (isEmptyValue(totalReward) || isEmptyValue(tokenPrice)) {
       return undefined;
     }
-    return Number(totalReward) * Number(tokenPrice);
+    if (isInvalidValue(totalReward) || isInvalidValue(tokenPrice)) {
+      return "--";
+    }
+    return Number(totalReward) * Number(tokenPrice) + "";
   }, [totalReward, tokenPrice]);
 
   // User staked token amount.
   const stakedAmount = useMemo(() => {
-    if (isNaN(Number(rTokenBalance)) || isNaN(Number(rTokenRatio))) {
+    if (isEmptyValue(rTokenBalance) || isEmptyValue(rTokenRatio)) {
       return undefined;
     }
-    return Number(rTokenBalance) * Number(rTokenRatio);
+    if (isInvalidValue(rTokenBalance) || isInvalidValue(rTokenRatio)) {
+      return "--";
+    }
+    return Number(rTokenBalance) * Number(rTokenRatio) + "";
   }, [rTokenBalance, rTokenRatio]);
 
   // User staked token value.
   const stakedValue = useMemo(() => {
-    if (isNaN(Number(stakedAmount)) || isNaN(Number(tokenPrice))) {
+    if (isEmptyValue(stakedAmount) || isEmptyValue(tokenPrice)) {
       return undefined;
     }
-    return Number(stakedAmount) * Number(tokenPrice);
+    if (isInvalidValue(stakedAmount) || isInvalidValue(tokenPrice)) {
+      return "--";
+    }
+    return Number(stakedAmount) * Number(tokenPrice) + "";
   }, [stakedAmount, tokenPrice]);
 
   return (
@@ -253,7 +259,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   {isWrongMetaMaskNetwork ? (
                     <>--</>
-                  ) : stakedAmount === undefined ? (
+                  ) : isEmptyValue(stakedValue) ? (
                     <BubblesLoading color="white" />
                   ) : (
                     <>$ {formatNumber(stakedValue, { decimals: 2 })}</>
@@ -263,7 +269,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="mt-[.16rem] text-text2 text-[.24rem] flex items-center">
                   {isWrongMetaMaskNetwork ? (
                     <>--</>
-                  ) : stakedAmount === undefined ? (
+                  ) : isEmptyValue(stakedAmount) ? (
                     <BubblesLoading color="#5B6872" />
                   ) : (
                     <>{formatNumber(stakedAmount)}</>
@@ -283,7 +289,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   {isWrongMetaMaskNetwork ? (
                     <>$ --</>
-                  ) : totalRewardValue === undefined ? (
+                  ) : isEmptyValue(totalRewardValue) ? (
                     <BubblesLoading color="white" />
                   ) : (
                     <>$ {formatNumber(totalRewardValue, { decimals: 2 })}</>
@@ -293,7 +299,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 <div className="mt-[.16rem] text-text2 text-[.24rem] flex items-center">
                   {isWrongMetaMaskNetwork ? (
                     <>--</>
-                  ) : totalReward === undefined ? (
+                  ) : isEmptyValue(totalReward) ? (
                     <BubblesLoading />
                   ) : (
                     <>{formatNumber(totalReward)}</>

@@ -14,6 +14,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -148,7 +149,7 @@ export const updateMaticBalance =
         .balanceOf(account)
         .call()
         .then((balance: any) => {
-					if (getState().wallet.metaMaskAccount) {
+          if (getState().wallet.metaMaskAccount) {
             dispatch(setMaticBalance(Web3.utils.fromWei(balance.toString())));
           } else {
             dispatch(setMaticBalance("--"));
@@ -504,12 +505,17 @@ export const getPools =
 export const getRMaticRate =
   (cb?: Function): AppThunk =>
   async (dispatch, getState) => {
-    const api = await stafiServer.createStafiApi();
-    const result = await api.query.rTokenRate.rate(rSymbol.Matic);
-    let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
-    ratio = ratio || 1;
-    cb && cb(ratio);
-    return ratio;
+    try {
+      const api = await stafiServer.createStafiApi();
+      const result = await api.query.rTokenRate.rate(rSymbol.Matic);
+      let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
+      ratio = ratio || 1;
+      cb && cb(ratio);
+      return ratio;
+    } catch (err: any) {
+      console.error(err);
+      return 1;
+    }
   };
 
 export const unbondRMatic =
@@ -521,25 +527,18 @@ export const unbondRMatic =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
-    // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
-      resetStakeLoadingParams({
+      setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
         tokenName: TokenName.MATIC,
-        amount: amount,
-        userAction: "unstake",
+        amount,
         willReceiveAmount,
         newTotalStakedAmount,
-        steps: ["sending"],
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-        },
       })
     );
+
     try {
       const validPools = getState().matic.validPools;
       let selectedPool = commonSlice.getPoolForUnbond(
@@ -581,9 +580,10 @@ export const unbondRMatic =
         )
       );
     } catch (err: any) {
+			dispatch(setIsLoading(false));
       console.error(err);
     } finally {
-      dispatch(setIsLoading(false));
+      // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
     }
   };
@@ -688,17 +688,23 @@ export const mockProcess =
 export const getUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
-    dispatch(setUnbondCommision(unbondCommision.toString()));
+    if (unbondCommision) {
+      dispatch(setUnbondCommision(unbondCommision.toString()));
+    }
   };
 
 export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
   const unbondFees = await commonSlice.getUnbondFees(rSymbol.Matic);
-  dispatch(setUnbondFees(Number(unbondFees).toString()));
+  if (unbondFees) {
+    dispatch(setUnbondFees(Number(unbondFees).toString()));
+  }
 };
 
 export const getBondFees = (): AppThunk => async (dispatch, getState) => {
   const bondFees = await commonSlice.getBondFees(rSymbol.Matic);
-  dispatch(setBondFees(Number(bondFees).toString()));
+  if (bondFees) {
+    dispatch(setBondFees(Number(bondFees).toString()));
+  }
 };
 
 export const getMaticUnbondTxFees =

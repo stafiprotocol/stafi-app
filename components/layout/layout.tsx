@@ -27,6 +27,7 @@ import {
   getMetamaskValidatorChainId,
 } from "config/metaMask";
 import { RTokenStakeLoadingSidebar } from "components/modal/RTokenStakeLoadingSidebar";
+import { RTokenRedeemLoadingModal } from "components/modal/RTokenRedeemLoadingModal";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
@@ -310,6 +311,8 @@ export const Layout = (props: LayoutProps) => {
         <RTokenStakeLoadingModal />
 
         <RTokenStakeLoadingSidebar />
+
+				<RTokenRedeemLoadingModal />
 
         <ConnectWalletModal />
 

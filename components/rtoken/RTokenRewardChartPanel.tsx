@@ -39,10 +39,13 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     requestStatus,
     totalCount,
     totalReward,
-    chartXData,
-    chartYData,
     lastEraReward,
   } = useRTokenReward(tokenName, 1, getChartDuSeconds(chartDu));
+
+	const {
+		chartXData,
+		chartYData,
+	} = useRTokenReward(tokenName, 1, getChartDuSeconds(chartDu), true);
 
   const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
 

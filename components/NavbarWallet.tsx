@@ -447,7 +447,9 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           <div className="ml-[.14rem]">
             <div className="text-text1 text-[.24rem]">{props.name}</div>
             <div className="text-text1 text-[.16rem] mt-[.05rem]">
-              {props.walletType}
+              {props.walletType === WalletType.Polkadot
+                ? "Polkadot.js"
+                : props.walletType}
             </div>
           </div>
         </div>
@@ -509,20 +511,21 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
         }}
       >
         <div className="w-[2.8rem] flex flex-col items-stretch text-text1 text-[.24rem]">
-          {isWrongMetaMaskNetwork && props.walletType === WalletType.MetaMask && (
-            <>
-              <div
-                className="text-center py-[.24rem] cursor-pointer active:text-primary"
-                onClick={() => {
-                  connectMetaMask(targetMetaMaskChainId);
-                  menuPopupState.close();
-                }}
-              >
-                Switch Network
-              </div>
-              <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
-            </>
-          )}
+          {isWrongMetaMaskNetwork &&
+            props.walletType === WalletType.MetaMask && (
+              <>
+                <div
+                  className="text-center py-[.24rem] cursor-pointer active:text-primary"
+                  onClick={() => {
+                    connectMetaMask(targetMetaMaskChainId);
+                    menuPopupState.close();
+                  }}
+                >
+                  Switch Network
+                </div>
+                <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
+              </>
+            )}
           <div
             className="text-center py-[.24rem] cursor-pointer active:text-primary"
             onClick={() => {
