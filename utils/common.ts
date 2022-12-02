@@ -1,4 +1,5 @@
 import { encodeAddress } from "@polkadot/util-crypto";
+import { WalletType } from "interfaces/common";
 import { checkAddressChecksum } from "web3-utils";
 
 export function openLink(url: string | undefined | null) {
@@ -110,4 +111,12 @@ export function isInvalidValue(value: string | number | undefined | null) {
     return true;
   }
   return false;
+}
+
+export function isPolkadotWallet(walletType: WalletType | undefined) {
+  return (
+    walletType === WalletType.Polkadot ||
+    walletType === WalletType.Polkadot_KSM ||
+    walletType === WalletType.Polkadot_DOT
+  );
 }

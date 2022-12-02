@@ -4,22 +4,28 @@ import { useAppSelector } from "./common";
 export function useWalletAccount() {
   const {
     metaMaskAccount,
+    polkadotExtensionAccounts,
     polkadotAccount,
     polkadotBalance,
-    polkadotExtensionAccounts,
+    ksmAccount,
+    dotAccount,
   } = useAppSelector((state: RootState) => {
     return {
       metaMaskAccount: state.wallet.metaMaskAccount,
+      polkadotExtensionAccounts: state.wallet.polkadotExtensionAccounts,
       polkadotAccount: state.wallet.polkadotAccount,
       polkadotBalance: state.wallet.polkadotBalance,
-      polkadotExtensionAccounts: state.wallet.polkadotExtensionAccounts,
+      ksmAccount: state.wallet.ksmAccount,
+      dotAccount: state.wallet.dotAccount,
     };
   });
 
   return {
     metaMaskAccount,
+    polkadotExtensionAccounts,
     polkadotAccount,
     polkadotBalance,
-    polkadotExtensionAccounts,
+    ksmAccount,
+    dotAccount,
   };
 }

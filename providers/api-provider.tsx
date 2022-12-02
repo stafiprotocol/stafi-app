@@ -3,15 +3,8 @@ import { getStafiRpc } from "config/env";
 import { stafi_types } from "config/stafi_types";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import React, { createContext, useEffect, useState } from "react";
-import {
-  connectPolkadotJs,
-  setPolkadotWalletStatus,
-} from "redux/reducers/WalletSlice";
+import { setPolkadotWalletStatus } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
-import {
-  getStorage,
-  STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG,
-} from "utils/storage";
 
 export type ApiCtx = {
   api: ApiPromise | null;

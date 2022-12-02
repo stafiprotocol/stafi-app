@@ -16,17 +16,17 @@ export function getMetamaskEthChainId() {
 }
 
 export function getMetamaskMaticChainId() {
-	if (isDev()) {
-		return 5; // goerli
-	}
-	return 1;
+  if (isDev()) {
+    return 5; // goerli
+  }
+  return 1;
 }
 
 export function getMetamaskBscChainId() {
-	if (isDev()) {
-		return 0x61;
-	}
-	return 0x38;
+  if (isDev()) {
+    return 0x61;
+  }
+  return 0x38;
 }
 
 export function getMetaMaskValidatorConnectConfig() {
@@ -57,6 +57,7 @@ export function getMetaMaskStafiTestnetConfig(): AddEthereumChainParameter {
 }
 
 interface Web3ProviderUrlConfig {
+  stafiEth: string;
   eth: string;
   bsc: string;
   polygon: string;
@@ -66,9 +67,9 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
   if (isDev()) {
     return {
       // goerli
-      // eth: "wss://eth-goerli.alchemyapi.io/v2/O4w9rgihCPcRvH1IDF2BHLt5YSzSI9oJ",
+      eth: "wss://eth-goerli.alchemyapi.io/v2/O4w9rgihCPcRvH1IDF2BHLt5YSzSI9oJ",
       // stafi testnet
-      eth: "wss://test-eth-node.stafi.io",
+      stafiEth: "wss://test-eth-node.stafi.io",
       bsc: "https://bsc-testnet.blockvision.org/v1/2HD6MqYwTgYlZD2uDKmLPey8Thh",
       polygon: "wss://matic-testnet-archive-ws.bwarelabs.com",
     };
@@ -76,34 +77,36 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
 
   return {
     eth: "wss://eth-mainnet.ws.alchemyapi.io/v2/bkdml_X06uuwFV4-KONSO3NoPHkIIv8Z",
+    stafiEth:
+      "wss://eth-mainnet.ws.alchemyapi.io/v2/bkdml_X06uuwFV4-KONSO3NoPHkIIv8Z",
     bsc: "wss://speedy-nodes-nyc.moralis.io/5a284cffde906505c6eb2af8/bsc/mainnet/ws",
     polygon: "wss://rpc-mainnet.matic.network",
   };
 }
 
 export function getMetaMaskBscConfig(): AddEthereumChainParameter {
-	if (isDev()) {
-		return {
-			chainId: 0x61,
-			chainName: 'BSC Testnet',
-			nativeCurrency: {
-				name: 'BNB',
-				symbol: 'BNB',
-				decimals: 18,
-			},
-			rpcUrls: ['https://data-seed-prebsc-2-s3.binance.org:8545/'],
-			blockExplorerUrls: ['https://testnet.bscscan.com'],
-		}
-	}
-	return {
-		chainId: 0x38,
-    chainName: 'BSC Mainnet',
+  if (isDev()) {
+    return {
+      chainId: 0x61,
+      chainName: "BSC Testnet",
+      nativeCurrency: {
+        name: "BNB",
+        symbol: "BNB",
+        decimals: 18,
+      },
+      rpcUrls: ["https://data-seed-prebsc-2-s3.binance.org:8545/"],
+      blockExplorerUrls: ["https://testnet.bscscan.com"],
+    };
+  }
+  return {
+    chainId: 0x38,
+    chainName: "BSC Mainnet",
     nativeCurrency: {
-      name: 'BNB',
-      symbol: 'BNB',
+      name: "BNB",
+      symbol: "BNB",
       decimals: 18,
     },
-    rpcUrls: ['https://bsc-dataseed.binance.org/'],
-    blockExplorerUrls: ['https://bscscan.com'],
-	}
+    rpcUrls: ["https://bsc-dataseed.binance.org/"],
+    blockExplorerUrls: ["https://bscscan.com"],
+  };
 }

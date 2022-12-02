@@ -5,18 +5,13 @@ import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
-import { getValidatorSiteHost } from "config/env";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
-import { useAppSelector } from "hooks/common";
+import { useKsmBalance } from "hooks/useKsmBalance";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName, WalletType } from "interfaces/common";
-import Image from "next/image";
+import { TokenName } from "interfaces/common";
 import { useRouter } from "next/router";
-import bulb from "public/bulb.svg";
 import React, { useEffect, useState } from "react";
-import { RootState } from "redux/store";
-import { openLink } from "utils/common";
 import { connectMetaMask } from "utils/web3Utils";
 
 const RTokenStakePage = () => {
@@ -27,9 +22,7 @@ const RTokenStakePage = () => {
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
   const { metaMaskAccount } = useWalletAccount();
-  const { balance } = useAppSelector((state: RootState) => {
-    return { balance: state.eth.balance };
-  });
+  const balance = useKsmBalance();
 
   useEffect(() => {
     setNavigation([
@@ -66,7 +59,7 @@ const RTokenStakePage = () => {
         defaultReceivingAddress={metaMaskAccount}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
-        balance={balance}
+        balance={balance || "--"}
         editAddressDisabled
       />
     </div>

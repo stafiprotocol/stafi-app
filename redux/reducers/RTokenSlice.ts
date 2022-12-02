@@ -234,7 +234,9 @@ export const updateRTokenRatio =
       if (tokenName === TokenName.ETH) {
         const erc20TokenContractConfig = getErc20TokenContractConfig();
         const web3 = createWeb3(
-          new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+          new Web3.providers.WebsocketProvider(
+            getWeb3ProviderUrlConfig().stafiEth
+          )
         );
 
         let contract = new web3.eth.Contract(

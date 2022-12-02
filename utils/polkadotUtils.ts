@@ -1,10 +1,6 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import { getStafiRpc } from "config/env";
-import { stafi_types } from "config/stafi_types";
 import { TokenSymbol } from "interfaces/common";
+import StafiServer from "servers/stafi";
 import { chainAmountToHuman } from "./number";
-import StafiServer from 'servers/stafi';
-
 
 export async function getNativeRTokenBalance(
   userAddress: string | undefined,
@@ -14,12 +10,7 @@ export async function getNativeRTokenBalance(
     return "--";
   }
   try {
-		const api = await new StafiServer().createStafiApi();
-    // const provider = new WsProvider(getStafiRpc());
-    // const api = await ApiPromise.create({
-    //   provider: provider,
-    //   types: stafi_types,
-    // });
+    const api = await new StafiServer().createStafiApi();
     const accountData = await api.query.rBalances.account(
       tokenSymbol,
       userAddress

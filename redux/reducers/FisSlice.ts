@@ -21,7 +21,7 @@ import {
   SIGN_ERROR_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
 } from "utils/constants";
-import { ChainId, TokenStandard } from "interfaces/common";
+import { ChainId, TokenStandard, WalletType } from "interfaces/common";
 import { getMaticAbi, getRMaticTokenAddress } from "config/matic";
 
 declare const ethereum: any;
@@ -38,11 +38,13 @@ export interface FisAccount {
 
 export interface FisState {
   chooseAccountVisible: boolean;
+  chooseAccountWalletType: WalletType;
   routeNextPage: string | undefined;
 }
 
 const initialState: FisState = {
   chooseAccountVisible: false,
+  chooseAccountWalletType: WalletType.Polkadot,
   routeNextPage: undefined,
 };
 
@@ -53,6 +55,12 @@ const FisSlice = createSlice({
     setChooseAccountVisible(state: FisState, action: PayloadAction<boolean>) {
       state.chooseAccountVisible = action.payload;
     },
+    setChooseAccountWalletType(
+      state: FisState,
+      action: PayloadAction<WalletType>
+    ) {
+      state.chooseAccountWalletType = action.payload;
+    },
     setRouteNextPage(
       state: FisState,
       action: PayloadAction<string | undefined>
@@ -62,7 +70,11 @@ const FisSlice = createSlice({
   },
 });
 
-export const { setChooseAccountVisible, setRouteNextPage } = FisSlice.actions;
+export const {
+  setChooseAccountVisible,
+  setChooseAccountWalletType,
+  setRouteNextPage,
+} = FisSlice.actions;
 
 export default FisSlice.reducer;
 
