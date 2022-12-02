@@ -4,13 +4,25 @@ import { ChainId, TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import { sleep, stafiUuid } from "utils/common";
-import { BLOCK_HASH_NOT_FOUND_MESSAGE, CANCELLED_MESSAGE } from "utils/constants";
+import {
+  BLOCK_HASH_NOT_FOUND_MESSAGE,
+  CANCELLED_MESSAGE,
+} from "utils/constants";
 import snackbarUtil from "utils/snackbarUtils";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
-import { addNotice, resetStakeLoadingParams, setIsLoading, StakeLoadingProgressDetailItem, updateStakeLoadingParams } from "./AppSlice";
+import {
+  addNotice,
+  resetStakeLoadingParams,
+  setIsLoading,
+  setRedeemLoadingParams,
+  StakeLoadingProgressDetailItem,
+  updateStakeLoadingParams,
+} from "./AppSlice";
 import CommonSlice from "./CommonSlice";
-import { bond } from "./FisSlice";
+import { bond, fisUnbond } from "./FisSlice";
+import keyring from "servers/keyring";
+import { u8aToHex } from "@polkadot/util";
 
 const commonSlice = new CommonSlice();
 
@@ -107,34 +119,34 @@ export const handleBnbStake =
     dispatch(setIsLoading(true));
 
     let steps = ["sending", "staking", "minting"];
-		if (tokenStandard !== TokenStandard.Native) {
-			steps.push('swapping');
-		}
+    if (tokenStandard !== TokenStandard.Native) {
+      steps.push("swapping");
+    }
 
-		dispatch(
-			resetStakeLoadingParams({
-				modalVisible: true,
-				noticeUuid,
-				status: 'loading',
-				tokenName: TokenName.BNB,
-				amount: stakeAmount,
-				willReceiveAmount: willReceiveAmount,
-				newTotalStakedAmount,
-				targetAddress,
-				tokenStandard,
-				steps,
-				userAction: undefined,
-				progressDetail: {
-					sending: {
-						totalStatus: 'loading',
-					},
-					sendingParams,
-					staking: {},
-					minting: {},
-					swapping: {},
-				},
-			})
-		);
+    dispatch(
+      resetStakeLoadingParams({
+        modalVisible: true,
+        noticeUuid,
+        status: "loading",
+        tokenName: TokenName.BNB,
+        amount: stakeAmount,
+        willReceiveAmount: willReceiveAmount,
+        newTotalStakedAmount,
+        targetAddress,
+        tokenStandard,
+        steps,
+        userAction: undefined,
+        progressDetail: {
+          sending: {
+            totalStatus: "loading",
+          },
+          sendingParams,
+          staking: {},
+          minting: {},
+          swapping: {},
+        },
+      })
+    );
 
     const web3 = createWeb3();
     const amount = web3.utils.toWei(stakeAmount, "ether");
@@ -166,19 +178,19 @@ export const handleBnbStake =
           throw err;
         });
 
-			dispatch(
-				updateStakeLoadingParams({
-					progressDetail: {
-						sending: {
-							totalStatus: 'loading',
-							broadcastStatus: 'loading',
-						},
-						staking: {},
-						minting: {},
-						swapping: {},
-					},
-				})
-			);
+      dispatch(
+        updateStakeLoadingParams({
+          progressDetail: {
+            sending: {
+              totalStatus: "loading",
+              broadcastStatus: "loading",
+            },
+            staking: {},
+            minting: {},
+            swapping: {},
+          },
+        })
+      );
 
       if (!txHash) {
         throw new Error("tx error");
@@ -219,54 +231,54 @@ export const handleBnbStake =
         )
       );
     } catch (err: any) {
-			dispatch(setIsLoading(false));
-			if (err.code === 4001) {
-				snackbarUtil.error(CANCELLED_MESSAGE);
-				dispatch(resetStakeLoadingParams(undefined));
-			} else {
-				snackbarUtil.error(err.message);
-				let sendingDetail: StakeLoadingProgressDetailItem = {
-					totalStatus: 'error',
-					broadcastStatus: 'error',
-				};
-				if (err.message === BLOCK_HASH_NOT_FOUND_MESSAGE) {
-					sendingDetail = {
-						totalStatus: 'error',
-						broadcastStatus: 'success',
-						packStatus: 'error',
-					};
-				}
-				dispatch(
-					updateStakeLoadingParams(
-						{
-							errorMsg: err.message,
-							errorStep: 'sending',
-							status: 'error',
-							progressDetail: {
-								sending: sendingDetail,
-								staking: {},
-								minting: {},
-							},
-						},
-						(newParams) => {
-							dispatch(
-								addNotice({
-									id: noticeUuid || stafiUuid(),
-									type: 'rToken Stake',
-									data: {
-										tokenName: TokenName.BNB,
-										amount: stakeAmount,
-										willReceiveAmount: willReceiveAmount,
-									},
-									status: 'Error',
-									stakeLoadingParams: newParams,
-								})
-							);
-						}
-					)
-				);
-			}
-		}
+      dispatch(setIsLoading(false));
+      if (err.code === 4001) {
+        snackbarUtil.error(CANCELLED_MESSAGE);
+        dispatch(resetStakeLoadingParams(undefined));
+      } else {
+        snackbarUtil.error(err.message);
+        let sendingDetail: StakeLoadingProgressDetailItem = {
+          totalStatus: "error",
+          broadcastStatus: "error",
+        };
+        if (err.message === BLOCK_HASH_NOT_FOUND_MESSAGE) {
+          sendingDetail = {
+            totalStatus: "error",
+            broadcastStatus: "success",
+            packStatus: "error",
+          };
+        }
+        dispatch(
+          updateStakeLoadingParams(
+            {
+              errorMsg: err.message,
+              errorStep: "sending",
+              status: "error",
+              progressDetail: {
+                sending: sendingDetail,
+                staking: {},
+                minting: {},
+              },
+            },
+            (newParams) => {
+              dispatch(
+                addNotice({
+                  id: noticeUuid || stafiUuid(),
+                  type: "rToken Stake",
+                  data: {
+                    tokenName: TokenName.BNB,
+                    amount: stakeAmount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  status: "Error",
+                  stakeLoadingParams: newParams,
+                })
+              );
+            }
+          )
+        );
+      }
+    }
   };
 
 export const getPools = (): AppThunk => async (dispatch, setState) => {
@@ -277,3 +289,50 @@ export const getPools = (): AppThunk => async (dispatch, setState) => {
   const data = await commonSlice.poolBalanceLimit(rSymbol.Bnb);
   dispatch(setPoolLimit(data));
 };
+
+export const unbondRBnb =
+  (
+    amount: string,
+    recipient: string,
+    willReceiveAmount: string,
+    newTotalStakedAmount: string,
+    cb?: (success: boolean) => void
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    dispatch(setIsLoading(true));
+    dispatch(
+      setRedeemLoadingParams({
+        modalVisible: true,
+        status: "loading",
+        tokenName: TokenName.BNB,
+        amount,
+        willReceiveAmount,
+        newTotalStakedAmount,
+      })
+    );
+
+    try {
+      const validPools = getState().bnb.validPools;
+      let selectedPool = commonSlice.getPoolForUnbond(
+        amount,
+        validPools,
+        rSymbol.Bnb
+      );
+      if (!selectedPool) {
+        return;
+      }
+      const keyringInstance = keyring.init(Symbol.Bnb);
+
+      dispatch(
+        fisUnbond(
+          amount,
+          rSymbol.Bnb,
+          u8aToHex(keyringInstance.decodeAddress(recipient)),
+          selectedPool.poolPubKey,
+          ""
+        )
+      );
+    } catch (err: any) {
+      console.error(err);
+    }
+  };

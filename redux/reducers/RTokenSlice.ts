@@ -247,7 +247,7 @@ export const updateRTokenRatio =
         const amount = web3.utils.toWei("1");
         const result = await contract.methods.getEthValue(amount).call();
         newRatio = web3.utils.fromWei(result, "ether");
-      } else {
+      } else if (tokenName === TokenName.MATIC) {
         const api = await new StafiServer().createStafiApi();
         const result = await api.query.rTokenRate.rate(
           getTokenSymbol(tokenName)

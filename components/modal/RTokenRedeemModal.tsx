@@ -44,6 +44,7 @@ import { useTokenPrice } from "hooks/useTokenPrice";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { validateETHAddress } from "utils/validator";
+import { unbondRBnb } from "redux/reducers/BnbSlice";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -216,6 +217,18 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (tokenName === TokenName.MATIC) {
       dispatch(
         unbondRMatic(
+          redeemAmount,
+          targetAddress,
+          willReceiveAmount,
+          newTotalStakedAmount,
+          () => {
+            dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+          }
+        )
+      );
+    } else if (tokenName === TokenName.BNB) {
+      dispatch(
+        unbondRBnb(
           redeemAmount,
           targetAddress,
           willReceiveAmount,

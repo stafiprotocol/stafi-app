@@ -380,7 +380,10 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   } else if (props.tokenName === TokenName.MATIC) {
                     setRTokenRedeemModalVisible(true);
                     return;
-                  }
+                  } else if (props.tokenName === TokenName.BNB) {
+										setRTokenRedeemModalVisible(true);
+										return;
+									}
                 }}
               >
                 Unstake
