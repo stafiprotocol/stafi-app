@@ -11,6 +11,22 @@ export function getStafiRpc() {
   return "wss://mainnet-rpc.stafi.io";
 }
 
+export function getKsmRpc() {
+  if (isDev()) {
+    return "wss://kusama-test-rpc.stafi.io";
+  } else {
+    return "wss://kusama-rpc.polkadot.io";
+  }
+}
+
+export function getPolkadotRpc() {
+  if (!isDev()) {
+    return "wss://polkadot-test-rpc.stafi.io";
+  } else {
+    return "wss://rpc.polkadot.io";
+  }
+}
+
 export function getValidatorSiteHost() {
   if (isDev()) {
     return "https://test-rtoken-app.stafi.io/";

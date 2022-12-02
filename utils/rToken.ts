@@ -17,6 +17,7 @@ import metaMask from "public/wallet/metaMask.svg";
 import polkadot from "public/wallet/polkadot.svg";
 import { EraRewardModel } from "hooks/useRTokenReward";
 import dayjs from "dayjs";
+import { isPolkadotWallet } from "./common";
 
 export interface DexItem {
   type: DexType;
@@ -80,7 +81,9 @@ export function getEraEstTimeTip(
   const leftHours = Math.floor(passedTime / (60 * 60));
   let leftMinutes = Math.floor((passedTime - leftHours * 60 * 60) / 60);
   if (leftHours < 1) {
-    return `${leftMinutes < 1 ? 'A few' : leftMinutes} minutes left for data refresh`;
+    return `${
+      leftMinutes < 1 ? "A few" : leftMinutes
+    } minutes left for data refresh`;
   }
   return `${leftHours} hours ${leftMinutes} mins left for data refresh`;
 }
@@ -148,7 +151,7 @@ export function getWalletIcon(walletType: WalletType | undefined) {
   if (walletType === WalletType.MetaMask) {
     return metaMask;
   }
-  if (walletType === WalletType.Polkadot) {
+  if (isPolkadotWallet(walletType)) {
     return polkadot;
   }
   return undefined;

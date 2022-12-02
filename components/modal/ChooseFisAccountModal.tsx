@@ -5,10 +5,15 @@ import { useAppDispatch, useAppSelector } from "hooks/common";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import defaultAvatar from "public/default_avatar.svg";
-import { setChooseAccountVisible, setRouteNextPage } from "redux/reducers/FisSlice";
 import {
+  setChooseAccountVisible,
+  setRouteNextPage,
+} from "redux/reducers/FisSlice";
+import {
+  setDotAccount,
+  setKsmAccount,
   setPolkadotAccount,
   updatePolkadotExtensionAccountsBalances,
 } from "redux/reducers/WalletSlice";
@@ -16,6 +21,7 @@ import { RootState } from "redux/store";
 import commonStyles from "styles/Common.module.scss";
 import { useRouter } from "next/router";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
+import { WalletType } from "interfaces/common";
 
 interface Props {}
 
@@ -25,24 +31,42 @@ export const ChooseFisAccountModal = (props: Props) => {
 
   const router = useRouter();
 
-  const { chooseAccountVisible, routeNextPage } = useAppSelector((state: RootState) => {
-    return {
-      chooseAccountVisible: state.fis.chooseAccountVisible,
-      routeNextPage: state.fis.routeNextPage,
-    };
-  });
+  const { chooseAccountVisible, routeNextPage, chooseAccountWalletType } =
+    useAppSelector((state: RootState) => {
+      return {
+        chooseAccountVisible: state.fis.chooseAccountVisible,
+        chooseAccountWalletType: state.fis.chooseAccountWalletType,
+        routeNextPage: state.fis.routeNextPage,
+      };
+    });
 
-  const { polkadotAccount, polkadotExtensionAccounts } = useWalletAccount();
+  const { polkadotExtensionAccounts, polkadotAccount, ksmAccount, dotAccount } =
+    useWalletAccount();
+
+  const selectedAccount = useMemo(() => {
+    if (chooseAccountWalletType === WalletType.Polkadot_KSM) {
+      return ksmAccount;
+    } else if (chooseAccountWalletType === WalletType.Polkadot_DOT) {
+      return dotAccount;
+    } else {
+      return polkadotAccount;
+    }
+  }, [polkadotAccount, ksmAccount, dotAccount, chooseAccountWalletType]);
 
   useEffect(() => {
     if (chooseAccountVisible) {
-      dispatch(updatePolkadotExtensionAccountsBalances(api));
+      dispatch(updatePolkadotExtensionAccountsBalances());
     }
-  }, [chooseAccountVisible, dispatch, api]);
+  }, [chooseAccountVisible, dispatch]);
 
   const changeAccount = (address: string) => {
-    // dispatch(setFisAccount(account));
-    dispatch(setPolkadotAccount(address));
+    if (chooseAccountWalletType === WalletType.Polkadot_KSM) {
+      dispatch(setKsmAccount(address));
+    } else if (chooseAccountWalletType === WalletType.Polkadot_DOT) {
+      dispatch(setDotAccount(address));
+    } else {
+      dispatch(setPolkadotAccount(address));
+    }
     dispatch(setChooseAccountVisible(false));
     if (routeNextPage) {
       dispatch(setConnectWalletModalParams(undefined));
@@ -91,7 +115,7 @@ export const ChooseFisAccountModal = (props: Props) => {
             {polkadotExtensionAccounts.map((account) => (
               <div key={account.address} className="flex items-center">
                 <div className="w-[.24rem] min-w-[.24rem]">
-                  {account.address === polkadotAccount ? (
+                  {account.address === selectedAccount ? (
                     <Icomoon icon="active" size=".24rem" />
                   ) : (
                     <div className="border-[1px] border-solid rounded-full border-white/50 w-[.24rem] h-[.24rem]" />
@@ -103,13 +127,13 @@ export const ChooseFisAccountModal = (props: Props) => {
                   sx={{
                     borderRadius: ".16rem",
                     border:
-                      account.address === polkadotAccount
+                      account.address === selectedAccount
                         ? "1px solid rgba(0, 243, 171, 0.5)"
                         : "1px solid rgba(157, 175, 190, 0.2)",
                     margin: ".2rem 0 .2rem .24rem",
                     padding: ".24rem",
                     backgroundColor:
-                      account.address === polkadotAccount
+                      account.address === selectedAccount
                         ? "rgba(0, 243, 171, 0.1)"
                         : "transparent",
                     cursor: "pointer",
@@ -119,7 +143,7 @@ export const ChooseFisAccountModal = (props: Props) => {
                     <div
                       className={classNames(
                         "flex justify-between",
-                        account.address === polkadotAccount
+                        account.address === selectedAccount
                           ? "text-primary"
                           : "text-white"
                       )}
@@ -136,7 +160,13 @@ export const ChooseFisAccountModal = (props: Props) => {
                           {account.meta?.name}
                         </div>
                       </div>
-                      <div className="text-[.22rem]">{account.balance}</div>
+                      <div className="text-[.22rem]">
+                        {chooseAccountWalletType === WalletType.Polkadot_KSM
+                          ? account.ksmBalance
+                          : chooseAccountWalletType === WalletType.Polkadot_DOT
+                          ? account.dotBalance
+                          : account.fisBalance}
+                      </div>
                     </div>
                     <div className="text-text2 text-[.16rem] break-all mt-[.2rem]">
                       {account.address}

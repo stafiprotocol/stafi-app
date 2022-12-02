@@ -7,6 +7,7 @@ import {
 } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useKsmBalance } from "hooks/useKsmBalance";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenStandard, WalletType } from "interfaces/common";
@@ -20,7 +21,10 @@ import { useRouter } from "next/router";
 import downIcon from "public/icon_down.png";
 import { useContext, useEffect, useMemo } from "react";
 import { updateEthBalance } from "redux/reducers/EthSlice";
-import { setChooseAccountVisible } from "redux/reducers/FisSlice";
+import {
+  setChooseAccountVisible,
+  setChooseAccountWalletType,
+} from "redux/reducers/FisSlice";
 import {
   connectPolkadotJs,
   disconnectWallet,
@@ -29,7 +33,7 @@ import {
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
-import { openLink } from "utils/common";
+import { isPolkadotWallet, openLink } from "utils/common";
 import { formatNumber } from "utils/number";
 import { getWalletIcon } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
@@ -52,10 +56,12 @@ export const NavbarWallet = () => {
   const { api } = usePolkadotApi();
   const {
     metaMaskAccount,
+    polkadotExtensionAccounts,
     polkadotAccount,
     polkadotBalance,
-    polkadotExtensionAccounts,
+    ksmAccount,
   } = useWalletAccount();
+  const ksmBalance = useKsmBalance();
   const { ethBalance, maticBalance } = useAppSelector((state: RootState) => {
     return {
       ethBalance: state.eth.balance,
@@ -65,12 +71,13 @@ export const NavbarWallet = () => {
 
   const router = useRouter();
 
-  const { metaMaskConnected, polkadotConnected } = useMemo(() => {
+  const { metaMaskConnected, polkadotConnected, ksmConnected } = useMemo(() => {
     return {
       metaMaskConnected: !!metaMaskAccount,
       polkadotConnected: !!polkadotAccount,
+      ksmConnected: !!ksmAccount,
     };
-  }, [metaMaskAccount, polkadotAccount]);
+  }, [metaMaskAccount, polkadotAccount, ksmAccount]);
 
   const accountsPopupState = usePopupState({
     variant: "popover",
@@ -90,8 +97,8 @@ export const NavbarWallet = () => {
   }, [polkadotExtensionAccounts]);
 
   useEffect(() => {
-    dispatch(updatePolkadotExtensionAccountsBalances(api));
-  }, [dispatch, api, polkadotExtensionAccountsKey]);
+    dispatch(updatePolkadotExtensionAccountsBalances());
+  }, [dispatch, polkadotExtensionAccountsKey]);
 
   const clickAccountLeftArea = () => {
     if (isWrongMetaMaskNetwork) {
@@ -104,19 +111,10 @@ export const NavbarWallet = () => {
       connectMetaMask(targetMetaMaskChainId);
     }
     if (walletType === WalletType.Polkadot) {
-      dispatch(connectPolkadotJs(true));
-      // connectPolkadot()
-      //   .then((accounts: FisAccount[]) => {
-      //     if (accounts.length === 0) return;
-      //     dispatch(setAccounts(accounts));
-      //     dispatch(setFisAccount(accounts[0]));
-      //     dispatch(setChooseAccountVisible(true));
-      //     dispatch(setConnectWalletModalParams(undefined));
-      //     dispatch(setPolkadotAccount(accounts[0].address));
-      //   })
-      //   .catch((err) => {
-      //     console.error(err);
-      //   });
+      dispatch(connectPolkadotJs(true, walletType));
+    }
+    if (walletType === WalletType.Polkadot_KSM) {
+      dispatch(connectPolkadotJs(true, walletType));
     }
   };
 
@@ -157,7 +155,14 @@ export const NavbarWallet = () => {
         tokenName: "FIS",
       });
     }
-    if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
+    if (walletType === WalletType.Polkadot_KSM) {
+      if (metaMaskConnected) {
+        res.push({
+          balance: ksmBalance,
+          tokenName: "KSM",
+        });
+      }
+    } else if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
       if (metaMaskConnected) {
         res.push({
           balance: displayMetaMaskBalance,
@@ -174,6 +179,7 @@ export const NavbarWallet = () => {
     displayMetaMaskTokenName,
     displayMetaMaskBalance,
     isWrongMetaMaskNetwork,
+    ksmBalance,
   ]);
 
   const [displayAddress, displayWalletType] = useMemo(() => {
@@ -348,7 +354,7 @@ export const NavbarWallet = () => {
           <WalletAccountItem
             name="StaFi Chain"
             walletType={WalletType.Polkadot}
-            connected={!!polkadotAccount}
+            connected={polkadotConnected}
             address={polkadotAccount || ""}
             balance={polkadotBalance}
             tokenName={"FIS"}
@@ -360,7 +366,7 @@ export const NavbarWallet = () => {
           <WalletAccountItem
             name="Ethereum"
             walletType={WalletType.MetaMask}
-            connected={!!metaMaskAccount}
+            connected={metaMaskConnected}
             address={metaMaskAccount || ""}
             balance={
               targetMetaMaskChainId === getMetamaskMaticChainId() &&
@@ -375,6 +381,16 @@ export const NavbarWallet = () => {
                 : "ETH"
             }
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
+          />
+
+          <WalletAccountItem
+            name="KSM"
+            walletType={WalletType.Polkadot_KSM}
+            connected={ksmConnected}
+            address={ksmAccount || ""}
+            balance={ksmBalance}
+            tokenName={"KSM"}
+            onClickConnect={() => clickConnectWallet(WalletType.Polkadot_KSM)}
           />
         </div>
       </Popover>
@@ -443,7 +459,9 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           <div className="ml-[.14rem]">
             <div className="text-text1 text-[.24rem]">{props.name}</div>
             <div className="text-text1 text-[.16rem] mt-[.05rem]">
-              {props.walletType}
+              {isPolkadotWallet(props.walletType)
+                ? "Polkadot.js"
+                : props.walletType}
             </div>
           </div>
         </div>
@@ -458,10 +476,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             </div>
           ) : (
             <div className="text-primary text-[.24rem] mr-[.2rem] flex items-center">
-              {targetMetaMaskChainId === undefined &&
-              metaMaskChainId !== getMetamaskEthChainId() ? (
-                "--"
-              ) : !props.balance ? (
+              {!props.balance ? (
                 <BubblesLoading color="#00F3AB" />
               ) : (
                 formatNumber(props.balance)
@@ -505,20 +520,21 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
         }}
       >
         <div className="w-[2.8rem] flex flex-col items-stretch text-text1 text-[.24rem]">
-          {isWrongMetaMaskNetwork && props.walletType === WalletType.MetaMask && (
-            <>
-              <div
-                className="text-center py-[.24rem] cursor-pointer active:text-primary"
-                onClick={() => {
-                  connectMetaMask(targetMetaMaskChainId);
-                  menuPopupState.close();
-                }}
-              >
-                Switch Network
-              </div>
-              <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
-            </>
-          )}
+          {isWrongMetaMaskNetwork &&
+            props.walletType === WalletType.MetaMask && (
+              <>
+                <div
+                  className="text-center py-[.24rem] cursor-pointer active:text-primary"
+                  onClick={() => {
+                    connectMetaMask(targetMetaMaskChainId);
+                    menuPopupState.close();
+                  }}
+                >
+                  Switch Network
+                </div>
+                <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
+              </>
+            )}
           <div
             className="text-center py-[.24rem] cursor-pointer active:text-primary"
             onClick={() => {
@@ -531,11 +547,12 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             Copy Address
           </div>
           <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
-          {props.walletType === WalletType.Polkadot && (
+          {isPolkadotWallet(props.walletType) && (
             <>
               <div
                 className="text-center py-[.24rem] cursor-pointer active:text-primary"
                 onClick={() => {
+                  dispatch(setChooseAccountWalletType(props.walletType));
                   dispatch(setChooseAccountVisible(true));
                   menuPopupState.close();
                 }}

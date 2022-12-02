@@ -37,6 +37,7 @@ import { stafiUuid } from "utils/common";
 import dayjs from "dayjs";
 import { estimateUnbondDays } from "config/unbond";
 import { LocalNotice } from "utils/notice";
+import { getWeb3ProviderUrlConfig } from "config/metaMask";
 
 declare const ethereum: any;
 
@@ -134,7 +135,10 @@ export const updateMaticBalance =
       return;
     }
 
-    let web3 = new Web3(window.ethereum as any);
+    // let web3 = new Web3(window.ethereum as any);
+    let web3 = new Web3(
+      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+    );
     let contract = new web3.eth.Contract(
       getMaticAbi(),
       getMaticTokenAddress(),
@@ -148,7 +152,7 @@ export const updateMaticBalance =
         .balanceOf(account)
         .call()
         .then((balance: any) => {
-					if (getState().wallet.metaMaskAccount) {
+          if (getState().wallet.metaMaskAccount) {
             dispatch(setMaticBalance(Web3.utils.fromWei(balance.toString())));
           } else {
             dispatch(setMaticBalance("--"));

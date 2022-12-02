@@ -6,16 +6,12 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
-import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
   connectPolkadotJs,
   disconnectWallet,
-  setPolkadotAccount,
-  setPolkadotBalance,
 } from "redux/reducers/WalletSlice";
 import { getWalletIcon } from "utils/rToken";
-import { connectMetaMask, connectPolkadot } from "utils/web3Utils";
+import { connectMetaMask } from "utils/web3Utils";
 
 interface ConnectWalletItemProps {
   walletType: WalletType;
