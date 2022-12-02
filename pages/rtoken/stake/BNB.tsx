@@ -5,7 +5,10 @@ import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
-import { getMetamaskBscChainId, getMetamaskMaticChainId } from "config/metaMask";
+import {
+  getMetamaskBscChainId,
+  getMetamaskMaticChainId,
+} from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
@@ -13,7 +16,7 @@ import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
 import React, { useEffect, useState } from "react";
-import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
+import { getPools, updateBnbBalance } from "redux/reducers/BnbSlice";
 import { RootState } from "redux/store";
 import { connectMetaMask } from "utils/web3Utils";
 
@@ -33,7 +36,12 @@ const RBnbStakePage = () => {
   const { polkadotAccount } = useWalletAccount();
 
   const { balance } = useAppSelector((state: RootState) => {
-    return { balance: state.bnb.balance };
+    const balance = state.bnb.balance;
+    if (isNaN(Number(balance))) {
+      return { balance: "--" };
+    }
+    const transferrableAmount = Math.max(0, Number(balance) - 0.0003) + "";
+    return { balance: transferrableAmount };
   });
 
   useEffect(() => {
@@ -44,7 +52,7 @@ const RBnbStakePage = () => {
   }, [setNavigation]);
 
   useEffect(() => {
-    dispatch(updateMaticBalance());
+    dispatch(updateBnbBalance());
   }, [dispatch, metaMaskAccount, chainId]);
 
   useEffect(() => {
@@ -53,10 +61,11 @@ const RBnbStakePage = () => {
   }, [dispatch]);
 
   const onClickStake = () => {
-    if (polkadotAccount) {
-      dispatch(updateMaticBalance());
+    if (metaMaskAccount) {
+      dispatch(updateBnbBalance());
       setStakeModalVisible(true);
     } else {
+			return;
     }
   };
 
@@ -95,11 +104,10 @@ const RBnbStakePage = () => {
         tokenName={TokenName.BNB}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
-        balance={balance || '--'}
+        balance={balance || "--"}
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
-
     </div>
   );
 };

@@ -23,6 +23,7 @@ import CommonSlice from "./CommonSlice";
 import { bond, fisUnbond } from "./FisSlice";
 import keyring from "servers/keyring";
 import { u8aToHex } from "@polkadot/util";
+import numberUtil from "utils/numberUtil";
 
 const commonSlice = new CommonSlice();
 
@@ -150,6 +151,7 @@ export const handleBnbStake =
 
     const web3 = createWeb3();
     const amount = web3.utils.toWei(stakeAmount, "ether");
+		const amountInBnb = numberUtil.tokenAmountToChain(stakeAmount, rSymbol.Bnb);
 
     const validPools = getState().bnb.validPools;
     const poolLimit = getState().bnb.poolLimit;
@@ -223,11 +225,12 @@ export const handleBnbStake =
           metaMaskAccount,
           txHash,
           blockHash,
-          amount,
+          amountInBnb,
           selectedPool.poolPubKey,
           rSymbol.Bnb,
           chainId,
-          targetAddress
+          targetAddress,
+					cb
         )
       );
     } catch (err: any) {

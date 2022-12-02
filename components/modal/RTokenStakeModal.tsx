@@ -219,11 +219,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     ) {
       return [true, "Stake"];
     }
-    if (Number(stakeAmount) < 0.01) {
+    if (Number(stakeAmount) < 0.001) {
       return [true, `Minimal Stake Amount is 0.01 ${tokenName}`];
     }
 
-    if (tokenName === TokenName.ETH) {
+    if (tokenName === TokenName.ETH || tokenName === TokenName.BNB) {
       if (
         Number(stakeAmount) +
           (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
@@ -323,20 +323,24 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         //mockProcess(stakeAmount, willReceiveAmount, tokenStandard, newTotalStakedAmount)
       );
     } else if (tokenName === TokenName.BNB) {
-			dispatch(
-				handleBnbStake(
-					stakeAmount,
-					willReceiveAmount,
-					tokenStandard,
-					targetAddress,
-					newTotalStakedAmount,
-					false,
-					(success) =>  {
-
-					}
-				)
-			)
-		}
+      dispatch(
+        handleBnbStake(
+          stakeAmount,
+          willReceiveAmount,
+          tokenStandard,
+          targetAddress,
+          newTotalStakedAmount,
+          false,
+          (success) => {
+            if (success) {
+              resetState();
+              dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              props.onClose();
+            }
+          }
+        )
+      );
+    }
   };
 
   useEffect(() => {
@@ -583,18 +587,18 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     return;
                   }
                   let amount = Number(balance);
-                  if (tokenName === TokenName.ETH) {
+                  if (
+                    tokenName === TokenName.ETH ||
+                    tokenName === TokenName.BNB
+                  ) {
                     amount = Math.max(
                       Number(balance) - Number(estimateFee) * 1.5,
                       0
                     );
-                  } else if (tokenName === TokenName.BNB) {
-										amount = Math.max(
-											Number(balance) - 0.0003,
-											0
-										);
-									}
-                  setStakeAmount(amount.toString());
+                  }
+                  setStakeAmount(
+                    formatNumber(amount.toString(), { toReadable: false })
+                  );
                 }}
               >
                 Max

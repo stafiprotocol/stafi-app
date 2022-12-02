@@ -125,7 +125,7 @@ export const bond =
       let pubkey = "";
       let poolPubKey = poolAddress;
       // todo: other rTokens, here only rMatic
-      if (rsymbol === rSymbol.Matic) {
+      if (rsymbol === rSymbol.Matic || rsymbol === rSymbol.Bnb) {
         await sleep(3000);
 
         const metaMaskAccount = getState().wallet.metaMaskAccount;
