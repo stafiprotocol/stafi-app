@@ -11,7 +11,9 @@ export function useWalletAccount() {
     dotAccount,
   } = useAppSelector((state: RootState) => {
     return {
-      metaMaskAccount: state.wallet.metaMaskAccount,
+      metaMaskAccount: state.wallet.metaMaskDisconnected
+        ? undefined
+        : state.wallet.metaMaskAccount,
       polkadotExtensionAccounts: state.wallet.polkadotExtensionAccounts,
       polkadotAccount: state.wallet.polkadotAccount,
       polkadotBalance: state.wallet.polkadotBalance,

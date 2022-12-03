@@ -18,10 +18,12 @@ import snackbarUtil from "utils/snackbarUtils";
 import {
   CANCELLED_MESSAGE,
   SIGN_ERROR_MESSAGE,
+  STAFI_ACCOUNT_EMPTY_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
 } from "utils/constants";
 import { ChainId, TokenStandard, WalletType } from "interfaces/common";
 import { getMaticAbi, getRMaticTokenAddress } from "config/matic";
+import { getPolkadotStakingSignature } from "utils/polkadotUtils";
 
 declare const ethereum: any;
 
@@ -90,6 +92,33 @@ export const bond =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
+    const handleStakeError = (errorMsg: string) => {
+      dispatch(
+        updateStakeLoadingParams(
+          {
+            status: "error",
+            errorMsg,
+            errorStep: "staking",
+            progressDetail: {
+              staking: {
+                totalStatus: "error",
+                broadcastStatus: "error",
+              },
+              minting: {},
+            },
+          },
+          (newParams) => {
+            dispatch(
+              updateNotice(newParams?.noticeUuid, {
+                status: "Error",
+                stakeLoadingParams: newParams,
+              })
+            );
+          }
+        )
+      );
+    };
+
     dispatch(
       updateStakeLoadingParams(
         {
@@ -128,8 +157,13 @@ export const bond =
     );
 
     const fisAddress = getState().wallet.polkadotAccount;
+    if (!fisAddress) {
+      handleStakeError(STAFI_ACCOUNT_EMPTY_MESSAGE);
+      return;
+    }
+
     const keyringInstance = keyring.init(Symbol.Fis);
-    let signature = "";
+    let signature = undefined;
     const stafiApi = await stafiServer.createStafiApi();
     let pubkey = "";
     let poolPubKey = poolAddress;
@@ -155,33 +189,18 @@ export const bond =
           console.error(err);
         });
       console.log("signature succeeded, proceeding staking");
+    } else {
+      signature = await getPolkadotStakingSignature(
+        address,
+        u8aToHex(keyringInstance.decodeAddress(fisAddress))
+      );
+      pubkey = u8aToHex(keyringInstance.decodeAddress(address));
+
+      // message.info('Signature succeeded, proceeding staking');
     }
 
     if (!signature) {
-      dispatch(
-        updateStakeLoadingParams(
-          {
-            status: "error",
-            errorMsg: SIGN_ERROR_MESSAGE,
-            errorStep: "staking",
-            progressDetail: {
-              staking: {
-                totalStatus: "error",
-                broadcastStatus: "error",
-              },
-              minting: {},
-            },
-          },
-          (newParams) => {
-            dispatch(
-              updateNotice(newParams?.noticeUuid, {
-                status: "Error",
-                stakeLoadingParams: newParams,
-              })
-            );
-          }
-        )
-      );
+      handleStakeError(SIGN_ERROR_MESSAGE);
       return;
     }
 
@@ -195,7 +214,7 @@ export const bond =
 
     let bondResult: any;
     if (chainId === ChainId.STAFI) {
-      bondResult = await stafiApi.tx.rTokenSeries.liquidityBond(
+      bondResult = stafiApi.tx.rTokenSeries.liquidityBond(
         pubkey,
         signature,
         poolPubKey,
@@ -221,7 +240,7 @@ export const bond =
       } else {
         swapAddress = targetAddress;
       }
-      bondResult = await stafiApi.tx.rTokenSeries.liquidityBondAndSwap(
+      bondResult = stafiApi.tx.rTokenSeries.liquidityBondAndSwap(
         pubkey,
         signature,
         poolPubKey,
@@ -236,6 +255,18 @@ export const bond =
     // console.log(bondResult);
 
     try {
+      dispatch(
+        updateStakeLoadingParams({
+          progressDetail: {
+            staking: {
+              totalStatus: "loading",
+              broadcastStatus: "loading",
+            },
+            minting: {},
+            swapping: {},
+          },
+        })
+      );
       let index = 0;
       // console.log(fisAddress, injector.signer);
       bondResult
@@ -243,9 +274,12 @@ export const bond =
           if (index === 0) {
             index++;
           }
+          // console.log("result", result.status);
           // const tx = bondResult.hash.toHex();
           try {
             if (result.status.isInBlock) {
+              // console.log("result1111", result.status);
+
               dispatch(
                 updateStakeLoadingParams({
                   progressDetail: {
@@ -264,7 +298,6 @@ export const bond =
               result.events
                 .filter((e: any) => e.event.section === "system")
                 .forEach((data: any) => {
-                  // console.log(data.event.method);
                   if (data.event.method === "ExtrinsicFailed") {
                     const [dispatchError] = data.event.data;
                     if (dispatchError.isModule) {
@@ -368,32 +401,11 @@ export const bond =
         })
         .catch((err: any) => {
           console.log(err.message);
+          dispatch(setIsLoading(false));
           if (err.message === "Cancelled") {
-            dispatch(
-              updateStakeLoadingParams(
-                {
-                  status: "error",
-                  errorMsg: "Cancelled",
-                  errorStep: "staking",
-                  progressDetail: {
-                    staking: {
-                      totalStatus: "error",
-                      broadcastStatus: "error",
-                    },
-                    minting: {},
-                  },
-                },
-                (newParams) => {
-                  dispatch(
-                    updateNotice(newParams?.noticeUuid, {
-                      status: "Error",
-                      stakeLoadingParams: newParams,
-                    })
-                  );
-                }
-              )
-            );
-            dispatch(setIsLoading(false));
+            handleStakeError("Cancelled");
+          } else {
+            handleStakeError(err.message);
           }
           console.log(err);
         });

@@ -28,6 +28,7 @@ import {
 import {
   connectPolkadotJs,
   disconnectWallet,
+  setMetaMaskDisconnected,
   updatePolkadotExtensionAccountsBalances,
   updateSelectedPolkadotAccountBalance,
 } from "redux/reducers/WalletSlice";
@@ -89,8 +90,8 @@ export const NavbarWallet = () => {
   }, [dispatch, metaMaskAccount, metaMaskChainId]);
 
   useEffect(() => {
-    dispatch(updateSelectedPolkadotAccountBalance(api));
-  }, [dispatch, api, polkadotAccount]);
+    dispatch(updateSelectedPolkadotAccountBalance());
+  }, [dispatch, polkadotAccount]);
 
   const polkadotExtensionAccountsKey = useMemo(() => {
     return polkadotExtensionAccounts.map((item) => item.address).join("-");
@@ -108,6 +109,7 @@ export const NavbarWallet = () => {
 
   const clickConnectWallet = (walletType: WalletType) => {
     if (walletType === WalletType.MetaMask) {
+      dispatch(setMetaMaskDisconnected(false));
       connectMetaMask(targetMetaMaskChainId);
     }
     if (walletType === WalletType.Polkadot) {
@@ -384,7 +386,7 @@ export const NavbarWallet = () => {
           />
 
           <WalletAccountItem
-            name="KSM"
+            name="Kusama"
             walletType={WalletType.Polkadot_KSM}
             connected={ksmConnected}
             address={ksmAccount || ""}
@@ -575,7 +577,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           >
             Block Explorer
           </div>
-          {props.walletType === WalletType.Polkadot && (
+          {
             <>
               <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
               <div
@@ -588,7 +590,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
                 Disconnect
               </div>
             </>
-          )}
+          }
         </div>
       </Popover>
     </>

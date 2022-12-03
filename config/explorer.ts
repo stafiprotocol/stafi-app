@@ -24,3 +24,10 @@ export function getEtherScanAccountUrl(account: string) {
 export function getStafiScanUrl() {
   return "https://stafi.subscan.io/";
 }
+
+export function getStafiScanTxUrl(txHash: string) {
+  if (isDev()) {
+    return `https://stafi.subscan.io/extrinsic/${txHash}`;
+  }
+  return `https://stafi.subscan.io/extrinsic/${txHash}`;
+}

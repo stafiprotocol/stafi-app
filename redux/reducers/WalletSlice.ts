@@ -7,8 +7,11 @@ import {
   getStorage,
   removeStorage,
   saveStorage,
+  STORAGE_KEY_DISCONNECT_METAMASK,
   STORAGE_KEY_DOT_ACCOUNT,
+  STORAGE_KEY_DOT_WALLET_ALLOWED_FLAG,
   STORAGE_KEY_KSM_ACCOUNT,
+  STORAGE_KEY_KSM_WALLET_ALLOWED_FLAG,
   STORAGE_KEY_POLKADOT_ACCOUNT,
   STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG,
 } from "utils/storage";
@@ -42,6 +45,7 @@ export type PolkadotWalletStatus =
 
 export interface WalletState {
   metaMaskAccount: string | undefined;
+  metaMaskDisconnected: boolean;
   polkadotWalletStatus: PolkadotWalletStatus;
   polkadotExtensionAccounts: InjectedPolkadotAccountWithMeta[];
   polkadotAccount: string | undefined;
@@ -52,6 +56,7 @@ export interface WalletState {
 
 const initialState: WalletState = {
   metaMaskAccount: undefined,
+  metaMaskDisconnected: false,
   polkadotWalletStatus: "pending",
   // polkadotAccount: "34bwmgT1NtcL8FayGiFSB9F1qZFGPjhbDfTaZRoM2AXgjrpo",
   polkadotExtensionAccounts: [],
@@ -70,6 +75,13 @@ export const walletSlice = createSlice({
       action: PayloadAction<string | undefined>
     ) => {
       state.metaMaskAccount = action.payload;
+    },
+    setMetaMaskDisconnected: (
+      state: WalletState,
+      action: PayloadAction<boolean>
+    ) => {
+      saveStorage(STORAGE_KEY_DISCONNECT_METAMASK, action.payload ? "1" : "");
+      state.metaMaskDisconnected = action.payload;
     },
     setPolkadotWalletStatus: (
       state: WalletState,
@@ -115,6 +127,7 @@ export const walletSlice = createSlice({
 
 export const {
   setMetaMaskAccount,
+  setMetaMaskDisconnected,
   setPolkadotWalletStatus,
   setPolkadotAccount,
   setPolkadotExtensionAccounts,
@@ -150,6 +163,14 @@ export const connectPolkadotJs =
         return;
       }
 
+      if (walletType === WalletType.Polkadot) {
+        saveStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG, "1");
+      } else if (walletType === WalletType.Polkadot_KSM) {
+        saveStorage(STORAGE_KEY_KSM_WALLET_ALLOWED_FLAG, "1");
+      } else if (walletType === WalletType.Polkadot_DOT) {
+        saveStorage(STORAGE_KEY_DOT_WALLET_ALLOWED_FLAG, "1");
+      }
+
       const newAccounts = await web3Accounts();
       const accounts: InjectedPolkadotAccountWithMeta[] = newAccounts?.map(
         ({ address, ...other }) => ({
@@ -169,55 +190,61 @@ export const connectPolkadotJs =
       const savedKsmAccount = getStorage(STORAGE_KEY_KSM_ACCOUNT);
       const savedDotAccount = getStorage(STORAGE_KEY_DOT_ACCOUNT);
 
-      // StaFi account.
-      let matchPolkadotAccount = accounts.find((account) => {
-        return account.address === savedPolkadotAccount;
-      });
-      // Use first account as default.
-      if (!matchPolkadotAccount) {
-        if (accounts.length > 0) {
-          matchPolkadotAccount = accounts[0];
+      if (getStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG)) {
+        // StaFi account.
+        let matchPolkadotAccount = accounts.find((account) => {
+          return account.address === savedPolkadotAccount;
+        });
+        // Use first account as default.
+        if (!matchPolkadotAccount) {
+          if (accounts.length > 0) {
+            matchPolkadotAccount = accounts[0];
+          }
         }
-      }
-      if (
-        matchPolkadotAccount &&
-        (walletType === WalletType.Polkadot || !walletType)
-      ) {
-        dispatch(setPolkadotAccount(matchPolkadotAccount.address || ""));
+        if (
+          matchPolkadotAccount &&
+          (walletType === WalletType.Polkadot || !walletType)
+        ) {
+          dispatch(setPolkadotAccount(matchPolkadotAccount.address || ""));
+        }
       }
 
-      // KSM account.
-      let matchKsmAccount = accounts.find((account) => {
-        return account.address === savedKsmAccount;
-      });
-      // Use first account as default.
-      if (!matchKsmAccount) {
-        if (accounts.length > 0) {
-          matchKsmAccount = accounts[0];
+      if (getStorage(STORAGE_KEY_KSM_WALLET_ALLOWED_FLAG)) {
+        // KSM account.
+        let matchKsmAccount = accounts.find((account) => {
+          return account.address === savedKsmAccount;
+        });
+        // Use first account as default.
+        if (!matchKsmAccount) {
+          if (accounts.length > 0) {
+            matchKsmAccount = accounts[0];
+          }
         }
-      }
-      if (
-        matchKsmAccount &&
-        (walletType === WalletType.Polkadot_KSM || !walletType)
-      ) {
-        dispatch(setKsmAccount(matchKsmAccount.address || ""));
+        if (
+          matchKsmAccount &&
+          (walletType === WalletType.Polkadot_KSM || !walletType)
+        ) {
+          dispatch(setKsmAccount(matchKsmAccount.address || ""));
+        }
       }
 
-      // DOT account.
-      let matchDotAccount = accounts.find((account) => {
-        return account.address === savedDotAccount;
-      });
-      // Use first account as default.
-      if (!matchDotAccount) {
-        if (accounts.length > 0) {
-          matchDotAccount = accounts[0];
+      if (getStorage(STORAGE_KEY_DOT_WALLET_ALLOWED_FLAG)) {
+        // DOT account.
+        let matchDotAccount = accounts.find((account) => {
+          return account.address === savedDotAccount;
+        });
+        // Use first account as default.
+        if (!matchDotAccount) {
+          if (accounts.length > 0) {
+            matchDotAccount = accounts[0];
+          }
         }
-      }
-      if (
-        matchDotAccount &&
-        (walletType === WalletType.Polkadot_DOT || !walletType)
-      ) {
-        dispatch(setDotAccount(matchDotAccount.address || ""));
+        if (
+          matchDotAccount &&
+          (walletType === WalletType.Polkadot_DOT || !walletType)
+        ) {
+          dispatch(setDotAccount(matchDotAccount.address || ""));
+        }
       }
 
       if (showSelectAccountModal && accounts.length > 1 && walletType) {
@@ -226,8 +253,6 @@ export const connectPolkadotJs =
       } else {
         dispatch(setRouteNextPage(undefined));
       }
-
-      saveStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG, "1");
     } catch (err: unknown) {}
   };
 
@@ -287,13 +312,9 @@ export const updatePolkadotExtensionAccountsBalances =
  * Update selected stafi address.
  */
 export const updateSelectedPolkadotAccountBalance =
-  (api: ApiPromise | null): AppThunk =>
-  async (dispatch, getState) => {
+  (): AppThunk => async (dispatch, getState) => {
     try {
-      if (!api) {
-        return;
-      }
-
+      const api = await stafiServer.createStafiApi();
       const address = getState().wallet.polkadotAccount;
 
       if (!address) {
@@ -323,6 +344,11 @@ export const disconnectWallet =
         dispatch(setPolkadotAccount(undefined));
         dispatch(setPolkadotBalance("--"));
         removeStorage(STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG);
+      } else if (walletType === WalletType.Polkadot_KSM) {
+        dispatch(setKsmAccount(undefined));
+        removeStorage(STORAGE_KEY_KSM_WALLET_ALLOWED_FLAG);
+      } else if (walletType === WalletType.MetaMask) {
+        dispatch(setMetaMaskDisconnected(true));
       }
     } catch (err: unknown) {}
   };

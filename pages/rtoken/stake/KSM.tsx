@@ -7,14 +7,17 @@ import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
+import { useAppDispatch } from "hooks/common";
 import { useKsmBalance } from "hooks/useKsmBalance";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName } from "interfaces/common";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { getKsmPools } from "redux/reducers/KsmSlice";
 import { connectMetaMask } from "utils/web3Utils";
 
 const RTokenStakePage = () => {
+  const dispatch = useAppDispatch();
   const { useChainId: useMetaMaskChainId } = hooks;
   const chainId = useMetaMaskChainId();
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -30,6 +33,10 @@ const RTokenStakePage = () => {
       { name: "Stake" },
     ]);
   }, [setNavigation]);
+
+  useEffect(() => {
+    dispatch(getKsmPools());
+  }, [dispatch]);
 
   return (
     <div>

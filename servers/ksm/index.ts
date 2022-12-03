@@ -1,4 +1,4 @@
-import { ApiPromise, WsProvider } from "@polkadot/api-old";
+import { ApiPromise, WsProvider } from "@polkadot/api";
 import { KeypairType } from "@polkadot/util-crypto/types";
 import { getKsmRpc } from "config/env";
 import { SubstrateKeyring } from "keyring/SubstrateKeyring";

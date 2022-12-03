@@ -24,6 +24,7 @@ import { bond } from "redux/reducers/FisSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
+import { handleKsmStake } from "redux/reducers/KsmSlice";
 
 export const RTokenStakeLoadingModal = () => {
   const dispatch = useAppDispatch();
@@ -81,6 +82,17 @@ export const RTokenStakeLoadingModal = () => {
       } else if (stakeLoadingParams.tokenName === TokenName.MATIC) {
         dispatch(
           handleMaticStake(
+            sendingParams.amount,
+            sendingParams.willReceiveAmount,
+            sendingParams.tokenStandard,
+            sendingParams.targetAddress,
+            sendingParams.newTotalStakedAmount,
+            true
+          )
+        );
+      } else if (stakeLoadingParams.tokenName === TokenName.KSM) {
+        dispatch(
+          handleKsmStake(
             sendingParams.amount,
             sendingParams.willReceiveAmount,
             sendingParams.tokenStandard,

@@ -49,6 +49,7 @@ import { useBridgeFees } from "hooks/useBridgeFees";
 import { validateETHAddress, validateSS58Address } from "utils/validator";
 import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 import { BubblesLoading } from "components/common/BubblesLoading";
+import { handleKsmStake } from "redux/reducers/KsmSlice";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -285,7 +286,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       dispatch(
         handleEthTokenStake(
           tokenStandard,
-          stakeAmount,
+          Number(stakeAmount) + "",
           willReceiveAmount,
           newTotalStakedAmount,
           false,
@@ -301,7 +302,26 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     } else if (tokenName === TokenName.MATIC) {
       dispatch(
         handleMaticStake(
-          stakeAmount,
+          Number(stakeAmount) + "",
+          willReceiveAmount,
+          tokenStandard,
+          targetAddress,
+          newTotalStakedAmount,
+          false,
+          (success) => {
+            if (success) {
+              resetState();
+              dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              props.onClose();
+            }
+          }
+        )
+        //mockProcess(stakeAmount, willReceiveAmount, tokenStandard, newTotalStakedAmount)
+      );
+    } else if (tokenName === TokenName.KSM) {
+      dispatch(
+        handleKsmStake(
+          Number(stakeAmount) + "",
           willReceiveAmount,
           tokenStandard,
           targetAddress,

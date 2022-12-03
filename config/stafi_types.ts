@@ -188,6 +188,6 @@ export const stafi_types = {
     claimed_reward: "u128",
   },
   ValidatorPrefs: {
-    commission: 'Compact<Perbill>'
-  }
+    commission: "Compact<Perbill>",
+  },
 };
