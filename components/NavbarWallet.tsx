@@ -385,7 +385,7 @@ export const NavbarWallet = () => {
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
 
-          <WalletAccountItem
+          {/* <WalletAccountItem
             name="Kusama"
             walletType={WalletType.Polkadot_KSM}
             connected={ksmConnected}
@@ -393,7 +393,7 @@ export const NavbarWallet = () => {
             balance={ksmBalance}
             tokenName={"KSM"}
             onClickConnect={() => clickConnectWallet(WalletType.Polkadot_KSM)}
-          />
+          /> */}
         </div>
       </Popover>
     </div>
