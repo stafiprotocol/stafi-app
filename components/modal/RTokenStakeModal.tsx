@@ -30,6 +30,7 @@ import {
   getMaticBondTransactionFees,
   handleMaticStake,
   mockProcess,
+	stakeMatic,
 } from "redux/reducers/MaticSlice";
 import classNames from "classnames";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
@@ -89,7 +90,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
   const { metaMaskAccount } = useWalletAccount();
 
-  const { bondFees, bondTxFees } = useTransactionCost();
+  const { bondFees, bondTxFees } = useTransactionCost(tokenName);
 
   const { erc20BridgeFee, bep20BridgeFee, solBridgeFee } = useBridgeFees();
 
