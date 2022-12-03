@@ -1,7 +1,12 @@
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getEtherScanTxUrl } from "config/explorer";
-import { getMaticAbi, getMaticTokenAddress } from "config/matic";
+import {
+  getMaticAbi,
+  getMaticStakePortalAbi,
+  getMaticStakePortalAddress,
+  getMaticTokenAddress,
+} from "config/matic";
 import { ChainId, TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
@@ -14,6 +19,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -22,6 +28,7 @@ import {
   bond,
   fisUnbond,
   getBondTransactionFees,
+  getMinting,
   getUnbondTransactionFees,
 } from "./FisSlice";
 import keyring from "servers/keyring";
@@ -55,7 +62,8 @@ export interface MaticState {
   unbondCommision: string; // unbond commision fee
   bondTxFees: string; // bond transaction fee
   unbondTxFees: string; // unbond transaction fee
-  bondFees: string; // bond relay fee
+  bondFees: string; // bond relay fee, todo: deprecated
+  relayFee: string;
 }
 
 const initialState: MaticState = {
@@ -69,6 +77,7 @@ const initialState: MaticState = {
   bondTxFees: "--",
   unbondTxFees: "--",
   bondFees: "--",
+  relayFee: "--",
 };
 
 export const maticSlice = createSlice({
@@ -109,6 +118,9 @@ export const maticSlice = createSlice({
     setBondFees: (state: MaticState, action: PayloadAction<string>) => {
       state.bondFees = action.payload;
     },
+    setRelayFee: (state: MaticState, action: PayloadAction<string>) => {
+      state.relayFee = action.payload;
+    },
   },
 });
 
@@ -123,6 +135,7 @@ export const {
   setUnbondTxFees,
   setBondTxFees,
   setBondFees,
+  setRelayFee,
 } = maticSlice.actions;
 
 export default maticSlice.reducer;
@@ -508,12 +521,17 @@ export const getPools =
 export const getRMaticRate =
   (cb?: Function): AppThunk =>
   async (dispatch, getState) => {
-    const api = await stafiServer.createStafiApi();
-    const result = await api.query.rTokenRate.rate(rSymbol.Matic);
-    let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
-    ratio = ratio || 1;
-    cb && cb(ratio);
-    return ratio;
+    try {
+      const api = await stafiServer.createStafiApi();
+      const result = await api.query.rTokenRate.rate(rSymbol.Matic);
+      let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
+      ratio = ratio || 1;
+      cb && cb(ratio);
+      return ratio;
+    } catch (err: any) {
+      console.error(err);
+      return 1;
+    }
   };
 
 export const unbondRMatic =
@@ -525,25 +543,18 @@ export const unbondRMatic =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
-    // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
-      resetStakeLoadingParams({
+      setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
         tokenName: TokenName.MATIC,
-        amount: amount,
-        userAction: "unstake",
+        amount,
         willReceiveAmount,
         newTotalStakedAmount,
-        steps: ["sending"],
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-        },
       })
     );
+
     try {
       const validPools = getState().matic.validPools;
       let selectedPool = commonSlice.getPoolForUnbond(
@@ -585,9 +596,10 @@ export const unbondRMatic =
         )
       );
     } catch (err: any) {
+      dispatch(setIsLoading(false));
       console.error(err);
     } finally {
-      dispatch(setIsLoading(false));
+      // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
     }
   };
@@ -692,17 +704,23 @@ export const mockProcess =
 export const getUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
-    dispatch(setUnbondCommision(unbondCommision.toString()));
+    if (unbondCommision) {
+      dispatch(setUnbondCommision(unbondCommision.toString()));
+    }
   };
 
 export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
   const unbondFees = await commonSlice.getUnbondFees(rSymbol.Matic);
-  dispatch(setUnbondFees(Number(unbondFees).toString()));
+  if (unbondFees) {
+    dispatch(setUnbondFees(Number(unbondFees).toString()));
+  }
 };
 
 export const getBondFees = (): AppThunk => async (dispatch, getState) => {
   const bondFees = await commonSlice.getBondFees(rSymbol.Matic);
-  dispatch(setBondFees(Number(bondFees).toString()));
+  if (bondFees) {
+    dispatch(setBondFees(Number(bondFees).toString()));
+  }
 };
 
 export const getMaticUnbondTxFees =
@@ -765,3 +783,216 @@ export const getMaticBondTransactionFees =
       )
     );
   };
+
+export const stakeMatic =
+  (
+    stakeAmount: string,
+    willReceiveAmount: string,
+    tokenStandard: TokenStandard | undefined,
+    targetAddress: string,
+    newTotalStakedAmount: string,
+    relayFee: string,
+    isReTry: boolean,
+    cb?: (success: boolean) => void
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    let chainId = ChainId.STAFI;
+    if (tokenStandard === TokenStandard.ERC20) {
+      chainId = ChainId.ETH;
+    } else if (tokenStandard === TokenStandard.BEP20) {
+      chainId = ChainId.BSC;
+    } else if (tokenStandard === TokenStandard.SPL) {
+      chainId = ChainId.SOL;
+    }
+
+    const noticeUuid = isReTry
+      ? getState().app.stakeLoadingParams?.noticeUuid
+      : stafiUuid();
+    const sendingParams = {
+      amount: stakeAmount,
+      willReceiveAmount,
+      tokenStandard,
+      newTotalStakedAmount,
+      targetAddress,
+    };
+
+    dispatch(setIsLoading(true));
+    let steps = ["sending", "staking", "minting"];
+    if (tokenStandard !== TokenStandard.Native) {
+      steps.push("swapping");
+    }
+    dispatch(
+      resetStakeLoadingParams({
+        modalVisible: true,
+        noticeUuid,
+        status: "loading",
+        tokenName: TokenName.MATIC,
+        amount: stakeAmount,
+        willReceiveAmount: willReceiveAmount,
+        newTotalStakedAmount,
+        targetAddress,
+        tokenStandard,
+        steps,
+        userAction: undefined,
+        progressDetail: {
+          sending: {
+            totalStatus: "loading",
+          },
+          sendingParams,
+          staking: {},
+          minting: {},
+          swapping: {},
+        },
+      })
+    );
+
+    try {
+      const metaMaskAccount = getState().wallet.metaMaskAccount;
+      if (!metaMaskAccount) {
+        throw new Error("Please connect MetaMask");
+      }
+
+      const web3 = createWeb3();
+      const contractMatic = new web3.eth.Contract(
+        getMaticAbi(),
+        getMaticTokenAddress(),
+        {
+          from: metaMaskAccount,
+        }
+      );
+      const stakePortalAddress = getMaticStakePortalAddress();
+
+      // query allowance
+      const allowanceResult = await contractMatic.methods
+        .allowance(metaMaskAccount, stakePortalAddress)
+        .call();
+      let allowance = web3.utils.fromWei(allowanceResult);
+      // insuffcient allowance, need to approve
+      if (Number(allowance) < Number(stakeAmount)) {
+        allowance = web3.utils.toWei("10000000");
+        const approveResult = await contractMatic.methods
+          .approve(stakePortalAddress, allowance, { from: metaMaskAccount })
+          .send();
+        if (approveResult && approveResult.status) {
+          // approved
+        } else {
+          throw new Error("Approve Error");
+        }
+      }
+
+      // stake
+      const validPools = getState().matic.validPools;
+      const poolLimit = getState().matic.poolLimit;
+
+      const amount = web3.utils.toWei(stakeAmount);
+      const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
+      if (!selectedPool) {
+        throw new Error("Invalid pool");
+      }
+
+      const polkadotAddress = getState().wallet.polkadotAccount;
+      const contractStakePortal = new web3.eth.Contract(
+        getMaticStakePortalAbi(),
+        stakePortalAddress,
+        { from: metaMaskAccount }
+      );
+      const stakeResult = await contractStakePortal.methods
+        .stake(
+          selectedPool.poolPubKey,
+          amount,
+          chainId,
+          polkadotAddress,
+          targetAddress,
+          { value: web3.utils.toWei(relayFee) }
+        )
+        .send();
+      if (!stakeResult || !stakeResult.status) {
+        throw new Error(TRANSACTION_FAILED_MESSAGE);
+      }
+
+      const txHash = stakeResult.transactionHash;
+      let txDetail;
+      while (true) {
+        await sleep(5000);
+        txDetail = await ethereum
+          .request({
+            method: "eth_getTransactionByHash",
+            params: [txHash],
+          })
+          .catch((err: any) => {
+            throw new Error(BLOCK_HASH_NOT_FOUND_MESSAGE);
+          });
+
+        if (txDetail.blockHash || !txDetail) {
+          break;
+        }
+      }
+      const blockHash = txDetail && txDetail.blockHash;
+      if (!blockHash) {
+        throw new Error(BLOCK_HASH_NOT_FOUND_MESSAGE);
+      }
+
+      // query bond state
+      dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId));
+    } catch (err: any) {
+      dispatch(setIsLoading(false));
+      if (err.code === 4001) {
+        snackbarUtil.error(CANCELLED_MESSAGE);
+        dispatch(resetStakeLoadingParams(undefined));
+      } else {
+        snackbarUtil.error(err.message);
+        let sendingDetail: StakeLoadingSendingDetailItem = {
+          totalStatus: "error",
+          broadcastStatus: "error",
+        };
+        if (err.message === BLOCK_HASH_NOT_FOUND_MESSAGE) {
+          sendingDetail = {
+            totalStatus: "error",
+            broadcastStatus: "success",
+            packStatus: "error",
+          };
+        }
+        dispatch(
+          updateStakeLoadingParams(
+            {
+              errorMsg: err.message,
+              errorStep: "sending",
+              status: "error",
+              progressDetail: {
+                sending: sendingDetail,
+                staking: {},
+                minting: {},
+              },
+            },
+            (newParams) => {
+              dispatch(
+                addNotice({
+                  id: noticeUuid || stafiUuid(),
+                  type: "rToken Stake",
+                  data: {
+                    tokenName: TokenName.MATIC,
+                    amount: Number(stakeAmount) + "",
+                    willReceiveAmount: Number(willReceiveAmount) + "",
+                  },
+                  status: "Error",
+                  stakeLoadingParams: newParams,
+                })
+              );
+            }
+          )
+        );
+      }
+    }
+  };
+
+export const getStakeRelayFee = (): AppThunk => async (dispatch, getState) => {
+  const web3 = createWeb3();
+  const contractStakePortal = new web3.eth.Contract(
+    getMaticStakePortalAbi(),
+    getMaticStakePortalAddress()
+  );
+  let feeResult = await contractStakePortal.methods.relayFee().call();
+  feeResult = feeResult || "1000000000000000"; // 0.001 ETH
+  const relayFee = web3.utils.fromWei(feeResult);
+  dispatch(setRelayFee(relayFee));
+};

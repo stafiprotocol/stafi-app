@@ -96,11 +96,11 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             <Tooltip
               title={
-                dayjs(item.startTimestamp).format("YYYY-MM-DD HH:mm:ss Z") +
+                dayjs(item.startTimestamp).format("YYYY-MM-DD HH:mm +UTC") +
                 " - " +
                 (item.endTimestamp === 0
                   ? "Now"
-                  : dayjs(item.endTimestamp).format("YYYY-MM-DD HH:mm:ss Z"))
+                  : dayjs(item.endTimestamp).format("YYYY-MM-DD HH:mm +UTC"))
               }
             >
               <span>{item.era}</span>

@@ -9,6 +9,7 @@ import { stringToHex, u8aToHex } from "@polkadot/util";
 import {
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   updateNotice,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -214,7 +215,7 @@ export const bond =
 
     let bondResult: any;
     if (chainId === ChainId.STAFI) {
-      bondResult = stafiApi.tx.rTokenSeries.liquidityBond(
+      bondResult = await stafiApi.tx.rTokenSeries.liquidityBond(
         pubkey,
         signature,
         poolPubKey,
@@ -240,7 +241,7 @@ export const bond =
       } else {
         swapAddress = targetAddress;
       }
-      bondResult = stafiApi.tx.rTokenSeries.liquidityBondAndSwap(
+      bondResult = await stafiApi.tx.rTokenSeries.liquidityBondAndSwap(
         pubkey,
         signature,
         poolPubKey,
@@ -274,12 +275,9 @@ export const bond =
           if (index === 0) {
             index++;
           }
-          // console.log("result", result.status);
           // const tx = bondResult.hash.toHex();
           try {
             if (result.status.isInBlock) {
-              // console.log("result1111", result.status);
-
               dispatch(
                 updateStakeLoadingParams({
                   progressDetail: {
@@ -298,6 +296,7 @@ export const bond =
               result.events
                 .filter((e: any) => e.event.section === "system")
                 .forEach((data: any) => {
+                  // console.log(data.event.method);
                   if (data.event.method === "ExtrinsicFailed") {
                     const [dispatchError] = data.event.data;
                     if (dispatchError.isModule) {
@@ -407,7 +406,6 @@ export const bond =
           } else {
             handleStakeError(err.message);
           }
-          console.log(err);
         });
     } catch (err: any) {
       console.error(err);
@@ -613,25 +611,29 @@ export const getMinting =
 export const queryRTokenBondState =
   (rsymbol: rSymbol, bondSuccessParamArr: any, cb?: Function): AppThunk =>
   async (dispatch, getState) => {
-    const stafiApi = await stafiServer.createStafiApi();
-    const result = await stafiApi.query.rTokenSeries.bondStates(
-      rsymbol,
-      bondSuccessParamArr
-    );
+    try {
+      const stafiApi = await stafiServer.createStafiApi();
+      const result = await stafiApi.query.rTokenSeries.bondStates(
+        rsymbol,
+        bondSuccessParamArr
+      );
 
-    let bondState = result.toJSON();
-    if (bondState === null || bondState === "Fail") {
-      // console.log("mint failure");
-      cb && cb("failure");
-    } else if (bondState === "Success") {
-      // console.log("mint success");
-      cb && cb("successful");
-    } else {
-      // console.log("mint pending");
-      cb && cb("pending");
-      setTimeout(() => {
-        dispatch(queryRTokenBondState(rsymbol, bondSuccessParamArr, cb));
-      }, 15000);
+      let bondState = result.toJSON();
+      if (bondState === null || bondState === "Fail") {
+        // console.log("mint failure");
+        cb && cb("failure");
+      } else if (bondState === "Success") {
+        // console.log("mint success");
+        cb && cb("successful");
+      } else {
+        // console.log("mint pending");
+        cb && cb("pending");
+        setTimeout(() => {
+          dispatch(queryRTokenBondState(rsymbol, bondSuccessParamArr, cb));
+        }, 15000);
+      }
+    } catch (err: any) {
+      console.error(err);
     }
   };
 
@@ -694,95 +696,85 @@ export const fisUnbond =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
-    const address = getState().wallet.polkadotAccount as string;
-    const api = await stafiServer.createStafiApi();
+    try {
+      const address = getState().wallet.polkadotAccount as string;
+      const api = await stafiServer.createStafiApi();
 
-    dispatch(
-      updateStakeLoadingParams({
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-            broadcastStatus: "loading",
-          },
-        },
-      })
-    );
+      dispatch(
+        setRedeemLoadingParams({
+          broadcastStatus: "loading",
+        })
+      );
 
-    const { web3Enable, web3FromSource } = await import(
-      "@polkadot/extension-dapp"
-    );
-    web3Enable(stafiServer.getWeb3EnableName());
-    const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
+      const { web3Enable, web3FromSource } = await import(
+        "@polkadot/extension-dapp"
+      );
+      web3Enable(stafiServer.getWeb3EnableName());
+      const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
 
-    const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
-      symbol,
-      selectedPool,
-      numberUtil.tokenAmountToChain(amount, symbol).toString(),
-      recipient
-    );
+      const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
+        symbol,
+        selectedPool,
+        numberUtil.tokenAmountToChain(amount, symbol).toString(),
+        recipient
+      );
 
-    unbondResult
-      // @ts-ignore
-      .signAndSend(address, { signer: injector.signer }, (result: any) => {
-        try {
-          if (result.status.isInBlock) {
-            result.events
-              .filter((e: any) => e.event.section === "system")
-              .forEach((data: any) => {
-                if (data.event.method === "ExtrinsicSuccess") {
-                  const txHash = unbondResult.hash.toHex();
-                  cb && cb("Success", txHash);
-                  // console.log("success");
-                  dispatch(
-                    updateStakeLoadingParams({
-                      status: "success",
-                      progressDetail: {
-                        sending: {
-                          totalStatus: "success",
-                          broadcastStatus: "success",
-                          packStatus: "success",
-                          finalizeStatus: "success",
-                        },
-                      },
-                    })
-                  );
-                } else if (data.event.method === "ExtrinsicFailed") {
-                  cb && cb("Failed");
-                  // console.error("failed");
-                  dispatch(
-                    updateStakeLoadingParams({
-                      status: "error",
-                      errorMsg: "Unstake failed",
-                      progressDetail: {
-                        sending: {
-                          totalStatus: "error",
-                        },
-                      },
-                    })
-                  );
-                }
-              });
+      unbondResult
+        // @ts-ignore
+        .signAndSend(address, { signer: injector.signer }, (result: any) => {
+          try {
+            if (result.status.isInBlock) {
+              result.events
+                .filter((e: any) => e.event.section === "system")
+                .forEach((data: any) => {
+                  if (data.event.method === "ExtrinsicSuccess") {
+                    const txHash = unbondResult.hash.toHex();
+                    cb && cb("Success", txHash);
+                    dispatch(
+                      setRedeemLoadingParams({
+                        status: "success",
+                        broadcastStatus: "success",
+                        packStatus: "success",
+                        finalizeStatus: "success",
+                      })
+                    );
+                    dispatch(setIsLoading(false));
+                  } else if (data.event.method === "ExtrinsicFailed") {
+                    cb && cb("Failed");
+                    dispatch(
+                      setRedeemLoadingParams({
+                        status: "error",
+                        errorMsg: "Unstake failed",
+                      })
+                    );
+                    dispatch(setIsLoading(false));
+                  }
+                });
+            }
+          } catch (err: any) {
+            cb && cb("Failed");
           }
-        } catch (err: any) {
-          cb && cb("Failed");
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
-        if ((err + "").startsWith("Error: Cancelled")) {
-          cb && cb("Cancel");
-          snackbarUtil.error(CANCELLED_MESSAGE);
-          dispatch(resetStakeLoadingParams(undefined));
-        } else {
-          snackbarUtil.error(err.message);
-          dispatch(
-            updateStakeLoadingParams({
-              status: "error",
-              errorMsg: "Unbond failed",
-            })
-          );
-        }
-      });
+        })
+        .catch((err: any) => {
+          console.log(err);
+          dispatch(setIsLoading(false));
+          if ((err + "").startsWith("Error: Cancelled")) {
+            cb && cb("Cancel");
+            snackbarUtil.error(CANCELLED_MESSAGE);
+            dispatch(setRedeemLoadingParams(undefined));
+          } else {
+            snackbarUtil.error(err.message);
+            dispatch(
+              setRedeemLoadingParams({
+                status: "error",
+                errorMsg: "Unbond failed",
+              })
+            );
+          }
+        });
+    } catch (err: any) {
+      console.error(err);
+    }
   };
 
 export const getUnbondTransactionFees =
@@ -794,10 +786,10 @@ export const getUnbondTransactionFees =
     cb?: (fee: string) => void
   ): AppThunk =>
   async (dispatch, getState) => {
-    const address = getState().wallet.polkadotAccount as string;
-    const api = await stafiServer.createStafiApi();
-
     try {
+      const address = getState().wallet.polkadotAccount as string;
+      const api = await stafiServer.createStafiApi();
+
       const txInfo = await api.tx.rTokenSeries
         .liquidityUnbond(
           rsymbol,
@@ -822,10 +814,10 @@ export const getBondTransactionFees =
     cb?: (fee: string) => void
   ): AppThunk =>
   async (dispatch, getState) => {
-    const address = getState().wallet.polkadotAccount as string;
-    if (!address) return;
-    const api = await stafiServer.createStafiApi();
     try {
+      const address = getState().wallet.polkadotAccount as string;
+      if (!address) return;
+      const api = await stafiServer.createStafiApi();
       let txInfo;
       if (chainId === 1) {
         txInfo = await api.tx.rTokenSeries

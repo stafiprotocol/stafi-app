@@ -10,16 +10,16 @@ export interface BridgeState {
   erc20BridgeFee: string;
   bep20BridgeFee: string;
   solBridgeFee: string;
-};
+}
 
 const initialState: BridgeState = {
-  erc20BridgeFee: '--',
-  bep20BridgeFee: '--',
-  solBridgeFee: '--',
+  erc20BridgeFee: "--",
+  bep20BridgeFee: "--",
+  solBridgeFee: "--",
 };
 
 export const bridgeSlice = createSlice({
-  name: 'bridge',
+  name: "bridge",
   initialState,
   reducers: {
     setErc20BridgeFee: (state: BridgeState, action: PayloadAction<string>) => {
@@ -34,20 +34,16 @@ export const bridgeSlice = createSlice({
   },
 });
 
-export const {
-  setBep20BridgeFee,
-  setErc20BridgeFee,
-  setSolBridgeFee,
-} = bridgeSlice.actions;
+export const { setBep20BridgeFee, setErc20BridgeFee, setSolBridgeFee } =
+  bridgeSlice.actions;
 
 export default bridgeSlice.reducer;
 
 /**
  * query estimate bridge fees
  */
-export const queryBridgeFees = 
-  (): AppThunk => 
-  async (dispatch, getState) => {
+export const queryBridgeFees = (): AppThunk => async (dispatch, getState) => {
+  try {
     const api = await stafiServer.createStafiApi();
 
     const resultErc20 = await api.query.bridgeCommon.chainFees(ChainId.ETH);
@@ -67,4 +63,7 @@ export const queryBridgeFees =
       const fee = numberUtil.fisAmountToHuman(resultSol.toJSON());
       dispatch(setSolBridgeFee(numberUtil.handleFisAmountToFixed(fee)));
     }
+  } catch (err: any) {
+    console.error(err);
   }
+};
