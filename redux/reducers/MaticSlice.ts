@@ -946,6 +946,7 @@ export const stakeMatic =
 
       // query bond state
       // await sleep(5000);
+			console.log({txHash, blockHash})
       dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId));
     } catch (err: any) {
       console.error(err);
