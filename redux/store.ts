@@ -1,23 +1,27 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import appReducer from "./reducers/AppSlice";
 import walletReducer from "./reducers/WalletSlice";
+import txReducer from "./reducers/TxSlice";
 import ethReducer from "./reducers/EthSlice";
 import rTokenReducer from "./reducers/RTokenSlice";
-import maticReducer from './reducers/MaticSlice';
-import fisReducer from './reducers/FisSlice';
-import bridgeReducer from './reducers/BridgeSlice';
-import bnbReducer from './reducers/BnbSlice';
+import maticReducer from "./reducers/MaticSlice";
+import ksmReducer from "./reducers/KsmSlice";
+import fisReducer from "./reducers/FisSlice";
+import bridgeReducer from "./reducers/BridgeSlice";
+import bnbReducer from "./reducers/BnbSlice";
 
 export const store = configureStore({
   reducer: {
     app: appReducer,
     wallet: walletReducer,
+    tx: txReducer,
     eth: ethReducer,
     rToken: rTokenReducer,
-		matic: maticReducer,
-		fis: fisReducer,
+    matic: maticReducer,
+    ksm: ksmReducer,
+    fis: fisReducer,
     bridge: bridgeReducer,
-		bnb: bnbReducer,
+    bnb: bnbReducer,
   },
 });
 

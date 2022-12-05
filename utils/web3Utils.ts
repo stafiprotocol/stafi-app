@@ -1,6 +1,6 @@
 import { isDev } from "config/env";
 import {
-	getMetamaskBscChainId,
+  getMetamaskBscChainId,
   getMetaMaskBscConfig,
   getMetamaskEthChainId,
   getMetaMaskEthConnectConfig,
@@ -35,8 +35,8 @@ export function connectMetaMask(targetChainId: number | undefined) {
   } else if (targetChainId === getMetamaskMaticChainId()) {
     metaMask.activate(getMetamaskMaticChainId());
   } else if (targetChainId === getMetamaskBscChainId()) {
-		metaMask.activate(getMetaMaskBscConfig());
-	}
+    metaMask.activate(getMetaMaskBscConfig());
+  }
 }
 
 export function connectPolkadot() {
@@ -68,14 +68,14 @@ export async function getErc20AssetBalance(
   userAddress: string | undefined,
   tokenAbi: AbiItem | AbiItem[],
   tokenAddress: string | undefined,
-  tokenName?: TokenName,
+  tokenName?: TokenName
 ) {
   if (!userAddress || !tokenAbi || !tokenAddress) {
     return "--";
   }
   try {
     let web3 = createWeb3(
-      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().stafiEth)
     );
     if (tokenName === TokenName.MATIC && window.ethereum) {
       web3 = createWeb3(window.ethereum);
@@ -97,7 +97,7 @@ export async function getBep20AssetBalance(
   userAddress: string | undefined,
   tokenAbi: AbiItem | AbiItem[],
   tokenAddress: string | undefined,
-  tokenName?: TokenName,
+  tokenName?: TokenName
 ) {
   if (!userAddress || !tokenAbi || !tokenAddress) {
     return "--";

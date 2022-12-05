@@ -1,11 +1,9 @@
 import { AnyJson } from "@polkadot/types-codec/types";
-import { rSymbol, Symbol } from "keyring/defaults";
-import StafiServer from "servers/stafi";
-import keyring from "servers/keyring";
 import { hexToU8a } from "@polkadot/util";
+import { rSymbol, Symbol } from "keyring/defaults";
+import keyring from "servers/keyring";
+import { stafiServer } from "servers/stafi";
 import numberUtil from "utils/numberUtil";
-
-const stafiServer = new StafiServer();
 
 export default class CommonSlice {
   async getPools(type: rSymbol, symbol: Symbol, cb?: Function) {

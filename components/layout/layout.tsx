@@ -82,7 +82,7 @@ export const Layout = (props: LayoutProps) => {
     // if (walletType === WalletType.MetaMask) {
     //   return isWrongMetaMaskNetwork;
     // }
-    return false;
+    // return false;
   }, [isWrongMetaMaskNetwork]);
 
   const walletNotConnected = useMemo(() => {
@@ -106,7 +106,10 @@ export const Layout = (props: LayoutProps) => {
   // }
 
   useEffect(() => {
-    if (router.pathname.startsWith("/validator")) {
+    if (router.pathname === "/rtoken") {
+      setTargetMetaMaskChainId(undefined);
+      setWalletType(WalletType.Polkadot);
+    } else if (router.pathname.startsWith("/validator")) {
       setTargetMetaMaskChainId(getMetamaskValidatorChainId());
       setWalletType(WalletType.MetaMask);
     } else if (router.pathname === "/rtoken/stake/ETH") {
@@ -118,6 +121,9 @@ export const Layout = (props: LayoutProps) => {
     } else if (router.pathname === "/rtoken/stake/BNB") {
       setTargetMetaMaskChainId(getMetamaskBscChainId());
       setWalletType(WalletType.MetaMask);
+    } else if (router.pathname === "/rtoken/stake/KSM") {
+      setTargetMetaMaskChainId(undefined);
+      setWalletType(WalletType.Polkadot_KSM);
     } else {
       setTargetMetaMaskChainId(getMetamaskMaticChainId());
       setWalletType(WalletType.Polkadot);

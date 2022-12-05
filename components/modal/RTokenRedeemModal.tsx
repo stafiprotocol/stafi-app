@@ -74,7 +74,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const tokenStandard = useTokenStandard(props.tokenName);
 
-  const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost();
+  const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost(tokenName);
   const defaultTransactionFee = 0.0129;
 
   const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
