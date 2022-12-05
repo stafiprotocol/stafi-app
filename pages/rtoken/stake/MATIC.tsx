@@ -205,14 +205,12 @@ const RMaticStakePage = () => {
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
-          <span className="font-semibold">Stake MATIC</span>: N * (StaFi chain
-          Gas Fee + Ethereum Gas Fee), and the payment is made by native FIS. In
-          most cases, N is set to 2.
+          <span className="font-semibold">Stake MATIC</span>: Ethereum Gas Fee + Relay Fee
+					(usually set as 0.001ETH).
           <br />
           <br />
           <span className="font-semibold">Unstake MATIC</span>: 0.2% unstake
-          fee(based on the amount of unstaked rMATIC) and 10% Staking Reward
-          Commission(based on the total staking rewards generated).
+          fee(based on the amount of unstaked rMATIC).
           <br />
           <br />
           Details:{" "}
@@ -239,7 +237,7 @@ const RMaticStakePage = () => {
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           <span className="font-semibold">Staking Reward Fee</span>: 10% of your
-          staking reward( your total staking reward minus validator commission)
+          staking reward(your total staking reward minus validator commission)
           <br />
           <br />
           <span className="font-semibold">Relay Fee</span>: The fee charged by
