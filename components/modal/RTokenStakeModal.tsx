@@ -91,7 +91,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
 
   const { metaMaskAccount } = useWalletAccount();
 
-  const { bondFees, bondTxFees } = useTransactionCost(tokenName);
+  const { bondFees, bondTxFees, relayFee } = useTransactionCost(tokenName);
 
   const { erc20BridgeFee, bep20BridgeFee, solBridgeFee } = useBridgeFees();
 
@@ -302,12 +302,13 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       );
     } else if (tokenName === TokenName.MATIC) {
       dispatch(
-        handleMaticStake(
+        stakeMatic(
           Number(stakeAmount) + "",
           willReceiveAmount,
           tokenStandard,
           targetAddress,
           newTotalStakedAmount,
+					relayFee,
           false,
           (success) => {
             if (success) {

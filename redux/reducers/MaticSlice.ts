@@ -817,10 +817,7 @@ export const stakeMatic =
     };
 
     dispatch(setIsLoading(true));
-    let steps = ["sending", "staking", "minting"];
-    if (tokenStandard !== TokenStandard.Native) {
-      steps.push("swapping");
-    }
+    let steps = ["sending", "minting"];
     dispatch(
       resetStakeLoadingParams({
         modalVisible: true,
@@ -839,9 +836,7 @@ export const stakeMatic =
             totalStatus: "loading",
           },
           sendingParams,
-          staking: {},
           minting: {},
-          swapping: {},
         },
       })
     );
@@ -871,8 +866,8 @@ export const stakeMatic =
       if (Number(allowance) < Number(stakeAmount)) {
         allowance = web3.utils.toWei("10000000");
         const approveResult = await contractMatic.methods
-          .approve(stakePortalAddress, allowance, { from: metaMaskAccount })
-          .send();
+          .approve(stakePortalAddress, allowance)
+          .send({ from: metaMaskAccount });
         if (approveResult && approveResult.status) {
           // approved
         } else {
@@ -896,16 +891,17 @@ export const stakeMatic =
         stakePortalAddress,
         { from: metaMaskAccount }
       );
+			const keyringInstance = keyring.init(Symbol.Fis);
+			const polkadotPubKey = u8aToHex(keyringInstance.decodeAddress(polkadotAddress as string));
       const stakeResult = await contractStakePortal.methods
         .stake(
           selectedPool.poolPubKey,
           amount,
-          chainId,
-          polkadotAddress,
-          targetAddress,
-          { value: web3.utils.toWei(relayFee) }
+          chainId.toString(),
+					polkadotPubKey,
+          metaMaskAccount,
         )
-        .send();
+        .send({ value: web3.utils.toWei(relayFee) });
       if (!stakeResult || !stakeResult.status) {
         throw new Error(TRANSACTION_FAILED_MESSAGE);
       }
@@ -933,8 +929,10 @@ export const stakeMatic =
       }
 
       // query bond state
+			// await sleep(5000);
       dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId));
     } catch (err: any) {
+			console.error(err);
       dispatch(setIsLoading(false));
       if (err.code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);

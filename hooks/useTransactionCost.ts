@@ -13,34 +13,40 @@ import { useAppDispatch, useAppSelector } from "./common";
 export function useTransactionCost(tokenName: TokenName) {
   const dispatch = useAppDispatch();
 
-  const { unbondCommision, unbondFees, bondTxFees, bondFees, unbondTxFees } =
-    useAppSelector((state: RootState) => {
-      if (tokenName === TokenName.MATIC) {
-        return {
-          unbondCommision: state.matic.unbondCommision,
-          unbondFees: state.matic.unbondFees,
-          bondTxFees: state.matic.bondTxFees,
-          unbondTxFees: state.matic.unbondTxFees,
-          bondFees: state.matic.bondFees,
-          relayFee: state.matic,
-        };
-      }
+  const {
+    unbondCommision,
+    unbondFees,
+    bondTxFees,
+    bondFees,
+    unbondTxFees,
+    relayFee,
+  } = useAppSelector((state: RootState) => {
+    if (tokenName === TokenName.MATIC) {
       return {
-        unbondCommision: "--",
-        unbondFees: "--",
-        bondTxFees: "--",
-        unbondTxFees: "--",
-        bondFees: "--",
-        relayFee: "--",
+        unbondCommision: state.matic.unbondCommision,
+        unbondFees: state.matic.unbondFees,
+        bondTxFees: state.matic.bondTxFees,
+        unbondTxFees: state.matic.unbondTxFees,
+        bondFees: state.matic.bondFees,
+        relayFee: state.matic.relayFee,
       };
-    });
+    }
+    return {
+      unbondCommision: "--",
+      unbondFees: "--",
+      bondTxFees: "--",
+      unbondTxFees: "--",
+      bondFees: "--",
+      relayFee: "--",
+    };
+  });
 
   useEffect(() => {
     if (tokenName === TokenName.MATIC) {
       dispatch(getUnbondCommision());
       dispatch(getUnbondFees());
       dispatch(getBondFees());
-			dispatch(getStakeRelayFee());
+      dispatch(getStakeRelayFee());
     }
   }, [dispatch]);
 
@@ -50,5 +56,6 @@ export function useTransactionCost(tokenName: TokenName) {
     bondTxFees,
     unbondTxFees,
     bondFees,
+    relayFee,
   };
 }
