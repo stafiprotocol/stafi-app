@@ -32,6 +32,9 @@ export interface BnbState {
   stakedAmount: string;
   validPools: any[];
   poolLimit: any;
+  unbondFee: string;
+  bondFee: string;
+  unbondCommision: string;
 }
 
 const initialState: BnbState = {
@@ -39,6 +42,9 @@ const initialState: BnbState = {
   stakedAmount: "--",
   validPools: [],
   poolLimit: 0,
+  bondFee: "--",
+  unbondFee: "--",
+  unbondCommision: "--",
 };
 
 export const bnbSlice = createSlice({
@@ -61,11 +67,27 @@ export const bnbSlice = createSlice({
     setPoolLimit: (state: BnbState, action: PayloadAction<any>) => {
       state.poolLimit = action.payload;
     },
+    setBondFee: (state: BnbState, action: PayloadAction<string>) => {
+      state.bondFee = action.payload;
+    },
+    setUnbondFee: (state: BnbState, action: PayloadAction<string>) => {
+      state.unbondFee = action.payload;
+    },
+    setUnbondCommision: (state: BnbState, action: PayloadAction<string>) => {
+      state.unbondCommision = action.payload;
+    },
   },
 });
 
-export const { setBalance, setStakedAmount, setValidPools, setPoolLimit } =
-  bnbSlice.actions;
+export const {
+  setBalance,
+  setStakedAmount,
+  setValidPools,
+  setPoolLimit,
+  setBondFee,
+  setUnbondFee,
+  setUnbondCommision,
+} = bnbSlice.actions;
 
 declare const window: any;
 
@@ -151,7 +173,7 @@ export const handleBnbStake =
 
     const web3 = createWeb3();
     const amount = web3.utils.toWei(stakeAmount, "ether");
-		const amountInBnb = numberUtil.tokenAmountToChain(stakeAmount, rSymbol.Bnb);
+    const amountInBnb = numberUtil.tokenAmountToChain(stakeAmount, rSymbol.Bnb);
 
     const validPools = getState().bnb.validPools;
     const poolLimit = getState().bnb.poolLimit;
@@ -230,7 +252,7 @@ export const handleBnbStake =
           rSymbol.Bnb,
           chainId,
           targetAddress,
-					cb
+          cb
         )
       );
     } catch (err: any) {
@@ -337,5 +359,27 @@ export const unbondRBnb =
       );
     } catch (err: any) {
       console.error(err);
+    }
+  };
+
+export const getBondFee = (): AppThunk => async (dispatch, getState) => {
+  const bondFee = await commonSlice.getBondFees(rSymbol.Bnb);
+  if (bondFee) {
+    dispatch(setBondFee(Number(bondFee).toString()));
+  }
+};
+
+export const getUnbondFee = (): AppThunk => async (dispatch, getState) => {
+  const unbondFee = await commonSlice.getUnbondFees(rSymbol.Bnb);
+  if (unbondFee) {
+    dispatch(setUnbondFee(Number(unbondFee).toString()));
+  }
+};
+
+export const getUnbondCommision =
+  (): AppThunk => async (dispatch, getState) => {
+    const unbondCommision = await commonSlice.getUnbondCommision();
+    if (unbondCommision) {
+      dispatch(setUnbondCommision(unbondCommision.toString()));
     }
   };
