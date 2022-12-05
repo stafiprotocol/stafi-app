@@ -64,6 +64,8 @@ export interface MaticState {
   unbondTxFees: string; // unbond transaction fee
   bondFees: string; // bond relay fee, todo: deprecated
   relayFee: string;
+  isApproved: boolean;
+  bridgeFee: string;
 }
 
 const initialState: MaticState = {
@@ -78,6 +80,8 @@ const initialState: MaticState = {
   unbondTxFees: "--",
   bondFees: "--",
   relayFee: "--",
+  isApproved: false,
+  bridgeFee: "--",
 };
 
 export const maticSlice = createSlice({
@@ -121,6 +125,12 @@ export const maticSlice = createSlice({
     setRelayFee: (state: MaticState, action: PayloadAction<string>) => {
       state.relayFee = action.payload;
     },
+    setIsApproved: (state: MaticState, action: PayloadAction<boolean>) => {
+      state.isApproved = action.payload;
+    },
+    setBridgeFee: (state: MaticState, action: PayloadAction<string>) => {
+      state.bridgeFee = action.payload;
+    },
   },
 });
 
@@ -136,6 +146,8 @@ export const {
   setBondTxFees,
   setBondFees,
   setRelayFee,
+  setIsApproved,
+  setBridgeFee,
 } = maticSlice.actions;
 
 export default maticSlice.reducer;
@@ -792,6 +804,7 @@ export const stakeMatic =
     targetAddress: string,
     newTotalStakedAmount: string,
     relayFee: string,
+		bridgeFee: string,
     isReTry: boolean,
     cb?: (success: boolean) => void
   ): AppThunk =>
@@ -891,17 +904,20 @@ export const stakeMatic =
         stakePortalAddress,
         { from: metaMaskAccount }
       );
-			const keyringInstance = keyring.init(Symbol.Fis);
-			const polkadotPubKey = u8aToHex(keyringInstance.decodeAddress(polkadotAddress as string));
+      const keyringInstance = keyring.init(Symbol.Fis);
+      const polkadotPubKey = u8aToHex(
+        keyringInstance.decodeAddress(polkadotAddress as string)
+      );
+			const txFee = (Number(relayFee) + Number(bridgeFee)).toString();
       const stakeResult = await contractStakePortal.methods
         .stake(
           selectedPool.poolPubKey,
           amount,
           chainId.toString(),
-					polkadotPubKey,
-          metaMaskAccount,
+          polkadotPubKey,
+          metaMaskAccount
         )
-        .send({ value: web3.utils.toWei(relayFee) });
+        .send({ value: web3.utils.toWei(txFee) });
       if (!stakeResult || !stakeResult.status) {
         throw new Error(TRANSACTION_FAILED_MESSAGE);
       }
@@ -929,10 +945,10 @@ export const stakeMatic =
       }
 
       // query bond state
-			// await sleep(5000);
+      // await sleep(5000);
       dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId));
     } catch (err: any) {
-			console.error(err);
+      console.error(err);
       dispatch(setIsLoading(false));
       if (err.code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
@@ -993,4 +1009,22 @@ export const getStakeRelayFee = (): AppThunk => async (dispatch, getState) => {
   feeResult = feeResult || "1000000000000000"; // 0.001 ETH
   const relayFee = web3.utils.fromWei(feeResult);
   dispatch(setRelayFee(relayFee));
+};
+
+export const queryIsApproved = (): AppThunk => async (dispatch, getState) => {
+  const web3 = createWeb3();
+  const metaMaskAccount = getState().wallet.metaMaskAccount;
+  const stakePortalAddress = getMaticStakePortalAddress();
+  const contractMatic = new web3.eth.Contract(
+    getMaticAbi(),
+    getMaticTokenAddress(),
+    {
+      from: metaMaskAccount,
+    }
+  );
+  const allowanceResult = await contractMatic.methods
+    .allowance(metaMaskAccount, stakePortalAddress)
+    .call();
+  let allowance = web3.utils.fromWei(allowanceResult);
+  dispatch(setIsApproved(Number(allowance) > 0));
 };

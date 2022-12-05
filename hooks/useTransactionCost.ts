@@ -1,4 +1,4 @@
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import { useEffect } from "react";
 // import { getTransactionFees } from "redux/reducers/FisSlice";
 import {
@@ -10,7 +10,10 @@ import {
 import { RootState } from "redux/store";
 import { useAppDispatch, useAppSelector } from "./common";
 
-export function useTransactionCost(tokenName: TokenName) {
+export function useTransactionCost(
+  tokenName: TokenName,
+  tokenStandard: TokenStandard
+) {
   const dispatch = useAppDispatch();
 
   const {

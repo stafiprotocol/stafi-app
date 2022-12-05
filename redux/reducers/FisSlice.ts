@@ -619,6 +619,7 @@ export const queryRTokenBondState =
       );
 
       let bondState = result.toJSON();
+			console.log(bondState)
       if (bondState === null || bondState === "Fail") {
         // console.log("mint failure");
         cb && cb("failure");
