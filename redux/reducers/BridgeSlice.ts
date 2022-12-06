@@ -1,8 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  getMaticStakePortalAbi,
+  getMaticStakePortalAddress,
+} from "config/matic";
 import { ChainId } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
 import numberUtil from "utils/numberUtil";
+import { createWeb3 } from "utils/web3Utils";
 
 const stafiServer = new StafiServer();
 
@@ -65,5 +70,42 @@ export const queryBridgeFees = (): AppThunk => async (dispatch, getState) => {
     }
   } catch (err: any) {
     console.error(err);
+  }
+};
+
+/**
+ * query bridge fee from stakePortal
+ * @returns 
+ */
+export const getBridgeFee = (): AppThunk => async (dispatch, getState) => {
+  const web3 = createWeb3();
+  const metaMaskAccount = getState().wallet.metaMaskAccount;
+  const contractMatic = new web3.eth.Contract(
+    getMaticStakePortalAbi(),
+    getMaticStakePortalAddress(),
+    {
+      from: metaMaskAccount,
+    }
+  );
+
+  const erc20BridgeFeeResult = await contractMatic.methods
+    .bridgeFee(ChainId.ETH)
+    .call();
+  if (!isNaN(Number(erc20BridgeFeeResult))) {
+    dispatch(setErc20BridgeFee(web3.utils.fromWei(erc20BridgeFeeResult)));
+  }
+
+  const bep20BridgeFeeResult = await contractMatic.methods
+    .bridgeFee(ChainId.BSC)
+    .call();
+  if (!isNaN(Number(bep20BridgeFeeResult))) {
+    dispatch(setBep20BridgeFee(web3.utils.fromWei(bep20BridgeFeeResult)));
+  }
+
+  const solBridgeFeeResult = await contractMatic.methods
+    .bridgeFee(ChainId.SOL)
+    .call();
+  if (!isNaN(Number(solBridgeFeeResult))) {
+    dispatch(setSolBridgeFee(web3.utils.fromWei(solBridgeFeeResult)));
   }
 };

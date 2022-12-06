@@ -84,20 +84,28 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const ethGasPrice = useEthGasPrice();
   const { polkadotBalance } = useWalletAccount();
 
-  const { ethBalance } = useAppSelector((state: RootState) => {
+  const { ethBalance, isApproved } = useAppSelector((state: RootState) => {
+    let isApproved: boolean = false;
+    if (tokenName === TokenName.MATIC) {
+      isApproved = state.matic.isApproved;
+    }
     return {
       ethBalance: state.eth.balance,
+      isApproved,
     };
   });
 
   const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
     useWalletAccount();
 
-  const { bondFees, bondTxFees } = useTransactionCost(tokenName);
+  const { bondFees, bondTxFees, relayFee } = useTransactionCost(
+    tokenName,
+    tokenStandard || TokenStandard.Native
+  );
 
   const { erc20BridgeFee, bep20BridgeFee, solBridgeFee } = useBridgeFees();
 
-  const fisPrice = useTokenPrice("FIS");
+  const ethPrice = useTokenPrice("ETH");
 
   const userAddress = useMemo(() => {
     if (walletType === WalletType.MetaMask) {
@@ -151,7 +159,10 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const estimateFee = useMemo(() => {
     let gasLimit = 146316;
     if (tokenName === TokenName.MATIC) {
-      gasLimit = 36928;
+      gasLimit = 79724;
+      if (!isApproved) {
+        gasLimit += 46179;
+      }
     }
     if (tokenName === TokenName.ETH || tokenName === TokenName.MATIC) {
       if (isNaN(Number(ethGasPrice))) {
@@ -165,15 +176,14 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     }
 
     return "--";
-  }, [ethGasPrice, tokenName]);
+  }, [ethGasPrice, tokenName, isApproved]);
 
   const transactionCost = useMemo(() => {
-    let txFee = bondTxFees;
     if (tokenStandard === TokenStandard.Native) {
-      if (isNaN(Number(txFee)) || isNaN(Number(bondFees))) {
+      if (isNaN(Number(estimateFee)) || isNaN(Number(estimateFee))) {
         return "--";
       }
-      return Number(numberUtil.fisAmountToHuman(bondFees)) + Number(txFee) + "";
+      return Number(relayFee) + Number(estimateFee) + "";
     } else {
       let bridgeFee: string = "--";
       if (tokenStandard === TokenStandard.ERC20) {
@@ -185,32 +195,32 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       }
 
       if (
-        isNaN(Number(txFee)) ||
-        isNaN(Number(bondFees)) ||
+        isNaN(Number(estimateFee)) ||
+        isNaN(Number(relayFee)) ||
         isNaN(Number(bridgeFee))
       ) {
         return "--";
       }
       return (
-        Number(numberUtil.fisAmountToHuman(bondFees)) +
-        Number(txFee) +
+        Number(relayFee) +
+        Number(estimateFee) +
         Number(bridgeFee) +
         ""
       );
     }
   }, [
-    bondFees,
-    bondTxFees,
     erc20BridgeFee,
     bep20BridgeFee,
     solBridgeFee,
+		relayFee,
+		estimateFee,
     tokenStandard,
   ]);
 
   const transactionCostValue = useMemo(() => {
-    if (isNaN(Number(transactionCost)) || isNaN(Number(fisPrice))) return "--";
-    return Number(transactionCost) * Number(fisPrice) + "";
-  }, [transactionCost, fisPrice]);
+    if (isNaN(Number(transactionCost)) || isNaN(Number(ethPrice))) return "--";
+    return Number(transactionCost) * Number(ethPrice) + "";
+  }, [transactionCost, ethPrice]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
@@ -309,13 +319,23 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         )
       );
     } else if (tokenName === TokenName.MATIC) {
+			let bridgeFee: string = '0';
+			if (tokenStandard === TokenStandard.ERC20) {
+				bridgeFee = erc20BridgeFee;
+			} else if (tokenStandard === TokenStandard.BEP20) {
+				bridgeFee = bep20BridgeFee;
+			} else if (tokenStandard === TokenStandard.SPL) {
+				bridgeFee = solBridgeFee;
+			}
       dispatch(
-        handleMaticStake(
+        stakeMatic(
           Number(stakeAmount) + "",
           willReceiveAmount,
           tokenStandard,
           targetAddress,
           newTotalStakedAmount,
+          relayFee,
+					bridgeFee,
           false,
           (success) => {
             if (success) {
@@ -371,7 +391,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return (
       <div className="flex justify-between my-[.18rem]">
         <div>Bridge Fee</div>
-        <div>{formatNumber(bridgeFee, { decimals: 3 })} FIS</div>
+        <div>{formatNumber(bridgeFee, { decimals: 3 })} ETH</div>
       </div>
     );
   };
@@ -648,7 +668,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
                     {...bindHover(txCostPopupState)}
                   >
-                    {formatNumber(transactionCost, { decimals: 2 })} FIS
+                    {formatNumber(transactionCost, { decimals: 3 })} ETH
                     <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
                       <Image src={downIcon} layout="fill" alt="down" />
                     </div>
@@ -681,11 +701,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   <div className="text-text2">
                     <div className="flex justify-between">
                       <div>Relay Fee</div>
-                      <div>{numberUtil.fisAmountToHuman(bondFees)} FIS</div>
-                    </div>
-                    <div className="flex justify-between my-[.18rem]">
-                      <div>Stafi Chain Tx Fee</div>
-                      <div>{formatNumber(bondTxFees, { decimals: 3 })} FIS</div>
+                      <div>{relayFee} ETH</div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>ETH Tx Fee</div>
@@ -696,7 +712,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
                     <div className="text-text1">
                       Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
-                      {formatNumber(transactionCost, { decimals: 3 })} FIS
+                      {formatNumber(transactionCost, { decimals: 3 })} ETH
                     </div>
                     <div className="mt-[.18rem] text-right">
                       ~${formatNumber(transactionCostValue, { decimals: 3 })}
