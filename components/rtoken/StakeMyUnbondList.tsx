@@ -42,7 +42,10 @@ export const StakeMyUnbondList = (props: Props) => {
             />
           </div>
           <div className="flex justify-center">
-            <MyTooltip text="Receive Address" title="Receive Address" />
+            <MyTooltip
+              title={`The address that receives redeemed ${props.tokenName} tokens, ${props.tokenName} tokens will be sent to the receiving address after receiving the request of redemption around 9 days`}
+              text="Receiving Address"
+            />
           </div>
           <div className="flex justify-center">
             <MyTooltip
