@@ -125,7 +125,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         </div>
 
         <div
-          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.04rem]"
+          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.04rem] hidden"
           style={{
             background: "rgba(25, 38, 52, 0.4)",
             border: "1px solid #1A2835",

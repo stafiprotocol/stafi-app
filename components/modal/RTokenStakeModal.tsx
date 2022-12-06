@@ -201,19 +201,14 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       ) {
         return "--";
       }
-      return (
-        Number(relayFee) +
-        Number(estimateFee) +
-        Number(bridgeFee) +
-        ""
-      );
+      return Number(relayFee) + Number(estimateFee) + Number(bridgeFee) + "";
     }
   }, [
     erc20BridgeFee,
     bep20BridgeFee,
     solBridgeFee,
-		relayFee,
-		estimateFee,
+    relayFee,
+    estimateFee,
     tokenStandard,
   ]);
 
@@ -319,14 +314,21 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         )
       );
     } else if (tokenName === TokenName.MATIC) {
-			let bridgeFee: string = '0';
-			if (tokenStandard === TokenStandard.ERC20) {
-				bridgeFee = erc20BridgeFee;
-			} else if (tokenStandard === TokenStandard.BEP20) {
-				bridgeFee = bep20BridgeFee;
-			} else if (tokenStandard === TokenStandard.SPL) {
-				bridgeFee = solBridgeFee;
-			}
+      let bridgeFee: string = "0";
+      if (tokenStandard === TokenStandard.ERC20) {
+        bridgeFee = erc20BridgeFee;
+      } else if (tokenStandard === TokenStandard.BEP20) {
+        bridgeFee = bep20BridgeFee;
+      } else if (tokenStandard === TokenStandard.SPL) {
+        bridgeFee = solBridgeFee;
+      }
+      let txFee = "--";
+      if (!isNaN(Number(relayFee)) && !isNaN(Number(bridgeFee))) {
+        txFee = (Number(relayFee) + Number(bridgeFee)).toString();
+      }
+      if (txFee === "--") {
+        return;
+      }
       dispatch(
         stakeMatic(
           Number(stakeAmount) + "",
@@ -334,8 +336,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           tokenStandard,
           targetAddress,
           newTotalStakedAmount,
-          relayFee,
-					bridgeFee,
+          txFee,
           false,
           (success) => {
             if (success) {
@@ -391,7 +392,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return (
       <div className="flex justify-between my-[.18rem]">
         <div>Bridge Fee</div>
-        <div>{formatNumber(bridgeFee, { decimals: 3 })} ETH</div>
+        <div>{formatNumber(bridgeFee, { decimals: 4 })} ETH</div>
       </div>
     );
   };
@@ -668,7 +669,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
                     {...bindHover(txCostPopupState)}
                   >
-                    {formatNumber(transactionCost, { decimals: 3 })} ETH
+                    {formatNumber(transactionCost, { decimals: 4 })} ETH
                     <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
                       <Image src={downIcon} layout="fill" alt="down" />
                     </div>
@@ -701,21 +702,21 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   <div className="text-text2">
                     <div className="flex justify-between">
                       <div>Relay Fee</div>
-                      <div>{relayFee} ETH</div>
+                      <div>{formatNumber(relayFee, { decimals: 4 })} ETH</div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>ETH Tx Fee</div>
-                      <div>{formatNumber(estimateFee)} ETH</div>
+                      <div>{formatNumber(estimateFee, { decimals: 4 })} ETH</div>
                     </div>
                     {tokenStandard !== TokenStandard.Native &&
                       renderBridgeFee()}
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
                     <div className="text-text1">
                       Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
-                      {formatNumber(transactionCost, { decimals: 3 })} ETH
+                      {formatNumber(transactionCost, { decimals: 4 })} ETH
                     </div>
                     <div className="mt-[.18rem] text-right">
-                      ~${formatNumber(transactionCostValue, { decimals: 3 })}
+                      ~${formatNumber(transactionCostValue, { decimals: 4 })}
                     </div>
                   </div>
                 </HoverPopover>

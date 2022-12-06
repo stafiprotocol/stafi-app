@@ -249,7 +249,6 @@ export const handleMaticStake =
           targetAddress,
           tokenStandard,
           steps,
-          userAction: undefined,
           progressDetail: {
             sending: {
               totalStatus: "loading",
@@ -458,67 +457,6 @@ export const handleMaticStake =
     }
   };
 
-export const retryStake =
-  (cb?: (success: boolean) => void): AppThunk =>
-  async (dispatch, getState) => {
-    const stakeLoadingParams = getState().app.stakeLoadingParams;
-    if (!stakeLoadingParams) return;
-
-    const metaMaskAccount = getState().wallet.metaMaskAccount;
-    const {
-      txHash,
-      blockHash,
-      amount,
-      poolPubKey,
-      targetAddress,
-      tokenStandard,
-    } = stakeLoadingParams;
-
-    let chainId = ChainId.STAFI;
-    if (tokenStandard === TokenStandard.ERC20) {
-      chainId = ChainId.ETH;
-    } else if (tokenStandard === TokenStandard.BEP20) {
-      chainId = ChainId.BSC;
-    } else if (tokenStandard === TokenStandard.SPL) {
-      chainId = ChainId.SOL;
-    }
-
-    dispatch(
-      updateStakeLoadingParams({
-        txHash: txHash,
-        scanUrl: getEtherScanTxUrl(txHash as string),
-        blockHash: blockHash,
-        poolPubKey: poolPubKey as string,
-        progressDetail: {
-          sending: {
-            totalStatus: "success",
-            broadcastStatus: "success",
-            packStatus: "success",
-            finalizeStatus: "success",
-          },
-          staking: {
-            totalStatus: "loading",
-          },
-          minting: {},
-        },
-      })
-    );
-
-    dispatch(
-      bond(
-        metaMaskAccount as string,
-        txHash as string,
-        blockHash as string,
-        amount as string,
-        poolPubKey as string,
-        rSymbol.Matic,
-        chainId,
-        targetAddress as string,
-        cb
-      )
-    );
-  };
-
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -640,7 +578,6 @@ export const mockProcess =
         willReceiveAmount: willReceiveAmount,
         newTotalStakedAmount,
         steps: ["sending", "staking", "minting"],
-        userAction: undefined,
         progressDetail: {
           sending: {
             totalStatus: "loading",
@@ -801,6 +738,9 @@ export const getMaticBondTransactionFees =
     );
   };
 
+/**
+ * stake MATIC to StaFi Portal
+ */
 export const stakeMatic =
   (
     stakeAmount: string,
@@ -808,8 +748,7 @@ export const stakeMatic =
     tokenStandard: TokenStandard | undefined,
     targetAddress: string,
     newTotalStakedAmount: string,
-    relayFee: string,
-    bridgeFee: string,
+    txFee: string,
     isReTry: boolean,
     cb?: (success: boolean) => void
   ): AppThunk =>
@@ -832,32 +771,10 @@ export const stakeMatic =
       tokenStandard,
       newTotalStakedAmount,
       targetAddress,
+      txFee,
     };
 
     dispatch(setIsLoading(true));
-    let steps = ["sending", "minting"];
-    dispatch(
-      resetStakeLoadingParams({
-        modalVisible: true,
-        noticeUuid,
-        status: "loading",
-        tokenName: TokenName.MATIC,
-        amount: stakeAmount,
-        willReceiveAmount: willReceiveAmount,
-        newTotalStakedAmount,
-        targetAddress,
-        tokenStandard,
-        steps,
-        userAction: undefined,
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-          sendingParams,
-          minting: {},
-        },
-      })
-    );
 
     try {
       const metaMaskAccount = getState().wallet.metaMaskAccount;
@@ -875,6 +792,8 @@ export const stakeMatic =
       );
       const stakePortalAddress = getMaticStakePortalAddress();
 
+      let steps = ["staking", "minting"];
+
       // query allowance
       const allowanceResult = await contractMatic.methods
         .allowance(metaMaskAccount, stakePortalAddress)
@@ -882,15 +801,86 @@ export const stakeMatic =
       let allowance = web3.utils.fromWei(allowanceResult);
       // insuffcient allowance, need to approve
       if (Number(allowance) < Number(stakeAmount)) {
+        steps.unshift("approving");
+        dispatch(
+          resetStakeLoadingParams({
+            modalVisible: true,
+            noticeUuid,
+            status: "loading",
+            tokenName: TokenName.MATIC,
+            amount: stakeAmount,
+            willReceiveAmount: willReceiveAmount,
+            newTotalStakedAmount,
+            targetAddress,
+            tokenStandard,
+            steps,
+            progressDetail: {
+              approving: {
+                totalStatus: "loading",
+              },
+              sendingParams,
+              staking: {},
+              minting: {},
+            },
+            customMsg: "Approving MATIC to StaFi Portal",
+          })
+        );
         allowance = web3.utils.toWei("10000000");
         const approveResult = await contractMatic.methods
           .approve(stakePortalAddress, allowance)
           .send({ from: metaMaskAccount });
         if (approveResult && approveResult.status) {
           // approved
+          dispatch(
+            updateStakeLoadingParams({
+              progressDetail: {
+                approving: {
+                  totalStatus: "loading",
+                  broadcastStatus: "loading",
+                },
+              },
+              customMsg: undefined,
+            })
+          );
+
+          await sleep(5000);
+          dispatch(
+            updateStakeLoadingParams({
+              progressDetail: {
+                approving: {
+                  totalStatus: "success",
+                  broadcastStatus: "success",
+                  packStatus: "success",
+                },
+              },
+            })
+          );
         } else {
           throw new Error("Approve Error");
         }
+      } else {
+        dispatch(
+          resetStakeLoadingParams({
+            modalVisible: true,
+            noticeUuid,
+            status: "loading",
+            tokenName: TokenName.MATIC,
+            amount: stakeAmount,
+            willReceiveAmount: willReceiveAmount,
+            newTotalStakedAmount,
+            targetAddress,
+            tokenStandard,
+            steps,
+            progressDetail: {
+              staking: {
+                totalStatus: "loading",
+              },
+              sendingParams,
+              minting: {},
+            },
+            // customMsg: 'Staking to StaFi Portal',
+          })
+        );
       }
 
       // stake
@@ -913,7 +903,18 @@ export const stakeMatic =
       const polkadotPubKey = u8aToHex(
         keyringInstance.decodeAddress(polkadotAddress as string)
       );
-      const txFee = (Number(relayFee) + Number(bridgeFee)).toString();
+
+      dispatch(
+        updateStakeLoadingParams({
+          progressDetail: {
+            staking: {
+              totalStatus: "loading",
+              broadcastStatus: "loading",
+            },
+          },
+        })
+      );
+
       const stakeResult = await contractStakePortal.methods
         .stake(
           selectedPool.poolPubKey,
@@ -949,10 +950,22 @@ export const stakeMatic =
         throw new Error(BLOCK_HASH_NOT_FOUND_MESSAGE);
       }
 
+      dispatch(
+        updateStakeLoadingParams({
+          progressDetail: {
+            staking: {
+              totalStatus: "success",
+              broadcastStatus: "success",
+              packStatus: "success",
+            },
+          },
+          customMsg: "Staking succeeded, now minting...",
+        })
+      );
+
       // query bond state
-      // await sleep(5000);
       console.log({ txHash, blockHash });
-      dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId));
+      dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId, cb));
     } catch (err: any) {
       console.error(err);
       dispatch(setIsLoading(false));
@@ -983,6 +996,7 @@ export const stakeMatic =
                 staking: {},
                 minting: {},
               },
+              customMsg: undefined,
             },
             (newParams) => {
               dispatch(

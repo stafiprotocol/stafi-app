@@ -243,7 +243,6 @@ export const handleKsmStake =
           targetAddress,
           tokenStandard,
           steps,
-          userAction: undefined,
           progressDetail: {
             sending: {
               totalStatus: "loading",
@@ -463,7 +462,6 @@ export const unstakeRKsm =
         status: "loading",
         tokenName: TokenName.KSM,
         amount: amount,
-        userAction: "unstake",
         willReceiveAmount,
         newTotalStakedAmount,
         steps: ["sending"],
@@ -524,6 +522,7 @@ export const getUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
     dispatch(setUnbondCommision(unbondCommision?.toString() || "--"));
+    // dispatch(updateMaticBalance());
   };
 
 export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {

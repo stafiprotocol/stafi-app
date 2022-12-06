@@ -16,10 +16,8 @@ import {
 } from "redux/reducers/AppSlice";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import {
-  handleMaticStake,
-  retryStake as retryMaticStake,
+  stakeMatic,
 } from "redux/reducers/MaticSlice";
-import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
 import { bond } from "redux/reducers/FisSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
@@ -40,10 +38,6 @@ export const RTokenStakeLoadingModal = () => {
   useEffect(() => {
     setShowDetail(false);
   }, [stakeLoadingParams?.modalVisible]);
-
-  const userAction = useMemo(() => {
-    return stakeLoadingParams?.userAction || "staking";
-  }, [stakeLoadingParams]);
 
   const closeModal = () => {
     if (stakeLoadingParams?.status !== "loading") {
@@ -81,12 +75,13 @@ export const RTokenStakeLoadingModal = () => {
         );
       } else if (stakeLoadingParams.tokenName === TokenName.MATIC) {
         dispatch(
-          handleMaticStake(
+          stakeMatic(
             sendingParams.amount,
             sendingParams.willReceiveAmount,
             sendingParams.tokenStandard,
             sendingParams.targetAddress,
             sendingParams.newTotalStakedAmount,
+            sendingParams.txFee || "0.002",
             true
           )
         );
@@ -168,11 +163,7 @@ export const RTokenStakeLoadingModal = () => {
                 )} ${stakeLoadingParams?.tokenName}`
               : stakeLoadingParams?.status === "error"
               ? "Transaction Failed"
-              : `You are now ${userAction} ${stakeLoadingParams?.amount} ${
-                  stakeLoadingParams?.userAction === "unstake"
-                    ? `r${stakeLoadingParams?.tokenName}`
-                    : stakeLoadingParams?.tokenName
-                }`}
+              : `You are now staking ${stakeLoadingParams?.amount} ${stakeLoadingParams?.tokenName}`}
           </div>
 
           <div
@@ -180,26 +171,19 @@ export const RTokenStakeLoadingModal = () => {
               "mt-[.24rem] text-[.2rem] text-text2 text-center leading-[.3rem]"
             )}
           >
-            {stakeLoadingParams?.status === "success"
-              ? `${
-                  userAction.charAt(0).toUpperCase() + userAction.slice(1)
-                } operation was successful`
+            {stakeLoadingParams?.customMsg
+              ? stakeLoadingParams.customMsg
+              : stakeLoadingParams?.status === "success"
+              ? `Stake operation was successful`
               : stakeLoadingParams?.status === "error"
               ? stakeLoadingParams?.errorMsg ||
                 "Something went wrong, please try again"
-              : `${userAction.charAt(0).toUpperCase() + userAction.slice(1)} ${
-                  stakeLoadingParams?.amount
-                } ${
-                  stakeLoadingParams?.userAction === "unstake"
-                    ? `r${stakeLoadingParams?.tokenName}`
-                    : stakeLoadingParams?.tokenName
+              : `Stake ${stakeLoadingParams?.amount} ${
+                  stakeLoadingParams?.tokenName
                 }, you will receive ${formatNumber(
                   stakeLoadingParams?.willReceiveAmount
-                )} ${
-                  stakeLoadingParams?.userAction === "unstake"
-                    ? stakeLoadingParams.tokenName
-                    : `r${stakeLoadingParams?.tokenName}`
-                }`}
+                )} 
+                r${stakeLoadingParams?.tokenName}`}
           </div>
 
           {stakeLoadingParams?.status === "loading" && (
@@ -299,11 +283,23 @@ export const RTokenStakeLoadingModal = () => {
                   />
                 )}
 
+              {/* Approving progress */}
+              {stakeLoadingParams?.steps &&
+                stakeLoadingParams?.steps.includes("approving") && (
+                  <StakeLoadingProgressItem
+                    name="Approving"
+                    stepIndex={stakeLoadingParams?.steps.indexOf("approving")}
+                    tokenName={stakeLoadingParams?.tokenName}
+                    data={stakeLoadingParams?.progressDetail?.approving}
+                  />
+                )}
+
               {/* Staking progress */}
               {stakeLoadingParams?.steps &&
                 stakeLoadingParams?.steps.includes("staking") && (
                   <StakeLoadingProgressItem
                     name="Staking"
+										tokenName={stakeLoadingParams?.tokenName}
                     stepIndex={stakeLoadingParams?.steps.indexOf("staking")}
                     data={stakeLoadingParams?.progressDetail?.staking}
                   />
