@@ -285,7 +285,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             <div className="mt-[.76rem] flex items-center justify-between">
               <div>
                 <div className="text-text1 text-[.24rem]">
-                  <MyTooltip title="Receive Address" text="Receive Address" />
+                  <MyTooltip title="Receiving Address" text="Receiving Address" />
                 </div>
 
                 <div className="flex mt-[.15rem] items-center">
