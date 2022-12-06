@@ -1,8 +1,10 @@
 import { AnyJson } from "@polkadot/types-codec/types";
 import { hexToU8a } from "@polkadot/util";
+import { TokenSymbol } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import keyring from "servers/keyring";
 import { stafiServer } from "servers/stafi";
+import { numberToChain } from "utils/number";
 import numberUtil from "utils/numberUtil";
 
 export default class CommonSlice {
@@ -113,7 +115,7 @@ export default class CommonSlice {
     type: rSymbol,
     msgStr?: string
   ) {
-    const amount = numberUtil.tokenAmountToChain(tokenAmount.toString(), type);
+    const amount = numberToChain(tokenAmount.toString(), type);
     const data = validPools.find((item: any) => {
       if (Number(item.active) >= Number(amount)) return true;
     });

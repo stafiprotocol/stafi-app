@@ -144,6 +144,20 @@ export function getDexList(tokenName: TokenName): DexItem[] {
       },
     ];
   }
+  if (tokenName === TokenName.KSM) {
+    return [
+      {
+        type: DexType.rDEX,
+        tokenStandard: TokenStandard.Native,
+        url: "https://app.rdex.finance/swap?first=rKSM&second=FIS",
+      },
+      {
+        type: DexType.Uniswap,
+        tokenStandard: TokenStandard.ERC20,
+        url: "https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x3c3842c4d3037ae121d69ea1e7a0b61413be806c",
+      },
+    ];
+  }
   return [];
 }
 

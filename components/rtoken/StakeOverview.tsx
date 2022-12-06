@@ -381,7 +381,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   if (props.tokenName === TokenName.ETH) {
                     setEthRedeemWarningModalVisible(true);
                     return;
-                  } else if (props.tokenName === TokenName.MATIC) {
+                  } else {
                     setRTokenRedeemModalVisible(true);
                     return;
                   }

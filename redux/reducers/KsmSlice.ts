@@ -24,7 +24,10 @@ import {
 import { LocalNotice } from "utils/notice";
 import { chainAmountToHuman, numberToChain } from "utils/number";
 import numberUtil from "utils/numberUtil";
-import { getPolkadotAccountBalance } from "utils/polkadotUtils";
+import {
+  getPolkadotAccountBalance,
+  polkadotAddressToHex,
+} from "utils/polkadotUtils";
 import snackbarUtil from "utils/snackbarUtils";
 import { addRTokenUnbondRecords } from "utils/storage";
 import {
@@ -50,7 +53,7 @@ const commonSlice = new CommonSlice();
 
 const stafiServer = new StafiServer();
 
-export interface MaticState {
+export interface KsmState {
   txLoading: boolean;
   stakedAmount: string;
   validPools: any[];
@@ -62,7 +65,7 @@ export interface MaticState {
   bondFees: string; // bond relay fee
 }
 
-const initialState: MaticState = {
+const initialState: KsmState = {
   txLoading: false,
   stakedAmount: "--",
   validPools: [],
@@ -78,35 +81,35 @@ export const ksmSlice = createSlice({
   name: "ksm",
   initialState,
   reducers: {
-    setMaticTxLoading: (state: MaticState, action: PayloadAction<boolean>) => {
+    setKsmTxLoading: (state: KsmState, action: PayloadAction<boolean>) => {
       state.txLoading = action.payload;
     },
-    setStakedAmount: (state: MaticState, action: PayloadAction<string>) => {
+    setStakedAmount: (state: KsmState, action: PayloadAction<string>) => {
       state.stakedAmount = action.payload;
     },
-    setValidPools: (state: MaticState, action: PayloadAction<any | null>) => {
+    setValidPools: (state: KsmState, action: PayloadAction<any | null>) => {
       if (action.payload === null) {
         state.validPools = [];
       } else {
         state.validPools.push(action.payload);
       }
     },
-    setPoolLimit: (state: MaticState, action: PayloadAction<any>) => {
+    setPoolLimit: (state: KsmState, action: PayloadAction<any>) => {
       state.poolLimit = action.payload;
     },
-    setUnbondFees: (state: MaticState, action: PayloadAction<string>) => {
+    setUnbondFees: (state: KsmState, action: PayloadAction<string>) => {
       state.unbondFees = action.payload;
     },
-    setUnbondCommision: (state: MaticState, action: PayloadAction<string>) => {
+    setUnbondCommision: (state: KsmState, action: PayloadAction<string>) => {
       state.unbondCommision = action.payload;
     },
-    setBondTxFees: (state: MaticState, action: PayloadAction<string>) => {
+    setBondTxFees: (state: KsmState, action: PayloadAction<string>) => {
       state.bondTxFees = action.payload;
     },
-    setUnbondTxFees: (state: MaticState, action: PayloadAction<string>) => {
+    setUnbondTxFees: (state: KsmState, action: PayloadAction<string>) => {
       state.unbondTxFees = action.payload;
     },
-    setBondFees: (state: MaticState, action: PayloadAction<string>) => {
+    setBondFees: (state: KsmState, action: PayloadAction<string>) => {
       state.bondFees = action.payload;
     },
   },
@@ -114,7 +117,7 @@ export const ksmSlice = createSlice({
 
 export const {
   setStakedAmount,
-  setMaticTxLoading,
+  setKsmTxLoading,
   setPoolLimit,
   setValidPools,
   setUnbondCommision,
@@ -134,7 +137,7 @@ export const getKsmPools =
       cb && cb();
     });
 
-    const data = await commonSlice.poolBalanceLimit(rSymbol.Matic);
+    const data = await commonSlice.poolBalanceLimit(rSymbol.Ksm);
     dispatch(setPoolLimit(data));
   };
 
@@ -158,7 +161,7 @@ export const handleKsmStake =
       chainId = ChainId.SOL;
     }
 
-    const chainAmount = numberToChain(stakeAmount, TokenSymbol.KSM);
+    const chainAmount = numberToChain(stakeAmount, rSymbol.Ksm);
     console.log("chainAmount", chainAmount);
     const noticeUuid = isReTry
       ? getState().app.stakeLoadingParams?.noticeUuid
@@ -207,7 +210,7 @@ export const handleKsmStake =
                   id: noticeUuid || stafiUuid(),
                   type: "rToken Stake",
                   data: {
-                    tokenName: TokenName.MATIC,
+                    tokenName: TokenName.KSM,
                     amount: Number(stakeAmount) + "",
                     willReceiveAmount: Number(willReceiveAmount) + "",
                   },
@@ -363,7 +366,7 @@ export const handleKsmStake =
       handleError(err);
     } finally {
       // dispatch(setIsLoading(false));
-      // dispatch(updateMaticBalance());
+      dispatch(updatePolkadotExtensionAccountsBalances());
     }
   };
 
@@ -420,7 +423,7 @@ export const retryStake =
         blockHash as string,
         amount as string,
         poolPubKey as string,
-        rSymbol.Matic,
+        rSymbol.Ksm,
         chainId,
         targetAddress as string,
         cb
@@ -432,18 +435,18 @@ const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const getRMaticRate =
+export const getRKsmRate =
   (cb?: Function): AppThunk =>
   async (dispatch, getState) => {
     const api = await stafiServer.createStafiApi();
-    const result = await api.query.rTokenRate.rate(rSymbol.Matic);
+    const result = await api.query.rTokenRate.rate(rSymbol.Ksm);
     let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
     ratio = ratio || 1;
     cb && cb(ratio);
     return ratio;
   };
 
-export const unbondRMatic =
+export const unstakeRKsm =
   (
     amount: string,
     recipient: string,
@@ -458,7 +461,7 @@ export const unbondRMatic =
       resetStakeLoadingParams({
         modalVisible: true,
         status: "loading",
-        tokenName: TokenName.MATIC,
+        tokenName: TokenName.KSM,
         amount: amount,
         userAction: "unstake",
         willReceiveAmount,
@@ -472,37 +475,35 @@ export const unbondRMatic =
       })
     );
     try {
-      const validPools = getState().matic.validPools;
+      const validPools = getState().ksm.validPools;
       let selectedPool = commonSlice.getPoolForUnbond(
         amount,
         validPools,
-        rSymbol.Matic
+        rSymbol.Ksm
       );
       if (!selectedPool) {
         cb && cb();
         return;
       }
 
-      const keyringInstance = keyring.init(Symbol.Matic);
-
       dispatch(
         fisUnbond(
           amount,
-          rSymbol.Matic,
-          u8aToHex(keyringInstance.decodeAddress(recipient)),
+          rSymbol.Ksm,
+          polkadotAddressToHex(recipient),
           selectedPool.poolPubKey,
           // todo:
           `Unstake succeeded, unstaking period is around ${estimateUnbondDays(
-            TokenName.MATIC
+            TokenName.KSM
           )} days`,
           (r?: string, txHash?: string) => {
             if (r === "Success") {
               const uuid = stafiUuid();
-              addRTokenUnbondRecords(TokenName.MATIC, {
+              addRTokenUnbondRecords(TokenName.KSM, {
                 id: uuid,
                 txHash,
                 estimateSuccessTime: dayjs()
-                  .add(estimateUnbondDays(TokenName.MATIC), "d")
+                  .add(estimateUnbondDays(TokenName.KSM), "d")
                   .valueOf(),
                 amount: willReceiveAmount,
                 recipient,
@@ -515,142 +516,44 @@ export const unbondRMatic =
       console.error(err);
     } finally {
       dispatch(setIsLoading(false));
-      dispatch(updateMaticBalance());
+      dispatch(updatePolkadotExtensionAccountsBalances());
     }
-  };
-
-export const mockProcess =
-  (
-    stakeAmount: string,
-    willReceiveAmount: string,
-    tokenStandard: TokenStandard | undefined,
-    targetAddress: string,
-    newTotalStakedAmount: string
-  ): AppThunk =>
-  async (dispatch, getState) => {
-    console.log("mock");
-    dispatch(
-      resetStakeLoadingParams({
-        modalVisible: true,
-        status: "loading",
-        tokenName: TokenName.MATIC,
-        amount: stakeAmount,
-        willReceiveAmount: willReceiveAmount,
-        newTotalStakedAmount,
-        steps: ["sending", "staking", "minting"],
-        userAction: undefined,
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-          staking: {},
-          minting: {},
-        },
-      })
-    );
-    await sleep(5000);
-    dispatch(
-      updateStakeLoadingParams({
-        progressDetail: {
-          sending: {
-            broadcastStatus: "loading",
-          },
-        },
-      })
-    );
-    await sleep(2000);
-    dispatch(
-      updateStakeLoadingParams({
-        progressDetail: {
-          sending: {
-            broadcastStatus: "success",
-            finalizeStatus: "loading",
-          },
-        },
-      })
-    );
-    await sleep(2000);
-    dispatch(
-      updateStakeLoadingParams({
-        progressDetail: {
-          sending: {
-            totalStatus: "success",
-          },
-          staking: {
-            totalStatus: "loading",
-          },
-        },
-      })
-    );
-    await sleep(2000);
-    dispatch(
-      updateStakeLoadingParams({
-        progressDetail: {
-          sending: {
-            totalStatus: "success",
-          },
-          staking: {
-            broadcastStatus: "loading",
-          },
-        },
-      })
-    );
-    await sleep(2000);
-    dispatch(
-      updateStakeLoadingParams({
-        progressDetail: {
-          sending: {
-            totalStatus: "success",
-          },
-          staking: {
-            totalStatus: "success",
-          },
-          minting: {
-            totalStatus: "loading",
-          },
-        },
-      })
-    );
-    await sleep(2000);
-
-    dispatch(resetStakeLoadingParams(undefined));
   };
 
 export const getUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
-    dispatch(setUnbondCommision(unbondCommision.toString()));
+    dispatch(setUnbondCommision(unbondCommision?.toString() || "--"));
   };
 
 export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
-  const unbondFees = await commonSlice.getUnbondFees(rSymbol.Matic);
+  const unbondFees = await commonSlice.getUnbondFees(rSymbol.Ksm);
   dispatch(setUnbondFees(Number(unbondFees).toString()));
 };
 
 export const getBondFees = (): AppThunk => async (dispatch, getState) => {
-  const bondFees = await commonSlice.getBondFees(rSymbol.Matic);
+  const bondFees = await commonSlice.getBondFees(rSymbol.Ksm);
   dispatch(setBondFees(Number(bondFees).toString()));
 };
 
-export const getMaticUnbondTxFees =
+export const getKsmUnbondTxFees =
   (amount: string, recipient: string): AppThunk =>
   async (dispatch, getState) => {
     if (!recipient) return;
-    const validPools = getState().matic.validPools;
+    const validPools = getState().ksm.validPools;
     let selectedPool = commonSlice.getPoolForUnbond(
       amount,
       validPools,
-      rSymbol.Matic
+      rSymbol.Ksm
     );
     if (!selectedPool) {
       return;
     }
-    const keyringInstance = keyring.init(Symbol.Matic);
     dispatch(
       getUnbondTransactionFees(
         amount,
-        rSymbol.Matic,
-        u8aToHex(keyringInstance.decodeAddress(recipient)),
+        rSymbol.Ksm,
+        polkadotAddressToHex(recipient),
         selectedPool.poolPubKey,
         (fee: string) => {
           dispatch(setUnbondTxFees(fee));
@@ -659,7 +562,7 @@ export const getMaticUnbondTxFees =
     );
   };
 
-export const getMaticBondTransactionFees =
+export const getKsmBondTransactionFees =
   (tokenStandard: TokenStandard | undefined): AppThunk =>
   async (dispatch, getState) => {
     let chainId = 1;
@@ -670,11 +573,11 @@ export const getMaticBondTransactionFees =
     } else if (tokenStandard === TokenStandard.SPL) {
       chainId = 4;
     }
-    const validPools = getState().matic.validPools;
+    const validPools = getState().ksm.validPools;
     let selectedPool = commonSlice.getPoolForUnbond(
       "0",
       validPools,
-      rSymbol.Matic
+      rSymbol.Ksm
     );
     if (!selectedPool) {
       return;
@@ -683,7 +586,7 @@ export const getMaticBondTransactionFees =
     dispatch(
       getBondTransactionFees(
         "1",
-        rSymbol.Matic,
+        rSymbol.Ksm,
         chainId,
         selectedPool.poolPubKey,
         (fee: string) => {

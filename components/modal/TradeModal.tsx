@@ -20,8 +20,10 @@ export const TradeModal = (props: TradeModalProps) => {
     if (props.tokenName === TokenName.ETH) {
       window.open("https://app.stafi.io/rAsset/swap/rETH?first=native");
     } else if (props.tokenName === TokenName.MATIC) {
-			window.open("https://app.stafi.io/rAsset/swap/rMATIC?first=native");
-		}
+      window.open("https://app.stafi.io/rAsset/swap/rMATIC?first=native");
+    } else if (props.tokenName === TokenName.KSM) {
+      window.open("https://app.stafi.io/rAsset/swap/rKSM?first=native");
+    }
   };
 
   return (
@@ -69,18 +71,18 @@ export const TradeModal = (props: TradeModalProps) => {
             }}
           >
             {getDexList(props.tokenName).map((item) => (
-							<div
-								key={item.type}
-								onClick={() => {
-									openLink(item.url)
-								}}
-							>
-								<TradeDexCardItem
-									type={item.type}
-									tokenStandard={item.tokenStandard}
-									url={item.url}
-								/>
-							</div>
+              <div
+                key={item.type}
+                onClick={() => {
+                  openLink(item.url);
+                }}
+              >
+                <TradeDexCardItem
+                  type={item.type}
+                  tokenStandard={item.tokenStandard}
+                  url={item.url}
+                />
+              </div>
             ))}
           </div>
 

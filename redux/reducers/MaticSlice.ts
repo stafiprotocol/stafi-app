@@ -7,7 +7,12 @@ import {
   getMaticStakePortalAddress,
   getMaticTokenAddress,
 } from "config/matic";
-import { ChainId, TokenName, TokenStandard } from "interfaces/common";
+import {
+  ChainId,
+  TokenName,
+  TokenStandard,
+  TokenSymbol,
+} from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
@@ -804,7 +809,7 @@ export const stakeMatic =
     targetAddress: string,
     newTotalStakedAmount: string,
     relayFee: string,
-		bridgeFee: string,
+    bridgeFee: string,
     isReTry: boolean,
     cb?: (success: boolean) => void
   ): AppThunk =>
@@ -908,7 +913,7 @@ export const stakeMatic =
       const polkadotPubKey = u8aToHex(
         keyringInstance.decodeAddress(polkadotAddress as string)
       );
-			const txFee = (Number(relayFee) + Number(bridgeFee)).toString();
+      const txFee = (Number(relayFee) + Number(bridgeFee)).toString();
       const stakeResult = await contractStakePortal.methods
         .stake(
           selectedPool.poolPubKey,
@@ -946,7 +951,7 @@ export const stakeMatic =
 
       // query bond state
       // await sleep(5000);
-			console.log({txHash, blockHash})
+      console.log({ txHash, blockHash });
       dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId));
     } catch (err: any) {
       console.error(err);

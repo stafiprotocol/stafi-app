@@ -2,6 +2,8 @@ import { TokenSymbol, WalletType } from "interfaces/common";
 import { InjectedPolkadotAccountWithMeta } from "redux/reducers/WalletSlice";
 import StafiServer from "servers/stafi";
 import { chainAmountToHuman } from "./number";
+import { decodeAddress } from "@polkadot/util-crypto";
+import { u8aToHex } from "@polkadot/util";
 
 export async function getNativeRTokenBalance(
   userAddress: string | undefined,
@@ -67,3 +69,7 @@ export const getPolkadotStakingSignature = async (address: any, data: any) => {
 
   return undefined;
 };
+
+export function polkadotAddressToHex(address: string) {
+  return u8aToHex(decodeAddress(address));
+}

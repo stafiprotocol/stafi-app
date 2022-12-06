@@ -44,6 +44,7 @@ import { useTokenPrice } from "hooks/useTokenPrice";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { validateETHAddress } from "utils/validator";
+import { unstakeRKsm } from "redux/reducers/KsmSlice";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -73,7 +74,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const tokenStandard = useTokenStandard(props.tokenName);
 
-  const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost(tokenName);
+  const { unbondCommision, unbondFees, unbondTxFees } =
+    useTransactionCost(tokenName);
   const defaultTransactionFee = 0.0129;
 
   const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
@@ -216,6 +218,18 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (tokenName === TokenName.MATIC) {
       dispatch(
         unbondRMatic(
+          redeemAmount,
+          targetAddress,
+          willReceiveAmount,
+          newTotalStakedAmount,
+          () => {
+            dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+          }
+        )
+      );
+    } else if (tokenName === TokenName.KSM) {
+      dispatch(
+        unstakeRKsm(
           redeemAmount,
           targetAddress,
           willReceiveAmount,
