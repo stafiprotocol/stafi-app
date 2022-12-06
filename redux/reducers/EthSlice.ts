@@ -435,7 +435,6 @@ export const handleEthTokenStake =
           amount: Number(stakeAmount) + "",
           willReceiveAmount,
           newTotalStakedAmount,
-          userAction: undefined,
           progressDetail: {
             sending: {
               totalStatus: "loading",

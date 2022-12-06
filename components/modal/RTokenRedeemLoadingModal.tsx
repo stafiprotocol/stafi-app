@@ -17,8 +17,6 @@ import {
 } from "redux/reducers/AppSlice";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import {
-  handleMaticStake,
-  retryStake as retryMaticStake,
   unbondRMatic,
 } from "redux/reducers/MaticSlice";
 import { updateRTokenBalance } from "redux/reducers/RTokenSlice";

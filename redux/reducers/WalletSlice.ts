@@ -288,6 +288,7 @@ export const updatePolkadotExtensionAccountsBalances =
             TokenSymbol.FIS
           );
           let ksmBalance = chainAmountToHuman(
+						// @ts-ignore
             ksmBalanceResult.data.free.toString(),
             TokenSymbol.FIS
           );

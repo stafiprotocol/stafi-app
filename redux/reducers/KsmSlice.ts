@@ -240,7 +240,6 @@ export const handleKsmStake =
           targetAddress,
           tokenStandard,
           steps,
-          userAction: undefined,
           progressDetail: {
             sending: {
               totalStatus: "loading",
@@ -460,7 +459,6 @@ export const unbondRMatic =
         status: "loading",
         tokenName: TokenName.MATIC,
         amount: amount,
-        userAction: "unstake",
         willReceiveAmount,
         newTotalStakedAmount,
         steps: ["sending"],
@@ -515,7 +513,7 @@ export const unbondRMatic =
       console.error(err);
     } finally {
       dispatch(setIsLoading(false));
-      dispatch(updateMaticBalance());
+      // dispatch(updateMaticBalance());
     }
   };
 
@@ -538,7 +536,6 @@ export const mockProcess =
         willReceiveAmount: willReceiveAmount,
         newTotalStakedAmount,
         steps: ["sending", "staking", "minting"],
-        userAction: undefined,
         progressDetail: {
           sending: {
             totalStatus: "loading",
@@ -619,7 +616,9 @@ export const mockProcess =
 export const getUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
-    dispatch(setUnbondCommision(unbondCommision.toString()));
+		if (unbondCommision) {
+			dispatch(setUnbondCommision(unbondCommision.toString()));
+		}
   };
 
 export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
