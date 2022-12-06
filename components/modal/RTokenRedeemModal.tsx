@@ -285,7 +285,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             <div className="mt-[.76rem] flex items-center justify-between">
               <div>
                 <div className="text-text1 text-[.24rem]">
-                  <MyTooltip title="Receiving Address" text="Receiving Address" />
+                  <MyTooltip
+                    title={`The address that receives redeemed ${tokenName} tokens, ${tokenName} tokens will be sent to the receiving address after receiving the request of redemption around 9 days`}
+                    text="Receiving Address"
+                  />
                 </div>
 
                 <div className="flex mt-[.15rem] items-center">
