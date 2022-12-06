@@ -456,11 +456,11 @@ export const getMinting =
         bondSuccessParamArr,
         async (result: string) => {
           if (result === "successful") {
-            const tokenStandard =
-              getState().app.stakeLoadingParams?.tokenStandard;
-            const targetAddress =
-              getState().app.stakeLoadingParams?.targetAddress;
-            const amount = getState().app.stakeLoadingParams?.amount;
+            // const tokenStandard =
+            //   getState().app.stakeLoadingParams?.tokenStandard;
+            // const targetAddress =
+            //   getState().app.stakeLoadingParams?.targetAddress;
+            // const amount = getState().app.stakeLoadingParams?.amount;
             dispatch(
               updateStakeLoadingParams({
                 progressDetail: {
@@ -471,13 +471,15 @@ export const getMinting =
                     finalizeStatus: "success",
                   },
                 },
+								customMsg: undefined,
               })
             );
-            if (tokenStandard === TokenStandard.Native) {
+            // if (tokenStandard === TokenStandard.Native) {
               dispatch(
                 updateStakeLoadingParams(
                   {
                     status: "success",
+										customMsg: undefined,
                   },
                   (newParams) => {
                     dispatch(
@@ -490,93 +492,97 @@ export const getMinting =
                 )
               );
               dispatch(setIsLoading(false));
-            } else {
-              let tokenAbi: any = "";
-              let tokenAddress: any = "";
-              if (rsymbol === rSymbol.Matic) {
-                tokenAbi = getMaticAbi();
-                tokenAddress = getRMaticTokenAddress();
-              }
-              const oldBalance = await getErc20AssetBalance(
-                targetAddress,
-                tokenAbi,
-                tokenAddress
-              );
-              dispatch(
-                updateStakeLoadingParams(
-                  {
-                    status: "loading",
-                    progressDetail: {
-                      swapping: {
-                        totalStatus: "loading",
-                      },
-                    },
-                  },
-                  (newParams) => {
-                    dispatch(
-                      updateNotice(newParams?.noticeUuid, {
-                        status: "Pending",
-                        stakeLoadingParams: newParams,
-                      })
-                    );
-                  }
-                )
-              );
-              queryRTokenSwapState(
-                chainId,
-                targetAddress as string,
-                rsymbol,
-                oldBalance,
-                amount as string,
-                (result: string) => {
-                  if (result === "successful") {
-                    dispatch(
-                      updateStakeLoadingParams(
-                        {
-                          status: "success",
-                          progressDetail: {
-                            swapping: {
-                              totalStatus: "success",
-                            },
-                          },
-                        },
-                        (newParams) => {
-                          dispatch(
-                            updateNotice(newParams?.noticeUuid, {
-                              status: "Confirmed",
-                              stakeLoadingParams: newParams,
-                            })
-                          );
-                        }
-                      )
-                    );
-                  } else if (result === "failure") {
-                    dispatch(
-                      updateStakeLoadingParams(
-                        {
-                          status: "error",
-                          errorMsg: "Swap failed",
-                          errorStep: "swapping",
-                          progressDetail: {
-                            swapping: {
-                              totalStatus: "error",
-                            },
-                          },
-                        },
-                        (newParams) => {
-                          dispatch(
-                            updateNotice(newParams?.noticeUuid, {
-                              status: "Error",
-                              stakeLoadingParams: newParams,
-                            })
-                          );
-                        }
-                      )
-                    );
-                  }
-                }
-              );
-            }
+							cb && cb(true);
+            // } else {
+            //   let tokenAbi: any = "";
+            //   let tokenAddress: any = "";
+            //   if (rsymbol === rSymbol.Matic) {
+            //     tokenAbi = getMaticAbi();
+            //     tokenAddress = getRMaticTokenAddress();
+            //   }
+            //   const oldBalance = await getErc20AssetBalance(
+            //     targetAddress,
+            //     tokenAbi,
+            //     tokenAddress
+            //   );
+            //   dispatch(
+            //     updateStakeLoadingParams(
+            //       {
+            //         status: "loading",
+            //         progressDetail: {
+            //           swapping: {
+            //             totalStatus: "loading",
+            //           },
+            //         },
+						// 				customMsg: 'Minting succeeded, now swapping...',
+            //       },
+            //       (newParams) => {
+            //         dispatch(
+            //           updateNotice(newParams?.noticeUuid, {
+            //             status: "Pending",
+            //             stakeLoadingParams: newParams,
+            //           })
+            //         );
+            //       }
+            //     )
+            //   );
+            //   queryRTokenSwapState(
+            //     chainId,
+            //     targetAddress as string,
+            //     rsymbol,
+            //     oldBalance,
+            //     amount as string,
+            //     (result: string) => {
+            //       if (result === "successful") {
+            //         dispatch(
+            //           updateStakeLoadingParams(
+            //             {
+            //               status: "success",
+            //               progressDetail: {
+            //                 swapping: {
+            //                   totalStatus: "success",
+            //                 },
+            //               },
+						// 							customMsg: undefined,
+            //             },
+            //             (newParams) => {
+            //               dispatch(
+            //                 updateNotice(newParams?.noticeUuid, {
+            //                   status: "Confirmed",
+            //                   stakeLoadingParams: newParams,
+            //                 })
+            //               );
+            //             }
+            //           )
+            //         );
+            //       } else if (result === "failure") {
+            //         dispatch(
+            //           updateStakeLoadingParams(
+            //             {
+            //               status: "error",
+            //               errorMsg: "Swap failed",
+            //               errorStep: "swapping",
+            //               progressDetail: {
+            //                 swapping: {
+            //                   totalStatus: "error",
+            //                 },
+            //               },
+						// 							customMsg: undefined,
+            //             },
+            //             (newParams) => {
+            //               dispatch(
+            //                 updateNotice(newParams?.noticeUuid, {
+            //                   status: "Error",
+            //                   stakeLoadingParams: newParams,
+            //                 })
+            //               );
+            //             }
+            //           )
+            //         );
+            //       }
+            //     }
+            //   );
+            // }
             // todo: swapping
           } else if (result === "failure") {
             dispatch(
@@ -590,6 +596,7 @@ export const getMinting =
                       totalStatus: "error",
                     },
                   },
+									customMsg: undefined,
                 },
                 (newParams) => {
                   dispatch(

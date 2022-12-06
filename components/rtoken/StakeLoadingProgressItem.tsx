@@ -8,7 +8,7 @@ import { getShortAddress } from "utils/string";
 
 interface StakeLoadingProgressItemProps {
   stepIndex: number;
-  name: "Sending" | "Staking" | "Minting" | "Swapping";
+  name: "Sending" | "Approving" | "Staking" | "Minting" | "Swapping";
   data: StakeLoadingProgressDetailItem | undefined;
   txHash?: string | undefined;
   scanUrl?: string | undefined;
@@ -70,7 +70,9 @@ export const StakeLoadingProgressItem = (
             "flex items-center",
             {
               hidden:
-                (props.name === "Minting" || props.name === "Swapping") &&
+                (props.name === "Minting" ||
+                  props.name === "Swapping" ||
+                  props.name === "Approving") &&
                 props.tokenName === TokenName.MATIC,
             },
             data.broadcastStatus === "success"
@@ -94,7 +96,9 @@ export const StakeLoadingProgressItem = (
             "mt-[.08rem] flex items-center",
             {
               hidden:
-                (props.name === "Minting" || props.name === "Swapping") &&
+                (props.name === "Minting" ||
+                  props.name === "Swapping" ||
+                  props.name === "Approving") &&
                 props.tokenName === TokenName.MATIC,
             },
             data.packStatus === "success"

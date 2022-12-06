@@ -33,13 +33,14 @@ export interface StakeLoadingParams {
   scanUrl?: string;
   txHash?: string;
   progressDetail?: StakeLoadingProgressDetail;
-  userAction?: string; // 'staking' | 'unstake'
   targetAddress?: string;
   blockHash?: string;
   poolPubKey?: string;
+	customMsg?: string;
 }
 
 interface StakeLoadingProgressDetail {
+	approving?: StakeLoadingProgressDetailItem;
   sending?: StakeLoadingSendingDetailItem;
   staking?: StakeLoadingStakingDetailItem;
   minting?: StakeLoadingProgressDetailItem;
@@ -50,6 +51,7 @@ interface StakeLoadingProgressDetail {
     tokenStandard: TokenStandard | undefined;
     targetAddress: string;
     newTotalStakedAmount: string;
+		txFee?: string;
   };
   stakingParams?: {
     address: string;
