@@ -18,7 +18,7 @@ import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import { formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
 import { getShortAddress } from "utils/string";
-import { checkMetaMaskAddress, openLink } from "utils/common";
+import { checkMetaMaskAddress, isPolkadotWallet, openLink } from "utils/common";
 import { useAppSlice } from "hooks/selector";
 import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
 import { useTokenStandard } from "hooks/useTokenStandard";
@@ -30,7 +30,7 @@ import {
   getMaticBondTransactionFees,
   handleMaticStake,
   mockProcess,
-	stakeMatic,
+  stakeMatic,
 } from "redux/reducers/MaticSlice";
 import classNames from "classnames";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
@@ -51,6 +51,7 @@ import { validateETHAddress, validateSS58Address } from "utils/validator";
 import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 import { BubblesLoading } from "components/common/BubblesLoading";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
+import { getPolkadotAccountBalance } from "utils/polkadotUtils";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -89,7 +90,8 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     };
   });
 
-  const { metaMaskAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
+    useWalletAccount();
 
   const { bondFees, bondTxFees } = useTransactionCost(tokenName);
 
@@ -100,9 +102,15 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const userAddress = useMemo(() => {
     if (walletType === WalletType.MetaMask) {
       return metaMaskAccount;
+    } else if (walletType === WalletType.Polkadot) {
+      return polkadotAccount;
+    } else if (walletType === WalletType.Polkadot_KSM) {
+      return ksmAccount;
+    } else if (walletType === WalletType.Polkadot_DOT) {
+      return dotAccount;
     }
     return "";
-  }, [walletType, metaMaskAccount]);
+  }, [walletType, metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);
 
   const willReceiveAmount = useMemo(() => {
     if (

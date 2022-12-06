@@ -1,8 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getBep20REthTokenAbi } from "config/bep20Abi";
+import {
+  getBep20RDotTokenAbi,
+  getBep20REthTokenAbi,
+  getBep20RKsmTokenAbi,
+} from "config/bep20Abi";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getApiHost, getDropHost } from "config/env";
-import { getErc20REthTokenAbi } from "config/erc20Abi";
+import {
+  getErc20RDotTokenAbi,
+  getErc20REthTokenAbi,
+  getErc20RKsmTokenAbi,
+} from "config/erc20Abi";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
 import { getBSCRMaticAbi, getERCMaticAbi } from "config/matic";
 import { getWeb3ProviderUrlConfig } from "config/metaMask";
@@ -185,6 +193,12 @@ export const updateRTokenBalance =
         } else if (tokenName === TokenName.MATIC) {
           tokenAbi = getBSCRMaticAbi();
           tokenAddress = bep20TokenContractConfig.rMATIC;
+        } else if (tokenName === TokenName.KSM) {
+          tokenAbi = getBep20RKsmTokenAbi();
+          tokenAddress = bep20TokenContractConfig.rKSM;
+        } else if (tokenName === TokenName.DOT) {
+          tokenAbi = getBep20RDotTokenAbi();
+          tokenAddress = bep20TokenContractConfig.rDOT;
         }
         newBalance = await getBep20AssetBalance(
           metaMaskAccount,
@@ -203,6 +217,12 @@ export const updateRTokenBalance =
         } else if (tokenName === TokenName.MATIC) {
           tokenAbi = getERCMaticAbi();
           tokenAddress = erc20TokenContractConfig.rMATIC;
+        } else if (tokenName === TokenName.KSM) {
+          tokenAbi = getErc20RKsmTokenAbi();
+          tokenAddress = erc20TokenContractConfig.rKSM;
+        } else if (tokenName === TokenName.DOT) {
+          tokenAbi = getErc20RDotTokenAbi();
+          tokenAddress = erc20TokenContractConfig.rDOT;
         }
         newBalance = await getErc20AssetBalance(
           metaMaskAccount,
