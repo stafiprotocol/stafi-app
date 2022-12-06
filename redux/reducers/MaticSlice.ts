@@ -452,67 +452,6 @@ export const handleMaticStake =
     }
   };
 
-export const retryStake =
-  (cb?: (success: boolean) => void): AppThunk =>
-  async (dispatch, getState) => {
-    const stakeLoadingParams = getState().app.stakeLoadingParams;
-    if (!stakeLoadingParams) return;
-
-    const metaMaskAccount = getState().wallet.metaMaskAccount;
-    const {
-      txHash,
-      blockHash,
-      amount,
-      poolPubKey,
-      targetAddress,
-      tokenStandard,
-    } = stakeLoadingParams;
-
-    let chainId = ChainId.STAFI;
-    if (tokenStandard === TokenStandard.ERC20) {
-      chainId = ChainId.ETH;
-    } else if (tokenStandard === TokenStandard.BEP20) {
-      chainId = ChainId.BSC;
-    } else if (tokenStandard === TokenStandard.SPL) {
-      chainId = ChainId.SOL;
-    }
-
-    dispatch(
-      updateStakeLoadingParams({
-        txHash: txHash,
-        scanUrl: getEtherScanTxUrl(txHash as string),
-        blockHash: blockHash,
-        poolPubKey: poolPubKey as string,
-        progressDetail: {
-          sending: {
-            totalStatus: "success",
-            broadcastStatus: "success",
-            packStatus: "success",
-            finalizeStatus: "success",
-          },
-          staking: {
-            totalStatus: "loading",
-          },
-          minting: {},
-        },
-      })
-    );
-
-    dispatch(
-      bond(
-        metaMaskAccount as string,
-        txHash as string,
-        blockHash as string,
-        amount as string,
-        poolPubKey as string,
-        rSymbol.Matic,
-        chainId,
-        targetAddress as string,
-        cb
-      )
-    );
-  };
-
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -794,6 +733,9 @@ export const getMaticBondTransactionFees =
     );
   };
 
+/**
+ * stake MATIC to StaFi Portal
+ */
 export const stakeMatic =
   (
     stakeAmount: string,
@@ -875,7 +817,7 @@ export const stakeMatic =
               staking: {},
               minting: {},
             },
-						customMsg: 'Approving MATIC to StaFi Portal',
+            customMsg: "Approving MATIC to StaFi Portal",
           })
         );
         allowance = web3.utils.toWei("10000000");
@@ -888,10 +830,24 @@ export const stakeMatic =
             updateStakeLoadingParams({
               progressDetail: {
                 approving: {
-                  totalStatus: "success",
+                  totalStatus: "loading",
+                  broadcastStatus: "loading",
                 },
               },
-							customMsg: undefined,
+              customMsg: undefined,
+            })
+          );
+
+          await sleep(5000);
+          dispatch(
+            updateStakeLoadingParams({
+              progressDetail: {
+                approving: {
+                  totalStatus: "success",
+                  broadcastStatus: "success",
+                  packStatus: "success",
+                },
+              },
             })
           );
         } else {
@@ -917,7 +873,7 @@ export const stakeMatic =
               sendingParams,
               minting: {},
             },
-						// customMsg: 'Staking to StaFi Portal',
+            // customMsg: 'Staking to StaFi Portal',
           })
         );
       }
@@ -998,7 +954,7 @@ export const stakeMatic =
               packStatus: "success",
             },
           },
-					customMsg: 'Staking succeeded, now minting...',
+          customMsg: "Staking succeeded, now minting...",
         })
       );
 
@@ -1035,7 +991,7 @@ export const stakeMatic =
                 staking: {},
                 minting: {},
               },
-							customMsg: undefined,
+              customMsg: undefined,
             },
             (newParams) => {
               dispatch(

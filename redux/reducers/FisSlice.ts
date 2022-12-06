@@ -430,7 +430,6 @@ export const getMinting =
               totalStatus: "success",
               broadcastStatus: "success",
               packStatus: "success",
-              finalizeStatus: "success",
             },
             minting: {
               totalStatus: "loading",
@@ -466,9 +465,6 @@ export const getMinting =
                 progressDetail: {
                   minting: {
                     totalStatus: "success",
-                    broadcastStatus: "success",
-                    packStatus: "success",
-                    finalizeStatus: "success",
                   },
                 },
 								customMsg: undefined,

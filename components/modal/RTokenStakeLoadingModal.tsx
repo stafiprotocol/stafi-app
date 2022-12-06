@@ -16,11 +16,8 @@ import {
 } from "redux/reducers/AppSlice";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import {
-  handleMaticStake,
-  retryStake as retryMaticStake,
   stakeMatic,
 } from "redux/reducers/MaticSlice";
-import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
 import { bond } from "redux/reducers/FisSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
@@ -302,6 +299,7 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("staking") && (
                   <StakeLoadingProgressItem
                     name="Staking"
+										tokenName={stakeLoadingParams?.tokenName}
                     stepIndex={stakeLoadingParams?.steps.indexOf("staking")}
                     data={stakeLoadingParams?.progressDetail?.staking}
                   />
