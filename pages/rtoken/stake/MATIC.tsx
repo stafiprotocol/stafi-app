@@ -206,7 +206,7 @@ const RMaticStakePage = () => {
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           <span className="font-semibold">Stake MATIC</span>: Ethereum Gas Fee +
-          Relay Fee (usually set as 0.001ETH).
+          Bridge Fee (pay for the cross-chain interaction).
           <br />
           <br />
           <span className="font-semibold">Unstake MATIC</span>: 0.2% unstake
