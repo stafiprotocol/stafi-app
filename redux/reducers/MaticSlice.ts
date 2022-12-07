@@ -793,6 +793,9 @@ export const stakeMatic =
       const stakePortalAddress = getMaticStakePortalAddress();
 
       let steps = ["staking", "minting"];
+      if (tokenStandard !== TokenStandard.Native) {
+        steps.push("swapping");
+      }
 
       // query allowance
       const allowanceResult = await contractMatic.methods
@@ -821,6 +824,7 @@ export const stakeMatic =
               sendingParams,
               staking: {},
               minting: {},
+              swapping: {},
             },
             customMsg: "Approving MATIC to StaFi Portal",
           })
@@ -877,6 +881,7 @@ export const stakeMatic =
               },
               sendingParams,
               minting: {},
+              swapping: {},
             },
             // customMsg: 'Staking to StaFi Portal',
           })

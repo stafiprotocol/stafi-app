@@ -178,6 +178,28 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return "--";
   }, [ethGasPrice, tokenName, isApproved]);
 
+	const totalBridgeFee = useMemo(() => {
+		if (tokenStandard === TokenStandard.Native) {
+			if (isNaN(Number(relayFee))) {
+				return '--';
+			}
+			return relayFee + '';
+		} else {
+			let bridgeFee: string = '--';
+			if (tokenStandard === TokenStandard.ERC20) {
+				bridgeFee = erc20BridgeFee;
+			} else if (tokenStandard === TokenStandard.BEP20) {
+				bridgeFee = bep20BridgeFee;
+			} else {
+				bridgeFee = solBridgeFee;
+			}
+			if (isNaN(Number(relayFee)) || isNaN(Number(bridgeFee))) {
+				return '--';
+			}
+			return Number(relayFee) + Number(bridgeFee) + '';
+		}
+	}, [relayFee, erc20BridgeFee, bep20BridgeFee, solBridgeFee, tokenStandard]);
+
   const transactionCost = useMemo(() => {
     if (tokenStandard === TokenStandard.Native) {
       if (isNaN(Number(estimateFee)) || isNaN(Number(estimateFee))) {
@@ -701,15 +723,13 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                 >
                   <div className="text-text2">
                     <div className="flex justify-between">
-                      <div>Relay Fee</div>
-                      <div>{formatNumber(relayFee, { decimals: 4 })} ETH</div>
+                      <div>Bridge Fee</div>
+                      <div>{formatNumber(totalBridgeFee, { decimals: 4 })} ETH</div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>ETH Tx Fee</div>
                       <div>{formatNumber(estimateFee, { decimals: 4 })} ETH</div>
                     </div>
-                    {tokenStandard !== TokenStandard.Native &&
-                      renderBridgeFee()}
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
                     <div className="text-text1">
                       Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
