@@ -42,6 +42,7 @@ import {
 import { getPolkadotStakingSignature } from "utils/polkadotUtils";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
+import { getBep20RBnbTokenAbi } from "config/bep20Abi";
 
 declare const ethereum: any;
 
@@ -511,26 +512,36 @@ export const getMinting =
               let tokenAbi: any = "";
               let tokenAddress: any = "";
               let oldBalance: string = "0";
+              const bep20TokenContractConfig = getBep20TokenContractConfig();
+
               if (rsymbol === rSymbol.Matic) {
                 if (chainId === ChainId.BSC) {
                   tokenAbi = getBSCRMaticAbi();
                   tokenAddress = getBep20TokenContractConfig().rMATIC;
-                  oldBalance = await getBep20AssetBalance(
-                    targetAddress,
-                    tokenAbi,
-                    tokenAddress
-                  );
                 } else if (chainId === ChainId.ETH) {
                   tokenAbi = getERCMaticAbi();
                   tokenAddress = getErc20TokenContractConfig().rMATIC;
-                  oldBalance = await getErc20AssetBalance(
-                    targetAddress,
-                    tokenAbi,
-                    tokenAddress,
-                    TokenName.MATIC
-                  );
                 }
+              } else if (rsymbol === rSymbol.Bnb) {
+                tokenAbi = getBep20RBnbTokenAbi();
+                tokenAddress = bep20TokenContractConfig.rBNB;
               }
+
+              if (chainId === ChainId.BSC) {
+                oldBalance = await getBep20AssetBalance(
+                  targetAddress,
+                  tokenAbi,
+                  tokenAddress
+                );
+              } else if (chainId === ChainId.ETH) {
+                oldBalance = await getErc20AssetBalance(
+                  targetAddress,
+                  tokenAbi,
+                  tokenAddress,
+                  TokenName.MATIC
+                );
+              }
+
               dispatch(
                 updateStakeLoadingParams(
                   {
@@ -687,25 +698,35 @@ export const queryRTokenSwapState =
     let tokenAbi: any = "";
     let tokenAddress: any = "";
     let balance: string = "";
+
+    const bep20TokenContractConfig = getBep20TokenContractConfig();
+
     if (rsymbol === rSymbol.Matic) {
       if (chainId === ChainId.BSC) {
         tokenAbi = getBSCRMaticAbi();
-        tokenAddress = getBep20TokenContractConfig().rMATIC;
-        balance = await getBep20AssetBalance(
-          targetAddress,
-          tokenAbi,
-          tokenAddress
-        );
+        tokenAddress = bep20TokenContractConfig.rMATIC;
       } else if (chainId === ChainId.ETH) {
         tokenAbi = getERCMaticAbi();
         tokenAddress = getErc20TokenContractConfig().rMATIC;
-        balance = await getErc20AssetBalance(
-          targetAddress,
-          tokenAbi,
-          tokenAddress,
-          TokenName.MATIC
-        );
       }
+    } else if (rsymbol === rSymbol.Bnb) {
+      tokenAbi = getBep20RBnbTokenAbi();
+      tokenAddress = bep20TokenContractConfig.rBNB;
+    }
+
+    if (chainId === ChainId.BSC) {
+      balance = await getBep20AssetBalance(
+        targetAddress,
+        tokenAbi,
+        tokenAddress
+      );
+    } else if (chainId === ChainId.ETH) {
+      balance = await getErc20AssetBalance(
+        targetAddress,
+        tokenAbi,
+        tokenAddress,
+        TokenName.MATIC
+      );
     }
 
     if (
