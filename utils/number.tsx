@@ -57,7 +57,7 @@ export function formatNumber(
     options.fixedDecimals === undefined ? true : options.fixedDecimals;
   const toReadable =
     options.toReadable === undefined ? true : options.toReadable;
-  const roundMode = options.roundMode || "round";
+  const roundMode = options.roundMode || "floor";
   let suffix = "";
 
   let newNum = "0";
