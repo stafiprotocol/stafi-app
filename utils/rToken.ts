@@ -158,6 +158,25 @@ export function getDexList(tokenName: TokenName): DexItem[] {
       },
     ];
   }
+  if (tokenName === TokenName.DOT) {
+    return [
+      {
+        type: DexType.rDEX,
+        tokenStandard: TokenStandard.Native,
+        url: "https://app.rdex.finance/swap?first=rDOT&second=FIS",
+      },
+      {
+        type: DexType.Uniswap,
+        tokenStandard: TokenStandard.ERC20,
+        url: "https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x505f5a4ff10985fe9f93f2ae3501da5fe665f08a",
+      },
+      {
+        type: DexType.Pancake,
+        tokenStandard: TokenStandard.BEP20,
+        url: "https://pancakeswap.finance/swap?inputCurrency=0x1dab2a526c8ac1ddea86838a7b968626988d33de&outputCurrency=0x7083609fce4d1d8dc0c979aab8c869ea2c873402",
+      },
+    ];
+  }
   return [];
 }
 

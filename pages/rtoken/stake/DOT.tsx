@@ -6,21 +6,26 @@ import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskEthChainId } from "config/metaMask";
+import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
-import { useKsmBalance } from "hooks/useKsmBalance";
+import { useDotBalance } from "hooks/useDotBalance";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName } from "interfaces/common";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { getKsmPools } from "redux/reducers/KsmSlice";
+import { getDotPools } from "redux/reducers/DotSlice";
 import { connectMetaMask } from "utils/web3Utils";
 
 const RTokenStakePage = () => {
   const dispatch = useAppDispatch();
+  const { useChainId: useMetaMaskChainId } = hooks;
+  const chainId = useMetaMaskChainId();
   const { setNavigation } = React.useContext(MyLayoutContext);
+  const router = useRouter();
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
   const { metaMaskAccount } = useWalletAccount();
-  const balance = useKsmBalance();
+  const balance = useDotBalance();
 
   useEffect(() => {
     setNavigation([
@@ -30,13 +35,13 @@ const RTokenStakePage = () => {
   }, [setNavigation]);
 
   useEffect(() => {
-    dispatch(getKsmPools());
+    dispatch(getDotPools());
   }, [dispatch]);
 
   return (
     <div>
       <StakeOverview
-        tokenName={TokenName.KSM}
+        tokenName={TokenName.DOT}
         onClickStake={() => setStakeModalVisible(true)}
         onClickConnectWallet={() => connectMetaMask(getMetamaskEthChainId())}
       />
@@ -44,20 +49,20 @@ const RTokenStakePage = () => {
       <CollapseCard
         background="rgba(26, 40, 53, 0.2)"
         mt=".36rem"
-        title={<div className="text-white text-[.32rem]">KSM Reward</div>}
+        title={<div className="text-white text-[.32rem]">DOT Reward</div>}
       >
         <RewardChartPanel
-          tokenName={TokenName.KSM}
+          tokenName={TokenName.DOT}
           onClickStake={() => setStakeModalVisible(true)}
         />
       </CollapseCard>
 
-      <StakeMyHistory tokenName={TokenName.KSM} />
+      <StakeMyHistory tokenName={TokenName.DOT} />
 
-      <RTokenIntegrations tokenName={TokenName.KSM} />
+      <RTokenIntegrations tokenName={TokenName.DOT} />
 
       <RTokenStakeModal
-        tokenName={TokenName.KSM}
+        tokenName={TokenName.DOT}
         defaultReceivingAddress={metaMaskAccount}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}

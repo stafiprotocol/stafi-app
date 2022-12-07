@@ -28,6 +28,7 @@ import { getStafiRpc } from "config/env";
 import { stafi_types } from "config/stafi_types";
 import { stafiServer } from "servers/stafi";
 import { ksmServer } from "servers/ksm";
+import { dotServer } from "servers/dot";
 
 export interface InjectedPolkadotAccountWithMeta
   extends ExtType.InjectedAccountWithMeta {
@@ -262,12 +263,15 @@ export const connectPolkadotJs =
 export const updatePolkadotExtensionAccountsBalances =
   (): AppThunk => async (dispatch, getState) => {
     try {
-      const [stafiApi, ksmApi] = await Promise.all([
+      const [stafiApi, ksmApi, dotApi] = await Promise.all([
         (async () => {
           return await stafiServer.createStafiApi();
         })(),
         (async () => {
           return await ksmServer.createKsmApi();
+        })(),
+        (async () => {
+          return await dotServer.createDotApi();
         })(),
       ]);
 
@@ -275,27 +279,34 @@ export const updatePolkadotExtensionAccountsBalances =
 
       const reqList = accounts.map((account) => {
         return (async () => {
-          const [fisBalanceResult, ksmBalanceResult] = await Promise.all([
-            (async () => {
-              return await stafiApi.query.system.account(account.address);
-            })(),
-            (async () => {
-              return await ksmApi.query.system.account(account.address);
-            })(),
-          ]);
+          const [fisBalanceResult, ksmBalanceResult, dotBalanceResult] =
+            await Promise.all([
+              (async () => {
+                return await stafiApi.query.system.account(account.address);
+              })(),
+              (async () => {
+                return await ksmApi.query.system.account(account.address);
+              })(),
+              (async () => {
+                return await dotApi.query.system.account(account.address);
+              })(),
+            ]);
           let fisBalance = chainAmountToHuman(
             fisBalanceResult.data.free.toString(),
             TokenSymbol.FIS
           );
           let ksmBalance = chainAmountToHuman(
-						// @ts-ignore
+            // @ts-ignore
             ksmBalanceResult.data.free.toString(),
             TokenSymbol.FIS
           );
+          let dotBalance = chainAmountToHuman(
+            // @ts-ignore
+            dotBalanceResult.data.free.toString(),
+            TokenSymbol.FIS
+          );
 
-          account.fisBalance = fisBalance;
-          account.ksmBalance = ksmBalance;
-          return { fisBalance, ksmBalance };
+          return { fisBalance, ksmBalance, dotBalance };
         })();
       });
 
@@ -303,6 +314,7 @@ export const updatePolkadotExtensionAccountsBalances =
       accounts.forEach((account, index) => {
         account.fisBalance = balanceList[index].fisBalance;
         account.ksmBalance = balanceList[index].ksmBalance;
+        account.dotBalance = balanceList[index].dotBalance;
       });
 
       dispatch(setPolkadotExtensionAccounts(accounts));

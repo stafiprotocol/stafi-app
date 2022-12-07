@@ -20,7 +20,7 @@ export default class DotServer extends SubstrateKeyring {
     return "polkadot-js";
   }
 
-  async createKsmApi(): Promise<ApiPromise> {
+  async createDotApi(): Promise<ApiPromise> {
     if (dotApi) return dotApi;
 
     dotApi = this.createSubstrateApi(getPolkadotRpc());

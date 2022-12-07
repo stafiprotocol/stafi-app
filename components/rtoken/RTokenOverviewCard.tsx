@@ -108,9 +108,8 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
 
   return (
     <div
-      className="py-[0] px-[.24rem] h-[4.05rem] w-[3.35rem]"
+      className="py-[0] px-[.24rem] h-[4.05rem] w-[3.35rem] rounded-[.16rem] bg-[#1a283533] hover:bg-[#58779826]"
       style={{
-        background: "rgba(23, 38, 54, 0.2)",
         border: "1px solid #1a2835",
         backdropFilter: "blur(0.67rem)",
       }}

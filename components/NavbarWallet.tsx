@@ -7,6 +7,7 @@ import {
 } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useDotBalance } from "hooks/useDotBalance";
 import { useKsmBalance } from "hooks/useKsmBalance";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
 import { useWalletAccount } from "hooks/useWalletAccount";
@@ -61,8 +62,10 @@ export const NavbarWallet = () => {
     polkadotAccount,
     polkadotBalance,
     ksmAccount,
+    dotAccount,
   } = useWalletAccount();
   const ksmBalance = useKsmBalance();
+  const dotBalance = useDotBalance();
   const { ethBalance, maticBalance } = useAppSelector((state: RootState) => {
     return {
       ethBalance: state.eth.balance,
@@ -72,13 +75,15 @@ export const NavbarWallet = () => {
 
   const router = useRouter();
 
-  const { metaMaskConnected, polkadotConnected, ksmConnected } = useMemo(() => {
-    return {
-      metaMaskConnected: !!metaMaskAccount,
-      polkadotConnected: !!polkadotAccount,
-      ksmConnected: !!ksmAccount,
-    };
-  }, [metaMaskAccount, polkadotAccount, ksmAccount]);
+  const { metaMaskConnected, polkadotConnected, ksmConnected, dotConnected } =
+    useMemo(() => {
+      return {
+        metaMaskConnected: !!metaMaskAccount,
+        polkadotConnected: !!polkadotAccount,
+        ksmConnected: !!ksmAccount,
+        dotConnected: !!dotAccount,
+      };
+    }, [metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);
 
   const accountsPopupState = usePopupState({
     variant: "popover",
@@ -112,10 +117,7 @@ export const NavbarWallet = () => {
       dispatch(setMetaMaskDisconnected(false));
       connectMetaMask(targetMetaMaskChainId);
     }
-    if (walletType === WalletType.Polkadot) {
-      dispatch(connectPolkadotJs(true, walletType));
-    }
-    if (walletType === WalletType.Polkadot_KSM) {
+    if (isPolkadotWallet(walletType)) {
       dispatch(connectPolkadotJs(true, walletType));
     }
   };
@@ -138,6 +140,16 @@ export const NavbarWallet = () => {
     maticBalance,
     router.pathname,
   ]);
+
+  const displayMetaMaskChainName = useMemo(() => {
+    if (
+      targetMetaMaskChainId === getMetamaskMaticChainId() &&
+      router.pathname === "/rtoken/stake/MATIC"
+    ) {
+      return "Polygon";
+    }
+    return "Ethereum";
+  }, [targetMetaMaskChainId, router.pathname]);
 
   const displayMetaMaskTokenName = useMemo(() => {
     if (
@@ -366,7 +378,7 @@ export const NavbarWallet = () => {
           <div className="mt-[.08rem] mb-[.32rem] h-[1px] bg-[#26494E] opacity-30" />
 
           <WalletAccountItem
-            name="Ethereum"
+            name={displayMetaMaskChainName}
             walletType={WalletType.MetaMask}
             connected={metaMaskConnected}
             address={metaMaskAccount || ""}
@@ -385,7 +397,7 @@ export const NavbarWallet = () => {
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
 
-          <WalletAccountItem
+          {/* <WalletAccountItem
             name="Kusama"
             walletType={WalletType.Polkadot_KSM}
             connected={ksmConnected}
@@ -394,6 +406,16 @@ export const NavbarWallet = () => {
             tokenName={"KSM"}
             onClickConnect={() => clickConnectWallet(WalletType.Polkadot_KSM)}
           />
+
+          <WalletAccountItem
+            name="Polkadot"
+            walletType={WalletType.Polkadot_DOT}
+            connected={dotConnected}
+            address={dotAccount || ""}
+            balance={dotBalance}
+            tokenName={"DOT"}
+            onClickConnect={() => clickConnectWallet(WalletType.Polkadot_DOT)}
+          /> */}
         </div>
       </Popover>
     </div>
