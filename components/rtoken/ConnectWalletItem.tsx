@@ -7,11 +7,11 @@ import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
+  connectMetaMask,
   connectPolkadotJs,
   disconnectWallet,
 } from "redux/reducers/WalletSlice";
 import { getWalletIcon } from "utils/rToken";
-import { connectMetaMask } from "utils/web3Utils";
 
 interface ConnectWalletItemProps {
   walletType: WalletType;
@@ -148,7 +148,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
             }}
             onClick={() => {
               if (walletType === WalletType.MetaMask) {
-                connectMetaMask(targetMetaMaskChainId);
+                dispatch(connectMetaMask(targetMetaMaskChainId));
               } else if (walletType === WalletType.Polkadot) {
                 dispatch(connectPolkadotJs(true));
               }
@@ -206,7 +206,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
                 className="text-[.16rem] text-primary underline cursor-pointer"
                 onClick={() => {
                   if (walletType === WalletType.MetaMask) {
-                    connectMetaMask(targetMetaMaskChainId);
+                    dispatch(connectMetaMask(targetMetaMaskChainId));
                   }
                 }}
               >

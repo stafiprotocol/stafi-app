@@ -15,8 +15,8 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
 import React, { useEffect, useState } from "react";
 import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
-import { connectMetaMask } from "utils/web3Utils";
 
 const RMaticStakePage = () => {
   const { useChainId: useMetaMaskChainId } = hooks;
@@ -75,7 +75,9 @@ const RMaticStakePage = () => {
       <StakeOverview
         tokenName={TokenName.MATIC}
         onClickStake={onClickStake}
-        onClickConnectWallet={() => connectMetaMask(getMetamaskMaticChainId())}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskMaticChainId()))
+        }
       />
 
       <CollapseCard

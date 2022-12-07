@@ -45,6 +45,7 @@ import { rSymbol, Symbol } from "keyring/defaults";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { validateETHAddress } from "utils/validator";
 import { unstakeRKsm } from "redux/reducers/KsmSlice";
+import { unstakeRDot } from "redux/reducers/DotSlice";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -232,6 +233,18 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     } else if (tokenName === TokenName.KSM) {
       dispatch(
         unstakeRKsm(
+          redeemAmount,
+          targetAddress,
+          willReceiveAmount,
+          newTotalStakedAmount,
+          () => {
+            dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+          }
+        )
+      );
+    } else if (tokenName === TokenName.DOT) {
+      dispatch(
+        unstakeRDot(
           redeemAmount,
           targetAddress,
           willReceiveAmount,

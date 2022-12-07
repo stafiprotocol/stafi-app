@@ -14,7 +14,7 @@ import { TokenName } from "interfaces/common";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { getDotPools } from "redux/reducers/DotSlice";
-import { connectMetaMask } from "utils/web3Utils";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 
 const RTokenStakePage = () => {
   const dispatch = useAppDispatch();
@@ -43,7 +43,9 @@ const RTokenStakePage = () => {
       <StakeOverview
         tokenName={TokenName.DOT}
         onClickStake={() => setStakeModalVisible(true)}
-        onClickConnectWallet={() => connectMetaMask(getMetamaskEthChainId())}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskEthChainId()))
+        }
       />
 
       <CollapseCard

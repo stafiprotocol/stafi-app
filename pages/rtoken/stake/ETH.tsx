@@ -8,18 +8,19 @@ import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getValidatorSiteHost } from "config/env";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
-import { useAppSelector } from "hooks/common";
+import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import bulb from "public/bulb.svg";
 import React, { useEffect, useState } from "react";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import { openLink } from "utils/common";
-import { connectMetaMask } from "utils/web3Utils";
 
 const RTokenStakePage = () => {
+  const dispatch = useAppDispatch();
   const { useChainId: useMetaMaskChainId } = hooks;
   const chainId = useMetaMaskChainId();
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -43,7 +44,9 @@ const RTokenStakePage = () => {
       <StakeOverview
         tokenName={TokenName.ETH}
         onClickStake={() => setStakeModalVisible(true)}
-        onClickConnectWallet={() => connectMetaMask(getMetamaskEthChainId())}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskEthChainId()))
+        }
       />
 
       <CollapseCard

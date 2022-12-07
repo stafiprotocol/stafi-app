@@ -12,7 +12,7 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName } from "interfaces/common";
 import React, { useEffect, useState } from "react";
 import { getKsmPools } from "redux/reducers/KsmSlice";
-import { connectMetaMask } from "utils/web3Utils";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 
 const RTokenStakePage = () => {
   const dispatch = useAppDispatch();
@@ -38,7 +38,9 @@ const RTokenStakePage = () => {
       <StakeOverview
         tokenName={TokenName.KSM}
         onClickStake={() => setStakeModalVisible(true)}
-        onClickConnectWallet={() => connectMetaMask(getMetamaskEthChainId())}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskEthChainId()))
+        }
       />
 
       <CollapseCard

@@ -52,6 +52,7 @@ import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 import { BubblesLoading } from "components/common/BubblesLoading";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
 import { getPolkadotAccountBalance } from "utils/polkadotUtils";
+import { handleDotStake } from "redux/reducers/DotSlice";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -178,27 +179,27 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return "--";
   }, [ethGasPrice, tokenName, isApproved]);
 
-	const totalBridgeFee = useMemo(() => {
-		if (tokenStandard === TokenStandard.Native) {
-			if (isNaN(Number(relayFee))) {
-				return '--';
-			}
-			return relayFee + '';
-		} else {
-			let bridgeFee: string = '--';
-			if (tokenStandard === TokenStandard.ERC20) {
-				bridgeFee = erc20BridgeFee;
-			} else if (tokenStandard === TokenStandard.BEP20) {
-				bridgeFee = bep20BridgeFee;
-			} else {
-				bridgeFee = solBridgeFee;
-			}
-			if (isNaN(Number(relayFee)) || isNaN(Number(bridgeFee))) {
-				return '--';
-			}
-			return Number(relayFee) + Number(bridgeFee) + '';
-		}
-	}, [relayFee, erc20BridgeFee, bep20BridgeFee, solBridgeFee, tokenStandard]);
+  const totalBridgeFee = useMemo(() => {
+    if (tokenStandard === TokenStandard.Native) {
+      if (isNaN(Number(relayFee))) {
+        return "--";
+      }
+      return relayFee + "";
+    } else {
+      let bridgeFee: string = "--";
+      if (tokenStandard === TokenStandard.ERC20) {
+        bridgeFee = erc20BridgeFee;
+      } else if (tokenStandard === TokenStandard.BEP20) {
+        bridgeFee = bep20BridgeFee;
+      } else {
+        bridgeFee = solBridgeFee;
+      }
+      if (isNaN(Number(relayFee)) || isNaN(Number(bridgeFee))) {
+        return "--";
+      }
+      return Number(relayFee) + Number(bridgeFee) + "";
+    }
+  }, [relayFee, erc20BridgeFee, bep20BridgeFee, solBridgeFee, tokenStandard]);
 
   const transactionCost = useMemo(() => {
     if (tokenStandard === TokenStandard.Native) {
@@ -373,6 +374,25 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     } else if (tokenName === TokenName.KSM) {
       dispatch(
         handleKsmStake(
+          Number(stakeAmount) + "",
+          willReceiveAmount,
+          tokenStandard,
+          targetAddress,
+          newTotalStakedAmount,
+          false,
+          (success) => {
+            if (success) {
+              resetState();
+              dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              props.onClose();
+            }
+          }
+        )
+        //mockProcess(stakeAmount, willReceiveAmount, tokenStandard, newTotalStakedAmount)
+      );
+    } else if (tokenName === TokenName.DOT) {
+      dispatch(
+        handleDotStake(
           Number(stakeAmount) + "",
           willReceiveAmount,
           tokenStandard,
@@ -724,11 +744,15 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   <div className="text-text2">
                     <div className="flex justify-between">
                       <div>Bridge Fee</div>
-                      <div>{formatNumber(totalBridgeFee, { decimals: 4 })} ETH</div>
+                      <div>
+                        {formatNumber(totalBridgeFee, { decimals: 4 })} ETH
+                      </div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>ETH Tx Fee</div>
-                      <div>{formatNumber(estimateFee, { decimals: 4 })} ETH</div>
+                      <div>
+                        {formatNumber(estimateFee, { decimals: 4 })} ETH
+                      </div>
                     </div>
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
                     <div className="text-text1">

@@ -10,6 +10,7 @@ import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 import { TradeModal } from "components/modal/TradeModal";
 import { WarningModal } from "components/modal/WarningModal";
 import { getValidatorSiteHost } from "config/env";
+import { useAppDispatch } from "hooks/common";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenReward } from "hooks/useRTokenReward";
@@ -22,11 +23,11 @@ import { useRouter } from "next/router";
 import rectangle from "public/rectangle_v.svg";
 import rectangleError from "public/rectangle_v_error.svg";
 import { useContext, useMemo, useState } from "react";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { isEmptyValue, isInvalidValue, openLink } from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
 import { formatNumber } from "utils/number";
 import { getExchangeRateUpdateTime } from "utils/rToken";
-import { connectMetaMask } from "utils/web3Utils";
 import { TokenStandardSelector } from "./TokenStandardSelector";
 
 interface StakeOverviewProps {
@@ -36,6 +37,7 @@ interface StakeOverviewProps {
 }
 
 export const StakeOverview = (props: StakeOverviewProps) => {
+  const dispatch = useAppDispatch();
   const {
     walletType,
     isWrongNetwork,
@@ -154,7 +156,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 }}
                 onClick={() => {
                   if (isWrongMetaMaskNetwork) {
-                    connectMetaMask(targetMetaMaskChainId);
+                    dispatch(connectMetaMask(targetMetaMaskChainId));
                   }
                 }}
               >

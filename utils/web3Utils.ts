@@ -1,16 +1,6 @@
 import { isDev } from "config/env";
-import {
-  getMetamaskBscChainId,
-  getMetaMaskBscConfig,
-  getMetamaskEthChainId,
-  getMetaMaskEthConnectConfig,
-  getMetamaskMaticChainId,
-  getMetamaskValidatorChainId,
-  getMetaMaskValidatorConnectConfig,
-  getWeb3ProviderUrlConfig,
-} from "config/metaMask";
+import { getWeb3ProviderUrlConfig } from "config/metaMask";
 
-import { metaMask } from "connectors/metaMask";
 import { TokenName } from "interfaces/common";
 import { Symbol } from "keyring/defaults";
 import { FisAccount } from "redux/reducers/FisSlice";
@@ -24,20 +14,6 @@ export function createWeb3(provider?: any) {
 }
 
 export type MetaMaskConnectType = "validator" | "eth" | "matic" | "bsc";
-
-export function connectMetaMask(targetChainId: number | undefined) {
-  if (targetChainId === undefined) {
-    metaMask.activate(1);
-  } else if (targetChainId === getMetamaskValidatorChainId()) {
-    metaMask.activate(getMetaMaskValidatorConnectConfig());
-  } else if (targetChainId === getMetamaskEthChainId()) {
-    metaMask.activate(getMetaMaskEthConnectConfig());
-  } else if (targetChainId === getMetamaskMaticChainId()) {
-    metaMask.activate(getMetamaskMaticChainId());
-  } else if (targetChainId === getMetamaskBscChainId()) {
-    metaMask.activate(getMetaMaskBscConfig());
-  }
-}
 
 export function connectPolkadot() {
   const conn = async () => {

@@ -27,6 +27,7 @@ import {
   setChooseAccountWalletType,
 } from "redux/reducers/FisSlice";
 import {
+  connectMetaMask,
   connectPolkadotJs,
   disconnectWallet,
   setMetaMaskDisconnected,
@@ -40,7 +41,6 @@ import { formatNumber } from "utils/number";
 import { getWalletIcon } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import { connectMetaMask } from "utils/web3Utils";
 import { BubblesLoading } from "./common/BubblesLoading";
 import { Icomoon } from "./icon/Icomoon";
 import { MyLayoutContext } from "./layout/layout";
@@ -108,14 +108,14 @@ export const NavbarWallet = () => {
 
   const clickAccountLeftArea = () => {
     if (isWrongMetaMaskNetwork) {
-      connectMetaMask(targetMetaMaskChainId);
+      dispatch(connectMetaMask(targetMetaMaskChainId));
     }
   };
 
   const clickConnectWallet = (walletType: WalletType) => {
     if (walletType === WalletType.MetaMask) {
       dispatch(setMetaMaskDisconnected(false));
-      connectMetaMask(targetMetaMaskChainId);
+      dispatch(connectMetaMask(targetMetaMaskChainId));
     }
     if (isPolkadotWallet(walletType)) {
       dispatch(connectPolkadotJs(true, walletType));
@@ -550,7 +550,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
                 <div
                   className="text-center py-[.24rem] cursor-pointer active:text-primary"
                   onClick={() => {
-                    connectMetaMask(targetMetaMaskChainId);
+                    dispatch(connectMetaMask(targetMetaMaskChainId));
                     menuPopupState.close();
                   }}
                 >

@@ -5,17 +5,16 @@ import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
-import { getMetamaskBscChainId, getMetamaskMaticChainId } from "config/metaMask";
+import { getMetamaskBscChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
-import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import React, { useEffect, useState } from "react";
 import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
-import { connectMetaMask } from "utils/web3Utils";
 
 const RBnbStakePage = () => {
   const { useChainId: useMetaMaskChainId } = hooks;
@@ -32,7 +31,7 @@ const RBnbStakePage = () => {
 
   const { polkadotAccount } = useWalletAccount();
 
-	// const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.MATIC);
+  // const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.MATIC);
   const { balance } = useAppSelector((state: RootState) => {
     return { balance: state.matic.balance };
   });
@@ -73,7 +72,9 @@ const RBnbStakePage = () => {
       <StakeOverview
         tokenName={TokenName.BNB}
         onClickStake={onClickStake}
-        onClickConnectWallet={() => connectMetaMask(getMetamaskBscChainId())}
+        onClickConnectWallet={() => {
+          dispatch(connectMetaMask(getMetamaskBscChainId()));
+        }}
       />
 
       <CollapseCard
@@ -96,11 +97,10 @@ const RBnbStakePage = () => {
         tokenName={TokenName.BNB}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
-        balance={balance || '--'}
+        balance={balance || "--"}
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
-
     </div>
   );
 };
