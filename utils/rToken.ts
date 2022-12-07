@@ -30,9 +30,9 @@ export function getSupportedTokenStandards(tokenName: TokenName) {
     // return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
     return [TokenStandard.ERC20];
   }
-	if (tokenName === TokenName.BNB) {
-		return [TokenStandard.Native, TokenStandard.BEP20];
-	}
+  if (tokenName === TokenName.BNB) {
+    return [TokenStandard.Native, TokenStandard.BEP20];
+  }
   return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
 }
 
@@ -177,6 +177,20 @@ export function getDexList(tokenName: TokenName): DexItem[] {
         type: DexType.Pancake,
         tokenStandard: TokenStandard.BEP20,
         url: "https://pancakeswap.finance/swap?inputCurrency=0x1dab2a526c8ac1ddea86838a7b968626988d33de&outputCurrency=0x7083609fce4d1d8dc0c979aab8c869ea2c873402",
+      },
+    ];
+  }
+  if (tokenName === TokenName.BNB) {
+    return [
+      {
+        type: DexType.rDEX,
+        tokenStandard: TokenStandard.Native,
+        url: "https://app.rdex.finance/swap?first=rBNB&second=FIS",
+      },
+      {
+        type: DexType.Pancake,
+        tokenStandard: TokenStandard.BEP20,
+        url: "https://pancakeswap.finance/swap?inputCurrency=0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c&outputCurrency=0xf027e525d491ef6ffcc478555fbb3cfabb3406a6",
       },
     ];
   }
