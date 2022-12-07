@@ -11,6 +11,7 @@ import {
   connectPolkadotJs,
   disconnectWallet,
 } from "redux/reducers/WalletSlice";
+import { isPolkadotWallet } from "utils/common";
 import { getWalletIcon } from "utils/rToken";
 
 interface ConnectWalletItemProps {
@@ -149,8 +150,8 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
             onClick={() => {
               if (walletType === WalletType.MetaMask) {
                 dispatch(connectMetaMask(targetMetaMaskChainId));
-              } else if (walletType === WalletType.Polkadot) {
-                dispatch(connectPolkadotJs(true));
+              } else if (isPolkadotWallet(walletType)) {
+                dispatch(connectPolkadotJs(true, walletType));
               }
             }}
           >
