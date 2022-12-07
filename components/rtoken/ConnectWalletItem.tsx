@@ -160,7 +160,10 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
             </div>
 
             <div className="text-[.2rem] ml-[.16rem]">
-              Connect to {walletType}
+              Connect to{" "}
+              {isPolkadotWallet(props.walletType)
+                ? "Polkadot.js"
+                : props.walletType}
             </div>
           </div>
         </div>
