@@ -94,6 +94,7 @@ export function getEraEstTimeTip(
 export function getExchangeRateUpdateTime(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) return 8;
   if (tokenName === TokenName.MATIC) return 24;
+	if (tokenName === TokenName.BNB) return 24;
   return 24;
 }
 
