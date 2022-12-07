@@ -1,4 +1,5 @@
 import { TokenSymbol } from "interfaces/common";
+import { rSymbol } from "keyring/defaults";
 import { bignumberDependencies, create, multiplyDependencies } from "mathjs";
 
 // mathjs optimization
@@ -148,40 +149,37 @@ export function rTokenRateToHuman(num: string | number) {
   // return Web3.utils.toBN(num).div(Web3.utils.toBN("1000000000000")).toString();
 }
 
-export function numberToChain(
-  input: string | number,
-  symbol: TokenSymbol
-): string {
+export function numberToChain(input: string | number, symbol: rSymbol): string {
   if (isNaN(Number(input))) {
     return "--";
   }
   let factor;
   switch (symbol) {
-    case TokenSymbol.DOT:
+    case rSymbol.Dot:
       factor = "10000000000";
       break;
-    case TokenSymbol.ATOM:
+    case rSymbol.Atom:
       factor = "1000000";
       break;
-    case TokenSymbol.FIS:
+    case rSymbol.Fis:
       factor = "1000000000000";
       break;
-    case TokenSymbol.KSM:
+    case rSymbol.Ksm:
       factor = "1000000000000";
       break;
-    case TokenSymbol.SOL:
+    case rSymbol.Sol:
       factor = "1000000000";
       break;
-    case TokenSymbol.ETH:
+    case rSymbol.Eth:
       factor = "1000000000000000000";
       break;
-    case TokenSymbol.MATIC:
+    case rSymbol.Matic:
       factor = "1000000000000000000";
       break;
-    case TokenSymbol.BNB:
+    case rSymbol.Bnb:
       factor = "100000000";
       break;
-    case TokenSymbol.StafiHub:
+    case rSymbol.StafiHub:
       factor = "1000000";
       break;
     default:

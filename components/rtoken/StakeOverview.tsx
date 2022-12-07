@@ -167,13 +167,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
               <div
                 className="flex items-center mt-[.4rem] cursor-pointer"
                 onClick={() => {
-                  if (props.tokenName === TokenName.ETH) {
-                    openLink("https://docs.stafi.io/rtoken-app/reth-solution");
-                  } else if (props.tokenName === TokenName.MATIC) {
-                    openLink(
-                      "https://docs.stafi.io/rtoken-app/rmatic-solution"
-                    );
-                  }
+                  openLink(
+                    `https://docs.stafi.io/rtoken-app/r${props.tokenName.toLowerCase()}-solution`
+                  );
                 }}
               >
                 <div className="text-text1 text-[.24rem]">
@@ -377,7 +373,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   if (props.tokenName === TokenName.ETH) {
                     setEthRedeemWarningModalVisible(true);
                     return;
-                  } else if (props.tokenName === TokenName.MATIC) {
+                  } else {
                     setRTokenRedeemModalVisible(true);
                     return;
                   } else if (props.tokenName === TokenName.BNB) {

@@ -14,7 +14,11 @@ import {
   updateStakeLoadingParams,
 } from "./AppSlice";
 import { getLocalStorageItem } from "utils/common";
-import { connectPolkadot, getErc20AssetBalance } from "utils/web3Utils";
+import {
+  connectPolkadot,
+  getBep20AssetBalance,
+  getErc20AssetBalance,
+} from "utils/web3Utils";
 import snackbarUtil from "utils/snackbarUtils";
 import {
   CANCELLED_MESSAGE,
@@ -22,10 +26,22 @@ import {
   STAFI_ACCOUNT_EMPTY_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
 } from "utils/constants";
-import { ChainId, TokenStandard, WalletType } from "interfaces/common";
-import { getMaticAbi, getRMaticTokenAddress } from "config/matic";
 import { getBnbAbi, getRBnbTokenAddress } from "config/bnb";
+import {
+  ChainId,
+  TokenName,
+  TokenStandard,
+  WalletType,
+} from "interfaces/common";
+import {
+  getBSCRMaticAbi,
+  getERCMaticAbi,
+  getMaticAbi,
+  getRMaticTokenAddress,
+} from "config/matic";
 import { getPolkadotStakingSignature } from "utils/polkadotUtils";
+import { getBep20TokenContractConfig } from "config/bep20Contract";
+import { getErc20TokenContractConfig } from "config/erc20Contract";
 
 declare const ethereum: any;
 
@@ -431,7 +447,6 @@ export const getMinting =
               totalStatus: "success",
               broadcastStatus: "success",
               packStatus: "success",
-              finalizeStatus: "success",
             },
             minting: {
               totalStatus: "loading",
@@ -457,8 +472,6 @@ export const getMinting =
         bondSuccessParamArr,
         async (result: string) => {
           if (result === "successful") {
-            const tokenStandard =
-              getState().app.stakeLoadingParams?.tokenStandard;
             const targetAddress =
               getState().app.stakeLoadingParams?.targetAddress;
             const amount = getState().app.stakeLoadingParams?.amount;
@@ -467,18 +480,20 @@ export const getMinting =
                 progressDetail: {
                   minting: {
                     totalStatus: "success",
-                    broadcastStatus: "success",
-                    packStatus: "success",
-                    finalizeStatus: "success",
+                  },
+                  swapping: {
+                    totalStatus: "loading",
                   },
                 },
+                // customMsg: undefined,
               })
             );
-            if (tokenStandard === TokenStandard.Native) {
+            if (chainId === ChainId.STAFI) {
               dispatch(
                 updateStakeLoadingParams(
                   {
                     status: "success",
+                    customMsg: undefined,
                   },
                   (newParams) => {
                     dispatch(
@@ -491,21 +506,31 @@ export const getMinting =
                 )
               );
               dispatch(setIsLoading(false));
+              cb && cb(true);
             } else {
               let tokenAbi: any = "";
               let tokenAddress: any = "";
+              let oldBalance: string = "0";
               if (rsymbol === rSymbol.Matic) {
-                tokenAbi = getMaticAbi();
-                tokenAddress = getRMaticTokenAddress();
-              } else if (rsymbol === rSymbol.Bnb) {
-                tokenAbi = getBnbAbi();
-                tokenAddress = getRBnbTokenAddress();
+                if (chainId === ChainId.BSC) {
+                  tokenAbi = getBSCRMaticAbi();
+                  tokenAddress = getBep20TokenContractConfig().rMATIC;
+                  oldBalance = await getBep20AssetBalance(
+                    targetAddress,
+                    tokenAbi,
+                    tokenAddress
+                  );
+                } else if (chainId === ChainId.ETH) {
+                  tokenAbi = getERCMaticAbi();
+                  tokenAddress = getErc20TokenContractConfig().rMATIC;
+                  oldBalance = await getErc20AssetBalance(
+                    targetAddress,
+                    tokenAbi,
+                    tokenAddress,
+                    TokenName.MATIC
+                  );
+                }
               }
-              const oldBalance = await getErc20AssetBalance(
-                targetAddress,
-                tokenAbi,
-                tokenAddress
-              );
               dispatch(
                 updateStakeLoadingParams(
                   {
@@ -515,6 +540,7 @@ export const getMinting =
                         totalStatus: "loading",
                       },
                     },
+                    customMsg: "Minting succeeded, now swapping...",
                   },
                   (newParams) => {
                     dispatch(
@@ -526,59 +552,65 @@ export const getMinting =
                   }
                 )
               );
-              queryRTokenSwapState(
-                chainId,
-                targetAddress as string,
-                rsymbol,
-                oldBalance,
-                amount as string,
-                (result: string) => {
-                  if (result === "successful") {
-                    dispatch(
-                      updateStakeLoadingParams(
-                        {
-                          status: "success",
-                          progressDetail: {
-                            swapping: {
-                              totalStatus: "success",
+              dispatch(
+                queryRTokenSwapState(
+                  chainId,
+                  targetAddress as string,
+                  rsymbol,
+                  oldBalance,
+                  amount as string,
+                  (result: string) => {
+                    if (result === "successful") {
+                      dispatch(
+                        updateStakeLoadingParams(
+                          {
+                            status: "success",
+                            progressDetail: {
+                              swapping: {
+                                totalStatus: "success",
+                              },
                             },
+                            customMsg: undefined,
                           },
-                        },
-                        (newParams) => {
-                          dispatch(
-                            updateNotice(newParams?.noticeUuid, {
-                              status: "Confirmed",
-                              stakeLoadingParams: newParams,
-                            })
-                          );
-                        }
-                      )
-                    );
-                  } else if (result === "failure") {
-                    dispatch(
-                      updateStakeLoadingParams(
-                        {
-                          status: "error",
-                          errorMsg: "Swap failed",
-                          errorStep: "swapping",
-                          progressDetail: {
-                            swapping: {
-                              totalStatus: "error",
+                          (newParams) => {
+                            dispatch(
+                              updateNotice(newParams?.noticeUuid, {
+                                status: "Confirmed",
+                                stakeLoadingParams: newParams,
+                              })
+                            );
+                          }
+                        )
+                      );
+                      dispatch(setIsLoading(false));
+                    } else if (result === "failure") {
+                      dispatch(
+                        updateStakeLoadingParams(
+                          {
+                            status: "error",
+                            errorMsg: "Swap failed",
+                            errorStep: "swapping",
+                            progressDetail: {
+                              swapping: {
+                                totalStatus: "error",
+                              },
                             },
+                            customMsg: undefined,
                           },
-                        },
-                        (newParams) => {
-                          dispatch(
-                            updateNotice(newParams?.noticeUuid, {
-                              status: "Error",
-                              stakeLoadingParams: newParams,
-                            })
-                          );
-                        }
-                      )
-                    );
+                          (newParams) => {
+                            dispatch(
+                              updateNotice(newParams?.noticeUuid, {
+                                status: "Error",
+                                stakeLoadingParams: newParams,
+                              })
+                            );
+                          }
+                        )
+                      );
+                      dispatch(setIsLoading(false));
+                    }
                   }
-                }
+                )
               );
             }
             // todo: swapping
@@ -594,6 +626,7 @@ export const getMinting =
                       totalStatus: "error",
                     },
                   },
+                  customMsg: undefined,
                 },
                 (newParams) => {
                   dispatch(
@@ -653,39 +686,46 @@ export const queryRTokenSwapState =
   async (dispatch, getState) => {
     let tokenAbi: any = "";
     let tokenAddress: any = "";
+    let balance: string = "";
     if (rsymbol === rSymbol.Matic) {
-      tokenAbi = getMaticAbi();
-      tokenAddress = getRMaticTokenAddress();
-    } else if (rsymbol === rSymbol.Bnb) {
-      tokenAbi = getBnbAbi();
-      tokenAddress = getRBnbTokenAddress();
+      if (chainId === ChainId.BSC) {
+        tokenAbi = getBSCRMaticAbi();
+        tokenAddress = getBep20TokenContractConfig().rMATIC;
+        balance = await getBep20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress
+        );
+      } else if (chainId === ChainId.ETH) {
+        tokenAbi = getERCMaticAbi();
+        tokenAddress = getErc20TokenContractConfig().rMATIC;
+        balance = await getErc20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress,
+          TokenName.MATIC
+        );
+      }
     }
 
-    if (chainId === ChainId.ETH || chainId === ChainId.BSC) {
-      const balance = await getErc20AssetBalance(
-        targetAddress,
-        tokenAbi,
-        tokenAddress
-      );
-      if (
-        Number(balance) - Number(oldBalance) <= Number(amount) * 1.1 &&
-        Number(balance) - Number(oldBalance) >= Number(amount) * 0.9
-      ) {
-        cb && cb("successful");
-      } else {
-        setTimeout(() => {
-          dispatch(
-            queryRTokenSwapState(
-              chainId,
-              targetAddress,
-              rsymbol,
-              oldBalance,
-              amount,
-              cb
-            )
-          );
-        }, 3000);
-      }
+    if (
+      Number(balance) - Number(oldBalance) <= Number(amount) * 1.1 &&
+      Number(balance) - Number(oldBalance) >= Number(amount) * 0.9
+    ) {
+      cb && cb("successful");
+    } else {
+      setTimeout(() => {
+        dispatch(
+          queryRTokenSwapState(
+            chainId,
+            targetAddress,
+            rsymbol,
+            oldBalance,
+            amount,
+            cb
+          )
+        );
+      }, 3000);
     }
   };
 

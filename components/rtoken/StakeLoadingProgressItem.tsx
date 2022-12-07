@@ -8,7 +8,7 @@ import { getShortAddress } from "utils/string";
 
 interface StakeLoadingProgressItemProps {
   stepIndex: number;
-  name: "Sending" | "Staking" | "Minting" | "Swapping";
+  name: "Sending" | "Approving" | "Staking" | "Minting" | "Swapping";
   data: StakeLoadingProgressDetailItem | undefined;
   txHash?: string | undefined;
   scanUrl?: string | undefined;

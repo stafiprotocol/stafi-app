@@ -1,4 +1,3 @@
-import { u8aToHex } from "@polkadot/util";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
 import { estimateUnbondDays } from "config/unbond";
@@ -7,13 +6,11 @@ import {
   ChainId,
   TokenName,
   TokenStandard,
-  TokenSymbol,
   WalletType,
 } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
-import keyring from "servers/keyring";
-import { ksmServer } from "servers/ksm";
+import { dotServer } from "servers/dot";
 import StafiServer from "servers/stafi";
 import { stafiUuid } from "utils/common";
 import {
@@ -22,7 +19,7 @@ import {
   NO_VALID_POOL_MESSAGE,
 } from "utils/constants";
 import { LocalNotice } from "utils/notice";
-import { chainAmountToHuman, numberToChain } from "utils/number";
+import { numberToChain } from "utils/number";
 import numberUtil from "utils/numberUtil";
 import {
   getPolkadotAccountBalance,
@@ -53,7 +50,7 @@ const commonSlice = new CommonSlice();
 
 const stafiServer = new StafiServer();
 
-export interface KsmState {
+export interface DotState {
   txLoading: boolean;
   stakedAmount: string;
   validPools: any[];
@@ -65,7 +62,7 @@ export interface KsmState {
   bondFees: string; // bond relay fee
 }
 
-const initialState: KsmState = {
+const initialState: DotState = {
   txLoading: false,
   stakedAmount: "--",
   validPools: [],
@@ -77,39 +74,39 @@ const initialState: KsmState = {
   bondFees: "--",
 };
 
-export const ksmSlice = createSlice({
-  name: "ksm",
+export const dotSlice = createSlice({
+  name: "dot",
   initialState,
   reducers: {
-    setKsmTxLoading: (state: KsmState, action: PayloadAction<boolean>) => {
+    setDotTxLoading: (state: DotState, action: PayloadAction<boolean>) => {
       state.txLoading = action.payload;
     },
-    setStakedAmount: (state: KsmState, action: PayloadAction<string>) => {
+    setStakedAmount: (state: DotState, action: PayloadAction<string>) => {
       state.stakedAmount = action.payload;
     },
-    setValidPools: (state: KsmState, action: PayloadAction<any | null>) => {
+    setValidPools: (state: DotState, action: PayloadAction<any | null>) => {
       if (action.payload === null) {
         state.validPools = [];
       } else {
         state.validPools.push(action.payload);
       }
     },
-    setPoolLimit: (state: KsmState, action: PayloadAction<any>) => {
+    setPoolLimit: (state: DotState, action: PayloadAction<any>) => {
       state.poolLimit = action.payload;
     },
-    setUnbondFees: (state: KsmState, action: PayloadAction<string>) => {
+    setUnbondFees: (state: DotState, action: PayloadAction<string>) => {
       state.unbondFees = action.payload;
     },
-    setUnbondCommision: (state: KsmState, action: PayloadAction<string>) => {
+    setUnbondCommision: (state: DotState, action: PayloadAction<string>) => {
       state.unbondCommision = action.payload;
     },
-    setBondTxFees: (state: KsmState, action: PayloadAction<string>) => {
+    setBondTxFees: (state: DotState, action: PayloadAction<string>) => {
       state.bondTxFees = action.payload;
     },
-    setUnbondTxFees: (state: KsmState, action: PayloadAction<string>) => {
+    setUnbondTxFees: (state: DotState, action: PayloadAction<string>) => {
       state.unbondTxFees = action.payload;
     },
-    setBondFees: (state: KsmState, action: PayloadAction<string>) => {
+    setBondFees: (state: DotState, action: PayloadAction<string>) => {
       state.bondFees = action.payload;
     },
   },
@@ -117,7 +114,7 @@ export const ksmSlice = createSlice({
 
 export const {
   setStakedAmount,
-  setKsmTxLoading,
+  setDotTxLoading,
   setPoolLimit,
   setValidPools,
   setUnbondCommision,
@@ -125,23 +122,23 @@ export const {
   setUnbondTxFees,
   setBondTxFees,
   setBondFees,
-} = ksmSlice.actions;
+} = dotSlice.actions;
 
-export default ksmSlice.reducer;
+export default dotSlice.reducer;
 
-export const getKsmPools =
+export const getDotPools =
   (cb?: Function): AppThunk =>
   async (dispatch, getState) => {
-    commonSlice.getPools(rSymbol.Ksm, Symbol.Ksm, (data: any) => {
+    commonSlice.getPools(rSymbol.Dot, Symbol.Dot, (data: any) => {
       dispatch(setValidPools(data));
       cb && cb();
     });
 
-    const data = await commonSlice.poolBalanceLimit(rSymbol.Ksm);
+    const data = await commonSlice.poolBalanceLimit(rSymbol.Dot);
     dispatch(setPoolLimit(data));
   };
 
-export const handleKsmStake =
+export const handleDotStake =
   (
     stakeAmount: string,
     willReceiveAmount: string,
@@ -161,8 +158,7 @@ export const handleKsmStake =
       chainId = ChainId.SOL;
     }
 
-    const chainAmount = numberToChain(stakeAmount, rSymbol.Ksm);
-    console.log("chainAmount", chainAmount);
+    const chainAmount = numberToChain(stakeAmount, rSymbol.Dot);
     const noticeUuid = isReTry
       ? getState().app.stakeLoadingParams?.noticeUuid
       : stafiUuid();
@@ -210,7 +206,7 @@ export const handleKsmStake =
                   id: noticeUuid || stafiUuid(),
                   type: "rToken Stake",
                   data: {
-                    tokenName: TokenName.KSM,
+                    tokenName: TokenName.DOT,
                     amount: Number(stakeAmount) + "",
                     willReceiveAmount: Number(willReceiveAmount) + "",
                   },
@@ -236,7 +232,7 @@ export const handleKsmStake =
           modalVisible: true,
           noticeUuid,
           status: "loading",
-          tokenName: TokenName.KSM,
+          tokenName: TokenName.DOT,
           amount: stakeAmount,
           willReceiveAmount: willReceiveAmount,
           newTotalStakedAmount,
@@ -256,19 +252,19 @@ export const handleKsmStake =
         })
       );
 
-      const ksmAccount = getState().wallet.ksmAccount;
-      const ksmBalance = getPolkadotAccountBalance(
-        ksmAccount,
+      const dotAccount = getState().wallet.dotAccount;
+      const dotBalance = getPolkadotAccountBalance(
+        dotAccount,
         getState().wallet.polkadotExtensionAccounts,
-        WalletType.Polkadot_KSM
+        WalletType.Polkadot_DOT
       );
 
-      if (!ksmAccount) {
+      if (!dotAccount) {
         throw new Error("Please connect Polkadot.js");
       }
 
-      const validPools = getState().ksm.validPools;
-      const poolLimit = getState().ksm.poolLimit;
+      const validPools = getState().dot.validPools;
+      const poolLimit = getState().dot.poolLimit;
       const selectedPool = commonSlice.getPool(
         stakeAmount,
         validPools,
@@ -278,15 +274,15 @@ export const handleKsmStake =
         throw new Error(NO_VALID_POOL_MESSAGE);
       }
 
-      const ksmApi = await ksmServer.createKsmApi();
+      const dotApi = await dotServer.createDotApi();
 
-      const extrinsic = ksmApi.tx.balances.transferKeepAlive(
+      const extrinsic = dotApi.tx.balances.transferKeepAlive(
         selectedPool.address,
         chainAmount
       );
 
       dispatch(
-        sendPolkadotTx(ksmApi, ksmAccount, ksmBalance, {
+        sendPolkadotTx(dotApi, dotAccount, dotBalance, {
           extrinsic,
           txCancelCb: () => {
             handleError(new Error(CANCELLED_MESSAGE));
@@ -326,10 +322,10 @@ export const handleKsmStake =
                     type: "rToken Stake",
                     txDetail: {
                       transactionHash: txHash,
-                      sender: ksmAccount,
+                      sender: dotAccount,
                     },
                     data: {
-                      tokenName: TokenName.KSM,
+                      tokenName: TokenName.DOT,
                       amount: Number(stakeAmount) + "",
                       willReceiveAmount: Number(willReceiveAmount) + "",
                     },
@@ -347,12 +343,12 @@ export const handleKsmStake =
             blockHash &&
               dispatch(
                 bond(
-                  ksmAccount,
+                  dotAccount,
                   txHash,
                   blockHash,
                   chainAmount,
                   selectedPool.poolPubKey,
-                  rSymbol.Ksm,
+                  rSymbol.Dot,
                   chainId,
                   targetAddress,
                   cb
@@ -422,7 +418,7 @@ export const retryStake =
         blockHash as string,
         amount as string,
         poolPubKey as string,
-        rSymbol.Ksm,
+        rSymbol.Dot,
         chainId,
         targetAddress as string,
         cb
@@ -434,18 +430,18 @@ const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const getRKsmRate =
+export const getRDotRate =
   (cb?: Function): AppThunk =>
   async (dispatch, getState) => {
     const api = await stafiServer.createStafiApi();
-    const result = await api.query.rTokenRate.rate(rSymbol.Ksm);
+    const result = await api.query.rTokenRate.rate(rSymbol.Dot);
     let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
     ratio = ratio || 1;
     cb && cb(ratio);
     return ratio;
   };
 
-export const unstakeRKsm =
+export const unstakeRDot =
   (
     amount: string,
     recipient: string,
@@ -460,7 +456,7 @@ export const unstakeRKsm =
       resetStakeLoadingParams({
         modalVisible: true,
         status: "loading",
-        tokenName: TokenName.KSM,
+        tokenName: TokenName.DOT,
         amount: amount,
         willReceiveAmount,
         newTotalStakedAmount,
@@ -473,11 +469,11 @@ export const unstakeRKsm =
       })
     );
     try {
-      const validPools = getState().ksm.validPools;
+      const validPools = getState().dot.validPools;
       let selectedPool = commonSlice.getPoolForUnbond(
         amount,
         validPools,
-        rSymbol.Ksm
+        rSymbol.Dot
       );
       if (!selectedPool) {
         cb && cb();
@@ -487,21 +483,21 @@ export const unstakeRKsm =
       dispatch(
         fisUnbond(
           amount,
-          rSymbol.Ksm,
+          rSymbol.Dot,
           polkadotAddressToHex(recipient),
           selectedPool.poolPubKey,
           // todo:
           `Unstake succeeded, unstaking period is around ${estimateUnbondDays(
-            TokenName.KSM
+            TokenName.DOT
           )} days`,
           (r?: string, txHash?: string) => {
             if (r === "Success") {
               const uuid = stafiUuid();
-              addRTokenUnbondRecords(TokenName.KSM, {
+              addRTokenUnbondRecords(TokenName.DOT, {
                 id: uuid,
                 txHash,
                 estimateSuccessTime: dayjs()
-                  .add(estimateUnbondDays(TokenName.KSM), "d")
+                  .add(estimateUnbondDays(TokenName.DOT), "d")
                   .valueOf(),
                 amount: willReceiveAmount,
                 recipient,
@@ -526,24 +522,24 @@ export const getUnbondCommision =
   };
 
 export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
-  const unbondFees = await commonSlice.getUnbondFees(rSymbol.Ksm);
+  const unbondFees = await commonSlice.getUnbondFees(rSymbol.Dot);
   dispatch(setUnbondFees(Number(unbondFees).toString()));
 };
 
 export const getBondFees = (): AppThunk => async (dispatch, getState) => {
-  const bondFees = await commonSlice.getBondFees(rSymbol.Ksm);
+  const bondFees = await commonSlice.getBondFees(rSymbol.Dot);
   dispatch(setBondFees(Number(bondFees).toString()));
 };
 
-export const getKsmUnbondTxFees =
+export const getDotUnbondTxFees =
   (amount: string, recipient: string): AppThunk =>
   async (dispatch, getState) => {
     if (!recipient) return;
-    const validPools = getState().ksm.validPools;
+    const validPools = getState().dot.validPools;
     let selectedPool = commonSlice.getPoolForUnbond(
       amount,
       validPools,
-      rSymbol.Ksm
+      rSymbol.Dot
     );
     if (!selectedPool) {
       return;
@@ -551,7 +547,7 @@ export const getKsmUnbondTxFees =
     dispatch(
       getUnbondTransactionFees(
         amount,
-        rSymbol.Ksm,
+        rSymbol.Dot,
         polkadotAddressToHex(recipient),
         selectedPool.poolPubKey,
         (fee: string) => {
@@ -561,7 +557,7 @@ export const getKsmUnbondTxFees =
     );
   };
 
-export const getKsmBondTransactionFees =
+export const getDotBondTransactionFees =
   (tokenStandard: TokenStandard | undefined): AppThunk =>
   async (dispatch, getState) => {
     let chainId = 1;
@@ -572,11 +568,11 @@ export const getKsmBondTransactionFees =
     } else if (tokenStandard === TokenStandard.SPL) {
       chainId = 4;
     }
-    const validPools = getState().ksm.validPools;
+    const validPools = getState().dot.validPools;
     let selectedPool = commonSlice.getPoolForUnbond(
       "0",
       validPools,
-      rSymbol.Ksm
+      rSymbol.Dot
     );
     if (!selectedPool) {
       return;
@@ -585,7 +581,7 @@ export const getKsmBondTransactionFees =
     dispatch(
       getBondTransactionFees(
         "1",
-        rSymbol.Ksm,
+        rSymbol.Dot,
         chainId,
         selectedPool.poolPubKey,
         (fee: string) => {

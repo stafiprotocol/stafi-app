@@ -2,7 +2,7 @@ import { RootState } from "redux/store";
 import { useAppSelector } from "./common";
 
 export function useDotBalance() {
-  const ksmBalance = useAppSelector((state: RootState) => {
+  const dotBalance = useAppSelector((state: RootState) => {
     const polkadotExtensionAccounts = state.wallet.polkadotExtensionAccounts;
     const dotAccount = state.wallet.dotAccount;
 
@@ -16,5 +16,5 @@ export function useDotBalance() {
     }
   });
 
-  return ksmBalance || "--";
+  return dotBalance;
 }

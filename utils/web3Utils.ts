@@ -74,9 +74,16 @@ export async function getErc20AssetBalance(
     return "--";
   }
   try {
-    let web3 = createWeb3(
-      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().stafiEth)
-    );
+    let web3 =
+      tokenName === TokenName.ETH
+        ? createWeb3(
+            new Web3.providers.WebsocketProvider(
+              getWeb3ProviderUrlConfig().stafiEth
+            )
+          )
+        : createWeb3(
+            new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+          );
     if (tokenName === TokenName.MATIC && window.ethereum) {
       web3 = createWeb3(window.ethereum);
     }

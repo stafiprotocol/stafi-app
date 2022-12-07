@@ -1,8 +1,8 @@
 import { AnyJson } from "@polkadot/types-codec/types";
-import { hexToU8a } from "@polkadot/util";
 import { rSymbol, Symbol } from "keyring/defaults";
-import keyring from "servers/keyring";
 import { stafiServer } from "servers/stafi";
+import { getPoolAddress } from "utils/encoder";
+import { numberToChain } from "utils/number";
 import numberUtil from "utils/numberUtil";
 
 export default class CommonSlice {
@@ -24,20 +24,8 @@ export default class CommonSlice {
               if (bonded) {
                 active = bonded.active;
               }
-              const keyringInstance = keyring.init(symbol);
 
-              let poolAddress;
-              if (symbol === Symbol.Matic) {
-                poolAddress = poolPubKey;
-              } else if (symbol === Symbol.Bnb) {
-                poolAddress = poolPubKey;
-              } else if (symbol === Symbol.Atom) {
-                poolAddress = keyringInstance.encodeAddress(
-                  hexToU8a(poolPubKey)
-                );
-              } else {
-                poolAddress = keyringInstance.encodeAddress(poolPubKey);
-              }
+              let poolAddress = getPoolAddress(poolPubKey, type);
 
               cb &&
                 cb({
@@ -113,7 +101,7 @@ export default class CommonSlice {
     type: rSymbol,
     msgStr?: string
   ) {
-    const amount = numberUtil.tokenAmountToChain(tokenAmount.toString(), type);
+    const amount = numberToChain(tokenAmount.toString(), type);
     const data = validPools.find((item: any) => {
       if (Number(item.active) >= Number(amount)) return true;
     });

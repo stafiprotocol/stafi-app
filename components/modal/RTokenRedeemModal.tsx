@@ -45,6 +45,7 @@ import { rSymbol, Symbol } from "keyring/defaults";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { validateETHAddress } from "utils/validator";
 import { unbondRBnb } from "redux/reducers/BnbSlice";
+import { unstakeRKsm } from "redux/reducers/KsmSlice";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -74,7 +75,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const tokenStandard = useTokenStandard(props.tokenName);
 
-  const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost(tokenName);
+  const { unbondCommision, unbondFees, unbondTxFees } = useTransactionCost(
+    tokenName,
+    tokenStandard || TokenStandard.Native
+  );
   const defaultTransactionFee = 0.0129;
 
   const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
@@ -236,6 +240,18 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
           }
+				)
+			);
+    } else if (tokenName === TokenName.KSM) {
+      dispatch(
+        unstakeRKsm(
+          redeemAmount,
+          targetAddress,
+          willReceiveAmount,
+          newTotalStakedAmount,
+          () => {
+            dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+          }
         )
       );
     }
@@ -295,7 +311,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             <div className="mt-[.76rem] flex items-center justify-between">
               <div>
                 <div className="text-text1 text-[.24rem]">
-                  <MyTooltip title="Receive Address" text="Receive Address" />
+                  <MyTooltip
+                    title={`The address that receives redeemed ${tokenName} tokens, ${tokenName} tokens will be sent to the receiving address after receiving the request of redemption around 9 days`}
+                    text="Receiving Address"
+                  />
                 </div>
 
                 <div className="flex mt-[.15rem] items-center">

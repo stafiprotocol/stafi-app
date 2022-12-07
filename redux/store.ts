@@ -6,6 +6,7 @@ import ethReducer from "./reducers/EthSlice";
 import rTokenReducer from "./reducers/RTokenSlice";
 import maticReducer from "./reducers/MaticSlice";
 import ksmReducer from "./reducers/KsmSlice";
+import dotReducer from "./reducers/DotSlice";
 import fisReducer from "./reducers/FisSlice";
 import bridgeReducer from "./reducers/BridgeSlice";
 import bnbReducer from "./reducers/BnbSlice";
@@ -19,6 +20,7 @@ export const store = configureStore({
     rToken: rTokenReducer,
     matic: maticReducer,
     ksm: ksmReducer,
+    dot: dotReducer,
     fis: fisReducer,
     bridge: bridgeReducer,
     bnb: bnbReducer,
