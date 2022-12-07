@@ -75,37 +75,39 @@ export const queryBridgeFees = (): AppThunk => async (dispatch, getState) => {
 
 /**
  * query bridge fee from stakePortal
- * @returns 
+ * @returns
  */
 export const getBridgeFee = (): AppThunk => async (dispatch, getState) => {
-  const web3 = createWeb3();
-  const metaMaskAccount = getState().wallet.metaMaskAccount;
-  const contractMatic = new web3.eth.Contract(
-    getMaticStakePortalAbi(),
-    getMaticStakePortalAddress(),
-    {
-      from: metaMaskAccount,
+  try {
+    const web3 = createWeb3();
+    const metaMaskAccount = getState().wallet.metaMaskAccount;
+    const contractMatic = new web3.eth.Contract(
+      getMaticStakePortalAbi(),
+      getMaticStakePortalAddress(),
+      {
+        from: metaMaskAccount,
+      }
+    );
+
+    const erc20BridgeFeeResult = await contractMatic.methods
+      .bridgeFee(ChainId.ETH)
+      .call();
+    if (!isNaN(Number(erc20BridgeFeeResult))) {
+      dispatch(setErc20BridgeFee(web3.utils.fromWei(erc20BridgeFeeResult)));
     }
-  );
 
-  const erc20BridgeFeeResult = await contractMatic.methods
-    .bridgeFee(ChainId.ETH)
-    .call();
-  if (!isNaN(Number(erc20BridgeFeeResult))) {
-    dispatch(setErc20BridgeFee(web3.utils.fromWei(erc20BridgeFeeResult)));
-  }
+    const bep20BridgeFeeResult = await contractMatic.methods
+      .bridgeFee(ChainId.BSC)
+      .call();
+    if (!isNaN(Number(bep20BridgeFeeResult))) {
+      dispatch(setBep20BridgeFee(web3.utils.fromWei(bep20BridgeFeeResult)));
+    }
 
-  const bep20BridgeFeeResult = await contractMatic.methods
-    .bridgeFee(ChainId.BSC)
-    .call();
-  if (!isNaN(Number(bep20BridgeFeeResult))) {
-    dispatch(setBep20BridgeFee(web3.utils.fromWei(bep20BridgeFeeResult)));
-  }
-
-  const solBridgeFeeResult = await contractMatic.methods
-    .bridgeFee(ChainId.SOL)
-    .call();
-  if (!isNaN(Number(solBridgeFeeResult))) {
-    dispatch(setSolBridgeFee(web3.utils.fromWei(solBridgeFeeResult)));
-  }
+    const solBridgeFeeResult = await contractMatic.methods
+      .bridgeFee(ChainId.SOL)
+      .call();
+    if (!isNaN(Number(solBridgeFeeResult))) {
+      dispatch(setSolBridgeFee(web3.utils.fromWei(solBridgeFeeResult)));
+    }
+  } catch (err: unknown) {}
 };

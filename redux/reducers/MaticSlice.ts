@@ -164,20 +164,19 @@ export const updateMaticBalance =
       dispatch(setMaticBalance("--"));
       return;
     }
-
-    // let web3 = new Web3(window.ethereum as any);
-    let web3 = new Web3(
-      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
-    );
-    let contract = new web3.eth.Contract(
-      getMaticAbi(),
-      getMaticTokenAddress(),
-      {
-        from: account,
-      }
-    );
-
     try {
+      // let web3 = new Web3(window.ethereum as any);
+      let web3 = new Web3(
+        new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+      );
+      let contract = new web3.eth.Contract(
+        getMaticAbi(),
+        getMaticTokenAddress(),
+        {
+          from: account,
+        }
+      );
+
       contract.methods
         .balanceOf(account)
         .call()
@@ -1025,31 +1024,35 @@ export const stakeMatic =
   };
 
 export const getStakeRelayFee = (): AppThunk => async (dispatch, getState) => {
-  const web3 = createWeb3();
-  const contractStakePortal = new web3.eth.Contract(
-    getMaticStakePortalAbi(),
-    getMaticStakePortalAddress()
-  );
-  let feeResult = await contractStakePortal.methods.relayFee().call();
-  feeResult = feeResult || "1000000000000000"; // 0.001 ETH
-  const relayFee = web3.utils.fromWei(feeResult);
-  dispatch(setRelayFee(relayFee));
+  try {
+    const web3 = createWeb3();
+    const contractStakePortal = new web3.eth.Contract(
+      getMaticStakePortalAbi(),
+      getMaticStakePortalAddress()
+    );
+    let feeResult = await contractStakePortal.methods.relayFee().call();
+    feeResult = feeResult || "1000000000000000"; // 0.001 ETH
+    const relayFee = web3.utils.fromWei(feeResult);
+    dispatch(setRelayFee(relayFee));
+  } catch (err: unknown) {}
 };
 
 export const queryIsApproved = (): AppThunk => async (dispatch, getState) => {
-  const web3 = createWeb3();
-  const metaMaskAccount = getState().wallet.metaMaskAccount;
-  const stakePortalAddress = getMaticStakePortalAddress();
-  const contractMatic = new web3.eth.Contract(
-    getMaticAbi(),
-    getMaticTokenAddress(),
-    {
-      from: metaMaskAccount,
-    }
-  );
-  const allowanceResult = await contractMatic.methods
-    .allowance(metaMaskAccount, stakePortalAddress)
-    .call();
-  let allowance = web3.utils.fromWei(allowanceResult);
-  dispatch(setIsApproved(Number(allowance) > 0));
+  try {
+    const web3 = createWeb3();
+    const metaMaskAccount = getState().wallet.metaMaskAccount;
+    const stakePortalAddress = getMaticStakePortalAddress();
+    const contractMatic = new web3.eth.Contract(
+      getMaticAbi(),
+      getMaticTokenAddress(),
+      {
+        from: metaMaskAccount,
+      }
+    );
+    const allowanceResult = await contractMatic.methods
+      .allowance(metaMaskAccount, stakePortalAddress)
+      .call();
+    let allowance = web3.utils.fromWei(allowanceResult);
+    dispatch(setIsApproved(Number(allowance) > 0));
+  } catch (err: unknown) {}
 };
