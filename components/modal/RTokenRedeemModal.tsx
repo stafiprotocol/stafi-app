@@ -16,7 +16,7 @@ import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
-import { formatNumber } from "utils/number";
+import { formatLargeAmount, formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
 import { getShortAddress } from "utils/string";
 import { checkMetaMaskAddress, openLink } from "utils/common";
@@ -280,12 +280,13 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           padding: "0",
           "& .MuiPaper-root": {
             width: "100%",
-            maxWidth: "14.88rem", // Set your width here
+            maxWidth: "16.88rem", // Set your width here
             backgroundColor: "transparent",
             padding: "0",
           },
           "& .MuiDialogContent-root": {
             padding: "0",
+            width: "16.88rem",
           },
         },
       }}
@@ -479,7 +480,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">You Will Receive</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(willReceiveAmount)} {tokenName}
+                  {formatLargeAmount(willReceiveAmount)} {tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
@@ -556,11 +557,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {commisionFee === "--"
-                    ? "--"
-                    : formatNumber(commisionFee, { decimals: 4 })}{" "}
-                  r{tokenName} (~{formatNumber(redeemFee, { decimals: 4 })}{" "}
-                  {tokenName})
+                  {formatLargeAmount(commisionFee)} r{tokenName} (~
+                  {formatLargeAmount(redeemFee)} {tokenName})
                 </div>
               </div>
             </div>

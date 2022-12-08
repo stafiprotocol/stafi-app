@@ -193,3 +193,10 @@ export function numberToChain(input: string | number, symbol: rSymbol): string {
 
   return parseInt(res).toString();
 }
+
+export function formatLargeAmount(amount: string | number) {
+	if (!isNaN(Number(amount)) && Number(amount) > 1000) {
+		return formatNumber(amount, { decimals: 2 });
+	}
+	return formatNumber(amount, { decimals: 4 });
+};
