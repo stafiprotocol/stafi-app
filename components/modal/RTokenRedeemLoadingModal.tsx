@@ -187,7 +187,7 @@ export const RTokenRedeemLoadingModal = () => {
             )}
           </div>
 
-          <div
+          {/* <div
             className={classNames(
               "mt-[.24rem] flex items-center cursor-pointer",
               { hidden: redeemLoadingParams?.tokenName === TokenName.ETH }
@@ -214,7 +214,7 @@ export const RTokenRedeemLoadingModal = () => {
                 color={showDetail ? "#ffffff" : "#9DAFBE"}
               />
             </div>
-          </div>
+          </div> */}
 
           {showDetail && (
             <div

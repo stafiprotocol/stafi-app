@@ -302,6 +302,8 @@ export const RTokenStakeLoadingModal = () => {
 										tokenName={stakeLoadingParams?.tokenName}
                     stepIndex={stakeLoadingParams?.steps.indexOf("staking")}
                     data={stakeLoadingParams?.progressDetail?.staking}
+										scanUrl={stakeLoadingParams?.scanUrl}
+										txHash={stakeLoadingParams?.txHash}
                   />
                 )}
 

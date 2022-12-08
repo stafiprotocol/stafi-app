@@ -995,6 +995,8 @@ export const stakeMatic =
               },
             },
             customMsg: "Staking succeeded, now minting...",
+						scanUrl: getEtherScanTxUrl(txHash),
+						txHash: txHash,
           },
           (newParams) => {
             const newNotice: LocalNotice = {
