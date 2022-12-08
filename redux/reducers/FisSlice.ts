@@ -764,6 +764,7 @@ export const fisUnbond =
       unbondResult
         // @ts-ignore
         .signAndSend(address, { signer: injector.signer }, (result: any) => {
+          dispatch(setIsLoading(false));
           try {
             if (result.status.isInBlock) {
               result.events
@@ -780,7 +781,6 @@ export const fisUnbond =
                         finalizeStatus: "success",
                       })
                     );
-                    dispatch(setIsLoading(false));
                   } else if (data.event.method === "ExtrinsicFailed") {
                     cb && cb("Failed");
                     dispatch(
@@ -789,13 +789,11 @@ export const fisUnbond =
                         errorMsg: "Unstake failed",
                       })
                     );
-                    dispatch(setIsLoading(false));
                   }
                 });
             }
           } catch (err: any) {
             cb && cb("Failed");
-            dispatch(setIsLoading(false));
           }
         })
         .catch((err: any) => {
