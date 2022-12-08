@@ -51,7 +51,7 @@ export function formatNumber(
     return "--";
   }
 
-  const decimals = options.decimals === undefined ? 6 : options.decimals;
+  let decimals = options.decimals === undefined ? 6 : options.decimals;
   const withSplit = options.withSplit === undefined ? true : options.withSplit;
   const fixedDecimals =
     options.fixedDecimals === undefined ? true : options.fixedDecimals;
@@ -64,9 +64,11 @@ export function formatNumber(
   if (toReadable && Number(num) > 1000000) {
     newNum = Number(num) / 1000000 + "";
     suffix = "M";
+    decimals = 2;
   } else if (toReadable && Number(num) > 1000) {
     newNum = Number(num) / 1000 + "";
     suffix = "K";
+    decimals = 2;
   } else {
     newNum = num + "";
   }
@@ -195,8 +197,8 @@ export function numberToChain(input: string | number, symbol: rSymbol): string {
 }
 
 export function formatLargeAmount(amount: string | number) {
-	if (!isNaN(Number(amount)) && Number(amount) > 1000) {
-		return formatNumber(amount, { decimals: 2 });
-	}
-	return formatNumber(amount, { decimals: 4 });
-};
+  if (!isNaN(Number(amount)) && Number(amount) > 1000) {
+    return formatNumber(amount, { decimals: 2 });
+  }
+  return formatNumber(amount, { decimals: 4 });
+}

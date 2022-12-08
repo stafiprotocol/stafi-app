@@ -47,7 +47,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
       {!!userAddress ? (
         <div>
           <div className="flex items-center justify-between">
-            <div className="h-[.75rem] flex items-center">
+            <div className="h-[.75rem] flex items-center flex-1">
               {props.showDot && (
                 <div
                   className={classNames(
@@ -71,7 +71,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
               {showWrongNetwork ? (
                 <div
                   className={classNames(
-                    "ml-[.16rem] px-[.16rem] rounded-[.05rem] h-[.31rem] flex items-center justify-center cursor-pointer border-solid border-[1px]",
+                    "ml-[.16rem] px-[.16rem] rounded-[.05rem] py-[.04rem] flex items-center justify-center cursor-pointer border-solid border-[1px]",
                     showDetail
                       ? "bg-error/10 border-error/10"
                       : "border-error/50"
@@ -81,10 +81,15 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
                   }}
                   onClick={() => setShowDetail(!showDetail)}
                 >
-                  <div className="text-error text-[.16rem]">Wrong Network</div>
+                  <div
+                    className="text-error text-[.16rem] flex-1 "
+                    style={{ wordBreak: "keep-all" }}
+                  >
+                    Wrong Network
+                  </div>
                   <div
                     className={classNames(
-                      "ml-[.13rem]",
+                      "ml-[.13rem] w-[.13rem] max-w-[.13rem]",
                       showDetail ? "-rotate-90" : "rotate-90"
                     )}
                   >
@@ -119,7 +124,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
 
             <div
               className={classNames("text-[.16rem] text-text1 cursor-pointer", {
-                invisible: walletType !== WalletType.Polkadot,
+                hidden: walletType !== WalletType.Polkadot,
               })}
               onClick={() => {
                 dispatch(disconnectWallet(walletType));

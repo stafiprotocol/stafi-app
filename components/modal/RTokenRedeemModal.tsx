@@ -272,7 +272,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     <Dialog
       open={props.visible}
       onClose={props.onClose}
-      scroll="paper"
+      scroll="body"
       sx={{
         borderRadius: "0.16rem",
         background: "transparent",

@@ -68,8 +68,8 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     // 1rem:100px
     let designSize = 2048;
     let html = document.documentElement;
-    // let clientW = html.clientWidth;
-    let clientW = 1440;
+    let clientW = html.clientWidth;
+    // let clientW = 1440;
     let htmlRem = (clientW * 100) / designSize;
     // html.style.fontSize = htmlRem + "px";
 
@@ -188,7 +188,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
         </div>
       </div>
 
-      <div className="ml-[1.3rem] mr-[.9rem] flex-1 h-[253px] flex flex-col">
+      <div className="ml-[1.3rem] mr-[.9rem] flex-1  flex flex-col">
         <div className="w-[.72rem] h-[.72rem] self-center relative z-10">
           <Image
             src={tokenName === TokenName.MATIC ? maticIcon : ethIcon}
@@ -203,7 +203,10 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
           mt="-0.36rem"
           style={{ flex: 1 }}
         >
-          <div className={classNames("pt-[.78rem] pl-[.56rem]")} style={{}}>
+          <div
+            className={classNames("pt-[.78rem] pl-[.56rem] pb-[.4rem]")}
+            style={{}}
+          >
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
                 text="Total reward"

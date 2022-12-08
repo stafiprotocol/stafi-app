@@ -443,7 +443,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     <Dialog
       open={props.visible}
       onClose={props.onClose}
-      scroll="paper"
+      scroll="body"
       sx={{
         borderRadius: "0.16rem",
         background: "#0A131Bba",
@@ -462,9 +462,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         },
       }}
     >
-      <DialogContent sx={{ width: "14.88rem" }}>
-        <Card mt=".56rem" mb=".56rem" background="#0A131B">
-          <div className="flex flex-col items-stretch px-[.56rem] pb-[1rem] overflow-auto relative">
+      <DialogContent>
+        <Card background="#0A131B" className="max-h-full">
+          <div className="flex flex-col items-stretch px-[.56rem] pb-[1rem] relative">
             <div className="self-center relative w-[2.4rem] h-[.9rem]">
               <Image src={rectangle} layout="fill" alt="rectangle" />
             </div>
@@ -687,7 +687,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">You Will Receive</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-									{formatLargeAmount(willReceiveAmount)} r{tokenName}
+                  {formatLargeAmount(willReceiveAmount)} r{tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">

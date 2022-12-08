@@ -266,7 +266,7 @@ export const Layout = (props: LayoutProps) => {
         </Head>
 
         <HideOnScroll>
-          <AppBar position="fixed" color="transparent">
+          <AppBar position="fixed" color="transparent" elevation={0}>
             <Navbar />
           </AppBar>
         </HideOnScroll>
@@ -314,7 +314,7 @@ export const Layout = (props: LayoutProps) => {
 
         <RTokenStakeLoadingSidebar />
 
-				<RTokenRedeemLoadingModal />
+        <RTokenRedeemLoadingModal />
 
         <ConnectWalletModal />
 

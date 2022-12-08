@@ -54,7 +54,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
     <Dialog
       open={props.visible}
       onClose={props.onClose}
-      scroll="paper"
+      scroll="body"
       sx={{
         borderRadius: "0.16rem",
         background: "#0A131Bba",
