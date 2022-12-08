@@ -158,7 +158,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
           {!displayApr ? (
-            <BubblesLoading size=".15rem" color="#9DAFBE" />
+            <BubblesLoading size=".12rem" color="#9DAFBE" />
           ) : (
             <>
               {formatNumber(displayApr, {
