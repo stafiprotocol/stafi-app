@@ -112,7 +112,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
       style={{
         border: "1px solid #1a2835",
         backdropFilter: "blur(0.67rem)",
+				cursor: "pointer",
       }}
+			onClick={clickStake}
     >
       <div className="mt-[.36rem] flex items-center justify-between relative">
         <div className="w-[.76rem] h-[.76rem] relative">
@@ -212,7 +214,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         mt="0.5rem"
         height="0.65rem"
         fontSize="0.24rem"
-        onClick={clickStake}
+        // onClick={clickStake}
       >
         Stake
       </Button>
