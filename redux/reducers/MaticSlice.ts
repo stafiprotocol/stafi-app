@@ -26,6 +26,7 @@ import {
   setIsLoading,
   setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
+  updateNotice,
   updateStakeLoadingParams,
 } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
@@ -518,7 +519,7 @@ export const unbondRMatic =
       );
       if (!selectedPool) {
         cb && cb();
-        return;
+        throw new Error("No selected pool");
       }
 
       const keyringInstance = keyring.init(Symbol.Matic);
@@ -534,8 +535,8 @@ export const unbondRMatic =
             TokenName.MATIC
           )} days`,
           (r?: string, txHash?: string) => {
+            const uuid = stafiUuid();
             if (r === "Success") {
-              const uuid = stafiUuid();
               addRTokenUnbondRecords(TokenName.MATIC, {
                 id: uuid,
                 txHash,
@@ -545,6 +546,35 @@ export const unbondRMatic =
                 amount: willReceiveAmount,
                 recipient,
               });
+              const metaMaskAccount = getState().wallet.metaMaskAccount;
+              if (txHash && metaMaskAccount) {
+                dispatch(
+                  addNotice({
+                    id: uuid,
+                    type: "rToken Unstake",
+                    data: {
+                      tokenName: TokenName.MATIC,
+                      amount: amount,
+                      willReceiveAmount: willReceiveAmount,
+                    },
+                    scanUrl: getEtherScanTxUrl(txHash),
+                    status: "Confirmed",
+                  })
+                );
+              }
+            } else if (r === "Failed") {
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.MATIC,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  status: "Error",
+                })
+              );
             }
           }
         )
@@ -955,17 +985,37 @@ export const stakeMatic =
       }
 
       dispatch(
-        updateStakeLoadingParams({
-          progressDetail: {
-            staking: {
-              totalStatus: "success",
-              broadcastStatus: "success",
-              packStatus: "success",
+        updateStakeLoadingParams(
+          {
+            progressDetail: {
+              staking: {
+                totalStatus: "success",
+                broadcastStatus: "success",
+                packStatus: "success",
+              },
             },
+            customMsg: "Staking succeeded, now minting...",
           },
-          customMsg: "Staking succeeded, now minting...",
-        })
+          (newParams) => {
+            const newNotice: LocalNotice = {
+              id: noticeUuid || stafiUuid(),
+              type: "rToken Stake",
+              txDetail: { transactionHash: txHash, sender: metaMaskAccount },
+              data: {
+                tokenName: TokenName.MATIC,
+                amount: Number(stakeAmount) + "",
+                willReceiveAmount: Number(willReceiveAmount) + "",
+              },
+              scanUrl: getEtherScanTxUrl(stakeResult.transactionHash),
+              status: "Pending",
+              stakeLoadingParams: newParams,
+            };
+            dispatch(addNotice(newNotice));
+          }
+        )
       );
+
+      dispatch(setIsLoading(false));
 
       // query bond state
       console.log({ txHash, blockHash });

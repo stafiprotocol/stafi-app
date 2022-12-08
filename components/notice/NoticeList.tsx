@@ -67,6 +67,14 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
           data.pubkeys.length
         } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
       }
+      if (notice.type === "rToken Unstake") {
+        data = notice.data as NoticeRTokenStakeData;
+        return `Unstake ${data.amount} r${
+          data.tokenName
+        } from StaFi Pool Contract to your wallet, and receive ${formatNumber(
+          data.willReceiveAmount
+        )} ${data.tokenName}.`;
+      }
     } catch (err: unknown) {}
 
     return "";

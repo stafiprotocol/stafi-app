@@ -504,7 +504,6 @@ export const getMinting =
                   }
                 )
               );
-              dispatch(setIsLoading(false));
               cb && cb(true);
             } else {
               let tokenAbi: any = "";
@@ -581,7 +580,6 @@ export const getMinting =
                           }
                         )
                       );
-                      dispatch(setIsLoading(false));
                     } else if (result === "failure") {
                       dispatch(
                         updateStakeLoadingParams(
@@ -606,7 +604,6 @@ export const getMinting =
                           }
                         )
                       );
-                      dispatch(setIsLoading(false));
                     }
                   }
                 )
@@ -637,7 +634,6 @@ export const getMinting =
                 }
               )
             );
-            dispatch(setIsLoading(false));
           }
         }
       )
@@ -799,6 +795,7 @@ export const fisUnbond =
             }
           } catch (err: any) {
             cb && cb("Failed");
+            dispatch(setIsLoading(false));
           }
         })
         .catch((err: any) => {
