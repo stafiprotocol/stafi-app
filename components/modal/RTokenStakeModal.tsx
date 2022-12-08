@@ -18,7 +18,12 @@ import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import { formatLargeAmount, formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
 import { getShortAddress } from "utils/string";
-import { checkMetaMaskAddress, isPolkadotWallet, openLink } from "utils/common";
+import {
+  checkMetaMaskAddress,
+  isEmptyValue,
+  isPolkadotWallet,
+  openLink,
+} from "utils/common";
 import { useAppSlice } from "hooks/selector";
 import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
 import { useTokenStandard } from "hooks/useTokenStandard";
@@ -612,7 +617,16 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance, { decimals: 6, toReadable: false })}{" "}
+                    {isEmptyValue(balance) ? (
+                      <BubblesLoading />
+                    ) : (
+                      <>
+                        {formatNumber(balance, {
+                          decimals: 6,
+                          toReadable: false,
+                        })}
+                      </>
+                    )}{" "}
                     {tokenName}
                   </div>
                 </div>
@@ -687,7 +701,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">You Will Receive</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-									{formatLargeAmount(willReceiveAmount)} r{tokenName}
+                  {formatLargeAmount(willReceiveAmount)} r{tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
@@ -707,14 +721,25 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                 <div className="text-text2 text-[.24rem]">Transaction Cost</div>
                 {tokenName === TokenName.ETH ? (
                   <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                    Est. {formatNumber(estimateFee)} ETH
+                    Est.{" "}
+                    {isEmptyValue(estimateFee) ? (
+                      <BubblesLoading />
+                    ) : (
+                      formatNumber(estimateFee)
+                    )}{" "}
+                    ETH
                   </div>
                 ) : (
                   <div
                     className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
                     {...bindHover(txCostPopupState)}
                   >
-                    {formatNumber(transactionCost, { decimals: 4 })} ETH
+                    {isEmptyValue(transactionCost) ? (
+                      <BubblesLoading />
+                    ) : (
+                      formatNumber(transactionCost, { decimals: 4 })
+                    )}{" "}
+                    ETH
                     <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
                       <Image src={downIcon} layout="fill" alt="down" />
                     </div>
@@ -748,22 +773,42 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     <div className="flex justify-between">
                       <div>Bridge Fee</div>
                       <div>
-                        {formatNumber(totalBridgeFee, { decimals: 4 })} ETH
+                        {isEmptyValue(totalBridgeFee) ? (
+                          <BubblesLoading />
+                        ) : (
+                          formatNumber(totalBridgeFee, { decimals: 4 })
+                        )}{" "}
+                        ETH
                       </div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>ETH Tx Fee</div>
                       <div>
-                        {formatNumber(estimateFee, { decimals: 4 })} ETH
+                        {isEmptyValue(estimateFee) ? (
+                          <BubblesLoading />
+                        ) : (
+                          formatNumber(estimateFee, { decimals: 4 })
+                        )}{" "}
+                        ETH
                       </div>
                     </div>
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
                     <div className="text-text1">
                       Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
-                      {formatNumber(transactionCost, { decimals: 4 })} ETH
+                      {isEmptyValue(transactionCost) ? (
+                        <BubblesLoading />
+                      ) : (
+                        formatNumber(transactionCost, { decimals: 4 })
+                      )}{" "}
+                      ETH
                     </div>
                     <div className="mt-[.18rem] text-right">
-                      ~${formatNumber(transactionCostValue, { decimals: 4 })}
+                      ~$
+                      {isEmptyValue(transactionCostValue) ? (
+                        <BubblesLoading />
+                      ) : (
+                        formatNumber(transactionCostValue, { decimals: 4 })
+                      )}
                     </div>
                   </div>
                 </HoverPopover>
@@ -776,7 +821,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {!rTokenStakerApr ? (
+                  {isEmptyValue(rTokenStakerApr) ? (
                     <BubblesLoading color="#9DAFBE" />
                   ) : (
                     <> {formatNumber(rTokenStakerApr, { decimals: 2 })}% APR</>

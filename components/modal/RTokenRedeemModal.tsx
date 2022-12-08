@@ -19,7 +19,7 @@ import { handleEthTokenStake } from "redux/reducers/EthSlice";
 import { formatLargeAmount, formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
 import { getShortAddress } from "utils/string";
-import { checkMetaMaskAddress, openLink } from "utils/common";
+import { checkMetaMaskAddress, isEmptyValue, openLink } from "utils/common";
 import { useAppSlice } from "hooks/selector";
 import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
 import { useTokenStandard } from "hooks/useTokenStandard";
@@ -46,6 +46,7 @@ import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { validateETHAddress } from "utils/validator";
 import { unstakeRKsm } from "redux/reducers/KsmSlice";
 import { unstakeRDot } from "redux/reducers/DotSlice";
+import { BubblesLoading } from "components/common/BubblesLoading";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -53,7 +54,7 @@ interface RTokenRedeemModalProps {
   defaultReceivingAddress: string | undefined;
   editAddressDisabled?: boolean;
   onClose: () => void;
-  balance: string;
+  balance: string | undefined;
 }
 
 export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
@@ -83,7 +84,6 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
-  const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
 
   const { polkadotAccount } = useWalletAccount();
@@ -414,7 +414,16 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance, { decimals: 6, toReadable: false })}{" "}
+                    {isEmptyValue(balance) ? (
+                      <BubblesLoading />
+                    ) : (
+                      <>
+                        {formatNumber(balance, {
+                          decimals: 6,
+                          toReadable: false,
+                        })}{" "}
+                      </>
+                    )}
                     r{tokenName}
                   </div>
                 </div>
@@ -486,8 +495,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Exchange Rate</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(rTokenRatio, { decimals: 4 })} {tokenName} = 1 r
-                  {tokenName}
+                  {isEmptyValue(rTokenRatio) ? (
+                    <BubblesLoading />
+                  ) : (
+                    <>{formatNumber(rTokenRatio, { decimals: 4 })}</>
+                  )}{" "}
+                  {tokenName} = 1 r{tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
@@ -497,7 +510,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   {...bindHover(txCostPopupState)}
                   // onMouseEnter={}
                 >
-                  {formatNumber(transactionCost, { decimals: 2 })} FIS
+                  {isEmptyValue(transactionCost) ? (
+                    <BubblesLoading />
+                  ) : (
+                    <>{formatNumber(transactionCost, { decimals: 2 })}</>
+                  )}{" "}
+                  FIS
                   <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
                     <Image src={downIcon} layout="fill" alt="down" />
                   </div>
@@ -530,21 +548,45 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   <div className="text-text2">
                     <div className="flex justify-between">
                       <div>Relay Fee</div>
-                      <div>{numberUtil.fisAmountToHuman(unbondFees)} FIS</div>
+                      <div>
+                        {isEmptyValue(unbondFees) ? (
+                          <BubblesLoading />
+                        ) : (
+                          <>{numberUtil.fisAmountToHuman(unbondFees)}</>
+                        )}{" "}
+                        FIS
+                      </div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>Transaction Fee</div>
                       <div>
-                        {formatNumber(unbondTxFees, { decimals: 2 })} FIS
+                        {isEmptyValue(unbondTxFees) ? (
+                          <BubblesLoading />
+                        ) : (
+                          <>{formatNumber(unbondTxFees, { decimals: 2 })}</>
+                        )}{" "}
+                        FIS
                       </div>
                     </div>
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
                     <div className="text-text1">
                       Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
-                      {formatNumber(transactionCost, { decimals: 2 })} FIS
+                      {isEmptyValue(transactionCost) ? (
+                        <BubblesLoading />
+                      ) : (
+                        <>{formatNumber(transactionCost, { decimals: 2 })}</>
+                      )}{" "}
+                      FIS
                     </div>
                     <div className="mt-[.18rem] text-right">
-                      ~${formatNumber(transactionCostValue, { decimals: 2 })}
+                      ~$
+                      {isEmptyValue(transactionCostValue) ? (
+                        <BubblesLoading />
+                      ) : (
+                        <>
+                          {formatNumber(transactionCostValue, { decimals: 2 })}
+                        </>
+                      )}
                     </div>
                   </div>
                 </HoverPopover>
@@ -557,8 +599,14 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatLargeAmount(commisionFee)} r{tokenName} (~
-                  {formatLargeAmount(redeemFee)} {tokenName})
+                  {isEmptyValue(commisionFee) ? (
+                    <BubblesLoading />
+                  ) : (
+                    <>
+                      {formatLargeAmount(commisionFee)} r{tokenName} (~
+                      {formatLargeAmount(redeemFee)} {tokenName})
+                    </>
+                  )}
                 </div>
               </div>
             </div>
