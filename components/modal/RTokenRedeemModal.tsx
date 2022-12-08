@@ -457,7 +457,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   ) {
                     return;
                   }
-                  setRedeemAmount(balance);
+                  setRedeemAmount(formatNumber(balance, { toReadable: false }));
                 }}
               >
                 Max

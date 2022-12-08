@@ -662,7 +662,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                       0
                     );
                   }
-                  setStakeAmount(amount.toString());
+                  setStakeAmount(
+                    formatNumber(amount.toString(), { toReadable: false })
+                  );
                 }}
               >
                 Max
