@@ -77,6 +77,7 @@ export interface StakeLoadingProgressDetailItem {
   broadcastStatus?: "loading" | "success" | "error";
   packStatus?: "loading" | "success" | "error";
   finalizeStatus?: "loading" | "success" | "error";
+	txHash?: string;
 }
 
 export interface StakeLoadingSendingDetailItem {
@@ -91,6 +92,7 @@ export interface StakeLoadingStakingDetailItem {
   broadcastStatus?: "loading" | "success" | "error";
   packStatus?: "loading" | "success" | "error";
   finalizeStatus?: "loading" | "success" | "error";
+	txHash?: string;
 }
 
 export interface RedeemLoadingParams {

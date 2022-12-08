@@ -133,17 +133,17 @@ export const StakeLoadingProgressItem = (
           )}
           */}
         </div>
-        {txHash && (
+        {data.txHash && (
           <div className="mt-[.12rem] text-text1">
             Check Tx{" "}
-            <Tooltip title={txHash}>
+            <Tooltip title={data.txHash}>
               <a
                 className="underline"
                 href={scanUrl || ""}
                 target="_blank"
                 rel="noreferrer"
               >
-                {getShortAddress(txHash, 3)}
+                {getShortAddress(data.txHash, 3)}
               </a>
             </Tooltip>
           </div>

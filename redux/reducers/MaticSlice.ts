@@ -884,6 +884,7 @@ export const stakeMatic =
                   totalStatus: "success",
                   broadcastStatus: "success",
                   packStatus: "success",
+									txHash: approveResult.transactionHash,
                 },
               },
             })
@@ -992,6 +993,7 @@ export const stakeMatic =
                 totalStatus: "success",
                 broadcastStatus: "success",
                 packStatus: "success",
+								txHash: txHash,
               },
             },
             customMsg: "Staking succeeded, now minting...",

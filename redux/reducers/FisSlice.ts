@@ -443,11 +443,6 @@ export const getMinting =
         {
           status: "loading",
           progressDetail: {
-            staking: {
-              totalStatus: "success",
-              broadcastStatus: "success",
-              packStatus: "success",
-            },
             minting: {
               totalStatus: "loading",
             },
