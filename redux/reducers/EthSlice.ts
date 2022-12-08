@@ -128,20 +128,22 @@ export const updateEthBalance = (): AppThunk => async (dispatch, getState) => {
 };
 
 export const updateEthGasPrice = (): AppThunk => async (dispatch, getState) => {
-  const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const resJson = await response.json();
-  if (resJson && resJson.status === "80000") {
-    dispatch(
-      setGasPrice(
-        Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
-      )
-    );
-  }
+  try {
+    const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const resJson = await response.json();
+    if (resJson && resJson.status === "80000") {
+      dispatch(
+        setGasPrice(
+          Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
+        )
+      );
+    }
+  } catch (err: unknown) {}
 };
 
 export const handleEthValidatorDeposit =

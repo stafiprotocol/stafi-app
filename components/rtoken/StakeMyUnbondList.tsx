@@ -1,6 +1,7 @@
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
+import { TableSkeleton } from "components/common/TableSkeleton";
 import { Icomoon } from "components/icon/Icomoon";
 import { UnbondModel, useRTokenUnbond } from "hooks/useRTokenUnbond";
 import { TokenName } from "interfaces/common";
@@ -18,7 +19,7 @@ export const StakeMyUnbondList = (props: Props) => {
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
-      {totalCount > 0 && (
+      {!!unbondList && totalCount > 0 && (
         <div
           className="grid"
           style={{ height: "auto", gridTemplateColumns: "20% 20% 20% 20% 20%" }}
@@ -56,7 +57,7 @@ export const StakeMyUnbondList = (props: Props) => {
         </div>
       )}
 
-      {unbondList.map((item: UnbondModel, index) => (
+      {unbondList?.map((item: UnbondModel, index) => (
         <div
           key={index}
           className="grid h-[1.1rem]"
@@ -89,7 +90,7 @@ export const StakeMyUnbondList = (props: Props) => {
         </div>
       ))}
 
-      {totalCount > 0 && (
+      {!!unbondList && totalCount > 0 && (
         <div className="mt-[.36rem] flex justify-center">
           <CustomPagination
             totalCount={totalCount}
@@ -99,7 +100,7 @@ export const StakeMyUnbondList = (props: Props) => {
         </div>
       )}
 
-      {totalCount === 0 && (
+      {!!unbondList && totalCount === 0 && (
         <div className="flex flex-col items-center pb-[.3rem]">
           <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />
@@ -110,6 +111,12 @@ export const StakeMyUnbondList = (props: Props) => {
               <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
             </div> */}
           </div>
+        </div>
+      )}
+
+      {!unbondList && (
+        <div className="px-[.56rem]">
+          <TableSkeleton />
         </div>
       )}
     </div>
