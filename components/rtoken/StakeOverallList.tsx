@@ -122,10 +122,7 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
           <div className="flex justify-center items-center text-primary text-[.24rem]">
             <Tooltip title={getEraEstTimeTip(item, tokenName)}>
               <span>
-                {Number(formatNumber(item.addedRTokenAmount)) < 0
-                  ? "0"
-                  : getRewardText(item.reward)}{" "}
-                {tokenName}
+                {getRewardText(item.reward)} {tokenName}
               </span>
             </Tooltip>
           </div>
