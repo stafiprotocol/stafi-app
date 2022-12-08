@@ -27,6 +27,7 @@ import {
 } from "config/metaMask";
 import { RTokenStakeLoadingSidebar } from "components/modal/RTokenStakeLoadingSidebar";
 import { RTokenRedeemLoadingModal } from "components/modal/RTokenRedeemLoadingModal";
+import { RTokenRedeemLoadingSidebar } from "components/modal/RTokenRedeemLoadingSidebar";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
@@ -313,6 +314,8 @@ export const Layout = (props: LayoutProps) => {
         <RTokenStakeLoadingModal />
 
         <RTokenStakeLoadingSidebar />
+
+				<RTokenRedeemLoadingSidebar />
 
         <RTokenRedeemLoadingModal />
 

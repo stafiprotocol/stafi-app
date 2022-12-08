@@ -47,6 +47,7 @@ import { validateETHAddress } from "utils/validator";
 import { unstakeRKsm } from "redux/reducers/KsmSlice";
 import { unstakeRDot } from "redux/reducers/DotSlice";
 import { BubblesLoading } from "components/common/BubblesLoading";
+import { RTokenRedeemLoadingSidebar } from "./RTokenRedeemLoadingSidebar";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -625,6 +626,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             </div>
           </div>
         </Card>
+
+				<RTokenRedeemLoadingSidebar />
       </DialogContent>
     </Dialog>
   );
