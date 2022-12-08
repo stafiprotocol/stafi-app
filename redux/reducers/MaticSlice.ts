@@ -59,34 +59,34 @@ const stafiServer = new StafiServer();
 
 export interface MaticState {
   txLoading: boolean;
-  balance: string;
-  stakedAmount: string;
+  balance: string | undefined;
+  stakedAmount: string | undefined;
   validPools: any[];
   poolLimit: any;
-  unbondFees: string; // unbond relay fee
-  unbondCommision: string; // unbond commision fee
-  bondTxFees: string; // bond transaction fee
-  unbondTxFees: string; // unbond transaction fee
-  bondFees: string; // bond relay fee, todo: deprecated
-  relayFee: string;
+  unbondFees: string | undefined; // unbond relay fee
+  unbondCommision: string | undefined; // unbond commision fee
+  bondTxFees: string | undefined; // bond transaction fee
+  unbondTxFees: string | undefined; // unbond transaction fee
+  bondFees: string | undefined; // bond relay fee, todo: deprecated
+  relayFee: string | undefined;
   isApproved: boolean;
-  bridgeFee: string;
+  bridgeFee: string | undefined;
 }
 
 const initialState: MaticState = {
   txLoading: false,
-  balance: "--",
-  stakedAmount: "--",
+  balance: undefined,
+  stakedAmount: undefined,
   validPools: [],
   poolLimit: 0,
-  unbondCommision: "--",
-  unbondFees: "--",
-  bondTxFees: "--",
-  unbondTxFees: "--",
-  bondFees: "--",
-  relayFee: "--",
+  unbondCommision: undefined,
+  unbondFees: undefined,
+  bondTxFees: undefined,
+  unbondTxFees: undefined,
+  bondFees: undefined,
+  relayFee: undefined,
   isApproved: false,
-  bridgeFee: "--",
+  bridgeFee: undefined,
 };
 
 export const maticSlice = createSlice({
