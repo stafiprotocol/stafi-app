@@ -228,10 +228,26 @@ export const RTokenRedeemLoadingModal = () => {
             >
               {/* Sending progress */}
               <RedeemLoadingProgressItem
+							name="Sending"
+							stepIndex={1}
                 tokenName={redeemLoadingParams?.tokenName}
                 data={redeemLoadingParams}
                 txHash={redeemLoadingParams?.txHash}
                 scanUrl={redeemLoadingParams?.scanUrl}
+              />
+
+              {/* Unstaking progress */}
+              <RedeemLoadingProgressItem
+							stepIndex={2}
+							name="Unstaking"
+                tokenName={redeemLoadingParams?.tokenName}
+                data={{
+									...redeemLoadingParams,
+									status: redeemLoadingParams?.status === 'success' ? 'success' : undefined,
+									broadcastStatus: redeemLoadingParams?.status === 'success' ? 'success' : undefined,
+									packStatus: redeemLoadingParams?.status === 'success' ? 'success' : undefined,
+									finalizeStatus: redeemLoadingParams?.status === 'success' ? 'success' : undefined,
+								}}
               />
             </div>
           )}

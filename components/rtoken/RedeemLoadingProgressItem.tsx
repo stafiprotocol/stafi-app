@@ -10,6 +10,8 @@ import {
 import { getShortAddress } from "utils/string";
 
 interface StakeLoadingProgressItemProps {
+	 name: string;
+	 stepIndex: number;
   data: RedeemLoadingParams | undefined;
   txHash?: string | undefined;
   scanUrl?: string | undefined;
@@ -37,7 +39,7 @@ export const RedeemLoadingProgressItem = (
             color: data.status === "success" ? "#0095EB" : "#9DAFBE",
           }}
         >
-          1
+          {props.stepIndex}
         </div>
         <div
           className={classNames(
@@ -45,7 +47,7 @@ export const RedeemLoadingProgressItem = (
             data.status === "success" ? "text-active" : "text-text1"
           )}
         >
-          Sending
+          {props.name}
         </div>
 
         {data.status === "success" ? (
