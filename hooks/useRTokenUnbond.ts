@@ -171,6 +171,10 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
 
         setUnbondList([...insertRecords, ...formatUnbondList]);
         setTotalCount(formatUnbondList.length);
+      } else if (resJson.status === "80003") {
+        setRequestStatus(RequestStatus.success);
+        setUnbondList([]);
+        setTotalCount(0);
       }
     } catch {
       setRequestStatus(RequestStatus.error);
