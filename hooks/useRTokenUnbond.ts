@@ -204,6 +204,12 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
                 lockLeftTimeInDays: estimateUnbondDays(tokenName),
                 formatReceiveAddress: record.recipient,
                 formatTokenAmount: record.amount,
+								txHash: record.txHash,
+								formatRTokenAmount: record.rTokenAmount,
+								formatLeftTime: '10 D',
+								txTimestamp: record.txTimestamp,
+								receivedStatus: 1,
+								hasReceived: false,
               });
             }
           }

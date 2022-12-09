@@ -544,7 +544,9 @@ export const unbondRMatic =
                   .add(estimateUnbondDays(TokenName.MATIC), "d")
                   .valueOf(),
                 amount: willReceiveAmount,
+								rTokenAmount: amount,
                 recipient,
+								txTimestamp: dayjs().unix(),
               });
               const metaMaskAccount = getState().wallet.metaMaskAccount;
               if (txHash && metaMaskAccount) {

@@ -15,6 +15,9 @@ import { Tooltip } from "@mui/material";
 import { formatNumber } from "utils/number";
 import dayjs from "dayjs";
 import { getRedeemDaysLeft } from "utils/rToken";
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 interface Props {
   tokenName: TokenName;
@@ -104,7 +107,7 @@ export const StakeMyUnbondList = (props: Props) => {
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {item.txTimestamp
-              ? dayjs.unix(item.txTimestamp).format("YYYY-MM-DD HH:mm:ss")
+              ? dayjs(item.txTimestamp * 1000).utc().format("YYYY-MM-DD HH:mm:ss")
               : "--"}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
@@ -116,21 +119,32 @@ export const StakeMyUnbondList = (props: Props) => {
           <div
             className={classNames(
               "flex justify-center items-center text-[.24rem] cursor-pointer",
-              item.hasReceived ? "text-primary" : "text-text1"
+              item.receivedStatus === 1
+                ? "text-text1"
+                : item.receivedStatus === 2
+                ? "text-[#FF7040]"
+                : "text-primary"
             )}
             onClick={() => {
               if (!item.txHash) return;
               if (props.tokenName === TokenName.MATIC) {
+                if (item.receivedStatus !== 1) return;
                 openLink(getStafiScanTxUrl(item.txHash));
               } else if (props.tokenName === TokenName.ETH) {
                 openLink(getEtherScanTxUrl(item.txHash));
               }
             }}
           >
-            {item.hasReceived ? "Unstaked" : "Waiting"}
-            <span className="pl-[.1rem]">
-              <Icomoon icon="right" size="0.2rem" color="#9DAFBE" />
-            </span>
+            {item.receivedStatus === 1
+              ? "Waiting"
+              : item.receivedStatus === 2
+              ? "Unstaking"
+              : "Unstaked"}
+            {item.receivedStatus === 1 && (
+              <span className="pl-[.1rem]">
+                <Icomoon icon="right" size="0.2rem" color="#9DAFBE" />
+              </span>
+            )}
           </div>
         </div>
       ))}
