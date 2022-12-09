@@ -8,6 +8,9 @@ import { TokenName } from "interfaces/common";
 import { useState } from "react";
 import numberUtil from "utils/numberUtil";
 import { getShortAddress } from "utils/string";
+import classNames from "classnames";
+import { openLink } from "utils/common";
+import { getStafiScanTxUrl } from "config/explorer";
 
 interface Props {
   tokenName: TokenName;
@@ -28,35 +31,35 @@ export const StakeMyUnbondList = (props: Props) => {
             <MyTooltip
               text="Amount"
               title="Amount of the rToken that you choose to unstake"
-							className="text-text2"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Total Period"
               title={`Total time required to complete unstaking transaction; After receiving the request of redemption, r${props.tokenName} contracts will automatically unstake and withdraw ${props.tokenName}s from the ${props.tokenName} staking contract deployed on Ethereum, then send the ${props.tokenName} tokens back to user after around 9 days`}
-							className="text-text2"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Days Left"
               title="Remaining time required to complete unstaking transaction"
-							className="text-text2"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               title={`The address that receives redeemed ${props.tokenName} tokens, ${props.tokenName} tokens will be sent to the receiving address after receiving the request of redemption around 9 days`}
               text="Receiving Address"
-							className="text-text2"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Status"
               title="Current unstake transaction status"
-							className="text-text2"
+              className="text-text2"
             />
           </div>
         </div>
@@ -89,8 +92,23 @@ export const StakeMyUnbondList = (props: Props) => {
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {getShortAddress(item.formatReceiveAddress, 4)}
           </div>
-          <div className="flex justify-center items-center text-primary text-[.24rem]">
+          <div
+            className={classNames(
+              "flex justify-center items-center text-[.24rem] cursor-pointer",
+              item.hasReceived ? "text-primary" : "text-text1"
+            )}
+            onClick={() => {
+              if (props.tokenName === TokenName.MATIC) {
+                if (item.txHash) {
+                  openLink(getStafiScanTxUrl(item.txHash));
+                }
+              }
+            }}
+          >
             {item.hasReceived ? "Unstaked" : "Waiting"}
+            <span className="pl-[.1rem]">
+              <Icomoon icon="right" size="0.2rem" color="#9DAFBE" />
+            </span>
           </div>
         </div>
       ))}
