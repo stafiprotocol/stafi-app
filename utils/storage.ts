@@ -4,8 +4,9 @@ import { TokenName } from "interfaces/common";
 
 export const STORAGE_KEY_NOTICE = "stafi_notice";
 export const STORAGE_KEY_UNREAD_NOTICE = "stafi_unread_notice";
-export const STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP =
-  "stafi_hide_eth_validator_fee_tip";
+export const STORAGE_KEY_HIDE_CONFIGURE_FEE_RECIPIENT_TIP =
+  "stafi_hide_configure_fee_recipient_tip";
+export const STORAGE_KEY_HIDE_SLASH_TIP = "stafi_hide_slash_tip";
 export const STORAGE_KEY_POLKADOT_ACCOUNT = "polkadot_account";
 export const STORAGE_KEY_KSM_ACCOUNT = "ksm_account";
 export const STORAGE_KEY_DOT_ACCOUNT = "dot_account";

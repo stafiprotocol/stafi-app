@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { Button } from "components/common/button";
 import { Card } from "components/common/card";
+import { CollapseCard } from "components/common/CollapseCard";
 import { Icomoon } from "components/icon/Icomoon";
 import { EthGoStakeSidebar } from "components/modal/EthGoStakeSidebar";
 import { useRouter } from "next/router";
@@ -120,6 +121,42 @@ export const ValidatorTokenStakeLayout = (
           {props.children}
         </div>
       </Card>
+
+      <div id="faqs" className="mt-[.56rem] text-white text-[.32rem]">
+        FAQs
+      </div>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            How to configure fee recipient as adress for each node?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          Reward normally is updated every 8 hours. For the on-chain data
+          synchronization reason, it may be delayed for a while.
+          <br />
+          <br />
+          StaFi&apos;s rETH liquid staking rewards are mainly decided by the
+          Ethereum beacon chain&apos;s staking APY, the priority fee collected
+          by rETH Original Validators, potential slash risks and the commission
+          charged by StaFi Protocol and OVs.
+          <br />
+          <br />
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://docs.stafi.io/rtoken-app/reth-solution"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Click here for more details
+          </a>
+        </div>
+      </CollapseCard>
 
       <EthGoStakeSidebar />
     </div>
