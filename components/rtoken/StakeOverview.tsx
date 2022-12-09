@@ -286,7 +286,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   {isWrongMetaMaskNetwork ? (
-                    <>$ --</>
+                    <>--</>
                   ) : isEmptyValue(totalRewardValue) ? (
                     <BubblesLoading color="white" />
                   ) : (

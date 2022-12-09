@@ -456,7 +456,6 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       scroll="body"
       sx={{
         borderRadius: "0.16rem",
-        background: "#0A131Bba",
         "& .MuiDialog-container": {
           padding: "0",
           "& .MuiPaper-root": {

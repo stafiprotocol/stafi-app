@@ -1,52 +1,40 @@
 import classNames from "classnames";
 import { CollapseCard } from "components/common/CollapseCard";
 import { EmptyContent } from "components/common/EmptyContent";
+import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
 import { EthPubkeyDetailModal } from "components/modal/EthPubkeyDetailModal";
 import { EthRunNodesModal } from "components/modal/EthRunNodesModal";
-import { CustomPagination } from "components/common/pagination";
 import { useEthPubkeyList } from "hooks/useEthPubkeyList";
 import { EthPubkeyStatus } from "interfaces/common";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
+import { openLink } from "utils/common";
 import { getEthPubkeyStatusText } from "utils/eth";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import { openLink } from "utils/common";
 import styles from "../../../styles/reth/MyData.module.scss";
+import { PubkeyStatusSelector } from "../PubkeyStatusSelector";
 
 interface PublicKeyListProps {}
 
 export const PublicKeyList = (props: PublicKeyListProps) => {
-  const router = useRouter();
-  const [tab, setTab] = useState<"all" | "active" | "pending" | "exited">(
-    "all"
-  );
   const [page, setPage] = useState(1);
   const [runNodesModalVisible, setRunNodesModalVisible] = useState(false);
   const [pubkeyDetailModalVisible, setPubkeyDetailModalVisible] =
     useState(false);
   const [displayPubkey, setDisplayPubkey] = useState("");
+  const [selectedStatusList, setSelectedStatusList] = useState([
+    EthPubkeyStatus.active,
+    EthPubkeyStatus.pending,
+    EthPubkeyStatus.exited,
+    EthPubkeyStatus.slashed,
+  ]);
 
-  const { requestStatus, pubkeyList, totalCount, tabTotalCounts } =
-    useEthPubkeyList(
-      tab === "active"
-        ? EthPubkeyStatus.active
-        : tab === "pending"
-        ? EthPubkeyStatus.pending
-        : tab === "exited"
-        ? EthPubkeyStatus.exited
-        : EthPubkeyStatus.all,
-      page
-    );
-
-  const getTabTotalCountText = (index: number) => {
-    if (tabTotalCounts.length <= index) {
-      return "";
-    }
-    return `(${tabTotalCounts[index]})`;
-  };
+  const { requestStatus, pubkeyList, totalCount } = useEthPubkeyList(
+    selectedStatusList,
+    page
+  );
 
   return (
     <CollapseCard
@@ -58,49 +46,11 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
         </div>
       }
     >
-      <div className="mt-[.4rem] mx-[.56rem] flex items-center justify-between">
-        <div className="flex items-center">
-          <div className={styles["tab-container"]}>
-            <div
-              className={
-                tab === "all" ? styles["tab-item-active"] : styles["tab-item"]
-              }
-              onClick={() => setTab("all")}
-            >
-              All{getTabTotalCountText(0)}
-            </div>
-            <div
-              className={
-                tab === "active"
-                  ? styles["tab-item-active"]
-                  : styles["tab-item"]
-              }
-              onClick={() => setTab("active")}
-            >
-              Active{getTabTotalCountText(1)}
-            </div>
-            <div
-              className={
-                tab === "pending"
-                  ? styles["tab-item-active"]
-                  : styles["tab-item"]
-              }
-              onClick={() => setTab("pending")}
-            >
-              Pending{getTabTotalCountText(2)}
-            </div>
-            <div
-              className={
-                tab === "exited"
-                  ? styles["tab-item-active"]
-                  : styles["tab-item"]
-              }
-              onClick={() => setTab("exited")}
-            >
-              Exited{getTabTotalCountText(3)}
-            </div>
-          </div>
-        </div>
+      <div className="mx-[.56rem] flex items-center justify-between">
+        <PubkeyStatusSelector
+          selectedStatusList={selectedStatusList}
+          onChange={setSelectedStatusList}
+        />
 
         <div
           className={styles["run-nodes"]}
