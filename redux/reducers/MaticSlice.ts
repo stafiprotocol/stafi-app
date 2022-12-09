@@ -562,6 +562,7 @@ export const unbondRMatic =
                   })
                 );
               }
+							cb && cb();
             } else if (r === "Failed") {
               dispatch(
                 addNotice({
@@ -575,6 +576,7 @@ export const unbondRMatic =
                   status: "Error",
                 })
               );
+							cb && cb();
             }
           }
         )
@@ -585,6 +587,7 @@ export const unbondRMatic =
     } finally {
       // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
+			cb && cb();
     }
   };
 
@@ -1025,6 +1028,7 @@ export const stakeMatic =
       console.log({ txHash, blockHash });
       dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId, cb));
     } catch (err: any) {
+			cb && cb(false);
       console.error(err);
       dispatch(setIsLoading(false));
       if (err.code === 4001) {

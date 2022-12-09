@@ -48,6 +48,7 @@ import { unstakeRKsm } from "redux/reducers/KsmSlice";
 import { unstakeRDot } from "redux/reducers/DotSlice";
 import { BubblesLoading } from "components/common/BubblesLoading";
 import { RTokenRedeemLoadingSidebar } from "./RTokenRedeemLoadingSidebar";
+import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -228,6 +229,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+						dispatch(updateRefreshDataFlag());
           }
         )
       );
@@ -240,6 +242,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+						dispatch(updateRefreshDataFlag());
           }
         )
       );
@@ -252,6 +255,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+						dispatch(updateRefreshDataFlag());
           }
         )
       );

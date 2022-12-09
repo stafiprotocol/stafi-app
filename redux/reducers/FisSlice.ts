@@ -576,6 +576,7 @@ export const getMinting =
                           }
                         )
                       );
+                      cb && cb(true);
                     } else if (result === "failure") {
                       dispatch(
                         updateStakeLoadingParams(
@@ -600,6 +601,7 @@ export const getMinting =
                           }
                         )
                       );
+                      cb && cb(false);
                     }
                   }
                 )
@@ -630,6 +632,7 @@ export const getMinting =
                 }
               )
             );
+            cb && cb(false);
           }
         }
       )
@@ -775,8 +778,8 @@ export const fisUnbond =
                         broadcastStatus: "success",
                         packStatus: "success",
                         finalizeStatus: "success",
-												txHash: txHash,
-												scanUrl: getEtherScanTxUrl(txHash),
+                        txHash: txHash,
+                        scanUrl: getEtherScanTxUrl(txHash),
                       })
                     );
                   } else if (data.event.method === "ExtrinsicFailed") {

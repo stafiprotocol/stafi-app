@@ -58,7 +58,7 @@ export function useRTokenReward(
     undefined
   );
 
-  const { updateFlag15s } = useAppSlice();
+  const { updateFlag15s, refreshDataFlag } = useAppSlice();
   const { metaMaskAccount, polkadotAccount } = useWalletAccount();
 
   const userAddress = useMemo(() => {
@@ -279,7 +279,7 @@ export function useRTokenReward(
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, updateFlag15s]);
+  }, [fetchData, updateFlag15s, refreshDataFlag]);
 
   return {
     requestStatus,

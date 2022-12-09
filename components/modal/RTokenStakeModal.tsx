@@ -58,6 +58,7 @@ import { BubblesLoading } from "components/common/BubblesLoading";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
 import { getPolkadotAccountBalance } from "utils/polkadotUtils";
 import { handleDotStake } from "redux/reducers/DotSlice";
+import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -336,6 +337,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             if (success) {
               resetState();
               dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }
@@ -370,6 +372,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             if (success) {
               resetState();
               dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }
@@ -389,6 +392,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             if (success) {
               resetState();
               dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }
@@ -408,6 +412,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             if (success) {
               resetState();
               dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }

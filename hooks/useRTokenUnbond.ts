@@ -52,7 +52,7 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
 
   const { polkadotAccount, metaMaskAccount } = useWalletAccount();
 
-  const { updateFlag15s } = useAppSlice();
+  const { updateFlag15s, refreshDataFlag } = useAppSlice();
 
   const userAddress = useMemo(() => {
     if (tokenStandard === TokenStandard.ERC20) {
@@ -179,7 +179,7 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, updateFlag15s]);
+  }, [fetchData, updateFlag15s, refreshDataFlag]);
 
   return {
     requestStatus,

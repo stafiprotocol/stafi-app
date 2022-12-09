@@ -36,11 +36,11 @@ export interface StakeLoadingParams {
   targetAddress?: string;
   blockHash?: string;
   poolPubKey?: string;
-	customMsg?: string;
+  customMsg?: string;
 }
 
 interface StakeLoadingProgressDetail {
-	approving?: StakeLoadingProgressDetailItem;
+  approving?: StakeLoadingProgressDetailItem;
   sending?: StakeLoadingSendingDetailItem;
   staking?: StakeLoadingStakingDetailItem;
   minting?: StakeLoadingProgressDetailItem;
@@ -51,7 +51,7 @@ interface StakeLoadingProgressDetail {
     tokenStandard: TokenStandard | undefined;
     targetAddress: string;
     newTotalStakedAmount: string;
-		txFee?: string;
+    txFee?: string;
   };
   stakingParams?: {
     address: string;
@@ -77,7 +77,7 @@ export interface StakeLoadingProgressDetailItem {
   broadcastStatus?: "loading" | "success" | "error";
   packStatus?: "loading" | "success" | "error";
   finalizeStatus?: "loading" | "success" | "error";
-	txHash?: string;
+  txHash?: string;
 }
 
 export interface StakeLoadingSendingDetailItem {
@@ -92,7 +92,7 @@ export interface StakeLoadingStakingDetailItem {
   broadcastStatus?: "loading" | "success" | "error";
   packStatus?: "loading" | "success" | "error";
   finalizeStatus?: "loading" | "success" | "error";
-	txHash?: string;
+  txHash?: string;
 }
 
 export interface RedeemLoadingParams {
@@ -120,6 +120,7 @@ export interface AppState {
   stakeLoadingParams: StakeLoadingParams | undefined;
   connectWalletModalParams: ConnectWalletModalParams | undefined;
   redeemLoadingParams: RedeemLoadingParams | undefined;
+  refreshDataFlag: number;
 }
 
 const initialState: AppState = {
@@ -129,6 +130,7 @@ const initialState: AppState = {
   stakeLoadingParams: undefined,
   connectWalletModalParams: undefined,
   redeemLoadingParams: undefined,
+  refreshDataFlag: 0,
 };
 
 export const appSlice = createSlice({
@@ -174,6 +176,9 @@ export const appSlice = createSlice({
         };
       }
     },
+    setRefreshDataFlag: (state: AppState, action: PayloadAction<number>) => {
+      state.refreshDataFlag = action.payload;
+    },
   },
 });
 
@@ -185,6 +190,7 @@ export const {
   setUpdateFlag15s,
   setConnectWalletModalParams,
   setRedeemLoadingParams,
+  setRefreshDataFlag,
 } = appSlice.actions;
 
 export default appSlice.reducer;
@@ -240,4 +246,9 @@ export const updateNotice =
     }
     updateNoticeInternal(id, newNotice);
     dispatch(setUnreadNoticeFlag(true));
+  };
+
+export const updateRefreshDataFlag =
+  (): AppThunk => async (dispatch, getState) => {
+    dispatch(setRefreshDataFlag(getState().app.refreshDataFlag + 1));
   };
