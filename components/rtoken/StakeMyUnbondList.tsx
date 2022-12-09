@@ -11,6 +11,10 @@ import { getShortAddress } from "utils/string";
 import classNames from "classnames";
 import { openLink } from "utils/common";
 import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import { Tooltip } from "@mui/material";
+import { formatNumber } from "utils/number";
+import dayjs from "dayjs";
+import { getRedeemDaysLeft } from "utils/rToken";
 
 interface Props {
   tokenName: TokenName;
@@ -29,28 +33,34 @@ export const StakeMyUnbondList = (props: Props) => {
         >
           <div className="flex justify-center">
             <MyTooltip
-              text="Amount"
-              title="Amount of the rToken that you choose to unstake"
+              text="Receiving Amount"
+              title="Following are the the actual Token amount that you could get after unstaking transaction. The correlated rToken amount that you choose to unstake will reveal when hovered."
               className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              text="Total Period"
-              title={`Total time required to complete unstaking transaction; After receiving the request of redemption, r${props.tokenName} contracts will automatically unstake and withdraw ${props.tokenName}s from the ${props.tokenName} staking contract deployed on Ethereum, then send the ${props.tokenName} tokens back to user after around 9 days`}
+              text="Unstaked Time"
+              title="The UTC time that you initiated the unstaking transaction."
               className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              text="Days Left"
-              title="Remaining time required to complete unstaking transaction"
+              text="Time Left"
+              title="Remaining time required to complete unstaking transaction; Due to the complexity of the cross-chain transaction, the actual unstaking success time may fluctuate to some degree."
               className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              title={`The address that receives redeemed ${props.tokenName} tokens, ${props.tokenName} tokens will be sent to the receiving address after receiving the request of redemption around 9 days`}
+              title={`The address that receives redeemed ${
+                props.tokenName
+              } tokens, ${
+                props.tokenName
+              } tokens will be sent to the receiving address after receiving the request of redemption around ${getRedeemDaysLeft(
+                props.tokenName
+              )} days`}
               text="Receiving Address"
               className="text-text2"
             />
@@ -58,7 +68,7 @@ export const StakeMyUnbondList = (props: Props) => {
           <div className="flex justify-center">
             <MyTooltip
               text="Status"
-              title="Current unstake transaction status"
+              title="Current unstaking transaction status."
               className="text-text2"
             />
           </div>
@@ -76,18 +86,29 @@ export const StakeMyUnbondList = (props: Props) => {
           }}
         >
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.formatTokenAmount === "--"
-              ? "--"
-              : Number(item.formatTokenAmount) > 0 &&
-                Number(item.formatTokenAmount) < 0.001
-              ? "<0.001"
-              : numberUtil.handleAmountFloorToFixed(item.formatTokenAmount, 3)}
+            <Tooltip
+              title={`${formatNumber(item.formatRTokenAmount, {
+                decimals: 3,
+              })} r${props.tokenName} Unstaked`}
+            >
+              <span>
+                {item.formatTokenAmount === "--"
+                  ? "--"
+                  : Number(item.formatTokenAmount) > 0 &&
+                    Number(item.formatTokenAmount) < 0.001
+                  ? "<0.001"
+                  : formatNumber(item.formatTokenAmount, { decimals: 3 })}{" "}
+                {props.tokenName}
+              </span>
+            </Tooltip>
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.lockTotalTimeInDays} D
+            {item.txTimestamp
+              ? dayjs.unix(item.txTimestamp).format("YYYY-MM-DD HH:mm:ss")
+              : "--"}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.lockLeftTimeInDays} D
+            {item.formatLeftTime}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {getShortAddress(item.formatReceiveAddress, 4)}
