@@ -124,7 +124,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
 
             <div
               className={classNames("text-[.16rem] text-text1 cursor-pointer", {
-                hidden: walletType !== WalletType.Polkadot,
+                // hidden: walletType !== WalletType.Polkadot,
               })}
               onClick={() => {
                 dispatch(disconnectWallet(walletType));
