@@ -41,7 +41,7 @@ import {
 import { getPolkadotStakingSignature } from "utils/polkadotUtils";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
-import { getEtherScanTxUrl } from "config/explorer";
+import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
 
 declare const ethereum: any;
 
@@ -779,7 +779,7 @@ export const fisUnbond =
                         packStatus: "success",
                         finalizeStatus: "success",
                         txHash: txHash,
-                        scanUrl: getEtherScanTxUrl(txHash),
+                        scanUrl: getStafiScanTxUrl(txHash),
                       })
                     );
                   } else if (data.event.method === "ExtrinsicFailed") {

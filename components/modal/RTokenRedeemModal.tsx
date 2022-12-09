@@ -275,6 +275,13 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     popupId: "txCost",
   });
 
+  const getRedeemDaysTipLink = () => {
+    if (tokenName === TokenName.MATIC) {
+      return "https://docs.stafi.io/rtoken-app/rmatic-solution/rmatic-faq#4.whats-the-unbonding-period-of-rmatic";
+    }
+    return "";
+  };
+
   return (
     <Dialog
       open={props.visible}
@@ -444,18 +451,15 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                 </div>
 
                 <div className="ml-[.16rem] text-[.2rem] text-warning">
-                  Your unstake operation will take{" "}
+                  Your unstake operation will take around{" "}
                   {getRedeemDaysLeft(tokenName)} days to completely finish.
-                  After that, you can use your wallet to withdraw it
                 </div>
               </div>
 
               <div
                 className="text-[.2rem] text-warning underline font-bold cursor-pointer"
                 onClick={() => {
-                  // openLink(
-                  //   `${getValidatorSiteHost()}/validator/reth/token-stake?checkNewUser=true`
-                  // );
+                  openLink(getRedeemDaysTipLink());
                 }}
               >
                 Learn More
