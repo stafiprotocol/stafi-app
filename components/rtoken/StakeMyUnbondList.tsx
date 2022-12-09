@@ -10,7 +10,7 @@ import numberUtil from "utils/numberUtil";
 import { getShortAddress } from "utils/string";
 import classNames from "classnames";
 import { openLink } from "utils/common";
-import { getStafiScanTxUrl } from "config/explorer";
+import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
 
 interface Props {
   tokenName: TokenName;
@@ -98,10 +98,11 @@ export const StakeMyUnbondList = (props: Props) => {
               item.hasReceived ? "text-primary" : "text-text1"
             )}
             onClick={() => {
+              if (!item.txHash) return;
               if (props.tokenName === TokenName.MATIC) {
-                if (item.txHash) {
-                  openLink(getStafiScanTxUrl(item.txHash));
-                }
+                openLink(getStafiScanTxUrl(item.txHash));
+              } else if (props.tokenName === TokenName.ETH) {
+                openLink(getEtherScanTxUrl(item.txHash));
               }
             }}
           >
