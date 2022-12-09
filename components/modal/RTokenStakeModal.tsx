@@ -270,17 +270,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       ) {
         return [true, "Insufficient Balance"];
       }
-    } else {
+    } else if (tokenName === TokenName.MATIC) {
       if (Number(stakeAmount) > Number(balance)) {
         return [true, "Insufficient Balance"];
       }
-      if (
-        !isNaN(Number(transactionCost)) &&
-        Number(polkadotBalance) <= Number(transactionCost)
-      ) {
-        return [true, "Insufficient FIS Balance"];
-      }
-      if (Number(ethBalance) <= Number(estimateFee)) {
+      if (Number(ethBalance) <= Number(transactionCost)) {
         return [true, "Insufficient ETH Balance"];
       }
     }
