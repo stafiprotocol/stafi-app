@@ -189,3 +189,10 @@ export function getWalletIcon(walletType: WalletType | undefined) {
   }
   return undefined;
 }
+
+export function getRedeemDaysLeft(tokenName: TokenName) {
+  if (tokenName === TokenName.MATIC) {
+    return "9";
+  }
+  return "9";
+}

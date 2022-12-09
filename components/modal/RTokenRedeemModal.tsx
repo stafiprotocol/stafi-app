@@ -49,6 +49,8 @@ import { unstakeRDot } from "redux/reducers/DotSlice";
 import { BubblesLoading } from "components/common/BubblesLoading";
 import { RTokenRedeemLoadingSidebar } from "./RTokenRedeemLoadingSidebar";
 import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
+import bulb from "public/bulb.svg";
+import { getRedeemDaysLeft } from "utils/rToken";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -229,7 +231,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
-						dispatch(updateRefreshDataFlag());
+            dispatch(updateRefreshDataFlag());
           }
         )
       );
@@ -242,7 +244,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
-						dispatch(updateRefreshDataFlag());
+            dispatch(updateRefreshDataFlag());
           }
         )
       );
@@ -255,7 +257,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
-						dispatch(updateRefreshDataFlag());
+            dispatch(updateRefreshDataFlag());
           }
         )
       );
@@ -435,8 +437,33 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               </div>
             </div>
 
+            <div className="relative z-10 mt-[.56rem] rounded-[.3rem] h-[.6rem] flex items-center justify-between px-[.3rem] border-solid border-[1px] border-warning/50">
+              <div className="flex items-center">
+                <div className="w-[.3rem] h-[.3rem] relative">
+                  <Image src={bulb} alt="bulb" layout="fill" />
+                </div>
+
+                <div className="ml-[.16rem] text-[.2rem] text-warning">
+                  Your unstake operation will take{" "}
+                  {getRedeemDaysLeft(tokenName)} days to completely finish.
+                  After that, you can use your wallet to withdraw it
+                </div>
+              </div>
+
+              <div
+                className="text-[.2rem] text-warning underline font-bold cursor-pointer"
+                onClick={() => {
+                  // openLink(
+                  //   `${getValidatorSiteHost()}/validator/reth/token-stake?checkNewUser=true`
+                  // );
+                }}
+              >
+                Learn More
+              </div>
+            </div>
+
             <Card
-              mt=".76rem"
+              mt=".38rem"
               background="rgba(25, 38, 52, 0.35)"
               borderColor="#1A2835"
               className="h-[1.3rem] flex items-center px-[.36rem]"
@@ -490,8 +517,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               {buttonText}
             </Button>
 
-            <div className="mt-[.8rem] flex items-center justify-center">
-              <div className="mx-[.28rem] flex flex-col items-center">
+            <div className="mt-[.8rem] flex items-center justify-around">
+              <div className="mx-[.28rem] flex flex-col items-center min-w-[2.2rem]">
                 <div className="text-text2 text-[.24rem]">You Will Receive</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
                   {formatLargeAmount(willReceiveAmount)} {tokenName}
@@ -596,7 +623,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   </div>
                 </HoverPopover>
               </div>
-              <div className="mx-[.28rem] flex flex-col items-center">
+              <div className="mx-[.28rem] flex flex-col items-center min-w-[4.4rem]">
                 <div className="text-text2 text-[.24rem]">
                   <MyTooltip
                     text="Unstake Fee"
@@ -631,7 +658,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           </div>
         </Card>
 
-				<RTokenRedeemLoadingSidebar />
+        <RTokenRedeemLoadingSidebar />
       </DialogContent>
     </Dialog>
   );

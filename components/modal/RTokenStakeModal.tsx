@@ -702,7 +702,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               {buttonText}
             </Button>
 
-            <div className="mt-[.8rem] flex items-center justify-center">
+            <div className="mt-[.8rem] flex items-center justify-around">
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">You Will Receive</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
