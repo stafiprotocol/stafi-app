@@ -1,3 +1,4 @@
+import { Collapse } from "@mui/material";
 import classNames from "classnames";
 import Image from "next/image";
 import downIcon from "public/icon_down.png";
@@ -45,12 +46,18 @@ export const CollapseCard = (props: CollapseCardProps) => {
       </div>
 
       {
-        <div
-          className={classNames(collapsed ? "h-0 max-h-0 overflow-hidden" : "")}
-        >
-          {props.children}
-          <div className="h-[.56rem]" />
-        </div>
+        <Collapse in={!collapsed}>
+          <div>
+            {/* <div
+              className={classNames(
+                collapsed ? "h-0 max-h-0 overflow-hidden" : ""
+              )}
+            > */}
+            {props.children}
+            <div className="h-[.56rem]" />
+            {/* </div> */}
+          </div>
+        </Collapse>
       }
     </div>
   );
