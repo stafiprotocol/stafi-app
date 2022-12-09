@@ -6,7 +6,7 @@ import Image from "next/image";
 import { formatNumber } from "utils/number";
 import { CustomChart } from "../data/CustomChart";
 import ethIcon from "public/eth_type_green.svg";
-import maticIcon from 'public/matic_type_green.svg';
+import maticIcon from "public/matic_type_green.svg";
 import { Card } from "components/common/card";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useRTokenReward } from "hooks/useRTokenReward";
@@ -17,6 +17,7 @@ import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
+import { Tooltip } from "@mui/material";
 
 interface RewardChartPanelProps {
   tokenName: TokenName;
@@ -35,14 +36,15 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
   const selectedTokenStandard = useTokenStandard(tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
   const tokenPrice = useTokenPrice(props.tokenName);
-  const {
-    requestStatus,
-    totalCount,
-    totalReward,
-    chartXData,
-    chartYData,
-    lastEraReward,
-  } = useRTokenReward(tokenName, 1, getChartDuSeconds(chartDu));
+  const { requestStatus, totalCount, totalReward, lastEraReward } =
+    useRTokenReward(tokenName, 1, getChartDuSeconds(chartDu));
+
+  const { chartXData, chartYData } = useRTokenReward(
+    tokenName,
+    1,
+    getChartDuSeconds(chartDu),
+    true
+  );
 
   const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
 
@@ -66,8 +68,8 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     // 1rem:100px
     let designSize = 2048;
     let html = document.documentElement;
-    // let clientW = html.clientWidth;
-    let clientW = 1440;
+    let clientW = html.clientWidth;
+    // let clientW = 1440;
     let htmlRem = (clientW * 100) / designSize;
     // html.style.fontSize = htmlRem + "px";
 
@@ -117,7 +119,7 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
           height={chartHeight}
           xData={chartXData}
           yData={chartYData}
-					tokenName={tokenName}
+          tokenName={tokenName}
         />
 
         <div className="text-[.18rem] text-text2 absolute top-[.36rem] left-0 invisible">
@@ -186,9 +188,13 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
         </div>
       </div>
 
-      <div className="ml-[1.3rem] mr-[.9rem] flex-1 h-[253px] flex flex-col">
+      <div className="ml-[1.3rem] mr-[.9rem] flex-1  flex flex-col">
         <div className="w-[.72rem] h-[.72rem] self-center relative z-10">
-          <Image src={tokenName === TokenName.MATIC ? maticIcon : ethIcon} alt="eth" layout="fill" />
+          <Image
+            src={tokenName === TokenName.MATIC ? maticIcon : ethIcon}
+            alt="eth"
+            layout="fill"
+          />
         </div>
 
         <Card
@@ -197,7 +203,10 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
           mt="-0.36rem"
           style={{ flex: 1 }}
         >
-          <div className={classNames("pt-[.78rem] pl-[.56rem]")} style={{}}>
+          <div
+            className={classNames("pt-[.78rem] pl-[.56rem] pb-[.4rem]")}
+            style={{}}
+          >
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
                 text="Total reward"
@@ -207,11 +216,20 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
 
             <div className="flex items-center mt-[.23rem]">
               <div className="text-[.32rem] text-white">
-                ${formatNumber(totalRewardValue, { decimals: 2 })}
+                {formatNumber(totalReward)} {tokenName}
               </div>
               <div className="h-[.2rem] w-[1px] bg-text2 mx-[.18rem] opacity-50" />
               <div className="text-text2 text-[.18rem]">
-                {formatNumber(totalReward)} {tokenName}
+                {isNaN(Number(totalRewardValue)) ||
+                Number(totalRewardValue) >= 0.01 ? (
+                  <Tooltip title={"$" + formatNumber(totalRewardValue)}>
+                    <span>
+                      ${formatNumber(totalRewardValue, { decimals: 2 })}
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
 
@@ -224,11 +242,20 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
 
             <div className="flex items-center mt-[.23rem]">
               <div className="text-[.32rem] text-white">
-                ${formatNumber(lastEraRewardValue, { decimals: 2 })}
+                {formatNumber(lastEraReward)} {tokenName}
               </div>
               <div className="h-[.2rem] w-[1px] bg-text2 mx-[.18rem] opacity-50" />
               <div className="text-text2 text-[.18rem]">
-                {formatNumber(lastEraReward)} {tokenName}
+                {isNaN(Number(lastEraRewardValue)) ||
+                Number(lastEraRewardValue) >= 0.01 ? (
+                  <Tooltip title={"$" + formatNumber(lastEraRewardValue)}>
+                    <span>
+                      ${formatNumber(lastEraRewardValue, { decimals: 2 })}
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
           </div>

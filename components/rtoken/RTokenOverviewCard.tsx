@@ -2,6 +2,7 @@ import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
 import {
+  getMetamaskBscChainId,
   getMetamaskEthChainId,
   getMetamaskMaticChainId,
 } from "config/metaMask";
@@ -20,6 +21,10 @@ import maticChainLogo from "public/matic_logo_black.svg";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
 import { setRouteNextPage } from "redux/reducers/FisSlice";
+import { useTokenPoolData } from "hooks/useTokenPoolData";
+import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
+import { BubblesLoading } from "components/common/BubblesLoading";
+import { useMemo } from "react";
 
 interface RTokenOverviewCardProps {
   tokenName: TokenName;
@@ -33,7 +38,21 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const { metaMaskAccount, polkadotAccount } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
-  const { stakedMaticValue, stakedMaticAmount, maticApr } = useMaticPoolData();
+
+  const { stakedAmount, stakedValue } = useTokenPoolData(tokenName);
+  const apr = useRTokenStakerApr(tokenName);
+
+  const displayApr = useMemo(() => {
+    return tokenName === TokenName.ETH ? stakeApr : apr;
+  }, [tokenName, stakeApr, apr]);
+
+  const displayStakedValue = useMemo(() => {
+    return tokenName === TokenName.ETH ? allEthValue : stakedValue;
+  }, [tokenName, allEthValue, stakedValue]);
+
+  const displayStakedAmount = useMemo(() => {
+    return tokenName === TokenName.ETH ? allEth : stakedAmount;
+  }, [tokenName, allEth, stakedAmount]);
 
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
@@ -70,17 +89,32 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           targetUrl: "/rtoken/stake/MATIC",
         })
       );
+    } else if (tokenName === TokenName.BNB) {
+      if (!metaMaskAccount || metaMaskChainId !== getMetamaskBscChainId()) {
+        dispatch(setRouteNextPage("/rtoken/stake/BNB"));
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.MetaMask],
+            targetMetaMaskChainId: getMetamaskBscChainId(),
+            targetUrl: "/rtoken/stake/BNB",
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/BNB");
     }
   };
 
   return (
     <div
-      className="py-[0] px-[.24rem] h-[4.05rem] w-[3.35rem]"
+      className="py-[0] px-[.24rem] h-[4.05rem] w-[3.35rem] rounded-[.16rem] bg-[#1a283533] hover:bg-[#58779826]"
       style={{
-        background: "rgba(23, 38, 54, 0.2)",
         border: "1px solid #1a2835",
         backdropFilter: "blur(0.67rem)",
+				cursor: "pointer",
       }}
+			onClick={clickStake}
     >
       <div className="mt-[.36rem] flex items-center justify-between relative">
         <div className="w-[.76rem] h-[.76rem] relative">
@@ -92,7 +126,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         </div>
 
         <div
-          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.04rem]"
+          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.04rem] hidden"
           style={{
             background: "rgba(25, 38, 52, 0.4)",
             border: "1px solid #1A2835",
@@ -125,42 +159,53 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
           />
         </div>
         <div className="text-text1 font-[700] text-[.28rem]">
-          {formatNumber(tokenName === TokenName.ETH ? stakeApr : maticApr, {
-            decimals: 2,
-          })}
-          %
-        </div>
-      </div>
-
-      <div className="mt-[.23rem] flex items-end justify-between">
-        <div className="flex items-center">
-          <MyTooltip
-            text="Staked Value"
-            title="Overall token staked value in USD, including restake value"
-            className="text-text2 text-[.16rem]"
-          />
-        </div>
-        <div className="text-text2 text-[.16rem]">
-          $
-          {formatNumber(
-            tokenName === TokenName.ETH ? allEthValue : stakedMaticValue,
-            { decimals: 2 }
+          {!displayApr ? (
+            <BubblesLoading size=".12rem" color="#9DAFBE" />
+          ) : (
+            <>
+              {formatNumber(displayApr, {
+                decimals: 2,
+              })}
+              %
+            </>
           )}
         </div>
       </div>
 
-      <div className="mt-[.23rem] flex items-end justify-between">
+      <div className="mt-[.23rem] flex items-center justify-between">
+        <div className="flex items-center">
+          <MyTooltip
+            text="Staked Value"
+            title={`Overall token staked value in USD, including compound ${tokenName}`}
+            className="text-text2 text-[.16rem]"
+          />
+        </div>
+        <div className="text-text2 text-[.16rem] flex items-center">
+          {!displayStakedValue ? (
+            <BubblesLoading />
+          ) : (
+            <>${formatNumber(displayStakedValue, { decimals: 2 })}</>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-[.23rem] flex items-center justify-between">
         <div className="flex items-center">
           <MyTooltip
             text={`Total ${tokenName} Staked`}
-            title={`Overall ${tokenName} staked, including restaked ${tokenName}`}
+            title={`Overall ${tokenName} staked, including compound ${tokenName}`}
             className="text-text2 text-[.16rem]"
           />
         </div>
         <div className="text-text2 text-[.16rem]">
-          {formatNumber(
-            tokenName === TokenName.ETH ? allEth : stakedMaticAmount,
-            { decimals: 2 }
+          {!displayStakedAmount ? (
+            <BubblesLoading />
+          ) : (
+            <>
+              {formatNumber(displayStakedAmount, {
+                decimals: 2,
+              })}
+            </>
           )}
         </div>
       </div>
@@ -169,7 +214,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         mt="0.5rem"
         height="0.65rem"
         fontSize="0.24rem"
-        onClick={clickStake}
+        // onClick={clickStake}
       >
         Stake
       </Button>

@@ -25,8 +25,11 @@ import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import { connectMetaMask } from "utils/web3Utils";
 import styles from "../../../styles/reth/TrustValidatorDeposit.module.scss";
+import {
+  connectMetaMask,
+  setMetaMaskDisconnected,
+} from "redux/reducers/WalletSlice";
 
 export const TrustValidatorDepositForm = () => {
   const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
@@ -153,7 +156,7 @@ export const TrustValidatorDepositForm = () => {
           height="1.3rem"
           onClick={() => {
             if (!metaMaskAccount || isWrongMetaMaskNetwork) {
-              connectMetaMask(getMetamaskValidatorChainId());
+              dispatch(connectMetaMask(getMetamaskValidatorChainId()));
               return;
             }
 

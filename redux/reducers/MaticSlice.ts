@@ -1,8 +1,18 @@
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getEtherScanTxUrl } from "config/explorer";
-import { getMaticAbi, getMaticTokenAddress } from "config/matic";
-import { ChainId, TokenName, TokenStandard } from "interfaces/common";
+import {
+  getMaticAbi,
+  getMaticStakePortalAbi,
+  getMaticStakePortalAddress,
+  getMaticTokenAddress,
+} from "config/matic";
+import {
+  ChainId,
+  TokenName,
+  TokenStandard,
+  TokenSymbol,
+} from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
@@ -14,7 +24,9 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
+  updateNotice,
   updateStakeLoadingParams,
 } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
@@ -22,6 +34,7 @@ import {
   bond,
   fisUnbond,
   getBondTransactionFees,
+  getMinting,
   getUnbondTransactionFees,
 } from "./FisSlice";
 import keyring from "servers/keyring";
@@ -37,6 +50,7 @@ import { stafiUuid } from "utils/common";
 import dayjs from "dayjs";
 import { estimateUnbondDays } from "config/unbond";
 import { LocalNotice } from "utils/notice";
+import { getWeb3ProviderUrlConfig } from "config/metaMask";
 
 declare const ethereum: any;
 
@@ -46,28 +60,34 @@ const stafiServer = new StafiServer();
 
 export interface MaticState {
   txLoading: boolean;
-  balance: string;
-  stakedAmount: string;
+  balance: string | undefined;
+  stakedAmount: string | undefined;
   validPools: any[];
   poolLimit: any;
-  unbondFees: string; // unbond relay fee
-  unbondCommision: string; // unbond commision fee
-  bondTxFees: string; // bond transaction fee
-  unbondTxFees: string; // unbond transaction fee
-  bondFees: string; // bond relay fee
+  unbondFees: string | undefined; // unbond relay fee
+  unbondCommision: string | undefined; // unbond commision fee
+  bondTxFees: string | undefined; // bond transaction fee
+  unbondTxFees: string | undefined; // unbond transaction fee
+  bondFees: string | undefined; // bond relay fee, todo: deprecated
+  relayFee: string | undefined;
+  isApproved: boolean;
+  bridgeFee: string | undefined;
 }
 
 const initialState: MaticState = {
   txLoading: false,
-  balance: "--",
-  stakedAmount: "--",
+  balance: undefined,
+  stakedAmount: undefined,
   validPools: [],
   poolLimit: 0,
-  unbondCommision: "--",
-  unbondFees: "--",
-  bondTxFees: "--",
-  unbondTxFees: "--",
-  bondFees: "--",
+  unbondCommision: undefined,
+  unbondFees: undefined,
+  bondTxFees: undefined,
+  unbondTxFees: undefined,
+  bondFees: undefined,
+  relayFee: undefined,
+  isApproved: false,
+  bridgeFee: undefined,
 };
 
 export const maticSlice = createSlice({
@@ -108,6 +128,15 @@ export const maticSlice = createSlice({
     setBondFees: (state: MaticState, action: PayloadAction<string>) => {
       state.bondFees = action.payload;
     },
+    setRelayFee: (state: MaticState, action: PayloadAction<string>) => {
+      state.relayFee = action.payload;
+    },
+    setIsApproved: (state: MaticState, action: PayloadAction<boolean>) => {
+      state.isApproved = action.payload;
+    },
+    setBridgeFee: (state: MaticState, action: PayloadAction<string>) => {
+      state.bridgeFee = action.payload;
+    },
   },
 });
 
@@ -122,6 +151,9 @@ export const {
   setUnbondTxFees,
   setBondTxFees,
   setBondFees,
+  setRelayFee,
+  setIsApproved,
+  setBridgeFee,
 } = maticSlice.actions;
 
 export default maticSlice.reducer;
@@ -129,23 +161,32 @@ export default maticSlice.reducer;
 export const updateMaticBalance =
   (): AppThunk => async (dispatch, getState) => {
     const account = getState().wallet.metaMaskAccount;
-    if (!account || !window.ethereum) return;
-
-    let web3 = new Web3(window.ethereum as any);
-    let contract = new web3.eth.Contract(
-      getMaticAbi(),
-      getMaticTokenAddress(),
-      {
-        from: account,
-      }
-    );
-
+    if (!account || !window.ethereum) {
+      dispatch(setMaticBalance("--"));
+      return;
+    }
     try {
+      // let web3 = new Web3(window.ethereum as any);
+      let web3 = new Web3(
+        new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+      );
+      let contract = new web3.eth.Contract(
+        getMaticAbi(),
+        getMaticTokenAddress(),
+        {
+          from: account,
+        }
+      );
+
       contract.methods
         .balanceOf(account)
         .call()
         .then((balance: any) => {
-          dispatch(setMaticBalance(Web3.utils.fromWei(balance.toString())));
+          if (getState().wallet.metaMaskAccount) {
+            dispatch(setMaticBalance(Web3.utils.fromWei(balance.toString())));
+          } else {
+            dispatch(setMaticBalance("--"));
+          }
         })
         .catch((e: any) => {
           console.error(e);
@@ -192,10 +233,10 @@ export const handleMaticStake =
 
     try {
       dispatch(setIsLoading(true)); // stake button loading
-			let steps = ["sending", "staking", "minting"];
-			if (tokenStandard !== TokenStandard.Native) {
-				steps.push('swapping');
-			}
+      let steps = ["sending", "staking", "minting"];
+      if (tokenStandard !== TokenStandard.Native) {
+        steps.push("swapping");
+      }
       dispatch(
         resetStakeLoadingParams({
           modalVisible: true,
@@ -208,7 +249,6 @@ export const handleMaticStake =
           targetAddress,
           tokenStandard,
           steps,
-          userAction: undefined,
           progressDetail: {
             sending: {
               totalStatus: "loading",
@@ -216,7 +256,7 @@ export const handleMaticStake =
             sendingParams,
             staking: {},
             minting: {},
-						swapping: {},
+            swapping: {},
           },
         })
       );
@@ -255,7 +295,7 @@ export const handleMaticStake =
             },
             staking: {},
             minting: {},
-						swapping: {},
+            swapping: {},
           },
         })
       );
@@ -272,7 +312,7 @@ export const handleMaticStake =
               },
               staking: {},
               minting: {},
-							swapping: {},
+              swapping: {},
             },
           })
         );
@@ -320,7 +360,7 @@ export const handleMaticStake =
                   totalStatus: "loading",
                 },
                 minting: {},
-								swapping: {},
+                swapping: {},
               },
             },
             (newParams) => {
@@ -417,67 +457,6 @@ export const handleMaticStake =
     }
   };
 
-export const retryStake =
-  (cb?: (success: boolean) => void): AppThunk =>
-  async (dispatch, getState) => {
-    const stakeLoadingParams = getState().app.stakeLoadingParams;
-    if (!stakeLoadingParams) return;
-
-    const metaMaskAccount = getState().wallet.metaMaskAccount;
-    const {
-      txHash,
-      blockHash,
-      amount,
-      poolPubKey,
-      targetAddress,
-      tokenStandard,
-    } = stakeLoadingParams;
-
-    let chainId = ChainId.STAFI;
-    if (tokenStandard === TokenStandard.ERC20) {
-      chainId = ChainId.ETH;
-    } else if (tokenStandard === TokenStandard.BEP20) {
-      chainId = ChainId.BSC;
-    } else if (tokenStandard === TokenStandard.SPL) {
-      chainId = ChainId.SOL;
-    }
-
-    dispatch(
-      updateStakeLoadingParams({
-        txHash: txHash,
-        scanUrl: getEtherScanTxUrl(txHash as string),
-        blockHash: blockHash,
-        poolPubKey: poolPubKey as string,
-        progressDetail: {
-          sending: {
-            totalStatus: "success",
-            broadcastStatus: "success",
-            packStatus: "success",
-            finalizeStatus: "success",
-          },
-          staking: {
-            totalStatus: "loading",
-          },
-          minting: {},
-        },
-      })
-    );
-
-    dispatch(
-      bond(
-        metaMaskAccount as string,
-        txHash as string,
-        blockHash as string,
-        amount as string,
-        poolPubKey as string,
-        rSymbol.Matic,
-        chainId,
-        targetAddress as string,
-        cb
-      )
-    );
-  };
-
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -497,12 +476,17 @@ export const getPools =
 export const getRMaticRate =
   (cb?: Function): AppThunk =>
   async (dispatch, getState) => {
-    const api = await stafiServer.createStafiApi();
-    const result = await api.query.rTokenRate.rate(rSymbol.Matic);
-    let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
-    ratio = ratio || 1;
-    cb && cb(ratio);
-    return ratio;
+    try {
+      const api = await stafiServer.createStafiApi();
+      const result = await api.query.rTokenRate.rate(rSymbol.Matic);
+      let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
+      ratio = ratio || 1;
+      cb && cb(ratio);
+      return ratio;
+    } catch (err: any) {
+      console.error(err);
+      return 1;
+    }
   };
 
 export const unbondRMatic =
@@ -514,25 +498,18 @@ export const unbondRMatic =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
-    // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
-      resetStakeLoadingParams({
+      setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
         tokenName: TokenName.MATIC,
-        amount: amount,
-        userAction: "unstake",
+        amount,
         willReceiveAmount,
         newTotalStakedAmount,
-        steps: ["sending"],
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-        },
       })
     );
+
     try {
       const validPools = getState().matic.validPools;
       let selectedPool = commonSlice.getPoolForUnbond(
@@ -542,7 +519,7 @@ export const unbondRMatic =
       );
       if (!selectedPool) {
         cb && cb();
-        return;
+        throw new Error("No selected pool");
       }
 
       const keyringInstance = keyring.init(Symbol.Matic);
@@ -558,8 +535,8 @@ export const unbondRMatic =
             TokenName.MATIC
           )} days`,
           (r?: string, txHash?: string) => {
+            const uuid = stafiUuid();
             if (r === "Success") {
-              const uuid = stafiUuid();
               addRTokenUnbondRecords(TokenName.MATIC, {
                 id: uuid,
                 txHash,
@@ -569,15 +546,48 @@ export const unbondRMatic =
                 amount: willReceiveAmount,
                 recipient,
               });
+              const metaMaskAccount = getState().wallet.metaMaskAccount;
+              if (txHash && metaMaskAccount) {
+                dispatch(
+                  addNotice({
+                    id: uuid,
+                    type: "rToken Unstake",
+                    data: {
+                      tokenName: TokenName.MATIC,
+                      amount: amount,
+                      willReceiveAmount: willReceiveAmount,
+                    },
+                    scanUrl: getEtherScanTxUrl(txHash),
+                    status: "Confirmed",
+                  })
+                );
+              }
+							cb && cb();
+            } else if (r === "Failed") {
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.MATIC,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  status: "Error",
+                })
+              );
+							cb && cb();
             }
           }
         )
       );
     } catch (err: any) {
+      dispatch(setIsLoading(false));
       console.error(err);
     } finally {
-      dispatch(setIsLoading(false));
+      // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
+			cb && cb();
     }
   };
 
@@ -600,7 +610,6 @@ export const mockProcess =
         willReceiveAmount: willReceiveAmount,
         newTotalStakedAmount,
         steps: ["sending", "staking", "minting"],
-        userAction: undefined,
         progressDetail: {
           sending: {
             totalStatus: "loading",
@@ -681,17 +690,23 @@ export const mockProcess =
 export const getUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
-    dispatch(setUnbondCommision(unbondCommision.toString()));
+    if (unbondCommision) {
+      dispatch(setUnbondCommision(unbondCommision.toString()));
+    }
   };
 
 export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
   const unbondFees = await commonSlice.getUnbondFees(rSymbol.Matic);
-  dispatch(setUnbondFees(Number(unbondFees).toString()));
+  if (unbondFees) {
+    dispatch(setUnbondFees(Number(unbondFees).toString()));
+  }
 };
 
 export const getBondFees = (): AppThunk => async (dispatch, getState) => {
   const bondFees = await commonSlice.getBondFees(rSymbol.Matic);
-  dispatch(setBondFees(Number(bondFees).toString()));
+  if (bondFees) {
+    dispatch(setBondFees(Number(bondFees).toString()));
+  }
 };
 
 export const getMaticUnbondTxFees =
@@ -754,3 +769,348 @@ export const getMaticBondTransactionFees =
       )
     );
   };
+
+/**
+ * stake MATIC to StaFi Portal
+ */
+export const stakeMatic =
+  (
+    stakeAmount: string,
+    willReceiveAmount: string,
+    tokenStandard: TokenStandard | undefined,
+    targetAddress: string,
+    newTotalStakedAmount: string,
+    txFee: string,
+    isReTry: boolean,
+    cb?: (success: boolean) => void
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    let chainId = ChainId.STAFI;
+    if (tokenStandard === TokenStandard.ERC20) {
+      chainId = ChainId.ETH;
+    } else if (tokenStandard === TokenStandard.BEP20) {
+      chainId = ChainId.BSC;
+    } else if (tokenStandard === TokenStandard.SPL) {
+      chainId = ChainId.SOL;
+    }
+
+    const noticeUuid = isReTry
+      ? getState().app.stakeLoadingParams?.noticeUuid
+      : stafiUuid();
+    const sendingParams = {
+      amount: stakeAmount,
+      willReceiveAmount,
+      tokenStandard,
+      newTotalStakedAmount,
+      targetAddress,
+      txFee,
+    };
+
+    dispatch(setIsLoading(true));
+
+    try {
+      const metaMaskAccount = getState().wallet.metaMaskAccount;
+      if (!metaMaskAccount) {
+        throw new Error("Please connect MetaMask");
+      }
+
+      const web3 = createWeb3();
+      const contractMatic = new web3.eth.Contract(
+        getMaticAbi(),
+        getMaticTokenAddress(),
+        {
+          from: metaMaskAccount,
+        }
+      );
+      const stakePortalAddress = getMaticStakePortalAddress();
+
+      let steps = ["staking", "minting"];
+      if (tokenStandard !== TokenStandard.Native) {
+        steps.push("swapping");
+      }
+
+      // query allowance
+      const allowanceResult = await contractMatic.methods
+        .allowance(metaMaskAccount, stakePortalAddress)
+        .call();
+      let allowance = web3.utils.fromWei(allowanceResult);
+      // insuffcient allowance, need to approve
+      if (Number(allowance) < Number(stakeAmount)) {
+        steps.unshift("approving");
+        dispatch(
+          resetStakeLoadingParams({
+            modalVisible: true,
+            noticeUuid,
+            status: "loading",
+            tokenName: TokenName.MATIC,
+            amount: stakeAmount,
+            willReceiveAmount: willReceiveAmount,
+            newTotalStakedAmount,
+            targetAddress,
+            tokenStandard,
+            steps,
+            progressDetail: {
+              approving: {
+                totalStatus: "loading",
+              },
+              sendingParams,
+              staking: {},
+              minting: {},
+              swapping: {},
+            },
+            customMsg: "Approving MATIC to StaFi Portal",
+          })
+        );
+        allowance = web3.utils.toWei("10000000");
+        const approveResult = await contractMatic.methods
+          .approve(stakePortalAddress, allowance)
+          .send({ from: metaMaskAccount });
+        if (approveResult && approveResult.status) {
+          // approved
+          dispatch(
+            updateStakeLoadingParams({
+              progressDetail: {
+                approving: {
+                  totalStatus: "loading",
+                  broadcastStatus: "loading",
+                },
+              },
+              customMsg: undefined,
+            })
+          );
+
+          await sleep(5000);
+          dispatch(
+            updateStakeLoadingParams({
+              progressDetail: {
+                approving: {
+                  totalStatus: "success",
+                  broadcastStatus: "success",
+                  packStatus: "success",
+									txHash: approveResult.transactionHash,
+                },
+              },
+            })
+          );
+        } else {
+          throw new Error("Approve Error");
+        }
+      } else {
+        dispatch(
+          resetStakeLoadingParams({
+            modalVisible: true,
+            noticeUuid,
+            status: "loading",
+            tokenName: TokenName.MATIC,
+            amount: stakeAmount,
+            willReceiveAmount: willReceiveAmount,
+            newTotalStakedAmount,
+            targetAddress,
+            tokenStandard,
+            steps,
+            progressDetail: {
+              staking: {
+                totalStatus: "loading",
+              },
+              sendingParams,
+              minting: {},
+              swapping: {},
+            },
+            // customMsg: 'Staking to StaFi Portal',
+          })
+        );
+      }
+
+      // stake
+      const validPools = getState().matic.validPools;
+      const poolLimit = getState().matic.poolLimit;
+
+      const amount = web3.utils.toWei(stakeAmount);
+      const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
+      if (!selectedPool) {
+        throw new Error("Invalid pool");
+      }
+
+      const polkadotAddress = getState().wallet.polkadotAccount;
+      const contractStakePortal = new web3.eth.Contract(
+        getMaticStakePortalAbi(),
+        stakePortalAddress,
+        { from: metaMaskAccount }
+      );
+      const keyringInstance = keyring.init(Symbol.Fis);
+      const polkadotPubKey = u8aToHex(
+        keyringInstance.decodeAddress(polkadotAddress as string)
+      );
+
+      dispatch(
+        updateStakeLoadingParams({
+          progressDetail: {
+            staking: {
+              totalStatus: "loading",
+              broadcastStatus: "loading",
+            },
+          },
+        })
+      );
+
+      const stakeResult = await contractStakePortal.methods
+        .stake(
+          selectedPool.poolPubKey,
+          amount,
+          chainId.toString(),
+          polkadotPubKey,
+          metaMaskAccount
+        )
+        .send({ value: web3.utils.toWei(txFee) });
+      if (!stakeResult || !stakeResult.status) {
+        throw new Error(TRANSACTION_FAILED_MESSAGE);
+      }
+
+      const txHash = stakeResult.transactionHash;
+      let txDetail;
+      while (true) {
+        await sleep(5000);
+        txDetail = await ethereum
+          .request({
+            method: "eth_getTransactionByHash",
+            params: [txHash],
+          })
+          .catch((err: any) => {
+            throw new Error(BLOCK_HASH_NOT_FOUND_MESSAGE);
+          });
+
+        if (txDetail.blockHash || !txDetail) {
+          break;
+        }
+      }
+      const blockHash = txDetail && txDetail.blockHash;
+      if (!blockHash) {
+        throw new Error(BLOCK_HASH_NOT_FOUND_MESSAGE);
+      }
+
+      dispatch(
+        updateStakeLoadingParams(
+          {
+            progressDetail: {
+              staking: {
+                totalStatus: "success",
+                broadcastStatus: "success",
+                packStatus: "success",
+								txHash: txHash,
+              },
+            },
+            customMsg: "Staking succeeded, now minting...",
+						scanUrl: getEtherScanTxUrl(txHash),
+						txHash: txHash,
+          },
+          (newParams) => {
+            const newNotice: LocalNotice = {
+              id: noticeUuid || stafiUuid(),
+              type: "rToken Stake",
+              txDetail: { transactionHash: txHash, sender: metaMaskAccount },
+              data: {
+                tokenName: TokenName.MATIC,
+                amount: Number(stakeAmount) + "",
+                willReceiveAmount: Number(willReceiveAmount) + "",
+              },
+              scanUrl: getEtherScanTxUrl(stakeResult.transactionHash),
+              status: "Pending",
+              stakeLoadingParams: newParams,
+            };
+            dispatch(addNotice(newNotice));
+          }
+        )
+      );
+
+      dispatch(setIsLoading(false));
+
+      // query bond state
+      console.log({ txHash, blockHash });
+      dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId, cb));
+    } catch (err: any) {
+			cb && cb(false);
+      console.error(err);
+      dispatch(setIsLoading(false));
+      if (err.code === 4001) {
+        snackbarUtil.error(CANCELLED_MESSAGE);
+        dispatch(resetStakeLoadingParams(undefined));
+      } else {
+        snackbarUtil.error(err.message);
+        let sendingDetail: StakeLoadingSendingDetailItem = {
+          totalStatus: "error",
+          broadcastStatus: "error",
+        };
+        if (err.message === BLOCK_HASH_NOT_FOUND_MESSAGE) {
+          sendingDetail = {
+            totalStatus: "error",
+            broadcastStatus: "success",
+            packStatus: "error",
+          };
+        }
+        dispatch(
+          updateStakeLoadingParams(
+            {
+              errorMsg: err.message,
+              errorStep: "sending",
+              status: "error",
+              progressDetail: {
+                sending: sendingDetail,
+                staking: {},
+                minting: {},
+              },
+              customMsg: undefined,
+            },
+            (newParams) => {
+              dispatch(
+                addNotice({
+                  id: noticeUuid || stafiUuid(),
+                  type: "rToken Stake",
+                  data: {
+                    tokenName: TokenName.MATIC,
+                    amount: Number(stakeAmount) + "",
+                    willReceiveAmount: Number(willReceiveAmount) + "",
+                  },
+                  status: "Error",
+                  stakeLoadingParams: newParams,
+                })
+              );
+            }
+          )
+        );
+      }
+    }
+  };
+
+export const getStakeRelayFee = (): AppThunk => async (dispatch, getState) => {
+  try {
+    const web3 = createWeb3();
+    const contractStakePortal = new web3.eth.Contract(
+      getMaticStakePortalAbi(),
+      getMaticStakePortalAddress()
+    );
+    let feeResult = await contractStakePortal.methods.relayFee().call();
+    feeResult = feeResult || "1000000000000000"; // 0.001 ETH
+    const relayFee = web3.utils.fromWei(feeResult);
+    dispatch(setRelayFee(relayFee));
+  } catch (err: unknown) {}
+};
+
+export const queryIsApproved = (): AppThunk => async (dispatch, getState) => {
+  try {
+    const web3 = createWeb3();
+    const metaMaskAccount = getState().wallet.metaMaskAccount;
+    const stakePortalAddress = getMaticStakePortalAddress();
+    const contractMatic = new web3.eth.Contract(
+      getMaticAbi(),
+      getMaticTokenAddress(),
+      {
+        from: metaMaskAccount,
+      }
+    );
+    const allowanceResult = await contractMatic.methods
+      .allowance(metaMaskAccount, stakePortalAddress)
+      .call();
+    let allowance = web3.utils.fromWei(allowanceResult);
+    dispatch(setIsApproved(Number(allowance) > 0));
+  } catch (err: unknown) {}
+};

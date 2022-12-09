@@ -1,5 +1,37 @@
 import { TokenSymbol } from "interfaces/common";
-import Web3 from "web3";
+import { rSymbol } from "keyring/defaults";
+import { bignumberDependencies, create, multiplyDependencies } from "mathjs";
+
+// mathjs optimization
+const config = {
+  // optionally, you can specify configuration
+};
+// Create just the functions we need
+export const { multiply, bignumber } = create(
+  {
+    multiplyDependencies,
+    bignumberDependencies,
+  },
+  config
+);
+
+function formatScientificNumber(x: any): string {
+  if (Math.abs(x) < 1.0) {
+    var e = parseInt(x.toString().split("e-")[1]);
+    if (e) {
+      x *= Math.pow(10, e - 1);
+      x = "0." + new Array(e).join("0") + x.toString().substring(2);
+    }
+  } else {
+    var e = parseInt(x.toString().split("+")[1]);
+    if (e > 20) {
+      e -= 20;
+      x /= Math.pow(10, e);
+      x += new Array(e + 1).join("0");
+    }
+  }
+  return x.toString();
+}
 
 export function formatNumber(
   num: string | number | undefined,
@@ -19,25 +51,27 @@ export function formatNumber(
     return "--";
   }
 
-  const decimals = options.decimals === undefined ? 6 : options.decimals;
+  let decimals = options.decimals === undefined ? 6 : options.decimals;
   const withSplit = options.withSplit === undefined ? true : options.withSplit;
   const fixedDecimals =
     options.fixedDecimals === undefined ? true : options.fixedDecimals;
   const toReadable =
     options.toReadable === undefined ? true : options.toReadable;
-  const roundMode = options.roundMode || "round";
+  const roundMode = options.roundMode || "floor";
   let suffix = "";
 
   let newNum = "0";
   if (toReadable && Number(num) > 1000000) {
     newNum = Number(num) / 1000000 + "";
     suffix = "M";
+    decimals = 2;
   } else if (toReadable && Number(num) > 1000) {
-		newNum = Number(num) / 1000 + '';
-		suffix = 'K';
+    newNum = Number(num) / 1000 + "";
+    suffix = "K";
+    decimals = 2;
   } else {
-		newNum = num + '';
-	}
+    newNum = num + "";
+  }
 
   const roundMethod =
     roundMode === "floor"
@@ -115,4 +149,56 @@ export function rTokenRateToHuman(num: string | number) {
   // return divide(Number(num), 1000000000000) + "";
   return Number(num) / 1000000000000 + "";
   // return Web3.utils.toBN(num).div(Web3.utils.toBN("1000000000000")).toString();
+}
+
+export function numberToChain(input: string | number, symbol: rSymbol): string {
+  if (isNaN(Number(input))) {
+    return "--";
+  }
+  let factor;
+  switch (symbol) {
+    case rSymbol.Dot:
+      factor = "10000000000";
+      break;
+    case rSymbol.Atom:
+      factor = "1000000";
+      break;
+    case rSymbol.Fis:
+      factor = "1000000000000";
+      break;
+    case rSymbol.Ksm:
+      factor = "1000000000000";
+      break;
+    case rSymbol.Sol:
+      factor = "1000000000";
+      break;
+    case rSymbol.Eth:
+      factor = "1000000000000000000";
+      break;
+    case rSymbol.Matic:
+      factor = "1000000000000000000";
+      break;
+    case rSymbol.Bnb:
+      factor = "100000000";
+      break;
+    case rSymbol.StafiHub:
+      factor = "1000000";
+      break;
+    default:
+      factor = "1000000000000";
+      break;
+  }
+
+  const res = formatScientificNumber(
+    multiply(bignumber(input), bignumber(factor))
+  );
+
+  return parseInt(res).toString();
+}
+
+export function formatLargeAmount(amount: string | number) {
+  if (!isNaN(Number(amount)) && Number(amount) > 1000) {
+    return formatNumber(amount, { decimals: 2 });
+  }
+  return formatNumber(amount, { decimals: 4 });
 }

@@ -9,6 +9,7 @@ import {
 } from "config/erc20Abi";
 import { getErc20ContractConfig } from "config/erc20Contract";
 import { getEtherScanTxUrl } from "config/explorer";
+import { getWeb3ProviderUrlConfig } from "config/metaMask";
 import { TokenName, TokenStandard } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import { stafiUuid } from "utils/common";
@@ -111,30 +112,38 @@ export const updateEthBalance = (): AppThunk => async (dispatch, getState) => {
   }
 
   try {
-    const balance = await window.ethereum.request({
-      method: "eth_getBalance",
-      params: [account, "latest"],
-    });
+    let web3 = createWeb3(
+      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().stafiEth)
+    );
+
+    const balance = await web3.eth.getBalance(account);
+
+    // const balance = await window.ethereum.request({
+    //   method: "eth_getBalance",
+    //   params: [account, "latest"],
+    // });
 
     dispatch(setEthBalance(Web3.utils.fromWei(balance.toString())));
   } catch (err: unknown) {}
 };
 
 export const updateEthGasPrice = (): AppThunk => async (dispatch, getState) => {
-  const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const resJson = await response.json();
-  if (resJson && resJson.status === "80000") {
-    dispatch(
-      setGasPrice(
-        Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
-      )
-    );
-  }
+  try {
+    const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const resJson = await response.json();
+    if (resJson && resJson.status === "80000") {
+      dispatch(
+        setGasPrice(
+          Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
+        )
+      );
+    }
+  } catch (err: unknown) {}
 };
 
 export const handleEthValidatorDeposit =
@@ -428,7 +437,6 @@ export const handleEthTokenStake =
           amount: Number(stakeAmount) + "",
           willReceiveAmount,
           newTotalStakedAmount,
-          userAction: undefined,
           progressDetail: {
             sending: {
               totalStatus: "loading",

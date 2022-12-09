@@ -7,10 +7,14 @@ export const STORAGE_KEY_UNREAD_NOTICE = "stafi_unread_notice";
 export const STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP =
   "stafi_hide_eth_validator_fee_tip";
 export const STORAGE_KEY_POLKADOT_ACCOUNT = "polkadot_account";
+export const STORAGE_KEY_KSM_ACCOUNT = "ksm_account";
+export const STORAGE_KEY_DOT_ACCOUNT = "dot_account";
 export const STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG =
   "polkadot_wallet_allowed";
-export const STORAGE_KEY_UNBOND_RECORDS =
-  "stafi_unbond_records";
+export const STORAGE_KEY_KSM_WALLET_ALLOWED_FLAG = "ksm_wallet_allowed";
+export const STORAGE_KEY_DOT_WALLET_ALLOWED_FLAG = "dot_wallet_allowed";
+export const STORAGE_KEY_UNBOND_RECORDS = "stafi_unbond_records";
+export const STORAGE_KEY_DISCONNECT_METAMASK = "stafi_disconnect_metamask";
 
 export function saveStorage(key: string, value: string) {
   localStorage.setItem(key, value);
@@ -26,7 +30,9 @@ export function removeStorage(key: string) {
 
 export function addRTokenUnbondRecords(tokenName: TokenName, record: any) {
   const localUnbondRecords = getStorage(STORAGE_KEY_UNBOND_RECORDS);
-  const unbondRecords = localUnbondRecords ? JSON.parse(localUnbondRecords) : null;
+  const unbondRecords = localUnbondRecords
+    ? JSON.parse(localUnbondRecords)
+    : null;
   let arr: any[] = [];
   if (unbondRecords && unbondRecords[tokenName]) {
     arr = unbondRecords[tokenName];
@@ -41,15 +47,20 @@ export function addRTokenUnbondRecords(tokenName: TokenName, record: any) {
     [tokenName]: arr,
   };
 
-  saveStorage(STORAGE_KEY_UNBOND_RECORDS, JSON.stringify(newUnbondRecords)); 
+  saveStorage(STORAGE_KEY_UNBOND_RECORDS, JSON.stringify(newUnbondRecords));
 }
 
 export function getRTokenUnbondRecords(tokenName: TokenName): any[] {
   const localUnbondRecords = getStorage(STORAGE_KEY_UNBOND_RECORDS);
-  const unbondRecords = localUnbondRecords ? JSON.parse(localUnbondRecords) : null;
+  const unbondRecords = localUnbondRecords
+    ? JSON.parse(localUnbondRecords)
+    : null;
   if (unbondRecords && unbondRecords[tokenName]) {
     unbondRecords[tokenName].forEach((item: any) => {
-      item.remainingDays = Math.ceil(Math.max(0, Number(item.estimateSuccessTime) - dayjs().valueOf()) / 86400000);
+      item.remainingDays = Math.ceil(
+        Math.max(0, Number(item.estimateSuccessTime) - dayjs().valueOf()) /
+          86400000
+      );
       item.periodInDays = estimateUnbondDays(tokenName);
     });
     return unbondRecords[tokenName];

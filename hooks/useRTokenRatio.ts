@@ -11,7 +11,7 @@ export function useRTokenRatio(tokenName: TokenName) {
 
   const ratio = useAppSelector((state: RootState) => {
     const store = state.rToken.rTokenRatioStore;
-    return store[tokenName] || "--";
+    return store[tokenName] || undefined;
   });
 
   useEffect(() => {

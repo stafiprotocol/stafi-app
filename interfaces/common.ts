@@ -7,6 +7,8 @@ export enum RequestStatus {
 export enum WalletType {
   MetaMask = "MetaMask",
   Polkadot = "Polkadot",
+  Polkadot_KSM = "Polkadot_KSM",
+  Polkadot_DOT = "Polkadot_DOT",
   Phantom = "Phantom",
 }
 
@@ -96,5 +98,5 @@ export enum DexType {
   Sushi = "Sushi",
   Curve = "Curve",
   Sifchain = "Sifchain",
-	Quickswap = "Quickswap",
+  Quickswap = "Quickswap",
 }

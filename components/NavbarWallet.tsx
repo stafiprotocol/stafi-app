@@ -7,9 +7,11 @@ import {
 } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useDotBalance } from "hooks/useDotBalance";
+import { useKsmBalance } from "hooks/useKsmBalance";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { WalletType } from "interfaces/common";
+import { TokenStandard, WalletType } from "interfaces/common";
 import {
   bindPopover,
   bindTrigger,
@@ -17,26 +19,29 @@ import {
 } from "material-ui-popup-state/hooks";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import ethereumLogo from "public/eth_logo.png";
 import downIcon from "public/icon_down.png";
 import { useContext, useEffect, useMemo } from "react";
 import { updateEthBalance } from "redux/reducers/EthSlice";
-import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
+  setChooseAccountVisible,
+  setChooseAccountWalletType,
+} from "redux/reducers/FisSlice";
+import {
+  connectMetaMask,
   connectPolkadotJs,
+  disconnectWallet,
+  setMetaMaskDisconnected,
   updatePolkadotExtensionAccountsBalances,
   updateSelectedPolkadotAccountBalance,
-  setPolkadotAccount,
-  setPolkadotBalance,
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
-import { openLink } from "utils/common";
+import { isPolkadotWallet, openLink } from "utils/common";
 import { formatNumber } from "utils/number";
 import { getWalletIcon } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import { connectMetaMask } from "utils/web3Utils";
+import { BubblesLoading } from "./common/BubblesLoading";
 import { Icomoon } from "./icon/Icomoon";
 import { MyLayoutContext } from "./layout/layout";
 
@@ -53,10 +58,14 @@ export const NavbarWallet = () => {
   const { api } = usePolkadotApi();
   const {
     metaMaskAccount,
+    polkadotExtensionAccounts,
     polkadotAccount,
     polkadotBalance,
-    polkadotExtensionAccounts,
+    ksmAccount,
+    dotAccount,
   } = useWalletAccount();
+  const ksmBalance = useKsmBalance();
+  const dotBalance = useDotBalance();
   const { ethBalance, maticBalance } = useAppSelector((state: RootState) => {
     return {
       ethBalance: state.eth.balance,
@@ -66,12 +75,15 @@ export const NavbarWallet = () => {
 
   const router = useRouter();
 
-  const { metaMaskConnected, polkadotConnected } = useMemo(() => {
-    return {
-      metaMaskConnected: !!metaMaskAccount,
-      polkadotConnected: !!polkadotAccount,
-    };
-  }, [metaMaskAccount, polkadotAccount]);
+  const { metaMaskConnected, polkadotConnected, ksmConnected, dotConnected } =
+    useMemo(() => {
+      return {
+        metaMaskConnected: !!metaMaskAccount,
+        polkadotConnected: !!polkadotAccount,
+        ksmConnected: !!ksmAccount,
+        dotConnected: !!dotAccount,
+      };
+    }, [metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);
 
   const accountsPopupState = usePopupState({
     variant: "popover",
@@ -83,41 +95,30 @@ export const NavbarWallet = () => {
   }, [dispatch, metaMaskAccount, metaMaskChainId]);
 
   useEffect(() => {
-    dispatch(updateSelectedPolkadotAccountBalance(api));
-  }, [dispatch, api, polkadotAccount]);
+    dispatch(updateSelectedPolkadotAccountBalance());
+  }, [dispatch, polkadotAccount]);
 
   const polkadotExtensionAccountsKey = useMemo(() => {
     return polkadotExtensionAccounts.map((item) => item.address).join("-");
   }, [polkadotExtensionAccounts]);
 
   useEffect(() => {
-    dispatch(updatePolkadotExtensionAccountsBalances(api));
-  }, [dispatch, api, polkadotExtensionAccountsKey]);
+    dispatch(updatePolkadotExtensionAccountsBalances());
+  }, [dispatch, polkadotExtensionAccountsKey]);
 
   const clickAccountLeftArea = () => {
     if (isWrongMetaMaskNetwork) {
-      connectMetaMask(targetMetaMaskChainId);
+      dispatch(connectMetaMask(targetMetaMaskChainId));
     }
   };
 
   const clickConnectWallet = (walletType: WalletType) => {
     if (walletType === WalletType.MetaMask) {
-      connectMetaMask(targetMetaMaskChainId);
+      dispatch(setMetaMaskDisconnected(false));
+      dispatch(connectMetaMask(targetMetaMaskChainId));
     }
-    if (walletType === WalletType.Polkadot) {
-      dispatch(connectPolkadotJs(true));
-      // connectPolkadot()
-      //   .then((accounts: FisAccount[]) => {
-      //     if (accounts.length === 0) return;
-      //     dispatch(setAccounts(accounts));
-      //     dispatch(setFisAccount(accounts[0]));
-      //     dispatch(setChooseAccountVisible(true));
-      //     dispatch(setConnectWalletModalParams(undefined));
-      //     dispatch(setPolkadotAccount(accounts[0].address));
-      //   })
-      //   .catch((err) => {
-      //     console.error(err);
-      //   });
+    if (isPolkadotWallet(walletType)) {
+      dispatch(connectPolkadotJs(true, walletType));
     }
   };
 
@@ -140,6 +141,16 @@ export const NavbarWallet = () => {
     router.pathname,
   ]);
 
+  const displayMetaMaskChainName = useMemo(() => {
+    if (
+      targetMetaMaskChainId === getMetamaskMaticChainId() &&
+      router.pathname === "/rtoken/stake/MATIC"
+    ) {
+      return "Polygon";
+    }
+    return "Ethereum";
+  }, [targetMetaMaskChainId, router.pathname]);
+
   const displayMetaMaskTokenName = useMemo(() => {
     if (
       targetMetaMaskChainId === getMetamaskMaticChainId() &&
@@ -151,15 +162,26 @@ export const NavbarWallet = () => {
   }, [targetMetaMaskChainId, router.pathname]);
 
   const displayBalanceList = useMemo(() => {
-    const res: string[] = [];
+    const res: { balance: string | undefined; tokenName: string }[] = [];
     if (polkadotConnected) {
-      res.push(`${formatNumber(polkadotBalance)} FIS`);
+      res.push({
+        balance: polkadotBalance,
+        tokenName: "FIS",
+      });
     }
-    if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
+    if (walletType === WalletType.Polkadot_KSM) {
       if (metaMaskConnected) {
-        res.push(
-          `${formatNumber(displayMetaMaskBalance)} ${displayMetaMaskTokenName}`
-        );
+        res.push({
+          balance: ksmBalance,
+          tokenName: "KSM",
+        });
+      }
+    } else if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
+      if (metaMaskConnected) {
+        res.push({
+          balance: displayMetaMaskBalance,
+          tokenName: displayMetaMaskTokenName,
+        });
       }
     }
     return res;
@@ -171,14 +193,33 @@ export const NavbarWallet = () => {
     displayMetaMaskTokenName,
     displayMetaMaskBalance,
     isWrongMetaMaskNetwork,
+    ksmBalance,
   ]);
 
-  const [displayAddress] = useMemo(() => {
-    if (walletType === WalletType.MetaMask || router.pathname === "/rtoken") {
-      return [metaMaskAccount];
+  const [displayAddress, displayWalletType] = useMemo(() => {
+    const tokenStandard = router.query.tokenStandard;
+    if (
+      isPolkadotWallet(walletType) ||
+      tokenStandard === TokenStandard.Native
+    ) {
+      if (polkadotAccount) {
+        return [polkadotAccount, WalletType.Polkadot];
+      }
+      if (metaMaskAccount) {
+        return [metaMaskAccount, WalletType.MetaMask];
+      }
     }
-    return [polkadotAccount];
-  }, [walletType, polkadotAccount, metaMaskAccount, router.pathname]);
+    if (walletType === WalletType.MetaMask) {
+      if (metaMaskAccount) {
+        return [metaMaskAccount, WalletType.MetaMask];
+      }
+      if (polkadotAccount) {
+        return [polkadotAccount, WalletType.Polkadot];
+      }
+    }
+
+    return ["", undefined];
+  }, [walletType, polkadotAccount, metaMaskAccount, router]);
 
   const showConnectWallet = useMemo(() => {
     return !displayAddress;
@@ -228,13 +269,28 @@ export const NavbarWallet = () => {
               <div className="text-text1 flex items-center">
                 {displayBalanceList.map((item, index) => (
                   <div key={index} className="flex items-center">
+                    {!item.balance ? (
+                      <BubblesLoading
+                        color={item.tokenName === "FIS" ? "#00F3AB" : "#9DAFBE"}
+                      />
+                    ) : (
+                      <div
+                        className={classNames({
+                          "text-primary": item.tokenName === "FIS",
+                        })}
+                      >
+                        {formatNumber(item.balance)}
+                      </div>
+                    )}
+
                     <div
-                      className={classNames({
-                        "text-primary": item.endsWith("FIS"),
+                      className={classNames("ml-[.06rem]", {
+                        "text-primary": item.tokenName === "FIS",
                       })}
                     >
-                      {item}
+                      {item.tokenName}
                     </div>
+
                     {index !== displayBalanceList.length - 1 && (
                       <div className="w-[1px] h-[.25rem] mx-[.12rem] bg-[#2B3F52]" />
                     )}
@@ -253,7 +309,7 @@ export const NavbarWallet = () => {
               <div className="flex items-center">
                 <div className="w-[.28rem] h-[.28rem] relative">
                   <Image
-                    src={getWalletIcon(walletType)}
+                    src={getWalletIcon(displayWalletType)}
                     alt="logo"
                     layout="fill"
                   />
@@ -312,7 +368,7 @@ export const NavbarWallet = () => {
           <WalletAccountItem
             name="StaFi Chain"
             walletType={WalletType.Polkadot}
-            connected={!!polkadotAccount}
+            connected={polkadotConnected}
             address={polkadotAccount || ""}
             balance={polkadotBalance}
             tokenName={"FIS"}
@@ -322,9 +378,9 @@ export const NavbarWallet = () => {
           <div className="mt-[.08rem] mb-[.32rem] h-[1px] bg-[#26494E] opacity-30" />
 
           <WalletAccountItem
-            name="Ethereum"
+            name={displayMetaMaskChainName}
             walletType={WalletType.MetaMask}
-            connected={!!metaMaskAccount}
+            connected={metaMaskConnected}
             address={metaMaskAccount || ""}
             balance={
               targetMetaMaskChainId === getMetamaskMaticChainId() &&
@@ -340,6 +396,26 @@ export const NavbarWallet = () => {
             }
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
+
+          {/* <WalletAccountItem
+            name="Kusama"
+            walletType={WalletType.Polkadot_KSM}
+            connected={ksmConnected}
+            address={ksmAccount || ""}
+            balance={ksmBalance}
+            tokenName={"KSM"}
+            onClickConnect={() => clickConnectWallet(WalletType.Polkadot_KSM)}
+          />
+
+          <WalletAccountItem
+            name="Polkadot"
+            walletType={WalletType.Polkadot_DOT}
+            connected={dotConnected}
+            address={dotAccount || ""}
+            balance={dotBalance}
+            tokenName={"DOT"}
+            onClickConnect={() => clickConnectWallet(WalletType.Polkadot_DOT)}
+          /> */}
         </div>
       </Popover>
     </div>
@@ -351,7 +427,7 @@ interface WalletAccountItemProps {
   walletType: WalletType;
   connected: boolean;
   address: string;
-  balance: string;
+  balance: string | undefined;
   tokenName: string;
   onClickConnect: () => void;
 }
@@ -407,7 +483,9 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           <div className="ml-[.14rem]">
             <div className="text-text1 text-[.24rem]">{props.name}</div>
             <div className="text-text1 text-[.16rem] mt-[.05rem]">
-              {props.walletType}
+              {isPolkadotWallet(props.walletType)
+                ? "Polkadot.js"
+                : props.walletType}
             </div>
           </div>
         </div>
@@ -421,12 +499,13 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
               Wrong Network
             </div>
           ) : (
-            <div className="text-primary text-[.24rem] mr-[.2rem]">
-              {targetMetaMaskChainId === undefined &&
-              metaMaskChainId !== getMetamaskEthChainId()
-                ? "--"
-                : formatNumber(props.balance)}{" "}
-              {props.tokenName}
+            <div className="text-primary text-[.24rem] mr-[.2rem] flex items-center">
+              {!props.balance ? (
+                <BubblesLoading color="#00F3AB" />
+              ) : (
+                formatNumber(props.balance)
+              )}
+              <div className="ml-[.06rem]">{props.tokenName}</div>
             </div>
           )}
 
@@ -465,20 +544,21 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
         }}
       >
         <div className="w-[2.8rem] flex flex-col items-stretch text-text1 text-[.24rem]">
-          {isWrongMetaMaskNetwork && props.walletType === WalletType.MetaMask && (
-            <>
-              <div
-                className="text-center py-[.24rem] cursor-pointer active:text-primary"
-                onClick={() => {
-                  connectMetaMask(targetMetaMaskChainId);
-                  menuPopupState.close();
-                }}
-              >
-                Switch Network
-              </div>
-              <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
-            </>
-          )}
+          {isWrongMetaMaskNetwork &&
+            props.walletType === WalletType.MetaMask && (
+              <>
+                <div
+                  className="text-center py-[.24rem] cursor-pointer active:text-primary"
+                  onClick={() => {
+                    dispatch(connectMetaMask(targetMetaMaskChainId));
+                    menuPopupState.close();
+                  }}
+                >
+                  Switch Network
+                </div>
+                <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
+              </>
+            )}
           <div
             className="text-center py-[.24rem] cursor-pointer active:text-primary"
             onClick={() => {
@@ -491,11 +571,12 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             Copy Address
           </div>
           <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
-          {props.walletType === WalletType.Polkadot && (
+          {isPolkadotWallet(props.walletType) && (
             <>
               <div
                 className="text-center py-[.24rem] cursor-pointer active:text-primary"
                 onClick={() => {
+                  dispatch(setChooseAccountWalletType(props.walletType));
                   dispatch(setChooseAccountVisible(true));
                   menuPopupState.close();
                 }}
@@ -518,23 +599,20 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           >
             Block Explorer
           </div>
-          {props.walletType === WalletType.Polkadot && (
+          {
             <>
               <div className="bg-[#26494E] opacity-30 mx-[.24rem] h-[1px]" />
               <div
                 className="text-center py-[.24rem] cursor-pointer active:text-primary"
                 onClick={() => {
                   menuPopupState.close();
-                  if (props.walletType === WalletType.Polkadot) {
-                    dispatch(setPolkadotAccount(undefined));
-                    dispatch(setPolkadotBalance("--"));
-                  }
+                  dispatch(disconnectWallet(props.walletType));
                 }}
               >
                 Disconnect
               </div>
             </>
-          )}
+          }
         </div>
       </Popover>
     </>

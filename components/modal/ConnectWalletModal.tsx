@@ -6,13 +6,10 @@ import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { WalletType } from "interfaces/common";
-import Image from "next/image";
 import { useRouter } from "next/router";
-import metaMask from "public/wallet/metaMask.svg";
 import { useEffect } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
-import { connectMetaMask } from "utils/web3Utils";
 
 interface ConnectWalletModalProps {}
 

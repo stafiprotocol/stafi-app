@@ -1,8 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getBep20REthTokenAbi } from "config/bep20Abi";
+import {
+  getBep20RDotTokenAbi,
+  getBep20REthTokenAbi,
+  getBep20RKsmTokenAbi,
+} from "config/bep20Abi";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getApiHost, getDropHost } from "config/env";
-import { getErc20REthTokenAbi } from "config/erc20Abi";
+import {
+  getErc20RDotTokenAbi,
+  getErc20REthTokenAbi,
+  getErc20RKsmTokenAbi,
+} from "config/erc20Abi";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
 import { getBSCRMaticAbi, getERCMaticAbi } from "config/matic";
 import { getWeb3ProviderUrlConfig } from "config/metaMask";
@@ -36,6 +44,15 @@ export type RTokenStakerAprCollection = {
   [tokenName in TokenName]?: string;
 };
 
+export type TokenPoolDataStore = {
+  [tokenName in TokenName]?: PoolData;
+};
+
+interface PoolData {
+  stakedValue: string;
+  stakedAmount: string;
+}
+
 interface PriceItem {
   // rETH, ETH, rMATIC, etc.
   symbol: string;
@@ -47,6 +64,7 @@ export interface RTokenState {
   rTokenBalanceStore: RTokenBalanceStore;
   rTokenRatioStore: RTokenRatioCollection;
   rTokenStakerAprStore: RTokenStakerAprCollection;
+  tokenPoolData: TokenPoolDataStore;
 }
 
 const initialState: RTokenState = {
@@ -59,6 +77,7 @@ const initialState: RTokenState = {
   },
   rTokenRatioStore: {},
   rTokenStakerAprStore: {},
+  tokenPoolData: {},
 };
 
 export const rTokenSlice = createSlice({
@@ -86,6 +105,12 @@ export const rTokenSlice = createSlice({
     ) => {
       state.rTokenStakerAprStore = action.payload;
     },
+    setTokenPoolData: (
+      state: RTokenState,
+      action: PayloadAction<TokenPoolDataStore>
+    ) => {
+      state.tokenPoolData = action.payload;
+    },
   },
 });
 
@@ -94,6 +119,7 @@ export const {
   setRTokenBalanceStore,
   setRTokenRatioStore,
   setRTokenStakerAprStore,
+  setTokenPoolData,
 } = rTokenSlice.actions;
 
 export default rTokenSlice.reducer;
@@ -126,7 +152,7 @@ export const clearRTokenBalance =
         return;
       }
 
-      let newBalance = "--";
+      let newBalance = undefined;
       const rTokenBalanceStore = getState().rToken.rTokenBalanceStore;
       const newValue = {
         ...rTokenBalanceStore,
@@ -150,10 +176,10 @@ export const updateRTokenBalance =
         return;
       }
 
-      let newBalance = "--";
+      let newBalance = undefined;
       if (tokenStandard === TokenStandard.Native) {
         newBalance = await getNativeRTokenBalance(
-					polkadotAccount,
+          polkadotAccount,
           getTokenSymbol(tokenName)
         );
       } else if (tokenStandard === TokenStandard.BEP20) {
@@ -167,12 +193,18 @@ export const updateRTokenBalance =
         } else if (tokenName === TokenName.MATIC) {
           tokenAbi = getBSCRMaticAbi();
           tokenAddress = bep20TokenContractConfig.rMATIC;
+        } else if (tokenName === TokenName.KSM) {
+          tokenAbi = getBep20RKsmTokenAbi();
+          tokenAddress = bep20TokenContractConfig.rKSM;
+        } else if (tokenName === TokenName.DOT) {
+          tokenAbi = getBep20RDotTokenAbi();
+          tokenAddress = bep20TokenContractConfig.rDOT;
         }
         newBalance = await getBep20AssetBalance(
           metaMaskAccount,
           tokenAbi,
           tokenAddress,
-          tokenName,
+          tokenName
         );
       } else if (tokenStandard === TokenStandard.ERC20) {
         // Query erc20 rToken balance.
@@ -183,14 +215,20 @@ export const updateRTokenBalance =
           tokenAbi = getErc20REthTokenAbi();
           tokenAddress = erc20TokenContractConfig.rETH;
         } else if (tokenName === TokenName.MATIC) {
-					tokenAbi = getERCMaticAbi();
-					tokenAddress = erc20TokenContractConfig.rMATIC;
+          tokenAbi = getERCMaticAbi();
+          tokenAddress = erc20TokenContractConfig.rMATIC;
+        } else if (tokenName === TokenName.KSM) {
+          tokenAbi = getErc20RKsmTokenAbi();
+          tokenAddress = erc20TokenContractConfig.rKSM;
+        } else if (tokenName === TokenName.DOT) {
+          tokenAbi = getErc20RDotTokenAbi();
+          tokenAddress = erc20TokenContractConfig.rDOT;
         }
         newBalance = await getErc20AssetBalance(
           metaMaskAccount,
           tokenAbi,
           tokenAddress,
-          tokenName,
+          tokenName
         );
       }
 
@@ -216,7 +254,9 @@ export const updateRTokenRatio =
       if (tokenName === TokenName.ETH) {
         const erc20TokenContractConfig = getErc20TokenContractConfig();
         const web3 = createWeb3(
-          new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+          new Web3.providers.WebsocketProvider(
+            getWeb3ProviderUrlConfig().stafiEth
+          )
         );
 
         let contract = new web3.eth.Contract(
@@ -226,12 +266,14 @@ export const updateRTokenRatio =
         const amount = web3.utils.toWei("1");
         const result = await contract.methods.getEthValue(amount).call();
         newRatio = web3.utils.fromWei(result, "ether");
-      } else if (tokenName === TokenName.MATIC) {
-				const api = await new StafiServer().createStafiApi();
-				const result = await api.query.rTokenRate.rate(rSymbol.Matic);
-				let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
-				newRatio = (ratio || 1) + '';
-			}
+      } else {
+        const api = await new StafiServer().createStafiApi();
+        const result = await api.query.rTokenRate.rate(
+          getTokenSymbol(tokenName)
+        );
+        let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
+        newRatio = (ratio || 1) + "";
+      }
 
       const rTokenRatioStore = getState().rToken.rTokenRatioStore;
       const newValue = {
@@ -260,22 +302,60 @@ export const updateRTokenStakerApr =
           newApr = resJson.data.stakeApr;
         }
       } else if (tokenName === TokenName.MATIC) {
-				const api = await new StafiServer().createStafiApi();
-				try {
-					const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Matic);
-					let currentEra = eraResult.toJSON() as number;
-					if (currentEra) {
-						let rateResult = await api.query.rTokenRate.eraRate(rSymbol.Matic, currentEra - 1);
-						const currentRate = rateResult.toJSON() as number;
-						const rateResult2 = await api.query.rTokenRate.eraRate(rSymbol.Matic, currentEra - 8);
-						let lastRate = rateResult2.toJSON() as number;
-						newApr = numberUtil.amount_format(((currentRate - lastRate) / 1000000000000 / 7) * 365.25 * 100, 1);
-					}
-
-				} catch (err) {
-					console.error(err);
-				}
-			}
+        const api = await new StafiServer().createStafiApi();
+        try {
+          const eraResult = await api.query.rTokenLedger.chainEras(
+            rSymbol.Matic
+          );
+          let currentEra = eraResult.toJSON() as number;
+          if (currentEra) {
+            let rateResult = await api.query.rTokenRate.eraRate(
+              rSymbol.Matic,
+              currentEra - 1
+            );
+            const currentRate = rateResult.toJSON() as number;
+            const rateResult2 = await api.query.rTokenRate.eraRate(
+              rSymbol.Matic,
+              currentEra - 8
+            );
+            let lastRate = rateResult2.toJSON() as number;
+            newApr = numberUtil.amount_format(
+              ((currentRate - lastRate) / 1000000000000 / 7) * 365.25 * 100,
+              1
+            );
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      } else if (tokenName === TokenName.BNB) {
+        const api = await new StafiServer().createStafiApi();
+        try {
+          const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Bnb);
+          let currentEra = eraResult.toJSON() as number;
+          if (currentEra) {
+            let rateResult = await api.query.rTokenRate.eraRate(
+              rSymbol.Bnb,
+              currentEra - 1
+            );
+            const currentRate = rateResult.toJSON() as number;
+            const rateResult2 = await api.query.rTokenRate.eraRate(
+              rSymbol.Bnb,
+              currentEra - 2
+            );
+            let lastRate = rateResult2.toJSON() as number;
+            if (currentRate && lastRate && currentRate > lastRate) {
+              newApr = numberUtil.amount_format(
+                ((currentRate - lastRate) / 1000000000000) * 365.25 * 100,
+                1
+              );
+            } else {
+              newApr = "9.7";
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
 
       const rTokenStakerAprStore = getState().rToken.rTokenStakerAprStore;
       const newValue = {
@@ -284,4 +364,45 @@ export const updateRTokenStakerApr =
       };
       dispatch(setRTokenStakerAprStore(newValue));
     } catch (err: unknown) {}
+  };
+
+export const updateTokenPoolData =
+  (): AppThunk => async (dispatch, getState) => {
+    try {
+      const response = await fetch(
+        `${getDropHost()}/stafi/v1/webapi/rtoken/stakevalues`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            rsymbols: ["rmatic", "rbnb"],
+          }),
+        }
+      );
+
+      const resJson = await response.json();
+      if (resJson && resJson.status === "80000") {
+        const { stakeList } = resJson.data;
+        if (!Array.isArray(stakeList) || stakeList.length === 0) return;
+
+        let poolDataStore: TokenPoolDataStore = {};
+        stakeList.forEach((data: any) => {
+          const poolData: PoolData = {
+            stakedAmount: data.stakeAmount,
+            stakedValue: data.stakeAmount,
+          };
+          if (data.rsymbol === "Rmatic") {
+            poolDataStore.MATIC = poolData;
+          } else if (data.rsymbol === "Rbnb") {
+            poolDataStore.BNB = poolData;
+          }
+        });
+
+        dispatch(setTokenPoolData(poolDataStore));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };

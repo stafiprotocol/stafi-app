@@ -6,15 +6,13 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
-import { setChooseAccountVisible } from "redux/reducers/FisSlice";
 import {
+  connectMetaMask,
   connectPolkadotJs,
-  setPolkadotAccount,
-  setPolkadotBalance,
+  disconnectWallet,
 } from "redux/reducers/WalletSlice";
+import { isPolkadotWallet } from "utils/common";
 import { getWalletIcon } from "utils/rToken";
-import { connectMetaMask, connectPolkadot } from "utils/web3Utils";
 
 interface ConnectWalletItemProps {
   walletType: WalletType;
@@ -49,7 +47,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
       {!!userAddress ? (
         <div>
           <div className="flex items-center justify-between">
-            <div className="h-[.75rem] flex items-center">
+            <div className="h-[.75rem] flex items-center flex-1">
               {props.showDot && (
                 <div
                   className={classNames(
@@ -73,7 +71,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
               {showWrongNetwork ? (
                 <div
                   className={classNames(
-                    "ml-[.16rem] px-[.16rem] rounded-[.05rem] h-[.31rem] flex items-center justify-center cursor-pointer border-solid border-[1px]",
+                    "ml-[.16rem] px-[.16rem] rounded-[.05rem] py-[.04rem] flex items-center justify-center cursor-pointer border-solid border-[1px]",
                     showDetail
                       ? "bg-error/10 border-error/10"
                       : "border-error/50"
@@ -83,10 +81,15 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
                   }}
                   onClick={() => setShowDetail(!showDetail)}
                 >
-                  <div className="text-error text-[.16rem]">Wrong Network</div>
+                  <div
+                    className="text-error text-[.16rem] flex-1 "
+                    style={{ wordBreak: "keep-all" }}
+                  >
+                    Wrong Network
+                  </div>
                   <div
                     className={classNames(
-                      "ml-[.13rem]",
+                      "ml-[.13rem] w-[.13rem] max-w-[.13rem]",
                       showDetail ? "-rotate-90" : "rotate-90"
                     )}
                   >
@@ -121,13 +124,10 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
 
             <div
               className={classNames("text-[.16rem] text-text1 cursor-pointer", {
-                invisible: walletType !== WalletType.Polkadot,
+                hidden: walletType !== WalletType.Polkadot,
               })}
               onClick={() => {
-                if (walletType === WalletType.Polkadot) {
-                  dispatch(setPolkadotAccount(undefined));
-                  dispatch(setPolkadotBalance("--"));
-                }
+                dispatch(disconnectWallet(walletType));
               }}
             >
               Disconnect
@@ -154,9 +154,9 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
             }}
             onClick={() => {
               if (walletType === WalletType.MetaMask) {
-                connectMetaMask(targetMetaMaskChainId);
-              } else if (walletType === WalletType.Polkadot) {
-                dispatch(connectPolkadotJs(true));
+                dispatch(connectMetaMask(targetMetaMaskChainId));
+              } else if (isPolkadotWallet(walletType)) {
+                dispatch(connectPolkadotJs(true, walletType));
               }
             }}
           >
@@ -165,7 +165,10 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
             </div>
 
             <div className="text-[.2rem] ml-[.16rem]">
-              Connect to {walletType}
+              Connect to{" "}
+              {isPolkadotWallet(props.walletType)
+                ? "Polkadot.js"
+                : props.walletType}
             </div>
           </div>
         </div>
@@ -212,7 +215,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
                 className="text-[.16rem] text-primary underline cursor-pointer"
                 onClick={() => {
                   if (walletType === WalletType.MetaMask) {
-                    connectMetaMask(targetMetaMaskChainId);
+                    dispatch(connectMetaMask(targetMetaMaskChainId));
                   }
                 }}
               >

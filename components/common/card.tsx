@@ -22,7 +22,7 @@ export const Card = (props: CardProps) => {
         marginBottom: props.mb || "0",
         marginLeft: props.ml || props.mx || "0",
         marginRight: props.mr || props.mx || "0",
-        background: props.background || "transparent",
+        background: props.background || "",
         backdropFilter: "blur(.4rem)",
         border: props.borderColor
           ? `solid 1px ${props.borderColor}`

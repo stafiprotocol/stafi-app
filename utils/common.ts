@@ -1,4 +1,5 @@
 import { encodeAddress } from "@polkadot/util-crypto";
+import { WalletType } from "interfaces/common";
 import { checkAddressChecksum } from "web3-utils";
 
 export function openLink(url: string | undefined | null) {
@@ -96,4 +97,26 @@ export function stafiUuid() {
   } catch {
     return "";
   }
+}
+
+export function isEmptyValue(value: string | number | undefined | null) {
+  if (value === undefined || value === null || value === "") {
+    return true;
+  }
+  return false;
+}
+
+export function isInvalidValue(value: string | number | undefined | null) {
+  if (isNaN(Number(value))) {
+    return true;
+  }
+  return false;
+}
+
+export function isPolkadotWallet(walletType: WalletType | undefined) {
+  return (
+    walletType === WalletType.Polkadot ||
+    walletType === WalletType.Polkadot_KSM ||
+    walletType === WalletType.Polkadot_DOT
+  );
 }

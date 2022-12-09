@@ -15,6 +15,9 @@ import { getMetamaskMaticChainId } from "config/metaMask";
 import quickswapIcon from "public/dex/quick_swap.png";
 import metaMask from "public/wallet/metaMask.svg";
 import polkadot from "public/wallet/polkadot.svg";
+import { EraRewardModel } from "hooks/useRTokenReward";
+import dayjs from "dayjs";
+import { isPolkadotWallet } from "./common";
 
 export interface DexItem {
   type: DexType;
@@ -57,6 +60,38 @@ export function getRewardText(reward: string) {
       ? "<0.000001"
       : `+${formatNumber(reward)}`
     : "--";
+}
+
+export function getEraEstTimeTip(
+  rewardItem: EraRewardModel,
+  tokenName: TokenName
+) {
+  if (
+    Number(rewardItem.addedRTokenAmount) < 0 ||
+    getRewardText(rewardItem.reward) !== "--"
+  ) {
+    return "";
+  }
+  const updateTime = getExchangeRateUpdateTime(tokenName);
+  const passedTime =
+    (updateTime * 60 * 60 * 1000 -
+      new Date().getTime() +
+      rewardItem.startTimestamp) /
+    1000;
+  const leftHours = Math.floor(passedTime / (60 * 60));
+  let leftMinutes = Math.floor((passedTime - leftHours * 60 * 60) / 60);
+  if (leftHours < 1) {
+    return `${
+      leftMinutes < 1 ? "A few" : leftMinutes
+    } minutes left for data refresh`;
+  }
+  return `${leftHours} hours ${leftMinutes} mins left for data refresh`;
+}
+
+export function getExchangeRateUpdateTime(tokenName: TokenName) {
+  if (tokenName === TokenName.ETH) return 8;
+  if (tokenName === TokenName.MATIC) return 24;
+  return 24;
 }
 
 export function getDexIcon(type: DexType): any {
@@ -109,15 +144,55 @@ export function getDexList(tokenName: TokenName): DexItem[] {
       },
     ];
   }
+  if (tokenName === TokenName.KSM) {
+    return [
+      {
+        type: DexType.rDEX,
+        tokenStandard: TokenStandard.Native,
+        url: "https://app.rdex.finance/swap?first=rKSM&second=FIS",
+      },
+      {
+        type: DexType.Uniswap,
+        tokenStandard: TokenStandard.ERC20,
+        url: "https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x3c3842c4d3037ae121d69ea1e7a0b61413be806c",
+      },
+    ];
+  }
+  if (tokenName === TokenName.DOT) {
+    return [
+      {
+        type: DexType.rDEX,
+        tokenStandard: TokenStandard.Native,
+        url: "https://app.rdex.finance/swap?first=rDOT&second=FIS",
+      },
+      {
+        type: DexType.Uniswap,
+        tokenStandard: TokenStandard.ERC20,
+        url: "https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x505f5a4ff10985fe9f93f2ae3501da5fe665f08a",
+      },
+      {
+        type: DexType.Pancake,
+        tokenStandard: TokenStandard.BEP20,
+        url: "https://pancakeswap.finance/swap?inputCurrency=0x1dab2a526c8ac1ddea86838a7b968626988d33de&outputCurrency=0x7083609fce4d1d8dc0c979aab8c869ea2c873402",
+      },
+    ];
+  }
   return [];
 }
 
-export function getWalletIcon(walletType: WalletType) {
+export function getWalletIcon(walletType: WalletType | undefined) {
   if (walletType === WalletType.MetaMask) {
     return metaMask;
   }
-  if (walletType === WalletType.Polkadot) {
+  if (isPolkadotWallet(walletType)) {
     return polkadot;
   }
   return undefined;
+}
+
+export function getRedeemDaysLeft(tokenName: TokenName) {
+  if (tokenName === TokenName.MATIC) {
+    return "9";
+  }
+  return "9";
 }

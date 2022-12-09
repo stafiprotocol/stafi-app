@@ -67,6 +67,14 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
           data.pubkeys.length
         } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
       }
+      if (notice.type === "rToken Unstake") {
+        data = notice.data as NoticeRTokenStakeData;
+        return `Unstake ${data.amount} r${
+          data.tokenName
+        } from StaFi Pool Contract to your wallet, and receive ${formatNumber(
+          data.willReceiveAmount
+        )} ${data.tokenName}.`;
+      }
     } catch (err: unknown) {}
 
     return "";
@@ -155,7 +163,7 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
             </div>
 
             <div className="mt-[.11rem]">
-              <div className="text-text2 text-[.16rem]">
+              <div className="text-text2 text-[.16rem] leading-normal">
                 {getNoticeContent(notice)}
               </div>
             </div>
@@ -168,12 +176,21 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
               <div
                 className={classNames(
                   "text-[.16rem] cursor-pointer underline",
+
                   notice.status === "Confirmed"
                     ? "text-primary"
                     : notice.status === "Pending"
                     ? "text-text1"
                     : "text-error"
                 )}
+                style={{
+                  textDecorationColor:
+                    notice.status === "Confirmed"
+                      ? "#00F3AB60"
+                      : notice.status === "Pending"
+                      ? "#9DAFBE60"
+                      : "#FF52C460",
+                }}
                 onClick={() => clickStatus(notice)}
               >
                 {notice.status}

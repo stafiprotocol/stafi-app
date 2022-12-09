@@ -42,7 +42,7 @@ const RTokenPage = () => {
         <div
           className="flex items-center self-end mr-[.56rem] mb-[.65rem] cursor-pointer"
           onClick={() => {
-            openLink("https://docs.stafi.io/stafi-whitepaper/rtoken-paper");
+            openLink("https://www.stafi.io/rtoken/");
           }}
         >
           <div className="text-primary text-[.24rem] mr-[.18rem]">
@@ -62,6 +62,10 @@ const RTokenPage = () => {
         <div className="ml-[.875rem]">
           <RTokenOverviewCard tokenName={TokenName.MATIC} />
         </div>
+
+        {/* <div className="ml-[.875rem]">
+          <RTokenOverviewCard tokenName={TokenName.BNB} />
+        </div> */}
       </div>
     </div>
   );

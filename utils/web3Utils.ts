@@ -1,14 +1,6 @@
 import { isDev } from "config/env";
-import {
-  getMetamaskEthChainId,
-  getMetaMaskEthConnectConfig,
-  getMetamaskMaticChainId,
-  getMetamaskValidatorChainId,
-  getMetaMaskValidatorConnectConfig,
-  getWeb3ProviderUrlConfig,
-} from "config/metaMask";
+import { getWeb3ProviderUrlConfig } from "config/metaMask";
 
-import { metaMask } from "connectors/metaMask";
 import { TokenName } from "interfaces/common";
 import { Symbol } from "keyring/defaults";
 import { FisAccount } from "redux/reducers/FisSlice";
@@ -22,18 +14,6 @@ export function createWeb3(provider?: any) {
 }
 
 export type MetaMaskConnectType = "validator" | "eth" | "matic" | "bsc";
-
-export function connectMetaMask(targetChainId: number | undefined) {
-  if (targetChainId === undefined) {
-    metaMask.activate(1);
-  } else if (targetChainId === getMetamaskValidatorChainId()) {
-    metaMask.activate(getMetaMaskValidatorConnectConfig());
-  } else if (targetChainId === getMetamaskEthChainId()) {
-    metaMask.activate(getMetaMaskEthConnectConfig());
-  } else if (targetChainId === getMetamaskMaticChainId()) {
-    metaMask.activate(getMetamaskMaticChainId());
-  }
-}
 
 export function connectPolkadot() {
   const conn = async () => {
@@ -64,15 +44,22 @@ export async function getErc20AssetBalance(
   userAddress: string | undefined,
   tokenAbi: AbiItem | AbiItem[],
   tokenAddress: string | undefined,
-  tokenName?: TokenName,
+  tokenName?: TokenName
 ) {
   if (!userAddress || !tokenAbi || !tokenAddress) {
     return "--";
   }
   try {
-    let web3 = createWeb3(
-      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
-    );
+    let web3 =
+      tokenName === TokenName.ETH
+        ? createWeb3(
+            new Web3.providers.WebsocketProvider(
+              getWeb3ProviderUrlConfig().stafiEth
+            )
+          )
+        : createWeb3(
+            new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+          );
     if (tokenName === TokenName.MATIC && window.ethereum) {
       web3 = createWeb3(window.ethereum);
     }
@@ -93,7 +80,7 @@ export async function getBep20AssetBalance(
   userAddress: string | undefined,
   tokenAbi: AbiItem | AbiItem[],
   tokenAddress: string | undefined,
-  tokenName?: TokenName,
+  tokenName?: TokenName
 ) {
   if (!userAddress || !tokenAbi || !tokenAddress) {
     return "--";

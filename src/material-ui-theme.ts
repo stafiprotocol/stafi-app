@@ -77,6 +77,9 @@ export const theme = createTheme({
     text: {
       disabled: "#ffffff",
     },
+    grey: {
+      600: "#1A2835",
+    },
   },
   typography: {
     fontFamily: [

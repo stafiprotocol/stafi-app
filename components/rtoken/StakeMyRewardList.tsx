@@ -2,13 +2,18 @@ import { Tooltip } from "@mui/material";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
+import { TableSkeleton } from "components/common/TableSkeleton";
 import { Icomoon } from "components/icon/Icomoon";
 import dayjs from "dayjs";
 import { EraRewardModel, useRTokenReward } from "hooks/useRTokenReward";
 import { TokenName } from "interfaces/common";
 import { useCallback, useMemo, useState } from "react";
 import { formatNumber } from "utils/number";
-import { getRewardText } from "utils/rToken";
+import {
+  getEraEstTimeTip,
+  getExchangeRateUpdateTime,
+  getRewardText,
+} from "utils/rToken";
 
 interface StakeMyRewardListProps {
   tokenName: TokenName;
@@ -20,15 +25,13 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
 
   const { rewardList, totalCount } = useRTokenReward(tokenName, page, 0);
 
-  const getExchangeRateUpdateTime = useCallback(() => {
-    if (tokenName === TokenName.ETH) return 8;
-    if (tokenName === TokenName.MATIC) return 24;
-  }, [tokenName]);
-
   const [filteredRewardList, filteredUnbondList] = useMemo(() => {
+    if (!rewardList) {
+      return [undefined, undefined];
+    }
     const newRewardList: EraRewardModel[] = [];
     const newUnbondList: EraRewardModel[] = [];
-    rewardList.forEach((item) => {
+    rewardList?.forEach((item) => {
       if (Number(item.addedRTokenAmount) < 0) {
         newUnbondList.push(item);
       } else {
@@ -39,29 +42,34 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
   }, [rewardList]);
 
   const filteredTotalCount = useMemo(() => {
-    return totalCount - filteredUnbondList.length;
+    return totalCount - (filteredUnbondList?.length || 0);
   }, [filteredUnbondList, totalCount]);
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
-      {totalCount > 0 && (
+      {!!filteredRewardList && filteredTotalCount > 0 && (
         <div
           className="grid"
           style={{ height: "auto", gridTemplateColumns: "20% 20% 20% 20% 20%" }}
         >
           <div className="flex justify-center">
-            <MyTooltip text="Era" title="Era" />
+            <MyTooltip
+              text="Era"
+              title="UTC time record for the onchain transaction"
+            />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text={`Staked ${tokenName}`}
-              title={`Your overall staked ${tokenName} amount, including restaked ${tokenName}`}
+              title={`Your overall staked ${tokenName} amount, including compound ${tokenName}`}
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text={`r${tokenName}/${tokenName}`}
-              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime()} hours`}
+              title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime(
+                tokenName
+              )} hours`}
             />
           </div>
           <div className="flex justify-center">
@@ -79,7 +87,7 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
         </div>
       )}
 
-      {filteredRewardList.map((item, index) => (
+      {filteredRewardList?.map((item, index) => (
         <div
           key={index}
           className="grid h-[1.1rem]"
@@ -91,7 +99,13 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
         >
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             <Tooltip
-              title={dayjs(item.startTimestamp).format("YYYY-MM-DD HH:mm:ss")}
+              title={
+                dayjs(item.startTimestamp).format("YYYY-MM-DD HH:mm +UTC") +
+                " - " +
+                (item.endTimestamp === 0
+                  ? "Now"
+                  : dayjs(item.endTimestamp).format("YYYY-MM-DD HH:mm +UTC"))
+              }
             >
               <span>{item.era}</span>
             </Tooltip>
@@ -106,12 +120,16 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
             {formatNumber(item.rTokenBalance)}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
-            {getRewardText(item.reward)} {tokenName}
+            <Tooltip title={getEraEstTimeTip(item, tokenName)}>
+              <span>
+                {getRewardText(item.reward)} {tokenName}
+              </span>
+            </Tooltip>
           </div>
         </div>
       ))}
 
-      {filteredTotalCount > 0 && (
+      {!!filteredRewardList && filteredTotalCount > 0 && (
         <div className="mt-[.36rem] flex justify-center">
           <CustomPagination
             totalCount={filteredTotalCount}
@@ -121,7 +139,7 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
         </div>
       )}
 
-      {filteredTotalCount === 0 && (
+      {!!filteredRewardList && filteredTotalCount === 0 && (
         <div className="flex flex-col items-center pb-[.3rem]">
           <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />
@@ -132,6 +150,12 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
             <Icomoon icon="arrow-right" color="#9DAFBE" size=".26rem" />
           </div> */}
           </div>
+        </div>
+      )}
+
+      {!filteredRewardList && (
+        <div className="px-[.56rem]">
+          <TableSkeleton />
         </div>
       )}
     </div>

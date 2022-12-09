@@ -26,7 +26,8 @@ export type NoticeType =
   | "Unbond"
   | "ETH Deposit"
   | "ETH Stake"
-  | "rToken Stake";
+  | "rToken Stake"
+	| "rToken Unstake";
 
 export type NoticeStatus = "Pending" | "Error" | "Confirmed";
 

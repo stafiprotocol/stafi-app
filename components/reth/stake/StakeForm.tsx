@@ -20,7 +20,10 @@ import {
 import { RootState } from "redux/store";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import { connectMetaMask } from "utils/web3Utils";
+import {
+  connectMetaMask,
+  setMetaMaskDisconnected,
+} from "redux/reducers/WalletSlice";
 
 export const StakeForm = () => {
   const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
@@ -219,7 +222,7 @@ export const StakeForm = () => {
           height="1.3rem"
           onClick={() => {
             if (!metaMaskAccount || isWrongMetaMaskNetwork) {
-              connectMetaMask(getMetamaskValidatorChainId());
+              dispatch(connectMetaMask(getMetamaskValidatorChainId()));
               return;
             }
             if (

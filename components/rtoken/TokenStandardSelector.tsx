@@ -36,7 +36,7 @@ export const TokenStandardSelector = (props: TokenStandardSelectorProps) => {
   return (
     <>
       <div
-        className="rounded-[.16rem] border-solid border-[1px] border-[#1A2835] bg-[#192634]/35 active:bg-[#192634]/80"
+        className="rounded-[.16rem] border-solid border-[1px] border-[#1A2835] bg-[#19263459] active:bg-[#192634]/80"
         style={{
           backdropFilter: "blue(.4rem)",
           ...(selectionPopupState.isOpen

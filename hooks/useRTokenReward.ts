@@ -22,7 +22,7 @@ import { useAppSelector } from "./common";
 import { useAppSlice } from "./selector";
 import { useTokenStandard } from "./useTokenStandard";
 import { useWalletAccount } from "./useWalletAccount";
-import keyring from 'servers/keyring';
+import keyring from "servers/keyring";
 import { Symbol } from "keyring/defaults";
 import { u8aToHex } from "@polkadot/util";
 
@@ -34,14 +34,15 @@ export interface EraRewardModel {
   rTokenBalance: string;
   addedRTokenAmount: string;
   reward: string;
-	startTimestamp: number;
-	endTimestamp: number;
+  startTimestamp: number;
+  endTimestamp: number;
 }
 
 export function useRTokenReward(
   tokenName: TokenName,
   page: number,
-  chartDuSeconds: number
+  chartDuSeconds: number,
+  isChart?: boolean
 ) {
   const dispatch = useDispatch();
   const tokenStandard = useTokenStandard(tokenName);
@@ -49,25 +50,27 @@ export function useRTokenReward(
     RequestStatus.loading
   );
   const [totalCount, setTotalCount] = useState(0);
-  const [totalReward, setTotalReward] = useState("--");
+  const [totalReward, setTotalReward] = useState<string | undefined>(undefined);
   const [lastEraReward, setLastEraReward] = useState("--");
   const [chartXData, setChartXData] = useState<string[]>([]);
   const [chartYData, setChartYData] = useState<string[]>([]);
-  const [rewardList, setRewardList] = useState<EraRewardModel[]>([]);
+  const [rewardList, setRewardList] = useState<EraRewardModel[] | undefined>(
+    undefined
+  );
 
-  const { updateFlag15s } = useAppSlice();
+  const { updateFlag15s, refreshDataFlag } = useAppSlice();
   const { metaMaskAccount, polkadotAccount } = useWalletAccount();
 
   const userAddress = useMemo(() => {
     if (tokenStandard === TokenStandard.ERC20) {
       return metaMaskAccount;
     } else if (tokenStandard === TokenStandard.Native) {
-			if (!polkadotAccount) return '';
-			const keyringInstance = keyring.init(Symbol.Fis);
-			return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
-		} else if (tokenStandard === TokenStandard.BEP20) {
-			return metaMaskAccount;
-		}
+      if (!polkadotAccount) return "";
+      const keyringInstance = keyring.init(Symbol.Fis);
+      return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
+    } else if (tokenStandard === TokenStandard.BEP20) {
+      return metaMaskAccount;
+    }
     return "";
   }, [tokenStandard, metaMaskAccount, polkadotAccount]);
 
@@ -84,29 +87,37 @@ export function useRTokenReward(
         : -1;
 
     if (!userAddress || chainType === -1 || !updateFlag15s) {
-      setRequestStatus(RequestStatus.success);
-      setTotalCount(0);
-      setTotalReward("--");
-      setLastEraReward("--");
-      setChartXData([]);
-      setChartYData([]);
-      setRewardList([]);
+      // setRequestStatus(RequestStatus.success);
+      // setTotalCount(0);
+      // setTotalReward("--");
+      // setLastEraReward("--");
+      // setChartXData([]);
+      // setChartYData([]);
+      // setRewardList([]);
       return;
     }
 
     setRequestStatus(RequestStatus.loading);
     try {
-      const url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/reward`;
+      let url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/reward`;
+      if (isChart) {
+        url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/rewardChart`;
+      }
 
-      const params = {
+      let params: any = {
         userAddress,
         chainType,
         rTokenType:
           tokenName === TokenName.ETH ? -1 : getTokenSymbol(tokenName),
-        pageIndex: page,
-        pageCount: PAGE_SIZE,
-        chartDuSeconds,
       };
+      if (isChart) {
+        params["withinSeconds"] = chartDuSeconds;
+        params["countLimit"] = PAGE_SIZE;
+      } else {
+        params["chartDuSeconds"] = chartDuSeconds;
+        params["pageIndex"] = page;
+        params["pageCount"] = PAGE_SIZE;
+      }
 
       const res = await fetch(url, {
         method: "POST",
@@ -148,10 +159,10 @@ export function useRTokenReward(
               } else {
                 tokenSymbol = getTokenSymbol(tokenName);
               }
-              return formatNumber(
-                chainAmountToHuman(item, tokenSymbol),
-								{ toReadable: false, withSplit: false }
-              );
+              return formatNumber(chainAmountToHuman(item, tokenSymbol), {
+                toReadable: false,
+                withSplit: false,
+              });
             })
             ?.reverse() || []
         );
@@ -243,8 +254,8 @@ export function useRTokenReward(
               rTokenBalance: newRTokenBalance,
               addedRTokenAmount,
               reward: newReward,
-							startTimestamp: element.startTimestamp * 1000,
-							endTimestamp: element.endTimestamp * 1000,
+              startTimestamp: element.startTimestamp * 1000,
+              endTimestamp: element.endTimestamp * 1000,
             };
           }
         );
@@ -268,7 +279,7 @@ export function useRTokenReward(
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, updateFlag15s]);
+  }, [fetchData, updateFlag15s, refreshDataFlag]);
 
   return {
     requestStatus,

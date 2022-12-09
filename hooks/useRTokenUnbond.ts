@@ -1,5 +1,11 @@
 import { getRTokenApi2Host } from "config/env";
-import { ChainId, RequestStatus, TokenName, TokenStandard, TokenSymbol } from "interfaces/common";
+import {
+  ChainId,
+  RequestStatus,
+  TokenName,
+  TokenStandard,
+  TokenSymbol,
+} from "interfaces/common";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTokenStandard } from "./useTokenStandard";
 import { useWalletAccount } from "./useWalletAccount";
@@ -9,7 +15,7 @@ import { useAppSlice } from "./selector";
 import { getTokenSymbol } from "utils/rToken";
 import { PAGE_SIZE } from "utils/constants";
 import numberUtil from "utils/numberUtil";
-import keyring from 'servers/keyring';
+import keyring from "servers/keyring";
 import { getRTokenUnbondRecords } from "utils/storage";
 import dayjs from "dayjs";
 import { estimateUnbondDays } from "config/unbond";
@@ -31,33 +37,32 @@ export interface UnbondModel {
   formatReceiveAddress?: string;
   lockTotalTimeInDays?: number | string;
   lockLeftTimeInDays?: number | string;
-};
+}
 
-export function useRTokenUnbond(
-  tokenName: TokenName,
-  page: number,
-) {
+export function useRTokenUnbond(tokenName: TokenName, page: number) {
   const tokenStandard = useTokenStandard(tokenName);
 
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(
     RequestStatus.loading
   );
   const [totalCount, setTotalCount] = useState(0);
-  const [unbondList, setUnbondList] = useState<UnbondModel[]>([]);
+  const [unbondList, setUnbondList] = useState<UnbondModel[] | undefined>(
+    undefined
+  );
 
   const { polkadotAccount, metaMaskAccount } = useWalletAccount();
 
-  const { updateFlag15s } = useAppSlice();
+  const { updateFlag15s, refreshDataFlag } = useAppSlice();
 
   const userAddress = useMemo(() => {
     if (tokenStandard === TokenStandard.ERC20) {
       return metaMaskAccount;
     } else if (tokenStandard === TokenStandard.Native) {
-      if (!polkadotAccount) return '';
+      if (!polkadotAccount) return "";
       const keyringInstance = keyring.init(Symbol.Fis);
       return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
     }
-    return '';
+    return "";
   }, [tokenStandard, metaMaskAccount, polkadotAccount]);
 
   const fetchData = useCallback(async () => {
@@ -89,42 +94,61 @@ export function useRTokenUnbond(
       };
 
       const res = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(params),
       });
 
       const resJson = await res.json();
 
-      const keyringInstance = keyring.initByTokenSymbol(getTokenSymbol(tokenName));
+      const keyringInstance = keyring.initByTokenSymbol(
+        getTokenSymbol(tokenName)
+      );
 
-      if (resJson.status === '80000' && resJson.data) {
+      if (resJson.status === "80000" && resJson.data) {
         setRequestStatus(RequestStatus.success);
         const resUnbondList: UnbondModel[] = resJson.data.unbondList;
-        const formatUnbondList: UnbondModel[] = resUnbondList.map((item: UnbondModel) => {
-          const formatTokenAmount = numberUtil.tokenAmountToHuman(item.tokenAmount, getTokenSymbol(tokenName) as TokenSymbol).toString();
-          const lockTotalTimeInDays = numberUtil.handleAmountCeilToFixed((item.lockTotalTime as any) / (60 * 60 * 24), 0);
-          const lockLeftTimeInDays = numberUtil.handleAmountCeilToFixed((item.lockLeftTime as any) / (60 * 60 * 24), 0);
+        const formatUnbondList: UnbondModel[] = resUnbondList.map(
+          (item: UnbondModel) => {
+            const formatTokenAmount = numberUtil
+              .tokenAmountToHuman(
+                item.tokenAmount,
+                getTokenSymbol(tokenName) as TokenSymbol
+              )
+              .toString();
+            const lockTotalTimeInDays = numberUtil.handleAmountCeilToFixed(
+              (item.lockTotalTime as any) / (60 * 60 * 24),
+              0
+            );
+            const lockLeftTimeInDays = numberUtil.handleAmountCeilToFixed(
+              (item.lockLeftTime as any) / (60 * 60 * 24),
+              0
+            );
 
-          let formatReceiveAddress: string = '';
-          if (tokenName === TokenName.MATIC || tokenName === TokenName.BNB) {
-            formatReceiveAddress = item.receiveAddress as string;
-          } else if (tokenName === TokenName.SOL) {
-            formatReceiveAddress = keyringInstance.encodeAddress((item.receiveAddress as any));
-          } else {
-            formatReceiveAddress = keyringInstance.encodeAddress(hexToU8a(item.receiveAddress));
+            let formatReceiveAddress: string = "";
+            if (tokenName === TokenName.MATIC || tokenName === TokenName.BNB) {
+              formatReceiveAddress = item.receiveAddress as string;
+            } else if (tokenName === TokenName.SOL) {
+              formatReceiveAddress = keyringInstance.encodeAddress(
+                item.receiveAddress as any
+              );
+            } else {
+              formatReceiveAddress = keyringInstance.encodeAddress(
+                hexToU8a(item.receiveAddress)
+              );
+            }
+
+            return {
+              ...item,
+              formatReceiveAddress,
+              formatTokenAmount,
+              lockTotalTimeInDays,
+              lockLeftTimeInDays,
+            };
           }
-
-          return {
-            ...item,
-            formatReceiveAddress,
-            formatTokenAmount,
-            lockTotalTimeInDays,
-            lockLeftTimeInDays,
-          };
-        });
+        );
 
         // todo: local items
         const localRecords = getRTokenUnbondRecords(tokenName);
@@ -151,21 +175,15 @@ export function useRTokenUnbond(
     } catch {
       setRequestStatus(RequestStatus.error);
     }
-  }, [
-    tokenName,
-    tokenStandard,
-    page,
-    userAddress,
-    updateFlag15s,
-  ]);
+  }, [tokenName, tokenStandard, page, userAddress, updateFlag15s]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, updateFlag15s]);
+  }, [fetchData, updateFlag15s, refreshDataFlag]);
 
   return {
     requestStatus,
     unbondList,
     totalCount,
-  }
+  };
 }

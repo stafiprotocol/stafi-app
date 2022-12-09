@@ -26,6 +26,9 @@ export const CustomChart = (props: CustomChartProps) => {
         trigger: "axis",
         axisPointer: {
           type: "line",
+					lineStyle: {
+						color: "#5B6872"
+					}
         },
         backgroundColor: "rgba(25, 38, 52, 1)",
         borderColor: "#1A2835",
@@ -101,10 +104,10 @@ export const CustomChart = (props: CustomChartProps) => {
           type: "line",
           showSymbol: true,
           symbol: "circle",
-          symbolSize: 10,
+          symbolSize: 6,
           lineStyle: {
             color: "#00F3AB",
-            width: 4,
+            width: 2,
           },
           itemStyle: {
             color: "#00F3AB",
@@ -118,7 +121,7 @@ export const CustomChart = (props: CustomChartProps) => {
               },
               {
                 offset: 1,
-                color: "#0C141D",
+                color: "#0C141D00",
               },
             ]),
           },

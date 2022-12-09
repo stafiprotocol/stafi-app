@@ -9,19 +9,39 @@ import { stringToHex, u8aToHex } from "@polkadot/util";
 import {
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   updateNotice,
   updateStakeLoadingParams,
 } from "./AppSlice";
 import { getLocalStorageItem } from "utils/common";
-import { connectPolkadot, getErc20AssetBalance } from "utils/web3Utils";
+import {
+  connectPolkadot,
+  getBep20AssetBalance,
+  getErc20AssetBalance,
+} from "utils/web3Utils";
 import snackbarUtil from "utils/snackbarUtils";
 import {
   CANCELLED_MESSAGE,
   SIGN_ERROR_MESSAGE,
+  STAFI_ACCOUNT_EMPTY_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
 } from "utils/constants";
-import { ChainId, TokenStandard } from "interfaces/common";
-import { getMaticAbi, getRMaticTokenAddress } from "config/matic";
+import {
+  ChainId,
+  TokenName,
+  TokenStandard,
+  WalletType,
+} from "interfaces/common";
+import {
+  getBSCRMaticAbi,
+  getERCMaticAbi,
+  getMaticAbi,
+  getRMaticTokenAddress,
+} from "config/matic";
+import { getPolkadotStakingSignature } from "utils/polkadotUtils";
+import { getBep20TokenContractConfig } from "config/bep20Contract";
+import { getErc20TokenContractConfig } from "config/erc20Contract";
+import { getEtherScanTxUrl } from "config/explorer";
 
 declare const ethereum: any;
 
@@ -37,11 +57,13 @@ export interface FisAccount {
 
 export interface FisState {
   chooseAccountVisible: boolean;
+  chooseAccountWalletType: WalletType;
   routeNextPage: string | undefined;
 }
 
 const initialState: FisState = {
   chooseAccountVisible: false,
+  chooseAccountWalletType: WalletType.Polkadot,
   routeNextPage: undefined,
 };
 
@@ -52,6 +74,12 @@ const FisSlice = createSlice({
     setChooseAccountVisible(state: FisState, action: PayloadAction<boolean>) {
       state.chooseAccountVisible = action.payload;
     },
+    setChooseAccountWalletType(
+      state: FisState,
+      action: PayloadAction<WalletType>
+    ) {
+      state.chooseAccountWalletType = action.payload;
+    },
     setRouteNextPage(
       state: FisState,
       action: PayloadAction<string | undefined>
@@ -61,7 +89,11 @@ const FisSlice = createSlice({
   },
 });
 
-export const { setChooseAccountVisible, setRouteNextPage } = FisSlice.actions;
+export const {
+  setChooseAccountVisible,
+  setChooseAccountWalletType,
+  setRouteNextPage,
+} = FisSlice.actions;
 
 export default FisSlice.reducer;
 
@@ -78,6 +110,33 @@ export const bond =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
+    const handleStakeError = (errorMsg: string) => {
+      dispatch(
+        updateStakeLoadingParams(
+          {
+            status: "error",
+            errorMsg,
+            errorStep: "staking",
+            progressDetail: {
+              staking: {
+                totalStatus: "error",
+                broadcastStatus: "error",
+              },
+              minting: {},
+            },
+          },
+          (newParams) => {
+            dispatch(
+              updateNotice(newParams?.noticeUuid, {
+                status: "Error",
+                stakeLoadingParams: newParams,
+              })
+            );
+          }
+        )
+      );
+    };
+
     dispatch(
       updateStakeLoadingParams(
         {
@@ -116,8 +175,13 @@ export const bond =
     );
 
     const fisAddress = getState().wallet.polkadotAccount;
+    if (!fisAddress) {
+      handleStakeError(STAFI_ACCOUNT_EMPTY_MESSAGE);
+      return;
+    }
+
     const keyringInstance = keyring.init(Symbol.Fis);
-    let signature = "";
+    let signature = undefined;
     const stafiApi = await stafiServer.createStafiApi();
     let pubkey = "";
     let poolPubKey = poolAddress;
@@ -143,33 +207,18 @@ export const bond =
           console.error(err);
         });
       console.log("signature succeeded, proceeding staking");
+    } else {
+      signature = await getPolkadotStakingSignature(
+        address,
+        u8aToHex(keyringInstance.decodeAddress(fisAddress))
+      );
+      pubkey = u8aToHex(keyringInstance.decodeAddress(address));
+
+      // message.info('Signature succeeded, proceeding staking');
     }
 
     if (!signature) {
-      dispatch(
-        updateStakeLoadingParams(
-          {
-            status: "error",
-            errorMsg: SIGN_ERROR_MESSAGE,
-            errorStep: "staking",
-            progressDetail: {
-              staking: {
-                totalStatus: "error",
-                broadcastStatus: "error",
-              },
-              minting: {},
-            },
-          },
-          (newParams) => {
-            dispatch(
-              updateNotice(newParams?.noticeUuid, {
-                status: "Error",
-                stakeLoadingParams: newParams,
-              })
-            );
-          }
-        )
-      );
+      handleStakeError(SIGN_ERROR_MESSAGE);
       return;
     }
 
@@ -224,6 +273,18 @@ export const bond =
     // console.log(bondResult);
 
     try {
+      dispatch(
+        updateStakeLoadingParams({
+          progressDetail: {
+            staking: {
+              totalStatus: "loading",
+              broadcastStatus: "loading",
+            },
+            minting: {},
+            swapping: {},
+          },
+        })
+      );
       let index = 0;
       // console.log(fisAddress, injector.signer);
       bondResult
@@ -356,34 +417,12 @@ export const bond =
         })
         .catch((err: any) => {
           console.log(err.message);
+          dispatch(setIsLoading(false));
           if (err.message === "Cancelled") {
-            dispatch(
-              updateStakeLoadingParams(
-                {
-                  status: "error",
-                  errorMsg: "Cancelled",
-                  errorStep: "staking",
-                  progressDetail: {
-                    staking: {
-                      totalStatus: "error",
-                      broadcastStatus: "error",
-                    },
-                    minting: {},
-                  },
-                },
-                (newParams) => {
-                  dispatch(
-                    updateNotice(newParams?.noticeUuid, {
-                      status: "Error",
-                      stakeLoadingParams: newParams,
-                    })
-                  );
-                }
-              )
-            );
-            dispatch(setIsLoading(false));
+            handleStakeError("Cancelled");
+          } else {
+            handleStakeError(err.message);
           }
-          console.log(err);
         });
     } catch (err: any) {
       console.error(err);
@@ -404,12 +443,6 @@ export const getMinting =
         {
           status: "loading",
           progressDetail: {
-            staking: {
-              totalStatus: "success",
-              broadcastStatus: "success",
-              packStatus: "success",
-              finalizeStatus: "success",
-            },
             minting: {
               totalStatus: "loading",
             },
@@ -434,8 +467,6 @@ export const getMinting =
         bondSuccessParamArr,
         async (result: string) => {
           if (result === "successful") {
-            const tokenStandard =
-              getState().app.stakeLoadingParams?.tokenStandard;
             const targetAddress =
               getState().app.stakeLoadingParams?.targetAddress;
             const amount = getState().app.stakeLoadingParams?.amount;
@@ -444,18 +475,20 @@ export const getMinting =
                 progressDetail: {
                   minting: {
                     totalStatus: "success",
-                    broadcastStatus: "success",
-                    packStatus: "success",
-                    finalizeStatus: "success",
+                  },
+                  swapping: {
+                    totalStatus: "loading",
                   },
                 },
+                // customMsg: undefined,
               })
             );
-            if (tokenStandard === TokenStandard.Native) {
+            if (chainId === ChainId.STAFI) {
               dispatch(
                 updateStakeLoadingParams(
                   {
                     status: "success",
+                    customMsg: undefined,
                   },
                   (newParams) => {
                     dispatch(
@@ -467,19 +500,31 @@ export const getMinting =
                   }
                 )
               );
-              dispatch(setIsLoading(false));
+              cb && cb(true);
             } else {
               let tokenAbi: any = "";
               let tokenAddress: any = "";
+              let oldBalance: string = "0";
               if (rsymbol === rSymbol.Matic) {
-                tokenAbi = getMaticAbi();
-                tokenAddress = getRMaticTokenAddress();
+                if (chainId === ChainId.BSC) {
+                  tokenAbi = getBSCRMaticAbi();
+                  tokenAddress = getBep20TokenContractConfig().rMATIC;
+                  oldBalance = await getBep20AssetBalance(
+                    targetAddress,
+                    tokenAbi,
+                    tokenAddress
+                  );
+                } else if (chainId === ChainId.ETH) {
+                  tokenAbi = getERCMaticAbi();
+                  tokenAddress = getErc20TokenContractConfig().rMATIC;
+                  oldBalance = await getErc20AssetBalance(
+                    targetAddress,
+                    tokenAbi,
+                    tokenAddress,
+                    TokenName.MATIC
+                  );
+                }
               }
-              const oldBalance = await getErc20AssetBalance(
-                targetAddress,
-                tokenAbi,
-                tokenAddress
-              );
               dispatch(
                 updateStakeLoadingParams(
                   {
@@ -489,6 +534,7 @@ export const getMinting =
                         totalStatus: "loading",
                       },
                     },
+                    customMsg: "Minting succeeded, now swapping...",
                   },
                   (newParams) => {
                     dispatch(
@@ -500,59 +546,65 @@ export const getMinting =
                   }
                 )
               );
-              queryRTokenSwapState(
-                chainId,
-                targetAddress as string,
-                rsymbol,
-                oldBalance,
-                amount as string,
-                (result: string) => {
-                  if (result === "successful") {
-                    dispatch(
-                      updateStakeLoadingParams(
-                        {
-                          status: "success",
-                          progressDetail: {
-                            swapping: {
-                              totalStatus: "success",
+              dispatch(
+                queryRTokenSwapState(
+                  chainId,
+                  targetAddress as string,
+                  rsymbol,
+                  oldBalance,
+                  amount as string,
+                  (result: string) => {
+                    if (result === "successful") {
+                      dispatch(
+                        updateStakeLoadingParams(
+                          {
+                            status: "success",
+                            progressDetail: {
+                              swapping: {
+                                totalStatus: "success",
+                              },
                             },
+                            customMsg: undefined,
                           },
-                        },
-                        (newParams) => {
-                          dispatch(
-                            updateNotice(newParams?.noticeUuid, {
-                              status: "Confirmed",
-                              stakeLoadingParams: newParams,
-                            })
-                          );
-                        }
-                      )
-                    );
-                  } else if (result === "failure") {
-                    dispatch(
-                      updateStakeLoadingParams(
-                        {
-                          status: "error",
-                          errorMsg: "Swap failed",
-                          errorStep: "swapping",
-                          progressDetail: {
-                            swapping: {
-                              totalStatus: "error",
+                          (newParams) => {
+                            dispatch(
+                              updateNotice(newParams?.noticeUuid, {
+                                status: "Confirmed",
+                                stakeLoadingParams: newParams,
+                              })
+                            );
+                          }
+                        )
+                      );
+                      cb && cb(true);
+                    } else if (result === "failure") {
+                      dispatch(
+                        updateStakeLoadingParams(
+                          {
+                            status: "error",
+                            errorMsg: "Swap failed",
+                            errorStep: "swapping",
+                            progressDetail: {
+                              swapping: {
+                                totalStatus: "error",
+                              },
                             },
+                            customMsg: undefined,
                           },
-                        },
-                        (newParams) => {
-                          dispatch(
-                            updateNotice(newParams?.noticeUuid, {
-                              status: "Error",
-                              stakeLoadingParams: newParams,
-                            })
-                          );
-                        }
-                      )
-                    );
+                          (newParams) => {
+                            dispatch(
+                              updateNotice(newParams?.noticeUuid, {
+                                status: "Error",
+                                stakeLoadingParams: newParams,
+                              })
+                            );
+                          }
+                        )
+                      );
+                      cb && cb(false);
+                    }
                   }
-                }
+                )
               );
             }
             // todo: swapping
@@ -568,6 +620,7 @@ export const getMinting =
                       totalStatus: "error",
                     },
                   },
+                  customMsg: undefined,
                 },
                 (newParams) => {
                   dispatch(
@@ -579,7 +632,7 @@ export const getMinting =
                 }
               )
             );
-            dispatch(setIsLoading(false));
+            cb && cb(false);
           }
         }
       )
@@ -589,25 +642,29 @@ export const getMinting =
 export const queryRTokenBondState =
   (rsymbol: rSymbol, bondSuccessParamArr: any, cb?: Function): AppThunk =>
   async (dispatch, getState) => {
-    const stafiApi = await stafiServer.createStafiApi();
-    const result = await stafiApi.query.rTokenSeries.bondStates(
-      rsymbol,
-      bondSuccessParamArr
-    );
+    try {
+      const stafiApi = await stafiServer.createStafiApi();
+      const result = await stafiApi.query.rTokenSeries.bondStates(
+        rsymbol,
+        bondSuccessParamArr
+      );
 
-    let bondState = result.toJSON();
-    if (bondState === null || bondState === "Fail") {
-      // console.log("mint failure");
-      cb && cb("failure");
-    } else if (bondState === "Success") {
-      // console.log("mint success");
-      cb && cb("successful");
-    } else {
-      // console.log("mint pending");
-      cb && cb("pending");
-      setTimeout(() => {
-        dispatch(queryRTokenBondState(rsymbol, bondSuccessParamArr, cb));
-      }, 15000);
+      let bondState = result.toJSON();
+      if (bondState === "Fail") {
+        // console.log("mint failure");
+        cb && cb("failure");
+      } else if (bondState === "Success") {
+        // console.log("mint success");
+        cb && cb("successful");
+      } else {
+        // console.log("mint pending");
+        cb && cb("pending");
+        setTimeout(() => {
+          dispatch(queryRTokenBondState(rsymbol, bondSuccessParamArr, cb));
+        }, 15000);
+      }
+    } catch (err: any) {
+      console.error(err);
     }
   };
 
@@ -623,36 +680,46 @@ export const queryRTokenSwapState =
   async (dispatch, getState) => {
     let tokenAbi: any = "";
     let tokenAddress: any = "";
+    let balance: string = "";
     if (rsymbol === rSymbol.Matic) {
-      tokenAbi = getMaticAbi();
-      tokenAddress = getRMaticTokenAddress();
+      if (chainId === ChainId.BSC) {
+        tokenAbi = getBSCRMaticAbi();
+        tokenAddress = getBep20TokenContractConfig().rMATIC;
+        balance = await getBep20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress
+        );
+      } else if (chainId === ChainId.ETH) {
+        tokenAbi = getERCMaticAbi();
+        tokenAddress = getErc20TokenContractConfig().rMATIC;
+        balance = await getErc20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress,
+          TokenName.MATIC
+        );
+      }
     }
 
-    if (chainId === ChainId.ETH || chainId === ChainId.BSC) {
-      const balance = await getErc20AssetBalance(
-        targetAddress,
-        tokenAbi,
-        tokenAddress
-      );
-      if (
-        Number(balance) - Number(oldBalance) <= Number(amount) * 1.1 &&
-        Number(balance) - Number(oldBalance) >= Number(amount) * 0.9
-      ) {
-        cb && cb("successful");
-      } else {
-        setTimeout(() => {
-          dispatch(
-            queryRTokenSwapState(
-              chainId,
-              targetAddress,
-              rsymbol,
-              oldBalance,
-              amount,
-              cb
-            )
-          );
-        }, 3000);
-      }
+    if (
+      Number(balance) - Number(oldBalance) <= Number(amount) * 1.1 &&
+      Number(balance) - Number(oldBalance) >= Number(amount) * 0.9
+    ) {
+      cb && cb("successful");
+    } else {
+      setTimeout(() => {
+        dispatch(
+          queryRTokenSwapState(
+            chainId,
+            targetAddress,
+            rsymbol,
+            oldBalance,
+            amount,
+            cb
+          )
+        );
+      }, 3000);
     }
   };
 
@@ -670,95 +737,86 @@ export const fisUnbond =
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
-    const address = getState().wallet.polkadotAccount as string;
-    const api = await stafiServer.createStafiApi();
+    try {
+      const address = getState().wallet.polkadotAccount as string;
+      const api = await stafiServer.createStafiApi();
 
-    dispatch(
-      updateStakeLoadingParams({
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-            broadcastStatus: "loading",
-          },
-        },
-      })
-    );
+      dispatch(
+        setRedeemLoadingParams({
+          broadcastStatus: "loading",
+        })
+      );
 
-    const { web3Enable, web3FromSource } = await import(
-      "@polkadot/extension-dapp"
-    );
-    web3Enable(stafiServer.getWeb3EnableName());
-    const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
+      const { web3Enable, web3FromSource } = await import(
+        "@polkadot/extension-dapp"
+      );
+      web3Enable(stafiServer.getWeb3EnableName());
+      const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
 
-    const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
-      symbol,
-      selectedPool,
-      numberUtil.tokenAmountToChain(amount, symbol).toString(),
-      recipient
-    );
+      const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
+        symbol,
+        selectedPool,
+        numberUtil.tokenAmountToChain(amount, symbol).toString(),
+        recipient
+      );
 
-    unbondResult
-      // @ts-ignore
-      .signAndSend(address, { signer: injector.signer }, (result: any) => {
-        try {
-          if (result.status.isInBlock) {
-            result.events
-              .filter((e: any) => e.event.section === "system")
-              .forEach((data: any) => {
-                if (data.event.method === "ExtrinsicSuccess") {
-                  const txHash = unbondResult.hash.toHex();
-                  cb && cb("Success", txHash);
-                  // console.log("success");
-                  dispatch(
-                    updateStakeLoadingParams({
-                      status: "success",
-                      progressDetail: {
-                        sending: {
-                          totalStatus: "success",
-                          broadcastStatus: "success",
-                          packStatus: "success",
-                          finalizeStatus: "success",
-                        },
-                      },
-                    })
-                  );
-                } else if (data.event.method === "ExtrinsicFailed") {
-                  cb && cb("Failed");
-                  // console.error("failed");
-                  dispatch(
-                    updateStakeLoadingParams({
-                      status: "error",
-                      errorMsg: "Unstake failed",
-                      progressDetail: {
-                        sending: {
-                          totalStatus: "error",
-                        },
-                      },
-                    })
-                  );
-                }
-              });
+      unbondResult
+        // @ts-ignore
+        .signAndSend(address, { signer: injector.signer }, (result: any) => {
+          dispatch(setIsLoading(false));
+          try {
+            if (result.status.isInBlock) {
+              result.events
+                .filter((e: any) => e.event.section === "system")
+                .forEach((data: any) => {
+                  if (data.event.method === "ExtrinsicSuccess") {
+                    const txHash = unbondResult.hash.toHex();
+                    cb && cb("Success", txHash);
+                    dispatch(
+                      setRedeemLoadingParams({
+                        status: "success",
+                        broadcastStatus: "success",
+                        packStatus: "success",
+                        finalizeStatus: "success",
+                        txHash: txHash,
+                        scanUrl: getEtherScanTxUrl(txHash),
+                      })
+                    );
+                  } else if (data.event.method === "ExtrinsicFailed") {
+                    cb && cb("Failed");
+                    dispatch(
+                      setRedeemLoadingParams({
+                        status: "error",
+                        errorMsg: "Unstake failed",
+                      })
+                    );
+                  }
+                });
+            }
+          } catch (err: any) {
+            cb && cb("Failed");
           }
-        } catch (err: any) {
-          cb && cb("Failed");
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
-        if ((err + "").startsWith("Error: Cancelled")) {
-          cb && cb("Cancel");
-          snackbarUtil.error(CANCELLED_MESSAGE);
-          dispatch(resetStakeLoadingParams(undefined));
-        } else {
-          snackbarUtil.error(err.message);
-          dispatch(
-            updateStakeLoadingParams({
-              status: "error",
-              errorMsg: "Unbond failed",
-            })
-          );
-        }
-      });
+        })
+        .catch((err: any) => {
+          console.log(err);
+          dispatch(setIsLoading(false));
+          if ((err + "").startsWith("Error: Cancelled")) {
+            cb && cb("Cancel");
+            snackbarUtil.error(CANCELLED_MESSAGE);
+            dispatch(setRedeemLoadingParams(undefined));
+          } else {
+            snackbarUtil.error(err.message);
+            dispatch(
+              setRedeemLoadingParams({
+                status: "error",
+                errorMsg: "Unbond failed",
+              })
+            );
+          }
+        });
+    } catch (err: any) {
+      console.error(err);
+    }
   };
 
 export const getUnbondTransactionFees =
@@ -770,10 +828,10 @@ export const getUnbondTransactionFees =
     cb?: (fee: string) => void
   ): AppThunk =>
   async (dispatch, getState) => {
-    const address = getState().wallet.polkadotAccount as string;
-    const api = await stafiServer.createStafiApi();
-
     try {
+      const address = getState().wallet.polkadotAccount as string;
+      const api = await stafiServer.createStafiApi();
+
       const txInfo = await api.tx.rTokenSeries
         .liquidityUnbond(
           rsymbol,
@@ -798,10 +856,10 @@ export const getBondTransactionFees =
     cb?: (fee: string) => void
   ): AppThunk =>
   async (dispatch, getState) => {
-    const address = getState().wallet.polkadotAccount as string;
-    if (!address) return;
-    const api = await stafiServer.createStafiApi();
     try {
+      const address = getState().wallet.polkadotAccount as string;
+      if (!address) return;
+      const api = await stafiServer.createStafiApi();
       let txInfo;
       if (chainId === 1) {
         txInfo = await api.tx.rTokenSeries

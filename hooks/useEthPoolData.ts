@@ -21,7 +21,7 @@ export function useEthPoolData() {
   const [poolEth, setPoolEth] = useState("");
   const [unmatchedEth, setUnmatchedEth] = useState("");
   const [matchedValidators, setMatchedValidators] = useState("");
-  const [stakeApr, setStakeApr] = useState("");
+  const [stakeApr, setStakeApr] = useState(undefined);
   const [validatorApr, setValidatorApr] = useState("");
 
   const udpatePoolData = useCallback(async () => {

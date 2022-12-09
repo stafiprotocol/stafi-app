@@ -26,6 +26,8 @@ import {
   getMetamaskValidatorChainId,
 } from "config/metaMask";
 import { RTokenStakeLoadingSidebar } from "components/modal/RTokenStakeLoadingSidebar";
+import { RTokenRedeemLoadingModal } from "components/modal/RTokenRedeemLoadingModal";
+import { RTokenRedeemLoadingSidebar } from "components/modal/RTokenRedeemLoadingSidebar";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
@@ -80,7 +82,7 @@ export const Layout = (props: LayoutProps) => {
     // if (walletType === WalletType.MetaMask) {
     //   return isWrongMetaMaskNetwork;
     // }
-    return false;
+    // return false;
   }, [isWrongMetaMaskNetwork]);
 
   const walletNotConnected = useMemo(() => {
@@ -104,15 +106,21 @@ export const Layout = (props: LayoutProps) => {
   // }
 
   useEffect(() => {
-    if (router.pathname.startsWith("/validator")) {
+    if (router.pathname === "/rtoken") {
+      setTargetMetaMaskChainId(undefined);
+      setWalletType(WalletType.Polkadot);
+    } else if (router.pathname.startsWith("/validator")) {
       setTargetMetaMaskChainId(getMetamaskValidatorChainId());
       setWalletType(WalletType.MetaMask);
     } else if (router.pathname === "/rtoken/stake/ETH") {
       setTargetMetaMaskChainId(getMetamaskEthChainId());
       setWalletType(WalletType.MetaMask);
     } else if (router.pathname === "/rtoken/stake/MATIC") {
-			setTargetMetaMaskChainId(getMetamaskMaticChainId());
+      setTargetMetaMaskChainId(getMetamaskMaticChainId());
       setWalletType(WalletType.MetaMask);
+    } else if (router.pathname === "/rtoken/stake/KSM") {
+      setTargetMetaMaskChainId(undefined);
+      setWalletType(WalletType.Polkadot_KSM);
     } else {
       setTargetMetaMaskChainId(getMetamaskMaticChainId());
       setWalletType(WalletType.Polkadot);
@@ -259,7 +267,7 @@ export const Layout = (props: LayoutProps) => {
         </Head>
 
         <HideOnScroll>
-          <AppBar position="fixed" color="transparent">
+          <AppBar position="fixed" color="transparent" elevation={0}>
             <Navbar />
           </AppBar>
         </HideOnScroll>
@@ -306,6 +314,10 @@ export const Layout = (props: LayoutProps) => {
         <RTokenStakeLoadingModal />
 
         <RTokenStakeLoadingSidebar />
+
+				<RTokenRedeemLoadingSidebar />
+
+        <RTokenRedeemLoadingModal />
 
         <ConnectWalletModal />
 

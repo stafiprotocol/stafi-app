@@ -19,9 +19,8 @@ export const TradeDexCardItem = (props: TradeDexCardItemProps) => {
 
   return (
     <Card
-      background="rgba(26, 40, 53, 0.2)"
       borderColor="#1A2835"
-      className="w-[3.35rem] relative flex flex-col items-center cursor-pointer"
+      className="w-[3.35rem] relative flex flex-col items-center cursor-pointer bg-[#1a283533] hover:bg-[#141E2A]"
     >
       {props.type === "rDEX" && (
         <div className="w-[1.59rem] h-[.91rem] absolute right-[-1.5px] top-[-1px]">
