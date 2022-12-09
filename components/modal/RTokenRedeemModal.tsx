@@ -545,7 +545,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   {isEmptyValue(transactionCost) ? (
                     <BubblesLoading />
                   ) : (
-                    <>{formatNumber(transactionCost, { decimals: 2 })}</>
+                    <>{formatNumber(transactionCost, { decimals: 4 })}</>
                   )}{" "}
                   FIS
                   <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
@@ -584,7 +584,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                         {isEmptyValue(unbondFees) ? (
                           <BubblesLoading />
                         ) : (
-                          <>{numberUtil.fisAmountToHuman(unbondFees)}</>
+                          <>
+                            {formatNumber(
+                              numberUtil.fisAmountToHuman(unbondFees),
+                              { decimals: 4 }
+                            )}
+                          </>
                         )}{" "}
                         FIS
                       </div>
@@ -595,7 +600,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                         {isEmptyValue(unbondTxFees) ? (
                           <BubblesLoading />
                         ) : (
-                          <>{formatNumber(unbondTxFees, { decimals: 2 })}</>
+                          <>{formatNumber(unbondTxFees, { decimals: 4 })}</>
                         )}{" "}
                         FIS
                       </div>
@@ -606,7 +611,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                       {isEmptyValue(transactionCost) ? (
                         <BubblesLoading />
                       ) : (
-                        <>{formatNumber(transactionCost, { decimals: 2 })}</>
+                        <>{formatNumber(transactionCost, { decimals: 4 })}</>
                       )}{" "}
                       FIS
                     </div>
@@ -616,7 +621,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                         <BubblesLoading />
                       ) : (
                         <>
-                          {formatNumber(transactionCostValue, { decimals: 2 })}
+                          {formatNumber(transactionCostValue, { decimals: 4 })}
                         </>
                       )}
                     </div>

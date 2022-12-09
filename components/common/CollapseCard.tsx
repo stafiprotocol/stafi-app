@@ -47,16 +47,16 @@ export const CollapseCard = (props: CollapseCardProps) => {
 
       {
         <Collapse in={!collapsed}>
-          {/* <div
-            className={classNames(
-              collapsed ? "h-0 max-h-0 overflow-hidden" : ""
-            )}
-          > */}
           <div>
+            {/* <div
+              className={classNames(
+                collapsed ? "h-0 max-h-0 overflow-hidden" : ""
+              )}
+            > */}
             {props.children}
             <div className="h-[.56rem]" />
+            {/* </div> */}
           </div>
-          {/* </div> */}
         </Collapse>
       }
     </div>
