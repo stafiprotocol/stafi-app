@@ -35,12 +35,14 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
             <MyTooltip
               text="Era"
               title="UTC time record for the onchain transaction"
+							className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text={`Staked ${tokenName}`}
               title={`Your overall staked ${tokenName} amount, including compound ${tokenName}`}
+							className="text-text2"
             />
           </div>
           <div className="flex justify-center">
@@ -49,18 +51,21 @@ export const StakeOverallList = (props: StakeOverallListProps) => {
               title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime(
                 tokenName
               )} hours`}
+							className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text={`r${tokenName} Balance`}
               title={`Your current r${tokenName} amount`}
+							className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Est. Reward"
               title={`Estimated staking reward that generated in this time period`}
+							className="text-text2"
             />
           </div>
         </div>

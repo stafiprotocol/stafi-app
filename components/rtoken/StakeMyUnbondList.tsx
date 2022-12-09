@@ -28,30 +28,35 @@ export const StakeMyUnbondList = (props: Props) => {
             <MyTooltip
               text="Amount"
               title="Amount of the rToken that you choose to unstake"
+							className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Total Period"
               title={`Total time required to complete unstaking transaction; After receiving the request of redemption, r${props.tokenName} contracts will automatically unstake and withdraw ${props.tokenName}s from the ${props.tokenName} staking contract deployed on Ethereum, then send the ${props.tokenName} tokens back to user after around 9 days`}
+							className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Days Left"
               title="Remaining time required to complete unstaking transaction"
+							className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               title={`The address that receives redeemed ${props.tokenName} tokens, ${props.tokenName} tokens will be sent to the receiving address after receiving the request of redemption around 9 days`}
               text="Receiving Address"
+							className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Status"
               title="Current unstake transaction status"
+							className="text-text2"
             />
           </div>
         </div>
