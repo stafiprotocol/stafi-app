@@ -180,7 +180,7 @@ export const ChooseFisAccountModal = (props: Props) => {
                         )}
                       </div>
                     </div>
-                    <div className="text-text2 text-[.16rem] break-all mt-[.2rem]">
+                    <div className="text-text2 text-[.16rem] break-all mt-[.2rem] leading-normal">
                       {account.address}
                     </div>
                   </div>
