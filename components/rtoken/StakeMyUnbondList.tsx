@@ -100,7 +100,7 @@ export const StakeMyUnbondList = (props: Props) => {
                   : Number(item.formatTokenAmount) > 0 &&
                     Number(item.formatTokenAmount) < 0.001
                   ? "<0.001"
-                  : formatNumber(item.formatTokenAmount, { decimals: 3 })}{" "}
+                  : formatNumber(item.formatTokenAmount)}{" "}
                 {props.tokenName}
               </span>
             </Tooltip>
