@@ -139,7 +139,7 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
               formatLeftTime = "Est. 1-8 Hours";
             } else if (item.receivedStatus === 3) {
               // unstaked
-              formatLeftTime = "0 D";
+              formatLeftTime = "--";
             } else {
               // waiting
               const days = numberUtil.handleAmountCeilToFixed(
