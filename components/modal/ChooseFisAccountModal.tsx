@@ -75,6 +75,14 @@ export const ChooseFisAccountModal = (props: Props) => {
     }
   };
 
+  const renderAccountName = (name: string | undefined) => {
+    if (!name) return "";
+    if (name.length > 14) {
+      return name.slice(0, 14) + "...";
+    }
+    return name;
+  };
+
   return (
     <Modal
       open={chooseAccountVisible}
@@ -156,11 +164,11 @@ export const ChooseFisAccountModal = (props: Props) => {
                             layout="fill"
                           />
                         </div>
-                        <div className="text-[.28rem]">
-                          {account.meta?.name}
+                        <div className="text-[.24rem]">
+                          {renderAccountName(account.meta?.name)}
                         </div>
                       </div>
-                      <div className="text-[.22rem]">
+                      <div className="text-[.16rem] pt-[.08rem]">
                         {chooseAccountWalletType === WalletType.Polkadot_KSM
                           ? account.ksmBalance
                           : chooseAccountWalletType === WalletType.Polkadot_DOT

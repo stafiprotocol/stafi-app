@@ -142,12 +142,12 @@ export const NavbarWallet = () => {
   ]);
 
   const displayMetaMaskChainName = useMemo(() => {
-    if (
-      targetMetaMaskChainId === getMetamaskMaticChainId() &&
-      router.pathname === "/rtoken/stake/MATIC"
-    ) {
-      return "Polygon";
-    }
+    // if (
+    //   targetMetaMaskChainId === getMetamaskMaticChainId() &&
+    //   router.pathname === "/rtoken/stake/MATIC"
+    // ) {
+    //   return "Polygon";
+    // }
     return "Ethereum";
   }, [targetMetaMaskChainId, router.pathname]);
 
