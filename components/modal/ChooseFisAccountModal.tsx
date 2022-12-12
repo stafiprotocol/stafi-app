@@ -92,8 +92,9 @@ export const ChooseFisAccountModal = (props: Props) => {
       <Box
         pt="0"
         sx={{
-          border: "1px solid #1A2835",
-          backgroundColor: "#0A131B",
+          border: "1px solid rgba(38, 73, 78, 0.5)",
+          backgroundColor: "rgba(26, 40, 53, 0.9)",
+					backdropFilter: "blur(.14rem)",
           width: "6.04rem",
           borderRadius: "0.16rem",
           outline: "none",
