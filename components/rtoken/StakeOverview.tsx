@@ -412,6 +412,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         tokenName={props.tokenName}
         balance={rTokenBalance}
         defaultReceivingAddress={metaMaskAccount}
+				onClickConnectWallet={props.onClickConnectWallet}
       />
     </div>
   );

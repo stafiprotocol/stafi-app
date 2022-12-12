@@ -59,10 +59,12 @@ interface RTokenRedeemModalProps {
   editAddressDisabled?: boolean;
   onClose: () => void;
   balance: string | undefined;
+  onClickConnectWallet: () => void;
 }
 
 export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
-  const { walletType, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
+  const { walletType, isWrongMetaMaskNetwork, walletNotConnected } =
+    useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const {
     visible,
@@ -181,17 +183,24 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   }, [visible]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
+    if (walletNotConnected) {
+      return [false, "Connect Wallet"];
+    }
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
-      return [true, "Unstake"];
+      return [true, "Input Unstake Amount"];
     }
     if (isNaN(Number(balance))) {
       return [true, "Insufficient Balance"];
     }
-    if (!redeemAmount || Number(redeemAmount) === 0 || isNaN(Number(balance))) {
-      return [true, "Unstake"];
+    if (
+      !redeemAmount ||
+      isNaN(Number(redeemAmount)) ||
+      Number(redeemAmount) === 0
+    ) {
+      return [true, "Input Unstake Amount"];
     }
     if (Number(redeemAmount) > Number(balance)) {
-      return [true, "Insufficient Balance"];
+      return [true, `Not Enough r${tokenName} to Unstake`];
     }
     if (!addressCorrect) {
       return [true, "Invalid Receiving Address"];
@@ -203,6 +212,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     balance,
     redeemAmount,
     addressCorrect,
+    walletNotConnected,
   ]);
 
   const estimateFee = useMemo(() => {
@@ -230,6 +240,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   };
 
   const clickRedeem = () => {
+    if (walletNotConnected) {
+      props.onClickConnectWallet();
+      return;
+    }
     if (tokenName === TokenName.MATIC) {
       dispatch(
         unbondRMatic(

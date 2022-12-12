@@ -101,6 +101,9 @@ const RMaticStakePage = () => {
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         balance={balance || "--"}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskMaticChainId()))
+        }
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>

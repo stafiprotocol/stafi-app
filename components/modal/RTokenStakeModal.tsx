@@ -67,10 +67,12 @@ interface RTokenStakeModalProps {
   editAddressDisabled?: boolean;
   onClose: () => void;
   balance: string;
+  onClickConnectWallet: () => void;
 }
 
 export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
-  const { walletType, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
+  const { walletType, isWrongMetaMaskNetwork, walletNotConnected } =
+    useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const {
     visible,
@@ -247,16 +249,19 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   }, [transactionCost, ethPrice]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
+    if (walletNotConnected) {
+      return [false, "Connect Wallet"];
+    }
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
-      return [true, "Stake"];
+      return [true, "Input Stake Amount"];
     }
     if (
       !stakeAmount ||
-      Number(stakeAmount) === 0 ||
       isNaN(Number(stakeAmount)) ||
+      Number(stakeAmount) === 0 ||
       isNaN(Number(balance))
     ) {
-      return [true, "Stake"];
+      return [true, "Input Stake Amount"];
     }
     if (Number(stakeAmount) < 0.01) {
       return [true, `Minimal Stake Amount is 0.01 ${tokenName}`];
@@ -268,14 +273,14 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
         Number(balance)
       ) {
-        return [true, "Insufficient Balance"];
+        return [true, "Not Enough ETH to Stake"];
       }
     } else if (tokenName === TokenName.MATIC) {
       if (Number(stakeAmount) > Number(balance)) {
-        return [true, "Insufficient Balance"];
+        return [true, "Not Enough MATIC to Stake"];
       }
       if (Number(ethBalance) <= Number(transactionCost)) {
-        return [true, "Insufficient ETH Balance"];
+        return [true, "Not Enough Gas Fee"];
       }
     }
 
@@ -294,6 +299,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     ethBalance,
     polkadotBalance,
     transactionCost,
+    walletNotConnected,
   ]);
 
   const newTotalStakedAmount = useMemo(() => {
@@ -315,6 +321,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   };
 
   const clickStake = () => {
+    // Connect Wallet
+    if (walletNotConnected) {
+      props.onClickConnectWallet();
+      return;
+    }
     /*
     dispatch(mockProcess(stakeAmount, willReceiveAmount, tokenStandard, targetAddress, newTotalStakedAmount));
     return;

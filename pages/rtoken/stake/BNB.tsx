@@ -98,6 +98,9 @@ const RBnbStakePage = () => {
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         balance={balance || "--"}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskBscChainId()))
+        }
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
