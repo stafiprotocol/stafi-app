@@ -90,7 +90,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const rTokenRatio = useRTokenRatio(tokenName);
   const ethGasPrice = useEthGasPrice();
 
-  const { polkadotAccount } = useWalletAccount();
+  const { polkadotAccount, metaMaskAccount } = useWalletAccount();
 
   const commisionFee = useMemo(() => {
     if (
@@ -104,8 +104,16 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   }, [redeemAmount, unbondCommision]);
 
   const userAddress = useMemo(() => {
-    return polkadotAccount;
-  }, [polkadotAccount]);
+    if (tokenStandard === TokenStandard.Native) {
+      return polkadotAccount;
+    } else if (
+      tokenStandard === TokenStandard.BEP20 ||
+      tokenStandard === TokenStandard.ERC20
+    ) {
+      return metaMaskAccount;
+    }
+    return metaMaskAccount;
+  }, [polkadotAccount, tokenStandard, metaMaskAccount]);
 
   const willReceiveAmount = useMemo(() => {
     if (
