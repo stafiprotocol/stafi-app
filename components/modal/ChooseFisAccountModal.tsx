@@ -22,6 +22,7 @@ import commonStyles from "styles/Common.module.scss";
 import { useRouter } from "next/router";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { WalletType } from "interfaces/common";
+import { formatNumber } from "utils/number";
 
 interface Props {}
 
@@ -111,7 +112,7 @@ export const ChooseFisAccountModal = (props: Props) => {
           </div>
 
           <div className="text-center mt-[0.56rem] text-white font-[500] text-[.32rem]">
-            Change Polkadot Address
+            Change StaFi Address
           </div>
 
           <div
@@ -169,11 +170,14 @@ export const ChooseFisAccountModal = (props: Props) => {
                         </div>
                       </div>
                       <div className="text-[.16rem] pt-[.08rem]">
-                        {chooseAccountWalletType === WalletType.Polkadot_KSM
-                          ? account.ksmBalance
-                          : chooseAccountWalletType === WalletType.Polkadot_DOT
-                          ? account.dotBalance
-                          : account.fisBalance}
+                        {formatNumber(
+                          chooseAccountWalletType === WalletType.Polkadot_KSM
+                            ? account.ksmBalance
+                            : chooseAccountWalletType ===
+                              WalletType.Polkadot_DOT
+                            ? account.dotBalance
+                            : account.fisBalance
+                        )}
                       </div>
                     </div>
                     <div className="text-text2 text-[.16rem] break-all mt-[.2rem]">
