@@ -260,7 +260,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   ) : isEmptyValue(stakedValue) ? (
                     <BubblesLoading color="white" />
                   ) : (
-                    <>$ {formatNumber(stakedValue, { decimals: 2 })}</>
+                    <>$ {formatNumber(stakedValue)}</>
                   )}
                 </div>
 
@@ -290,7 +290,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   ) : isEmptyValue(totalRewardValue) ? (
                     <BubblesLoading color="white" />
                   ) : (
-                    <>$ {formatNumber(totalRewardValue, { decimals: 2 })}</>
+                    <>$ {formatNumber(totalRewardValue)}</>
                   )}
                 </div>
 
@@ -332,7 +332,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   ) : !rTokenRatio ? (
                     <BubblesLoading color="white" />
                   ) : (
-                    <>{formatNumber(rTokenRatio, { decimals: 4 })}</>
+                    <>{formatNumber(rTokenRatio)}</>
                   )}
                 </div>
 
