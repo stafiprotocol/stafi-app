@@ -299,7 +299,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   const getRedeemDaysTipLink = () => {
     if (tokenName === TokenName.MATIC) {
-      return "https://docs.stafi.io/rtoken-app/rmatic-solution/rmatic-faq#4.whats-the-unbonding-period-of-rmatic";
+      return "https://docs.stafi.io/rtoken-app/rmatic-solution/rmatic-faq#4.what-should-be-noted-in-rmatic-redemption";
     }
     return "";
   };
