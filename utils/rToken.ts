@@ -190,9 +190,12 @@ export function getWalletIcon(walletType: WalletType | undefined) {
   return undefined;
 }
 
-export function getRedeemDaysLeft(tokenName: TokenName) {
+export function getRedeemDaysLeft(tokenName: TokenName | undefined) {
   if (tokenName === TokenName.MATIC) {
     return "9";
+  }
+  if (tokenName === TokenName.DOT || tokenName === TokenName.KSM) {
+    return "29";
   }
   return "9";
 }

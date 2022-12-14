@@ -860,7 +860,7 @@ export const stakeMatic =
               minting: {},
               swapping: {},
             },
-            customMsg: "Approving MATIC to StaFi Portal",
+            customMsg: "Please Approve MATIC to StaFi Portal in your MetaMask wallet",
           })
         );
         allowance = web3.utils.toWei("10000000");
@@ -952,6 +952,7 @@ export const stakeMatic =
               broadcastStatus: "loading",
             },
           },
+					customMsg: `Please confirm the ${stakeAmount} MATIC staking transaction in your MetaMask wallet`,
         })
       );
 
@@ -967,6 +968,10 @@ export const stakeMatic =
       if (!stakeResult || !stakeResult.status) {
         throw new Error(TRANSACTION_FAILED_MESSAGE);
       }
+
+			dispatch(updateStakeLoadingParams({
+				customMsg: "Staking processing, please wait for a moment",
+			}));
 
       const txHash = stakeResult.transactionHash;
       let txDetail;

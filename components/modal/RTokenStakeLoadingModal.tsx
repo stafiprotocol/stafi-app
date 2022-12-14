@@ -174,11 +174,11 @@ export const RTokenStakeLoadingModal = () => {
             {stakeLoadingParams?.customMsg
               ? stakeLoadingParams.customMsg
               : stakeLoadingParams?.status === "success"
-              ? `Stake operation was successful`
+              ? `Staking operation was successful`
               : stakeLoadingParams?.status === "error"
               ? stakeLoadingParams?.errorMsg ||
                 "Something went wrong, please try again"
-              : `Stake ${stakeLoadingParams?.amount} ${
+              : `Staking ${stakeLoadingParams?.amount} ${
                   stakeLoadingParams?.tokenName
                 }, you will receive ${formatNumber(
                   stakeLoadingParams?.willReceiveAmount

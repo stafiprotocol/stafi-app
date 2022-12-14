@@ -16,15 +16,14 @@ import {
   updateStakeLoadingParams,
 } from "redux/reducers/AppSlice";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
-import {
-  unbondRMatic,
-} from "redux/reducers/MaticSlice";
+import { unbondRMatic } from "redux/reducers/MaticSlice";
 import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
 import { bond } from "redux/reducers/FisSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { RedeemLoadingProgressItem } from "components/rtoken/RedeemLoadingProgressItem";
+import { getRedeemDaysLeft } from "utils/rToken";
 
 export const RTokenRedeemLoadingModal = () => {
   const dispatch = useAppDispatch();
@@ -130,8 +129,12 @@ export const RTokenRedeemLoadingModal = () => {
               "mt-[.24rem] text-[.2rem] text-text2 text-center leading-[.3rem]"
             )}
           >
-            {redeemLoadingParams?.status === "success"
-              ? `Unstake operation was successful`
+            {redeemLoadingParams?.customMsg
+              ? redeemLoadingParams.customMsg
+              : redeemLoadingParams?.status === "success"
+              ? `Unstaking operation was successful. It takes Est. ${getRedeemDaysLeft(
+                  redeemLoadingParams?.tokenName
+                )} days to complete the unstake operation`
               : redeemLoadingParams?.status === "error"
               ? redeemLoadingParams?.errorMsg ||
                 "Something went wrong, please try again"
@@ -228,8 +231,8 @@ export const RTokenRedeemLoadingModal = () => {
             >
               {/* Sending progress */}
               <RedeemLoadingProgressItem
-							name="Sending"
-							stepIndex={1}
+                name="Sending"
+                stepIndex={1}
                 tokenName={redeemLoadingParams?.tokenName}
                 data={redeemLoadingParams}
                 txHash={redeemLoadingParams?.txHash}
@@ -238,16 +241,28 @@ export const RTokenRedeemLoadingModal = () => {
 
               {/* Unstaking progress */}
               <RedeemLoadingProgressItem
-							stepIndex={2}
-							name="Unstaking"
+                stepIndex={2}
+                name="Unstaking"
                 tokenName={redeemLoadingParams?.tokenName}
                 data={{
-									...redeemLoadingParams,
-									status: redeemLoadingParams?.status === 'success' ? 'success' : undefined,
-									broadcastStatus: redeemLoadingParams?.status === 'success' ? 'success' : undefined,
-									packStatus: redeemLoadingParams?.status === 'success' ? 'success' : undefined,
-									finalizeStatus: redeemLoadingParams?.status === 'success' ? 'success' : undefined,
-								}}
+                  ...redeemLoadingParams,
+                  status:
+                    redeemLoadingParams?.status === "success"
+                      ? "success"
+                      : undefined,
+                  broadcastStatus:
+                    redeemLoadingParams?.status === "success"
+                      ? "success"
+                      : undefined,
+                  packStatus:
+                    redeemLoadingParams?.status === "success"
+                      ? "success"
+                      : undefined,
+                  finalizeStatus:
+                    redeemLoadingParams?.status === "success"
+                      ? "success"
+                      : undefined,
+                }}
               />
             </div>
           )}

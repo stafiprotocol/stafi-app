@@ -111,6 +111,7 @@ export interface RedeemLoadingParams {
   broadcastStatus?: "loading" | "success" | "error";
   packStatus?: "loading" | "success" | "error";
   finalizeStatus?: "loading" | "success" | "error";
+	customMsg?: String;
 }
 
 export interface AppState {

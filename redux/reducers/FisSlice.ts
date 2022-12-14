@@ -740,10 +740,12 @@ export const fisUnbond =
     try {
       const address = getState().wallet.polkadotAccount as string;
       const api = await stafiServer.createStafiApi();
+			const tokenName = getState().app.redeemLoadingParams?.tokenName;
 
       dispatch(
         setRedeemLoadingParams({
           broadcastStatus: "loading",
+					customMsg: `Please confirm the ${amount} r${tokenName} unstaking transaction in your MetaMask wallet`,
         })
       );
 
@@ -764,6 +766,10 @@ export const fisUnbond =
         // @ts-ignore
         .signAndSend(address, { signer: injector.signer }, (result: any) => {
           dispatch(setIsLoading(false));
+					dispatch(setRedeemLoadingParams({
+						customMsg: "Unstaking processing, please wait for a moment.",
+					}));
+
           try {
             if (result.status.isInBlock) {
               result.events
@@ -780,6 +786,7 @@ export const fisUnbond =
                         finalizeStatus: "success",
                         txHash: txHash,
                         scanUrl: getStafiScanTxUrl(txHash),
+												customMsg: undefined,
                       })
                     );
                   } else if (data.event.method === "ExtrinsicFailed") {
@@ -788,6 +795,7 @@ export const fisUnbond =
                       setRedeemLoadingParams({
                         status: "error",
                         errorMsg: "Unstake failed",
+												customMsg: undefined,
                       })
                     );
                   }
@@ -810,6 +818,7 @@ export const fisUnbond =
               setRedeemLoadingParams({
                 status: "error",
                 errorMsg: "Unbond failed",
+								customMsg: undefined,
               })
             );
           }
