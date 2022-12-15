@@ -1,12 +1,15 @@
 .rtoken-button {
   margin-left: 0.55rem;
-  background: rgba(25, 38, 52, 0.35);
-  border: 1px solid #1a2835;
-  backdrop-filter: blur(0.81rem);
-  border-radius: 0.16rem;
   font-size: 0.32rem;
   padding: 0.15rem 0.32rem;
   cursor: pointer;
+
+  &_active {
+    background: rgba(25, 38, 52, 0.35);
+    border: 1px solid #1a2835;
+    border-radius: 0.16rem;
+    backdrop-filter: blur(0.81rem);
+  }
 }
 
 .account {

@@ -9,6 +9,7 @@ import {
 } from "material-ui-popup-state/hooks";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import notificationIcon from "public/icon_notification.svg";
 import stafiLogo from "public/stafi_logo.svg";
 import { useSelector } from "react-redux";
@@ -22,6 +23,8 @@ export const Navbar = () => {
     };
   });
 
+  const router = useRouter();
+
   const noticePopupState = usePopupState({
     variant: "popover",
     popupId: "notice",
@@ -34,8 +37,29 @@ export const Navbar = () => {
           <Image src={stafiLogo} alt="logo" layout="fill" />
         </div>
         <Link href="/rtoken">
-          <div className={classNames(styles["rtoken-button"], "text-white")}>
+          <div
+            className={classNames(
+              styles["rtoken-button"],
+              router.pathname.startsWith("/rtoken")
+                ? styles["rtoken-button_active"]
+                : "",
+              "text-white"
+            )}
+          >
             rToken
+          </div>
+        </Link>
+        <Link href="/rpool">
+          <div
+            className={classNames(
+              styles["rtoken-button"],
+              router.pathname.startsWith("/rpool")
+                ? styles["rtoken-button_active"]
+                : "",
+              "text-white"
+            )}
+          >
+            rPool
           </div>
         </Link>
       </div>
