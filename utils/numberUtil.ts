@@ -109,7 +109,10 @@ const numberUtil = {
     if (isNaN(Number(amount))) return '--';
     const factor = Math.pow(10, powNumber);
     return (Math.floor(Number(amount) * factor) / factor).toFixed(powNumber);
-  }
+  },
+	divide(x: number, y: number) {
+		return divide(x, y);
+	}
 }
 
 export default numberUtil;
