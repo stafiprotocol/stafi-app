@@ -2,12 +2,11 @@ import { MyLayoutContext } from "components/layout/layout";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo } from "react";
 import classNames from "classnames";
-import Image from "next/image";
-import { openLink } from "utils/common";
-import rightArrowIcon from "public/icon_arrow_right_yellow.svg";
-import rectangle from "public/rectangle_v_yellow.svg";
-import rTokenImage from "public/rpool_mint.svg";
-import rPoolGift from "public/rpool_gift.svg";
+import RPoolBanner from "components/rpool/Banner";
+import RPoolChart from "components/rpool/Chart";
+import PoolTokenList from "components/rpool/PoolTokenList";
+import MintFaq from "components/rpool/MintFaq";
+import LpFaq from "components/rpool/LpFaq";
 
 export enum ProgramTab {
   Mint = "mint",
@@ -31,6 +30,14 @@ const RPoolPage = () => {
       },
     });
   };
+	
+	const currentPage = useMemo(() => {
+    const currentTab = router.query.program;
+		if (currentTab === ProgramTab.LP) {
+			return ProgramTab.LP;
+		}
+		return ProgramTab.Mint;
+	}, [router.query]);
 
   useEffect(() => {
     const programTabQuery = router.query.program;
@@ -60,53 +67,24 @@ const RPoolPage = () => {
         <ProgramTabItem
           programTab={ProgramTab.Mint}
           onClick={() => switchProgramTab(ProgramTab.Mint)}
-          routerQuery={router.query.program}
+          routerQuery={currentPage}
         />
         <ProgramTabItem
           programTab={ProgramTab.LP}
           onClick={() => switchProgramTab(ProgramTab.LP)}
-          routerQuery={router.query.program}
+          routerQuery={currentPage}
         />
       </div>
 
-      <div
-        className="rounded-t-[.16rem] h-[3rem] flex items-center justify-between relative"
-        style={{
-          background: "rgba(23, 38, 54, 0.15)",
-          backdropFilter: "blur(.7rem)",
-        }}
-      >
-        <div className="self-center relative w-[1.2rem] h-[2.8rem] mt-[-.24rem]">
-          <Image src={rectangle} layout="fill" alt="rectangle" />
-        </div>
-        <div className="flex-1 mt-[-.6rem] ml-[-.1rem]">
-          <div className="mt-[.4rem] self-center relative w-[4.8rem] h-[2rem]">
-            <Image src={rTokenImage} layout="fill" alt="rectangle" />
-          </div>
-          <div className="text-text1 text-[.32rem] ml-[.7rem] mt-[-0.4rem] self-stretch">
-            Take part in rPool programs, earn tokens easily.
-          </div>
-        </div>
-        <div className="absolute top-[.44rem] left-[6.2rem]">
-          <div className="self-center relative w-[1.6rem] h-[1.6rem]">
-            <Image src={rPoolGift} layout="fill" alt="gift" />
-          </div>
-        </div>
+			<RPoolBanner programTab={currentPage} />
 
-        <div
-          className="flex items-center self-end mr-[.56rem] mb-[.65rem] cursor-pointer"
-          onClick={() => {
-            openLink("https://www.stafi.io/rtoken/");
-          }}
-        >
-          <div className="text-[#FFA540] text-[.24rem] mr-[.18rem]">
-            Learn More
-          </div>
-          <div className="w-[.27rem] h-[.18rem] relative">
-            <Image src={rightArrowIcon} layout="fill" alt="back" />
-          </div>
-        </div>
-      </div>
+			<RPoolChart programTab={currentPage} />
+
+			<PoolTokenList programTab={currentPage} />
+
+      <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
+
+			{currentPage === ProgramTab.Mint ? <MintFaq /> : <LpFaq />}
     </div>
   );
 };
@@ -123,15 +101,29 @@ const ProgramTabItem = (props: ProgramTabItemProps) => {
   }, [props.programTab, props.routerQuery]);
 
   return (
-    <div
-      className="cursor-pointer mx-[.16rem] h-[.28rem] leading-[.28rem]"
-      style={{
-        color: isActive ? "#FFFFFF" : "#9DAFBE",
-        fontWeight: isActive ? 700 : 400,
-      }}
-      onClick={props.onClick}
-    >
-      {props.programTab === ProgramTab.Mint ? "Mint" : "LP"} Program
+    <div className="flex flex-col items-center">
+      <div
+        className="cursor-pointer mx-[.16rem] h-[.28rem] leading-[.28rem]"
+        style={{
+          color: isActive ? "#FFFFFF" : "#9DAFBE",
+          fontWeight: isActive ? 700 : 400,
+        }}
+        onClick={props.onClick}
+      >
+        {props.programTab === ProgramTab.Mint ? "Mint" : "LP"} Program
+      </div>
+
+      <div
+        className={classNames(
+          "w-[.4rem] h-[.12rem] rounded-[.32rem] mt-[.12rem]"
+        )}
+        style={{
+          background: isActive
+            ? "linear-gradient(140.73deg, #0093ED 4.72%, #00F3AB 96.52%)"
+            : "",
+          backdropFilter: "blur(.7rem)",
+        }}
+      />
     </div>
   );
 };
