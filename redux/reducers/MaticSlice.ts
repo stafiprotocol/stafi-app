@@ -1013,7 +1013,7 @@ export const stakeMatic =
                 txHash: txHash,
               },
             },
-            customMsg: "Staking succeeded, now minting...",
+            customMsg: "Minting processing, please wait for a moment",
             scanUrl: getEtherScanTxUrl(txHash),
             txHash: txHash,
           },

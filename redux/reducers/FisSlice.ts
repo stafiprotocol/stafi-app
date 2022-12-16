@@ -117,6 +117,7 @@ export const bond =
   ): AppThunk =>
   async (dispatch, getState) => {
     const handleStakeError = (errorMsg: string) => {
+      dispatch(setIsLoading(false));
       dispatch(
         updateStakeLoadingParams(
           {
@@ -344,6 +345,7 @@ export const bond =
                   // console.log(data.event.method);
                   if (data.event.method === "ExtrinsicFailed") {
                     const [dispatchError] = data.event.data;
+                    let displayMsg = "";
                     if (dispatchError.isModule) {
                       try {
                         const mod = dispatchError.asModule;
@@ -354,22 +356,25 @@ export const bond =
                           ])
                         );
 
-                        let msgStr =
-                          "Something is wrong, please try again later";
-                        if (error.name === "") {
-                          msgStr = "";
-                        }
+                        displayMsg =
+                          error.docs && error.docs.length > 0
+                            ? error.docs[0]
+                            : error.name
+                            ? error.name
+                            : "";
+
                         // msgStr && console.log(msgStr);
                       } catch (err) {
                         console.error(err);
                       }
                       // console.log("fail");
                     }
+                    // console.log("data", data);
                     dispatch(
                       updateStakeLoadingParams(
                         {
                           status: "error",
-                          displayMsg: "Stake transaction failed",
+                          displayMsg: displayMsg || "Stake transaction failed",
                           errorStep: "staking",
                           progressDetail: {
                             staking: {
@@ -420,6 +425,7 @@ export const bond =
                 });
             } else if (result.isError) {
               // console.log(result.toHuman());
+              handleStakeError(result.toHuman());
             }
             if (result.status.isFinalized) {
               // dispatch(
@@ -442,11 +448,11 @@ export const bond =
             }
           } catch (err) {
             console.error(err);
+            handleStakeError((err as any).message);
           }
         })
         .catch((err: any) => {
           console.log(err.message);
-          dispatch(setIsLoading(false));
           if (err.message === "Cancelled") {
             handleStakeError(REJECTED_MESSAGE);
           } else {
@@ -455,6 +461,7 @@ export const bond =
         });
     } catch (err: any) {
       console.error(err);
+      handleStakeError(err.message);
     }
   };
 
@@ -471,6 +478,7 @@ export const getMinting =
       updateStakeLoadingParams(
         {
           status: "loading",
+          displayMsg: "Minting processing, please wait for a moment",
           progressDetail: {
             minting: {
               totalStatus: "loading",
@@ -579,7 +587,7 @@ export const getMinting =
                         totalStatus: "loading",
                       },
                     },
-                    customMsg: "Minting succeeded, now swapping...",
+                    customMsg: "Swapping processing, please wait for a moment",
                   },
                   (newParams) => {
                     dispatch(
