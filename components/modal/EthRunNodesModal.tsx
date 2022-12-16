@@ -113,7 +113,11 @@ export const EthRunNodesModal = (props: EthRunNodesModalProps) => {
                   <Button
                     height="0.64rem"
                     fontSize="0.24rem"
-                    onClick={() => openLink("https://ssv.network/")}
+                    onClick={() =>
+                      openLink(
+                        "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide"
+                      )
+                    }
                   >
                     Instruction
                   </Button>

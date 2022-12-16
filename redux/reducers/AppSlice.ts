@@ -23,7 +23,7 @@ export interface StakeLoadingParams {
   noticeUuid?: string;
   steps?: string[];
   status?: "loading" | "success" | "error";
-  errorMsg?: string;
+  displayMsg?: string;
   errorStep?: "sending" | "staking" | "minting" | "swapping";
   tokenName?: TokenName;
   tokenStandard?: TokenStandard;
@@ -111,7 +111,7 @@ export interface RedeemLoadingParams {
   broadcastStatus?: "loading" | "success" | "error";
   packStatus?: "loading" | "success" | "error";
   finalizeStatus?: "loading" | "success" | "error";
-	customMsg?: String;
+  customMsg?: String;
 }
 
 export interface AppState {

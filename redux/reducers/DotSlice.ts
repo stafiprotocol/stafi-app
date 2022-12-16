@@ -31,6 +31,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -191,7 +192,7 @@ export const handleDotStake =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {
@@ -231,6 +232,9 @@ export const handleDotStake =
         resetStakeLoadingParams({
           modalVisible: true,
           noticeUuid,
+          displayMsg: `Please approve the ${Number(
+            stakeAmount
+          )} DOT fund sending request in your Polkadot.js wallet`,
           status: "loading",
           tokenName: TokenName.DOT,
           amount: stakeAmount,
@@ -284,6 +288,13 @@ export const handleDotStake =
       dispatch(
         sendPolkadotTx(dotApi, dotAccount, dotBalance, {
           extrinsic,
+          txStartCb: () => {
+            dispatch(
+              updateStakeLoadingParams({
+                displayMsg: "Staking processing, please wait for a moment",
+              })
+            );
+          },
           txCancelCb: () => {
             handleError(new Error(CANCELLED_MESSAGE));
           },
@@ -453,19 +464,16 @@ export const unstakeRDot =
     // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
-      resetStakeLoadingParams({
+      setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
         tokenName: TokenName.DOT,
         amount: amount,
         willReceiveAmount,
         newTotalStakedAmount,
-        steps: ["sending"],
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-        },
+        customMsg: `Please confirm the ${
+          Number(amount) + ""
+        } rDOT unstaking transaction in your Polkadot.js wallet`,
       })
     );
     try {
@@ -514,19 +522,19 @@ export const unstakeRDot =
     }
   };
 
-export const getUnbondCommision =
+export const getDotUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
     dispatch(setUnbondCommision(unbondCommision?.toString() || "--"));
     // dispatch(updateMaticBalance());
   };
 
-export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
+export const getDotUnbondFees = (): AppThunk => async (dispatch, getState) => {
   const unbondFees = await commonSlice.getUnbondFees(rSymbol.Dot);
   dispatch(setUnbondFees(Number(unbondFees).toString()));
 };
 
-export const getBondFees = (): AppThunk => async (dispatch, getState) => {
+export const getDotBondFees = (): AppThunk => async (dispatch, getState) => {
   const bondFees = await commonSlice.getBondFees(rSymbol.Dot);
   dispatch(setBondFees(Number(bondFees).toString()));
 };

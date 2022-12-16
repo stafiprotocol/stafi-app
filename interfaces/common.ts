@@ -100,3 +100,8 @@ export enum DexType {
   Sifchain = "Sifchain",
   Quickswap = "Quickswap",
 }
+
+export interface Fee {
+  amount: string;
+  tokenName: string;
+}

@@ -17,7 +17,7 @@ import { getWeb3ProviderUrlConfig } from "config/metaMask";
 import { TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
-import StafiServer from "servers/stafi";
+import StafiServer, { stafiServer } from "servers/stafi";
 import numberUtil from "utils/numberUtil";
 import { getNativeRTokenBalance } from "utils/polkadotUtils";
 import { getTokenSymbol } from "utils/rToken";
@@ -302,7 +302,7 @@ export const updateRTokenStakerApr =
           newApr = resJson.data.stakeApr;
         }
       } else if (tokenName === TokenName.MATIC) {
-        const api = await new StafiServer().createStafiApi();
+        const api = await stafiServer.createStafiApi();
         try {
           const eraResult = await api.query.rTokenLedger.chainEras(
             rSymbol.Matic
@@ -319,16 +319,15 @@ export const updateRTokenStakerApr =
               currentEra - 8
             );
             let lastRate = rateResult2.toJSON() as number;
-            newApr = numberUtil.amount_format(
-              ((currentRate - lastRate) / 1000000000000 / 7) * 365.25 * 100,
-              1
-            );
+            newApr =
+              ((currentRate - lastRate) / 1000000000000 / 7) * 365.25 * 100 +
+              "";
           }
         } catch (err) {
           console.error(err);
         }
       } else if (tokenName === TokenName.BNB) {
-        const api = await new StafiServer().createStafiApi();
+        const api = await stafiServer.createStafiApi();
         try {
           const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Bnb);
           let currentEra = eraResult.toJSON() as number;
@@ -344,12 +343,64 @@ export const updateRTokenStakerApr =
             );
             let lastRate = rateResult2.toJSON() as number;
             if (currentRate && lastRate && currentRate > lastRate) {
-              newApr = numberUtil.amount_format(
-                ((currentRate - lastRate) / 1000000000000) * 365.25 * 100,
-                1
-              );
+              newApr =
+                ((currentRate - lastRate) / 1000000000000) * 365.25 * 100 + "";
             } else {
               newApr = "9.7";
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      } else if (tokenName === TokenName.KSM) {
+        const api = await stafiServer.createStafiApi();
+        try {
+          const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Ksm);
+          let currentEra = eraResult.toJSON() as number;
+          if (currentEra) {
+            let rateResult = await api.query.rTokenRate.eraRate(
+              rSymbol.Ksm,
+              currentEra - 1
+            );
+            const currentRate = rateResult.toJSON() as number;
+            const rateResult2 = await api.query.rTokenRate.eraRate(
+              rSymbol.Ksm,
+              currentEra - 29
+            );
+            let lastRate = rateResult2.toJSON() as number;
+            if (currentRate && lastRate && currentRate > lastRate) {
+              newApr =
+                ((currentRate - lastRate) / 1000000000000 / 7) * 365.25 * 100 +
+                "";
+            } else {
+              newApr = "16.0";
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      } else if (tokenName === TokenName.DOT) {
+        const api = await new StafiServer().createStafiApi();
+        try {
+          const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Dot);
+          let currentEra = eraResult.toJSON() as number;
+          if (currentEra) {
+            let rateResult = await api.query.rTokenRate.eraRate(
+              rSymbol.Dot,
+              currentEra - 1
+            );
+            const currentRate = rateResult.toJSON() as number;
+            const rateResult2 = await api.query.rTokenRate.eraRate(
+              rSymbol.Dot,
+              currentEra - 8
+            );
+            let lastRate = rateResult2.toJSON() as number;
+            if (currentRate && lastRate && currentRate > lastRate) {
+              newApr =
+                ((currentRate - lastRate) / 1000000000000 / 7) * 365.25 * 100 +
+                "";
+            } else {
+              newApr = "14.9";
             }
           }
         } catch (err) {

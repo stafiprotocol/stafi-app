@@ -1,56 +1,46 @@
-import { Dialog, DialogContent, Divider, Popover } from "@mui/material";
+import { Dialog, DialogContent } from "@mui/material";
+import { BubblesLoading } from "components/common/BubblesLoading";
+import { Button } from "components/common/button";
 import { Card } from "components/common/card";
 import { CustomInput } from "components/common/CustomInput";
+import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
-import { TokenStandardSelector } from "components/rtoken/TokenStandardSelector";
-import { TokenName, TokenStandard, WalletType } from "interfaces/common";
-import Image from "next/image";
-import rectangle from "public/rectangle_h.svg";
-import ethIcon from "public/eth_type_green.svg";
-import maticIcon from "public/matic_type_green.svg";
-import userAvatar from "public/userAvatar.svg";
-import maticBlackIcon from "public/matic_type_black.svg";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { CustomNumberInput } from "components/common/CustomNumberInput";
-import { Button } from "components/common/button";
-import { useAppDispatch, useAppSelector } from "hooks/common";
-import { handleEthTokenStake } from "redux/reducers/EthSlice";
-import { formatLargeAmount, formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
-import { getShortAddress } from "utils/string";
-import { checkMetaMaskAddress, isEmptyValue, openLink } from "utils/common";
+import { useAppDispatch } from "hooks/common";
 import { useAppSlice } from "hooks/selector";
-import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
-import { useTokenStandard } from "hooks/useTokenStandard";
-import { useRTokenRatio } from "hooks/useRTokenRatio";
-import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
-import Web3 from "web3";
-import { getMaticUnbondTxFees, unbondRMatic } from "redux/reducers/MaticSlice";
-import { useWalletAccount } from "hooks/useWalletAccount";
-import { RootState } from "redux/store";
-import numberUtil from "utils/numberUtil";
-import { useTransactionCost } from "hooks/useTransactionCost";
-import downIcon from "public/icon_down.png";
-import { bindPopover } from "material-ui-popup-state";
-import {
-  bindHover,
-  bindTrigger,
-  usePopupState,
-} from "material-ui-popup-state/hooks";
-import HoverPopover from "material-ui-popup-state/HoverPopover";
-import { useTokenPrice } from "hooks/useTokenPrice";
-import { rSymbol, Symbol } from "keyring/defaults";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
-import { validateETHAddress } from "utils/validator";
-import { unstakeRKsm } from "redux/reducers/KsmSlice";
-import { unstakeRDot } from "redux/reducers/DotSlice";
-import { BubblesLoading } from "components/common/BubblesLoading";
-import { RTokenRedeemLoadingSidebar } from "./RTokenRedeemLoadingSidebar";
-import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
+import { useRTokenRatio } from "hooks/useRTokenRatio";
+import { useTokenPrice } from "hooks/useTokenPrice";
+import { useTokenStandard } from "hooks/useTokenStandard";
+import { useTransactionCost } from "hooks/useTransactionCost";
+import { useWalletAccount } from "hooks/useWalletAccount";
+import { TokenName, TokenStandard } from "interfaces/common";
+import { bindPopover } from "material-ui-popup-state";
+import { bindHover, usePopupState } from "material-ui-popup-state/hooks";
+import HoverPopover from "material-ui-popup-state/HoverPopover";
+import Image from "next/image";
 import bulb from "public/bulb.svg";
+import ethIcon from "public/eth_type_green.svg";
+import downIcon from "public/icon_down.png";
+import maticBlackIcon from "public/matic_type_black.svg";
+import rectangle from "public/rectangle_h.svg";
+import userAvatar from "public/userAvatar.svg";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
+import { getDotUnbondTxFees, unstakeRDot } from "redux/reducers/DotSlice";
+import { getKsmUnbondTxFees, unstakeRKsm } from "redux/reducers/KsmSlice";
+import { getMaticUnbondTxFees, unbondRMatic } from "redux/reducers/MaticSlice";
+import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
+import { isEmptyValue, openLink } from "utils/common";
+import { formatLargeAmount, formatNumber } from "utils/number";
+import numberUtil from "utils/numberUtil";
 import { getRedeemDaysLeft } from "utils/rToken";
+import { getShortAddress } from "utils/string";
+import { validateETHAddress, validateSS58Address } from "utils/validator";
+import Web3 from "web3";
+import { RTokenRedeemLoadingSidebar } from "./RTokenRedeemLoadingSidebar";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -169,8 +159,11 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const { isLoading } = useAppSlice();
 
   const addressCorrect = useMemo(() => {
+    if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
+      return validateSS58Address(targetAddress);
+    }
     return validateETHAddress(targetAddress);
-  }, [targetAddress]);
+  }, [targetAddress, tokenName]);
 
   useEffect(() => {
     if (visible) {
@@ -213,6 +206,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     redeemAmount,
     addressCorrect,
     walletNotConnected,
+    tokenName,
   ]);
 
   const estimateFee = useMemo(() => {
@@ -229,6 +223,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
         Web3.utils.toBN(gasLimit).mul(Web3.utils.toBN(ethGasPrice)).toString(),
         "gwei"
       );
+    }
+
+    if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
+      return "0.005";
     }
 
     return "--";
@@ -288,9 +286,15 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   useEffect(() => {
     if (addressCorrect) {
-      dispatch(getMaticUnbondTxFees(redeemAmount || "1", targetAddress));
+      if (tokenName === TokenName.MATIC) {
+        dispatch(getMaticUnbondTxFees(redeemAmount || "1", targetAddress));
+      } else if (tokenName === TokenName.KSM) {
+        dispatch(getKsmUnbondTxFees(redeemAmount || "1", targetAddress));
+      } else if (tokenName === TokenName.DOT) {
+        dispatch(getDotUnbondTxFees(redeemAmount || "1", targetAddress));
+      }
     }
-  }, [dispatch, targetAddress, addressCorrect, redeemAmount]);
+  }, [dispatch, targetAddress, addressCorrect, redeemAmount, tokenName]);
 
   const txCostPopupState = usePopupState({
     variant: "popover",

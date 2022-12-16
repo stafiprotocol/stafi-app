@@ -22,6 +22,7 @@ import {
 import snackbarUtil from "utils/snackbarUtils";
 import {
   CANCELLED_MESSAGE,
+  REJECTED_MESSAGE,
   SIGN_ERROR_MESSAGE,
   STAFI_ACCOUNT_EMPTY_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
@@ -30,6 +31,7 @@ import {
   ChainId,
   TokenName,
   TokenStandard,
+  TokenSymbol,
   WalletType,
 } from "interfaces/common";
 import {
@@ -42,6 +44,10 @@ import { getPolkadotStakingSignature } from "utils/polkadotUtils";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
 import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import { getTokenNameFromrSymbol, getTokenSymbol } from "utils/rToken";
+import { getBep20RDotTokenAbi, getBep20RKsmTokenAbi } from "config/bep20Abi";
+import { getErc20RDotTokenAbi, getErc20RKsmTokenAbi } from "config/erc20Abi";
+import { chainAmountToHuman, formatNumber } from "utils/number";
 
 declare const ethereum: any;
 
@@ -115,7 +121,7 @@ export const bond =
         updateStakeLoadingParams(
           {
             status: "error",
-            errorMsg,
+            displayMsg: errorMsg,
             errorStep: "staking",
             progressDetail: {
               staking: {
@@ -186,36 +192,42 @@ export const bond =
     let pubkey = "";
     let poolPubKey = poolAddress;
     // todo: other rTokens, here only rMatic
-    if (rsymbol === rSymbol.Matic) {
-      await sleep(3000);
+    // if (rsymbol === rSymbol.Matic) {
+    //   await sleep(3000);
 
-      const metaMaskAccount = getState().wallet.metaMaskAccount;
-      const fisPubkey = u8aToHex(
-        keyringInstance.decodeAddress(fisAddress as string),
-        -1,
-        false
-      );
-      const msg = stringToHex(fisPubkey);
-      pubkey = address;
-      signature = await ethereum
-        .request({
-          method: "personal_sign",
-          params: [metaMaskAccount, msg],
-        })
-        .catch((err: any) => {
-          dispatch(setIsLoading(false));
-          console.error(err);
-        });
-      console.log("signature succeeded, proceeding staking");
-    } else {
-      signature = await getPolkadotStakingSignature(
-        address,
-        u8aToHex(keyringInstance.decodeAddress(fisAddress))
-      );
-      pubkey = u8aToHex(keyringInstance.decodeAddress(address));
+    //   const metaMaskAccount = getState().wallet.metaMaskAccount;
+    //   const fisPubkey = u8aToHex(
+    //     keyringInstance.decodeAddress(fisAddress as string),
+    //     -1,
+    //     false
+    //   );
+    //   const msg = stringToHex(fisPubkey);
+    //   pubkey = address;
+    //   signature = await ethereum
+    //     .request({
+    //       method: "personal_sign",
+    //       params: [metaMaskAccount, msg],
+    //     })
+    //     .catch((err: any) => {
+    //       dispatch(setIsLoading(false));
+    //       console.error(err);
+    //     });
+    //   console.log("signature succeeded, proceeding staking");
+    // } else {
+    dispatch(
+      updateStakeLoadingParams({
+        displayMsg:
+          "Please sign the staking transaction in your Polkadot.js wallet",
+      })
+    );
+    signature = await getPolkadotStakingSignature(
+      address,
+      u8aToHex(keyringInstance.decodeAddress(fisAddress))
+    );
+    pubkey = u8aToHex(keyringInstance.decodeAddress(address));
 
-      // message.info('Signature succeeded, proceeding staking');
-    }
+    // message.info('Signature succeeded, proceeding staking');
+    // }
 
     if (!signature) {
       handleStakeError(SIGN_ERROR_MESSAGE);
@@ -223,6 +235,17 @@ export const bond =
     }
 
     await sleep(5000);
+
+    dispatch(
+      updateStakeLoadingParams({
+        displayMsg: `Please confirm the ${formatNumber(
+          chainAmountToHuman(amount, TokenSymbol.FIS),
+          { fixedDecimals: false }
+        )} ${getTokenNameFromrSymbol(
+          rsymbol
+        )} staking transaction in your Polkadot.js wallet`,
+      })
+    );
 
     const { web3Enable, web3FromSource } = await import(
       "@polkadot/extension-dapp"
@@ -232,7 +255,7 @@ export const bond =
 
     let bondResult: any;
     if (chainId === ChainId.STAFI) {
-      bondResult = await stafiApi.tx.rTokenSeries.liquidityBond(
+      bondResult = stafiApi.tx.rTokenSeries.liquidityBond(
         pubkey,
         signature,
         poolPubKey,
@@ -258,7 +281,7 @@ export const bond =
       } else {
         swapAddress = targetAddress;
       }
-      bondResult = await stafiApi.tx.rTokenSeries.liquidityBondAndSwap(
+      bondResult = stafiApi.tx.rTokenSeries.liquidityBondAndSwap(
         pubkey,
         signature,
         poolPubKey,
@@ -294,6 +317,11 @@ export const bond =
           }
           // const tx = bondResult.hash.toHex();
           try {
+            dispatch(
+              updateStakeLoadingParams({
+                displayMsg: "Staking processing, please wait for a moment",
+              })
+            );
             if (result.status.isInBlock) {
               dispatch(
                 updateStakeLoadingParams({
@@ -341,7 +369,7 @@ export const bond =
                       updateStakeLoadingParams(
                         {
                           status: "error",
-                          errorMsg: "Bond transaction failed",
+                          displayMsg: "Stake transaction failed",
                           errorStep: "staking",
                           progressDetail: {
                             staking: {
@@ -368,9 +396,10 @@ export const bond =
                         {
                           progressDetail: {
                             staking: {
-                              totalStatus: "loading",
+                              totalStatus: "success",
+                              broadcastStatus: "success",
                               packStatus: "success",
-                              finalizeStatus: "loading",
+                              finalizeStatus: "success",
                             },
                             minting: {},
                           },
@@ -409,7 +438,7 @@ export const bond =
               // 		}
               // 	})
               // );
-              console.log("finalized");
+              // console.log("finalized");
             }
           } catch (err) {
             console.error(err);
@@ -419,7 +448,7 @@ export const bond =
           console.log(err.message);
           dispatch(setIsLoading(false));
           if (err.message === "Cancelled") {
-            handleStakeError("Cancelled");
+            handleStakeError(REJECTED_MESSAGE);
           } else {
             handleStakeError(err.message);
           }
@@ -484,6 +513,7 @@ export const getMinting =
               })
             );
             if (chainId === ChainId.STAFI) {
+              dispatch(setIsLoading(false));
               dispatch(
                 updateStakeLoadingParams(
                   {
@@ -505,26 +535,41 @@ export const getMinting =
               let tokenAbi: any = "";
               let tokenAddress: any = "";
               let oldBalance: string = "0";
-              if (rsymbol === rSymbol.Matic) {
-                if (chainId === ChainId.BSC) {
+              if (chainId === ChainId.BSC) {
+                if (rsymbol === rSymbol.Matic) {
                   tokenAbi = getBSCRMaticAbi();
                   tokenAddress = getBep20TokenContractConfig().rMATIC;
-                  oldBalance = await getBep20AssetBalance(
-                    targetAddress,
-                    tokenAbi,
-                    tokenAddress
-                  );
-                } else if (chainId === ChainId.ETH) {
+                } else if (rsymbol === rSymbol.Ksm) {
+                  tokenAbi = getBep20RKsmTokenAbi();
+                  tokenAddress = getBep20TokenContractConfig().rKSM;
+                } else if (rsymbol === rSymbol.Dot) {
+                  tokenAbi = getBep20RDotTokenAbi();
+                  tokenAddress = getBep20TokenContractConfig().rDOT;
+                }
+                oldBalance = await getBep20AssetBalance(
+                  targetAddress,
+                  tokenAbi,
+                  tokenAddress
+                );
+              } else if (chainId === ChainId.ETH) {
+                if (rsymbol === rSymbol.Matic) {
                   tokenAbi = getERCMaticAbi();
                   tokenAddress = getErc20TokenContractConfig().rMATIC;
-                  oldBalance = await getErc20AssetBalance(
-                    targetAddress,
-                    tokenAbi,
-                    tokenAddress,
-                    TokenName.MATIC
-                  );
+                } else if (rsymbol === rSymbol.Ksm) {
+                  tokenAbi = getErc20RKsmTokenAbi();
+                  tokenAddress = getErc20TokenContractConfig().rKSM;
+                } else if (rsymbol === rSymbol.Dot) {
+                  tokenAbi = getErc20RDotTokenAbi();
+                  tokenAddress = getErc20TokenContractConfig().rDOT;
                 }
+                oldBalance = await getErc20AssetBalance(
+                  targetAddress,
+                  tokenAbi,
+                  tokenAddress,
+                  getTokenNameFromrSymbol(rsymbol)
+                );
               }
+
               dispatch(
                 updateStakeLoadingParams(
                   {
@@ -555,6 +600,7 @@ export const getMinting =
                   amount as string,
                   (result: string) => {
                     if (result === "successful") {
+                      dispatch(setIsLoading(false));
                       dispatch(
                         updateStakeLoadingParams(
                           {
@@ -578,11 +624,12 @@ export const getMinting =
                       );
                       cb && cb(true);
                     } else if (result === "failure") {
+                      dispatch(setIsLoading(false));
                       dispatch(
                         updateStakeLoadingParams(
                           {
                             status: "error",
-                            errorMsg: "Swap failed",
+                            displayMsg: "Swap failed",
                             errorStep: "swapping",
                             progressDetail: {
                               swapping: {
@@ -609,11 +656,12 @@ export const getMinting =
             }
             // todo: swapping
           } else if (result === "failure") {
+            dispatch(setIsLoading(false));
             dispatch(
               updateStakeLoadingParams(
                 {
                   status: "error",
-                  errorMsg: "Mint failed",
+                  displayMsg: "Mint failed",
                   errorStep: "minting",
                   progressDetail: {
                     minting: {
@@ -740,12 +788,11 @@ export const fisUnbond =
     try {
       const address = getState().wallet.polkadotAccount as string;
       const api = await stafiServer.createStafiApi();
-			const tokenName = getState().app.redeemLoadingParams?.tokenName;
+      const tokenName = getState().app.redeemLoadingParams?.tokenName;
 
       dispatch(
         setRedeemLoadingParams({
           broadcastStatus: "loading",
-					customMsg: `Please confirm the ${amount} r${tokenName} unstaking transaction in your MetaMask wallet`,
         })
       );
 
@@ -766,9 +813,11 @@ export const fisUnbond =
         // @ts-ignore
         .signAndSend(address, { signer: injector.signer }, (result: any) => {
           dispatch(setIsLoading(false));
-					dispatch(setRedeemLoadingParams({
-						customMsg: "Unstaking processing, please wait for a moment.",
-					}));
+          dispatch(
+            setRedeemLoadingParams({
+              customMsg: "Unstaking processing, please wait for a moment.",
+            })
+          );
 
           try {
             if (result.status.isInBlock) {
@@ -786,7 +835,7 @@ export const fisUnbond =
                         finalizeStatus: "success",
                         txHash: txHash,
                         scanUrl: getStafiScanTxUrl(txHash),
-												customMsg: undefined,
+                        customMsg: undefined,
                       })
                     );
                   } else if (data.event.method === "ExtrinsicFailed") {
@@ -795,7 +844,7 @@ export const fisUnbond =
                       setRedeemLoadingParams({
                         status: "error",
                         errorMsg: "Unstake failed",
-												customMsg: undefined,
+                        customMsg: undefined,
                       })
                     );
                   }
@@ -818,7 +867,7 @@ export const fisUnbond =
               setRedeemLoadingParams({
                 status: "error",
                 errorMsg: "Unbond failed",
-								customMsg: undefined,
+                customMsg: undefined,
               })
             );
           }

@@ -84,6 +84,16 @@ export const ChooseFisAccountModal = (props: Props) => {
     return name;
   };
 
+  const getName = () => {
+    if (chooseAccountWalletType === WalletType.Polkadot_KSM) {
+      return "Kusama";
+    } else if (chooseAccountWalletType === WalletType.Polkadot_DOT) {
+      return "Polkadot";
+    } else {
+      return "StaFi";
+    }
+  };
+
   return (
     <Modal
       open={chooseAccountVisible}
@@ -113,7 +123,7 @@ export const ChooseFisAccountModal = (props: Props) => {
           </div>
 
           <div className="text-center mt-[0.56rem] text-white font-[500] text-[.32rem]">
-            Change StaFi Address
+            Change {getName()} Address
           </div>
 
           <div
