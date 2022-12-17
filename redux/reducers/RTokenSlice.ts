@@ -53,7 +53,7 @@ interface PoolData {
   stakedAmount: string;
 }
 
-interface PriceItem {
+export interface PriceItem {
   // rETH, ETH, rMATIC, etc.
   symbol: string;
   price: string;

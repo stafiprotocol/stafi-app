@@ -4,11 +4,18 @@ import MintChart from "./chart/MintChart";
 
 interface Props {
   programTab: ProgramTab;
+  totalMintedValue?: string;
+  totalRewardFis?: string;
 }
 
 const RPoolChart = (props: Props) => {
   if (props.programTab === ProgramTab.Mint) {
-    return <MintChart />;
+    return (
+      <MintChart
+        totalMintedValue={props.totalMintedValue}
+        totalRewardFis={props.totalRewardFis}
+      />
+    );
   }
   return <LpChart />;
 };

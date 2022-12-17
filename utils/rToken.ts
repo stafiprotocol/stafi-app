@@ -1,5 +1,6 @@
 import {
   DexType,
+  RTokenName,
   TokenName,
   TokenStandard,
   TokenSymbol,
@@ -53,6 +54,27 @@ export function getTokenSymbol(tokenName: TokenName): TokenSymbol | undefined {
   }
   return undefined;
 }
+
+export const rTokenNameToTokenSymbol = (rTokenName: RTokenName): TokenSymbol => {
+  switch (rTokenName) {
+    case RTokenName.rATOM:
+      return TokenSymbol.ATOM;
+    case RTokenName.rBNB:
+      return TokenSymbol.BNB;
+    case RTokenName.rDOT:
+      return TokenSymbol.DOT;
+    case RTokenName.rETH:
+      return TokenSymbol.ETH;
+    case RTokenName.rFIS:
+      return TokenSymbol.FIS;
+    case RTokenName.rKSM:
+      return TokenSymbol.KSM;
+    case RTokenName.rMATIC:
+      return TokenSymbol.MATIC;
+    default:
+      return TokenSymbol.SOL;
+  }
+};
 
 export function getRewardText(reward: string) {
   return reward !== "--"

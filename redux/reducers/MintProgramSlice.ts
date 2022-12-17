@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RTokenName, TokenSymbol } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import RPoolServer from "servers/rpool";
+import { rTokenNameToTokenSymbol } from "utils/rToken";
 
 const rPoolServer = new RPoolServer();
 
@@ -45,7 +46,8 @@ export const getMintPrograms = (): AppThunk => async (dispatch, getState) => {
     dispatch(getRTokenMintInfo(RTokenName.rMATIC)),
     dispatch(getRTokenMintInfo(RTokenName.rSOL)),
   ])
-    .then(() => {})
+    .then(() => {
+		})
     .catch((err: any) => {});
 };
 
@@ -77,24 +79,3 @@ const getRTokenMintInfo =
       dispatch(setRTokenActs(newValue));
     } catch (err: unknown) {}
   };
-
-const rTokenNameToTokenSymbol = (rTokenName: RTokenName): TokenSymbol => {
-  switch (rTokenName) {
-    case RTokenName.rATOM:
-      return TokenSymbol.ATOM;
-    case RTokenName.rBNB:
-      return TokenSymbol.BNB;
-    case RTokenName.rDOT:
-      return TokenSymbol.DOT;
-    case RTokenName.rETH:
-      return TokenSymbol.ETH;
-    case RTokenName.rFIS:
-      return TokenSymbol.FIS;
-    case RTokenName.rKSM:
-      return TokenSymbol.KSM;
-    case RTokenName.rMATIC:
-      return TokenSymbol.MATIC;
-    default:
-      return TokenSymbol.SOL;
-  }
-};

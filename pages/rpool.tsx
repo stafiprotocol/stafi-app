@@ -7,6 +7,7 @@ import RPoolChart from "components/rpool/Chart";
 import PoolTokenList from "components/rpool/PoolTokenList";
 import MintFaq from "components/rpool/MintFaq";
 import LpFaq from "components/rpool/LpFaq";
+import { useRPoolMintRTokenActs } from "hooks/useRPoolMintRTokenActs";
 
 export enum ProgramTab {
   Mint = "mint",
@@ -17,6 +18,8 @@ const RPoolPage = () => {
   const router = useRouter();
 
   const { setNavigation } = useContext(MyLayoutContext);
+
+  const { totalMintedValue, totalRewardFis } = useRPoolMintRTokenActs();
 
   const switchProgramTab = (tab: ProgramTab) => {
     const currentTab = router.query.program;
@@ -30,14 +33,14 @@ const RPoolPage = () => {
       },
     });
   };
-	
-	const currentPage = useMemo(() => {
+
+  const currentPage = useMemo(() => {
     const currentTab = router.query.program;
-		if (currentTab === ProgramTab.LP) {
-			return ProgramTab.LP;
-		}
-		return ProgramTab.Mint;
-	}, [router.query]);
+    if (currentTab === ProgramTab.LP) {
+      return ProgramTab.LP;
+    }
+    return ProgramTab.Mint;
+  }, [router.query]);
 
   useEffect(() => {
     const programTabQuery = router.query.program;
@@ -76,15 +79,19 @@ const RPoolPage = () => {
         />
       </div>
 
-			<RPoolBanner programTab={currentPage} />
+      <RPoolBanner programTab={currentPage} />
 
-			<RPoolChart programTab={currentPage} />
+      <RPoolChart
+        programTab={currentPage}
+        totalMintedValue={totalMintedValue}
+        totalRewardFis={totalRewardFis}
+      />
 
-			<PoolTokenList programTab={currentPage} />
+      <PoolTokenList programTab={currentPage} />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 
-			{currentPage === ProgramTab.Mint ? <MintFaq /> : <LpFaq />}
+      {currentPage === ProgramTab.Mint ? <MintFaq /> : <LpFaq />}
     </div>
   );
 };
