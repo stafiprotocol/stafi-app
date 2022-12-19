@@ -110,7 +110,7 @@ export function useRPoolMintRTokenActs() {
       });
     });
 
-		console.log(rTokenList)
+    console.log(rTokenList);
     return [...rTokenList];
   }, [rTokenActs, priceList]);
 
@@ -132,6 +132,31 @@ export function useRPoolMintRTokenActs() {
     return result;
   }, [priceList, mintDataList]);
 
+  const { liveList, finishedList } = useMemo(() => {
+    const liveList: any[] = [];
+    const finishedList: any[] = [];
+    mintDataList.forEach((data: RTokenListItem) => {
+      const { rToken } = data;
+      const liveChildren = data.children.filter(
+        (item: any) => item.nowBlock < item.end
+      );
+      const completedChildren = data.children.filter(
+        (item: any) => item.nowBlock >= item.end
+      );
+
+      liveList.push({
+        rToken,
+        children: cloneDeep(liveChildren),
+      });
+      finishedList.push({
+        rToken,
+        children: cloneDeep(completedChildren),
+      });
+    });
+
+    return { liveList, finishedList };
+  }, [mintDataList]);
+
   useEffect(() => {
     dispatch(getMintPrograms());
   }, []);
@@ -144,5 +169,5 @@ export function useRPoolMintRTokenActs() {
     dispatch(getMintPrograms());
   }, 60000);
 
-  return { totalRewardFis, totalMintedValue };
+  return { totalRewardFis, totalMintedValue, liveList, finishedList };
 }

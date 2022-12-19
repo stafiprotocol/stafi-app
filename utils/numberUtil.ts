@@ -1,4 +1,4 @@
-import { TokenSymbol } from 'interfaces/common';
+import { RTokenName, TokenSymbol } from 'interfaces/common';
 import { rSymbol } from 'keyring/defaults';
 import { create, floorDependencies, divideDependencies } from 'mathjs';
 import Web3Utils from 'web3-utils';
@@ -112,6 +112,41 @@ const numberUtil = {
   },
 	divide(x: number, y: number) {
 		return divide(x, y);
+	},
+	tokenMintRewardRateToHuman(amount: number | string, rTokenName: RTokenName) {
+		if (isNaN(Number(amount))) return '--';
+		let factor: BigInt;
+		switch (rTokenName) {
+			case RTokenName.rDOT:
+        factor = BigInt('100000000000000');
+        break;
+      case RTokenName.rATOM:
+        factor = BigInt('1000000000000000000');
+        break;
+      case RTokenName.rFIS:
+        factor = BigInt('1000000000000');
+        break;
+      case RTokenName.rKSM:
+        factor = BigInt('1000000000000');
+        break;
+      case RTokenName.rSOL:
+        factor = BigInt('1000000000000000');
+        break;
+      case RTokenName.rETH:
+        factor = BigInt('1000000');
+        break;
+      case RTokenName.rMATIC:
+        factor = BigInt('1000000');
+        break;
+      case RTokenName.rBNB:
+        factor = BigInt('10000000000000000');
+        break;
+      default:
+        factor = BigInt('1000000000000');
+        break;
+		}
+		
+		return divide(Number(amount), Number(factor));
 	}
 }
 

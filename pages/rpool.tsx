@@ -19,7 +19,8 @@ const RPoolPage = () => {
 
   const { setNavigation } = useContext(MyLayoutContext);
 
-  const { totalMintedValue, totalRewardFis } = useRPoolMintRTokenActs();
+  const { totalMintedValue, totalRewardFis, liveList, finishedList } =
+    useRPoolMintRTokenActs();
 
   const switchProgramTab = (tab: ProgramTab) => {
     const currentTab = router.query.program;
@@ -87,7 +88,11 @@ const RPoolPage = () => {
         totalRewardFis={totalRewardFis}
       />
 
-      <PoolTokenList programTab={currentPage} />
+      <PoolTokenList
+        programTab={currentPage}
+        liveList={liveList}
+        finishedList={finishedList}
+      />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 

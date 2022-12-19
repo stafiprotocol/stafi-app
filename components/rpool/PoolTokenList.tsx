@@ -2,10 +2,13 @@ import { RTokenName } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
 import { useState } from "react";
 import MintTokenCard from "./tokenCard/MintTokenCard";
+import RPoolFinishedList from "./tokenList/FinishedList";
 import RPoolLiveList from "./tokenList/LiveList";
 
 interface Props {
   programTab: ProgramTab;
+  liveList: any[];
+  finishedList: any[];
 }
 
 const PoolTokenList = (props: Props) => {
@@ -83,8 +86,12 @@ const PoolTokenList = (props: Props) => {
 
       {tab === "live" && <RPoolLiveList programTab={props.programTab} />}
 
-      {/* todo: finished list */}
-      {tab === "finished" && <RPoolLiveList programTab={props.programTab} />}
+      {tab === "finished" && (
+        <RPoolFinishedList
+          programTab={props.programTab}
+          list={props.finishedList}
+        />
+      )}
     </>
   );
 };
