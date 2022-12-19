@@ -6,12 +6,17 @@ import maticChainLogo from "public/matic_logo_black.svg";
 import { RTokenName } from "interfaces/common";
 import { MyTooltip } from "components/common/MyTooltip";
 import { formatNumber } from "utils/number";
+import numberUtil from "utils/numberUtil";
+import { formatDuration } from "utils/time";
 
 interface Props {
   rTokenName: RTokenName;
+  data: any;
 }
 
 const MintTokenCard = (props: Props) => {
+  const { data } = props;
+
   const getRTokenLogo = (rTokenName: RTokenName) => {
     if (rTokenName === RTokenName.rMATIC) return maticLogo;
     if (rTokenName === RTokenName.rETH) return ethLogo;
@@ -84,7 +89,9 @@ const MintTokenCard = (props: Props) => {
             FIS
           </div>
           <div className="text-text1 text-[.16rem]">
-            {formatNumber(16937.59, { decimals: 2 })}
+            {formatNumber(numberUtil.fisAmountToHuman(data.total_reward), {
+              decimals: 2,
+            })}
           </div>
         </div>
       </div>
@@ -98,12 +105,12 @@ const MintTokenCard = (props: Props) => {
           />
         </div>
         <div className="text-text1 text-[.16rem]">
-          ${formatNumber(372828.93, { decimals: 2 })}
+          ${formatNumber(data.mintedValue, { decimals: 2 })}
         </div>
       </div>
 
       <div className="text-[#00F3AB] text-[.16rem] text-center mt-[.24rem] leading-[.18rem]">
-        145d 16h left
+				{`${formatDuration(data.endTimeStamp - Date.now(), true)} left`}
       </div>
 
       <Button mt="0.15rem" height="0.65rem" fontSize="0.24rem">

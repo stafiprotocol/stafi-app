@@ -1,6 +1,8 @@
 import { Button } from "components/common/button";
+import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
 import { ProgramTab } from "pages/rpool";
+import { useMemo } from "react";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
 
@@ -11,6 +13,12 @@ interface Props {
 
 const RPoolFinishedList = (props: Props) => {
   const { list } = props;
+
+  const renderedList = useMemo(() => {
+    return list.filter(
+      (data: any) => Array.isArray(data.children) && data.children.length > 0
+    );
+  }, [list]);
 
   return (
     <div
@@ -54,16 +62,15 @@ const RPoolFinishedList = (props: Props) => {
         </div>
       </div>
 
-      {!!list &&
-        list.filter((data: any) => data.children && data.children.length > 0).map((data: any, i: number) => (
+      {!!renderedList &&
+        renderedList.map((data: any, i: number) => (
           <div
             key={`${data.rToken}${i}`}
             className="px-[.56rem]"
             style={{
               borderTop: i % 2 === 1 ? "1px solid #1A2835" : "none",
               borderBottom: i % 2 === 1 ? "1px solid #1A2835" : "none",
-              background:
-                i % 2 === 0 ? "transparent" : "rgba(26, 40, 53, 0.3)",
+              background: i % 2 === 0 ? "transparent" : "rgba(26, 40, 53, 0.3)",
             }}
           >
             {data.children.map((item: any, index: number) => (
@@ -109,6 +116,14 @@ const RPoolFinishedList = (props: Props) => {
             ))}
           </div>
         ))}
+
+      {renderedList.length === 0 && (
+        <div className="flex flex-col items-center pb-[.3rem]">
+          <div className="flex flex-col items-center">
+            <EmptyContent mt="0.2rem" size=".8rem" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,7 +7,8 @@ export function formatDate(
   return dayjs(millis).format(template);
 }
 
-export const formatDuration = (milliSeconds: number) => {
+export const formatDuration = (milliSeconds: number, withAlphabet?: boolean) => {
+	console.log(milliSeconds)
   if (milliSeconds <= 0) {
     return "00:00:00:00";
   }
@@ -40,5 +41,8 @@ export const formatDuration = (milliSeconds: number) => {
   if (Number(seconds) < 10) {
     seconds = "0" + seconds;
   }
+	if (withAlphabet) {
+		return `${days}d${hours}h`;
+	}
   return `${days}:${hours}:${minutes}:${seconds}`;
 };

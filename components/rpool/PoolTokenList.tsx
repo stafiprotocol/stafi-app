@@ -84,7 +84,9 @@ const PoolTokenList = (props: Props) => {
         </div>
       </div>
 
-      {tab === "live" && <RPoolLiveList programTab={props.programTab} />}
+      {tab === "live" && (
+        <RPoolLiveList programTab={props.programTab} list={props.liveList} />
+      )}
 
       {tab === "finished" && (
         <RPoolFinishedList
