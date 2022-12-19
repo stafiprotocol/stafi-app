@@ -115,6 +115,7 @@ export const sendPolkadotTx =
           }
         )
       );
+      queueTx.txStartCb && queueTx.txStartCb();
     } catch (err: unknown) {
       if (err instanceof Error) {
         if (err.message === "Cancelled") {

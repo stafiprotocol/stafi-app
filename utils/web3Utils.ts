@@ -7,6 +7,7 @@ import { FisAccount } from "redux/reducers/FisSlice";
 import { KeyringServer } from "servers/keyring";
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
+import { REJECTED_MESSAGE } from "./constants";
 
 export function createWeb3(provider?: any) {
   var web3 = new Web3(provider || Web3.givenProvider);
@@ -105,4 +106,21 @@ export async function getBep20AssetBalance(
     // console.log(err);
     return "--";
   }
+}
+
+// https://blog.logrocket.com/understanding-resolving-metamask-error-codes/
+export function getMetaMaskTxErrorMsg(result: any) {
+  if (Number(result.code) === 4001) {
+    return REJECTED_MESSAGE;
+  } else if (Number(result.code) === 4100) {
+    return "The requested action has not been authorized by user";
+  } else if (Number(result.code) === 4200) {
+    return "The requested method is not supported by this Ethereum provider";
+  } else if (Number(result.code) === 4900) {
+    return "The provider is disconnected from all chains";
+  } else if (Number(result.code) === 32700 || Number(result.code) === 32600) {
+    return "Invalid JSON params";
+  }
+
+  return result.message || "Transaction failed";
 }

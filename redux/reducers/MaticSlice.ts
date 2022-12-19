@@ -18,7 +18,7 @@ import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
 import numberUtil from "utils/numberUtil";
 import snackbarUtil from "utils/snackbarUtils";
-import { createWeb3 } from "utils/web3Utils";
+import { createWeb3, getMetaMaskTxErrorMsg } from "utils/web3Utils";
 import Web3 from "web3";
 import {
   addNotice,
@@ -423,7 +423,7 @@ export const handleMaticStake =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {
@@ -507,6 +507,9 @@ export const unbondRMatic =
         amount,
         willReceiveAmount,
         newTotalStakedAmount,
+        customMsg: `Please confirm the ${Number(
+          amount
+        )} rMATIC unstaking transaction in your MetaMask wallet`,
       })
     );
 
@@ -544,7 +547,9 @@ export const unbondRMatic =
                   .add(estimateUnbondDays(TokenName.MATIC), "d")
                   .valueOf(),
                 amount: willReceiveAmount,
+                rTokenAmount: amount,
                 recipient,
+                txTimestamp: dayjs().unix(),
               });
               const metaMaskAccount = getState().wallet.metaMaskAccount;
               if (txHash && metaMaskAccount) {
@@ -562,7 +567,7 @@ export const unbondRMatic =
                   })
                 );
               }
-							cb && cb();
+              cb && cb();
             } else if (r === "Failed") {
               dispatch(
                 addNotice({
@@ -576,7 +581,7 @@ export const unbondRMatic =
                   status: "Error",
                 })
               );
-							cb && cb();
+              cb && cb();
             }
           }
         )
@@ -587,7 +592,7 @@ export const unbondRMatic =
     } finally {
       // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
-			cb && cb();
+      cb && cb();
     }
   };
 
@@ -858,7 +863,8 @@ export const stakeMatic =
               minting: {},
               swapping: {},
             },
-            customMsg: "Approving MATIC to StaFi Portal",
+            customMsg:
+              "Please Approve MATIC to StaFi Portal in your MetaMask wallet",
           })
         );
         allowance = web3.utils.toWei("10000000");
@@ -887,7 +893,7 @@ export const stakeMatic =
                   totalStatus: "success",
                   broadcastStatus: "success",
                   packStatus: "success",
-									txHash: approveResult.transactionHash,
+                  txHash: approveResult.transactionHash,
                 },
               },
             })
@@ -950,6 +956,7 @@ export const stakeMatic =
               broadcastStatus: "loading",
             },
           },
+          customMsg: `Please confirm the ${stakeAmount} MATIC staking transaction in your MetaMask wallet`,
         })
       );
 
@@ -962,9 +969,16 @@ export const stakeMatic =
           metaMaskAccount
         )
         .send({ value: web3.utils.toWei(txFee) });
+      // console.log("stakeResult", stakeResult);
       if (!stakeResult || !stakeResult.status) {
-        throw new Error(TRANSACTION_FAILED_MESSAGE);
+        throw new Error(getMetaMaskTxErrorMsg(stakeResult));
       }
+
+      dispatch(
+        updateStakeLoadingParams({
+          customMsg: "Staking processing, please wait for a moment",
+        })
+      );
 
       const txHash = stakeResult.transactionHash;
       let txDetail;
@@ -996,12 +1010,12 @@ export const stakeMatic =
                 totalStatus: "success",
                 broadcastStatus: "success",
                 packStatus: "success",
-								txHash: txHash,
+                txHash: txHash,
               },
             },
-            customMsg: "Staking succeeded, now minting...",
-						scanUrl: getEtherScanTxUrl(txHash),
-						txHash: txHash,
+            customMsg: "Minting processing, please wait for a moment",
+            scanUrl: getEtherScanTxUrl(txHash),
+            txHash: txHash,
           },
           (newParams) => {
             const newNotice: LocalNotice = {
@@ -1028,7 +1042,7 @@ export const stakeMatic =
       console.log({ txHash, blockHash });
       dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId, cb));
     } catch (err: any) {
-			cb && cb(false);
+      cb && cb(false);
       console.error(err);
       dispatch(setIsLoading(false));
       if (err.code === 4001) {
@@ -1050,7 +1064,7 @@ export const stakeMatic =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {

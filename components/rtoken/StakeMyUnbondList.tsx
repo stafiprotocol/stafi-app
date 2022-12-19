@@ -8,6 +8,16 @@ import { TokenName } from "interfaces/common";
 import { useState } from "react";
 import numberUtil from "utils/numberUtil";
 import { getShortAddress } from "utils/string";
+import classNames from "classnames";
+import { openLink } from "utils/common";
+import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import { Tooltip } from "@mui/material";
+import { formatNumber } from "utils/number";
+import dayjs from "dayjs";
+import { getRedeemDaysLeft } from "utils/rToken";
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 interface Props {
   tokenName: TokenName;
@@ -26,32 +36,43 @@ export const StakeMyUnbondList = (props: Props) => {
         >
           <div className="flex justify-center">
             <MyTooltip
-              text="Amount"
-              title="Amount of the rToken that you choose to unstake"
+              text="Receiving Amount"
+              title="Following are the the actual Token amount that you could get after unstaking transaction. The correlated rToken amount that you choose to unstake will reveal when hovered."
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              text="Total Period"
-              title={`Total time required to complete unstaking transaction; After receiving the request of redemption, r${props.tokenName} contracts will automatically unstake and withdraw ${props.tokenName}s from the ${props.tokenName} staking contract deployed on Ethereum, then send the ${props.tokenName} tokens back to user after around 9 days`}
+              text="Unstaked Time"
+              title="The UTC time that you initiated the unstaking transaction."
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              text="Days Left"
-              title="Remaining time required to complete unstaking transaction"
+              text="Time Left"
+              title="Remaining time required to complete unstaking transaction; Due to the complexity of the cross-chain transaction, the actual unstaking success time may fluctuate to some degree."
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
-              title={`The address that receives redeemed ${props.tokenName} tokens, ${props.tokenName} tokens will be sent to the receiving address after receiving the request of redemption around 9 days`}
+              title={`The address that receives redeemed ${
+                props.tokenName
+              } tokens, ${
+                props.tokenName
+              } tokens will be sent to the receiving address after receiving the request of redemption around ${getRedeemDaysLeft(
+                props.tokenName
+              )} days`}
               text="Receiving Address"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Status"
-              title="Current unstake transaction status"
+              title="Current unstaking transaction status."
+              className="text-text2"
             />
           </div>
         </div>
@@ -68,24 +89,62 @@ export const StakeMyUnbondList = (props: Props) => {
           }}
         >
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.formatTokenAmount === "--"
-              ? "--"
-              : Number(item.formatTokenAmount) > 0 &&
-                Number(item.formatTokenAmount) < 0.001
-              ? "<0.001"
-              : numberUtil.handleAmountFloorToFixed(item.formatTokenAmount, 3)}
+            <Tooltip
+              title={`${formatNumber(item.formatRTokenAmount, {
+                decimals: 3,
+              })} r${props.tokenName} Unstaked`}
+            >
+              <span>
+                {item.formatTokenAmount === "--"
+                  ? "--"
+                  : Number(item.formatTokenAmount) > 0 &&
+                    Number(item.formatTokenAmount) < 0.001
+                  ? "<0.001"
+                  : formatNumber(item.formatTokenAmount)}{" "}
+                {props.tokenName}
+              </span>
+            </Tooltip>
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.lockTotalTimeInDays} D
+            {item.txTimestamp
+              ? dayjs(item.txTimestamp * 1000).utc().format("YYYY-MM-DD HH:mm:ss")
+              : "--"}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
-            {item.lockLeftTimeInDays} D
+            {item.formatLeftTime}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {getShortAddress(item.formatReceiveAddress, 4)}
           </div>
-          <div className="flex justify-center items-center text-primary text-[.24rem]">
-            {item.hasReceived ? "Unstaked" : "Waiting"}
+          <div
+            className={classNames(
+              "flex justify-center items-center text-[.24rem] cursor-pointer",
+              item.receivedStatus === 1
+                ? "text-text1"
+                : item.receivedStatus === 2
+                ? "text-[#FF7040]"
+                : "text-primary"
+            )}
+            onClick={() => {
+              if (!item.txHash) return;
+              if (props.tokenName === TokenName.MATIC) {
+                if (item.receivedStatus !== 1) return;
+                openLink(getStafiScanTxUrl(item.txHash));
+              } else if (props.tokenName === TokenName.ETH) {
+                openLink(getEtherScanTxUrl(item.txHash));
+              }
+            }}
+          >
+            {item.receivedStatus === 1
+              ? "Waiting"
+              : item.receivedStatus === 2
+              ? "Unstaking"
+              : "Unstaked"}
+            {item.receivedStatus === 1 && (
+              <span className="pl-[.1rem]">
+                <Icomoon icon="right" size="0.2rem" color="#9DAFBE" />
+              </span>
+            )}
           </div>
         </div>
       ))}

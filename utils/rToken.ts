@@ -18,6 +18,7 @@ import polkadot from "public/wallet/polkadot.svg";
 import { EraRewardModel } from "hooks/useRTokenReward";
 import dayjs from "dayjs";
 import { isPolkadotWallet } from "./common";
+import { rSymbol } from "keyring/defaults";
 
 export interface DexItem {
   type: DexType;
@@ -50,6 +51,29 @@ export function getTokenSymbol(tokenName: TokenName): TokenSymbol | undefined {
     return TokenSymbol.SOL;
   } else if (tokenName === TokenName.ATOM) {
     return TokenSymbol.ATOM;
+  }
+  return undefined;
+}
+
+export function getTokenNameFromrSymbol(
+  symbol: rSymbol
+): TokenName | undefined {
+  if (symbol === rSymbol.Fis) {
+    return TokenName.FIS;
+  } else if (symbol === rSymbol.Eth) {
+    return TokenName.ETH;
+  } else if (symbol === rSymbol.Dot) {
+    return TokenName.DOT;
+  } else if (symbol === rSymbol.Ksm) {
+    return TokenName.KSM;
+  } else if (symbol === rSymbol.Matic) {
+    return TokenName.MATIC;
+  } else if (symbol === rSymbol.Bnb) {
+    return TokenName.BNB;
+  } else if (symbol === rSymbol.Sol) {
+    return TokenName.SOL;
+  } else if (symbol === rSymbol.Atom) {
+    return TokenName.ATOM;
   }
   return undefined;
 }
@@ -190,9 +214,22 @@ export function getWalletIcon(walletType: WalletType | undefined) {
   return undefined;
 }
 
-export function getRedeemDaysLeft(tokenName: TokenName) {
+export function getRedeemDaysLeft(tokenName: TokenName | undefined) {
   if (tokenName === TokenName.MATIC) {
     return "9";
   }
+  if (tokenName === TokenName.DOT || tokenName === TokenName.KSM) {
+    return "29";
+  }
   return "9";
+}
+
+export function getStakeTransactionCount(tokenName: TokenName | undefined) {
+  if (tokenName === TokenName.MATIC || tokenName === TokenName.ETH) {
+    return 1;
+  }
+  if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
+    return 3;
+  }
+  return 1;
 }

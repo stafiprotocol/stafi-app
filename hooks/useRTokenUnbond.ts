@@ -33,10 +33,15 @@ export interface UnbondModel {
   rTokenType?: string;
   rTokenUnbondAmount?: string;
 
+  receivedStatus?: number;
+
   formatTokenAmount?: string;
+  formatRTokenAmount?: string;
   formatReceiveAddress?: string;
   lockTotalTimeInDays?: number | string;
   lockLeftTimeInDays?: number | string;
+  formatLeftTime?: string;
+  txTimestamp?: number;
 }
 
 export function useRTokenUnbond(tokenName: TokenName, page: number) {
@@ -118,10 +123,43 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
                 getTokenSymbol(tokenName) as TokenSymbol
               )
               .toString();
+            const formatRTokenAmount = numberUtil
+              .tokenAmountToHuman(
+                item.rTokenUnbondAmount,
+                getTokenSymbol(tokenName) as TokenSymbol
+              )
+              .toString();
             const lockTotalTimeInDays = numberUtil.handleAmountCeilToFixed(
               (item.lockTotalTime as any) / (60 * 60 * 24),
               0
             );
+            let formatLeftTime: string = "";
+            if (item.receivedStatus === 2) {
+              // unstaking
+              formatLeftTime = "Est. 1-8 Hours";
+            } else if (item.receivedStatus === 3) {
+              // unstaked
+              formatLeftTime = "--";
+            } else {
+              // waiting
+              const days = numberUtil.handleAmountCeilToFixed(
+                (item.lockLeftTime as number) / (60 * 60 * 24),
+                0
+              );
+              if (Number(days) > 0) {
+                formatLeftTime = days + " D";
+              } else {
+                let hours = numberUtil.handleAmountCeilToFixed(
+                  (item.lockLeftTime as number) / (60 * 60),
+                  0
+                );
+                if (Number(hours) < 1) {
+                  hours = "1";
+                }
+                formatLeftTime = hours + " Hours";
+              }
+            }
+
             const lockLeftTimeInDays = numberUtil.handleAmountCeilToFixed(
               (item.lockLeftTime as any) / (60 * 60 * 24),
               0
@@ -144,8 +182,10 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
               ...item,
               formatReceiveAddress,
               formatTokenAmount,
+              formatRTokenAmount,
               lockTotalTimeInDays,
               lockLeftTimeInDays,
+              formatLeftTime,
             };
           }
         );
@@ -164,13 +204,23 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
                 lockLeftTimeInDays: estimateUnbondDays(tokenName),
                 formatReceiveAddress: record.recipient,
                 formatTokenAmount: record.amount,
+								txHash: record.txHash,
+								formatRTokenAmount: record.rTokenAmount,
+								formatLeftTime: '10 D',
+								txTimestamp: record.txTimestamp,
+								receivedStatus: 1,
+								hasReceived: false,
               });
             }
           }
         });
 
         setUnbondList([...insertRecords, ...formatUnbondList]);
-        setTotalCount(formatUnbondList.length);
+        setTotalCount(resJson.data.totalCount);
+      } else if (resJson.status === "80003") {
+        setRequestStatus(RequestStatus.success);
+        setUnbondList([]);
+        setTotalCount(0);
       }
     } catch {
       setRequestStatus(RequestStatus.error);

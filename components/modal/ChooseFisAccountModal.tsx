@@ -22,6 +22,7 @@ import commonStyles from "styles/Common.module.scss";
 import { useRouter } from "next/router";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { WalletType } from "interfaces/common";
+import { formatNumber } from "utils/number";
 
 interface Props {}
 
@@ -75,6 +76,24 @@ export const ChooseFisAccountModal = (props: Props) => {
     }
   };
 
+  const renderAccountName = (name: string | undefined) => {
+    if (!name) return "";
+    if (name.length > 14) {
+      return name.slice(0, 14) + "...";
+    }
+    return name;
+  };
+
+  const getName = () => {
+    if (chooseAccountWalletType === WalletType.Polkadot_KSM) {
+      return "Kusama";
+    } else if (chooseAccountWalletType === WalletType.Polkadot_DOT) {
+      return "Polkadot";
+    } else {
+      return "StaFi";
+    }
+  };
+
   return (
     <Modal
       open={chooseAccountVisible}
@@ -83,8 +102,9 @@ export const ChooseFisAccountModal = (props: Props) => {
       <Box
         pt="0"
         sx={{
-          border: "1px solid #1A2835",
-          backgroundColor: "#0A131B",
+          border: "1px solid rgba(38, 73, 78, 0.5)",
+          backgroundColor: "rgba(26, 40, 53, 0.9)",
+					backdropFilter: "blur(.14rem)",
           width: "6.04rem",
           borderRadius: "0.16rem",
           outline: "none",
@@ -103,7 +123,7 @@ export const ChooseFisAccountModal = (props: Props) => {
           </div>
 
           <div className="text-center mt-[0.56rem] text-white font-[500] text-[.32rem]">
-            Change Polkadot Address
+            Change {getName()} Address
           </div>
 
           <div
@@ -156,19 +176,22 @@ export const ChooseFisAccountModal = (props: Props) => {
                             layout="fill"
                           />
                         </div>
-                        <div className="text-[.28rem]">
-                          {account.meta?.name}
+                        <div className="text-[.24rem]">
+                          {renderAccountName(account.meta?.name)}
                         </div>
                       </div>
-                      <div className="text-[.22rem]">
-                        {chooseAccountWalletType === WalletType.Polkadot_KSM
-                          ? account.ksmBalance
-                          : chooseAccountWalletType === WalletType.Polkadot_DOT
-                          ? account.dotBalance
-                          : account.fisBalance}
+                      <div className="text-[.16rem] pt-[.08rem]">
+                        {formatNumber(
+                          chooseAccountWalletType === WalletType.Polkadot_KSM
+                            ? account.ksmBalance
+                            : chooseAccountWalletType ===
+                              WalletType.Polkadot_DOT
+                            ? account.dotBalance
+                            : account.fisBalance
+                        )}
                       </div>
                     </div>
-                    <div className="text-text2 text-[.16rem] break-all mt-[.2rem]">
+                    <div className="text-text2 text-[.16rem] break-all mt-[.2rem] leading-normal">
                       {account.address}
                     </div>
                   </div>

@@ -277,7 +277,7 @@ export const Layout = (props: LayoutProps) => {
             className={classNames(
               "w-[14.88rem] flex items-center py-[.56rem] relative z-10",
               {
-                invisible: !navigation || navigation.length <= 1,
+                hidden: !navigation || navigation.length <= 1,
               }
             )}
           >
@@ -304,7 +304,13 @@ export const Layout = (props: LayoutProps) => {
             ))}
           </div>
 
-          <div className="w-[14.88rem] mb-[1rem]">{props.children}</div>
+          <div
+            className={classNames("w-[14.88rem] mb-[1rem]", {
+              "mt-[.56rem]": !navigation || navigation.length <= 1,
+            })}
+          >
+            {props.children}
+          </div>
         </main>
 
         <EthValidatorStakeLoadingModal />
@@ -315,7 +321,7 @@ export const Layout = (props: LayoutProps) => {
 
         <RTokenStakeLoadingSidebar />
 
-				<RTokenRedeemLoadingSidebar />
+        <RTokenRedeemLoadingSidebar />
 
         <RTokenRedeemLoadingModal />
 

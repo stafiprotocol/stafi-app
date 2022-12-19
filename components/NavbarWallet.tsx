@@ -53,6 +53,7 @@ export const NavbarWallet = () => {
     isWrongNetwork,
     isWrongMetaMaskNetwork,
     targetMetaMaskChainId,
+    walletNotConnected,
   } = useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const { api } = usePolkadotApi();
@@ -142,12 +143,12 @@ export const NavbarWallet = () => {
   ]);
 
   const displayMetaMaskChainName = useMemo(() => {
-    if (
-      targetMetaMaskChainId === getMetamaskMaticChainId() &&
-      router.pathname === "/rtoken/stake/MATIC"
-    ) {
-      return "Polygon";
-    }
+    // if (
+    //   targetMetaMaskChainId === getMetamaskMaticChainId() &&
+    //   router.pathname === "/rtoken/stake/MATIC"
+    // ) {
+    //   return "Polygon";
+    // }
     return "Ethereum";
   }, [targetMetaMaskChainId, router.pathname]);
 
@@ -260,7 +261,7 @@ export const NavbarWallet = () => {
                 >
                   <div className="bg-error w-[.12rem] h-[.12rem] rounded-full" />
                   <div className="ml-[.12rem] text-error text-[.24rem]">
-                    Wrong Net
+                    {walletNotConnected ? "Unconnected" : "Wrong Net"}
                   </div>
                   <div className="mx-[.12rem] w-[1px] h-[.25rem] bg-divider1" />
                 </div>

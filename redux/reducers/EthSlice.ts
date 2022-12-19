@@ -532,7 +532,7 @@ export const handleEthTokenStake =
           updateStakeLoadingParams(
             {
               status: "error",
-              errorMsg: TRANSACTION_FAILED_MESSAGE,
+              displayMsg: TRANSACTION_FAILED_MESSAGE,
               errorStep: "sending",
               progressDetail: {
                 sending: {

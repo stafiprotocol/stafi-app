@@ -15,14 +15,13 @@ import {
   updateStakeLoadingParams,
 } from "redux/reducers/AppSlice";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
-import {
-  stakeMatic,
-} from "redux/reducers/MaticSlice";
+import { stakeMatic } from "redux/reducers/MaticSlice";
 import { bond } from "redux/reducers/FisSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
+import { getStakeTransactionCount } from "utils/rToken";
 
 export const RTokenStakeLoadingModal = () => {
   const dispatch = useAppDispatch();
@@ -174,16 +173,23 @@ export const RTokenStakeLoadingModal = () => {
             {stakeLoadingParams?.customMsg
               ? stakeLoadingParams.customMsg
               : stakeLoadingParams?.status === "success"
-              ? `Stake operation was successful`
+              ? `Staking operation was successful`
               : stakeLoadingParams?.status === "error"
-              ? stakeLoadingParams?.errorMsg ||
+              ? stakeLoadingParams?.displayMsg ||
                 "Something went wrong, please try again"
-              : `Stake ${stakeLoadingParams?.amount} ${
+              : stakeLoadingParams?.displayMsg ||
+                `Staking ${stakeLoadingParams?.amount} ${
                   stakeLoadingParams?.tokenName
                 }, you will receive ${formatNumber(
                   stakeLoadingParams?.willReceiveAmount
                 )} 
-                r${stakeLoadingParams?.tokenName}`}
+                r${stakeLoadingParams?.tokenName}${
+                  getStakeTransactionCount(stakeLoadingParams?.tokenName) > 1
+                    ? `, overall ${getStakeTransactionCount(
+                        stakeLoadingParams?.tokenName
+                      )} transactions are requested for staking transaction`
+                    : ``
+                }`}
           </div>
 
           {stakeLoadingParams?.status === "loading" && (
@@ -299,11 +305,11 @@ export const RTokenStakeLoadingModal = () => {
                 stakeLoadingParams?.steps.includes("staking") && (
                   <StakeLoadingProgressItem
                     name="Staking"
-										tokenName={stakeLoadingParams?.tokenName}
+                    tokenName={stakeLoadingParams?.tokenName}
                     stepIndex={stakeLoadingParams?.steps.indexOf("staking")}
                     data={stakeLoadingParams?.progressDetail?.staking}
-										scanUrl={stakeLoadingParams?.scanUrl}
-										txHash={stakeLoadingParams?.txHash}
+                    scanUrl={stakeLoadingParams?.scanUrl}
+                    txHash={stakeLoadingParams?.txHash}
                   />
                 )}
 
