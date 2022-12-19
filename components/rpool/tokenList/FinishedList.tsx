@@ -14,7 +14,7 @@ const RPoolFinishedList = (props: Props) => {
 
   return (
     <div
-      className="mt-[.36rem] p-[.56rem] rounded-[.16rem]"
+      className="mt-[.36rem] rounded-[.16rem]"
       style={{
         border: "1px solid #1A2835",
         backdropFilter: "blur(.7rem)",
@@ -22,10 +22,10 @@ const RPoolFinishedList = (props: Props) => {
       }}
     >
       <div
-        className="grid mb-[.5rem]"
+        className="grid mb-[.5rem] mt-[.56rem] mx-[.56rem]"
         style={{ gridTemplateColumns: "16% 16% 16% 16% 16% 20%" }}
       >
-        <div className="flex justify-center text-text2 text-[.2rem]">
+        <div className="flex justify-start text-text2 text-[.2rem]">
           Token Name
         </div>
         <div className="flex justify-center">
@@ -55,16 +55,27 @@ const RPoolFinishedList = (props: Props) => {
       </div>
 
       {!!list &&
-        list.map((data: any, i: number) => (
-          <div key={`${data.rToken}${i}`}>
+        list.filter((data: any) => data.children && data.children.length > 0).map((data: any, i: number) => (
+          <div
+            key={`${data.rToken}${i}`}
+            className="px-[.56rem]"
+            style={{
+              borderTop: i % 2 === 1 ? "1px solid #1A2835" : "none",
+              borderBottom: i % 2 === 1 ? "1px solid #1A2835" : "none",
+              background:
+                i % 2 === 0 ? "transparent" : "rgba(26, 40, 53, 0.3)",
+            }}
+          >
             {data.children.map((item: any, index: number) => (
               <div
                 key={`${data.rToken}${i}${index}`}
                 className="grid h-[1.1rem] text-[.24rem] text-text1"
-                style={{ gridTemplateColumns: "16% 16% 16% 16% 16% 20%" }}
+                style={{
+                  gridTemplateColumns: "16% 16% 16% 16% 16% 20%",
+                }}
               >
-                <div className="flex justify-center items-center">
-                  {data.rToken}
+                <div className="flex justify-start items-center">
+                  {index === 0 && data.rToken}
                 </div>
                 <div className="flex justify-center items-center">
                   {formatNumber(item.mintedValue)}
