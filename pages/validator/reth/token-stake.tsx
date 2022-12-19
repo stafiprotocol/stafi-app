@@ -10,6 +10,8 @@ import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { TokenStakeTabs } from "components/reth/TokenStakeTabs";
 import { WaitingStakeCard } from "components/reth/WaitingStakeCard";
 import { hooks } from "connectors/metaMask";
+import { useAppDispatch } from "hooks/common";
+import redWarningIcon from "public/icon_warning_red.svg";
 import { useEthMyData } from "hooks/useEthMyData";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthStakeList } from "hooks/useEthStakeList";
@@ -19,12 +21,17 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import warningIcon from "public/icon_warning.svg";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
+import { setCollapseOpenId } from "redux/reducers/AppSlice";
+import { FAQ_ID_CONFIGURE_FEE, FAQ_ID_SLASH } from "utils/constants";
 import {
   getStorage,
+  saveStorage,
   STORAGE_KEY_HIDE_CONFIGURE_FEE_RECIPIENT_TIP,
+  STORAGE_KEY_HIDE_SLASH_TIP,
 } from "utils/storage";
 
 const TokenStake = (props: any) => {
+  const dispatch = useAppDispatch();
   const { useAccount } = hooks;
   const account = useAccount();
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -35,10 +42,11 @@ const TokenStake = (props: any) => {
   const [chooseStakeTypeModalVisible, setChooseStakeTypeModalVisible] =
     useState(false);
   const [showFeeWarning, setShowWarning] = useState(false);
+  const [showSlashWarning, setShowSlashWarning] = useState(false);
 
   const { depositList, loading, firstLoading } = useEthStakeList();
   const { unmatchedEth } = useEthPoolData();
-  const { totalCount } = useEthMyData();
+  const { totalCount, slashCount } = useEthMyData();
 
   useEffect(() => {
     if (router.query.checkNewUser && totalCount <= 0) {
@@ -47,9 +55,15 @@ const TokenStake = (props: any) => {
   }, [totalCount, router]);
 
   useEffect(() => {
-    const temp = getStorage(STORAGE_KEY_HIDE_CONFIGURE_FEE_RECIPIENT_TIP);
-    setShowWarning(!temp);
-  }, []);
+    if (slashCount === undefined) {
+      return;
+    }
+    const temp1 = getStorage(STORAGE_KEY_HIDE_CONFIGURE_FEE_RECIPIENT_TIP);
+    const temp2 = getStorage(STORAGE_KEY_HIDE_SLASH_TIP);
+    const showSlash = Number(slashCount) > 0 && !temp2;
+    setShowWarning(!temp1 && !showSlash);
+    setShowSlashWarning(showSlash);
+  }, [slashCount]);
 
   useEffect(() => {
     setNavigation([
@@ -148,7 +162,13 @@ const TokenStake = (props: any) => {
           }
         )}
       >
-        <div className="absolute right-[.12rem] top-[.12rem] cursor-pointer">
+        <div
+          className="absolute right-[.12rem] top-[.12rem] cursor-pointer"
+          onClick={() => {
+            setShowWarning(false);
+            saveStorage(STORAGE_KEY_HIDE_CONFIGURE_FEE_RECIPIENT_TIP, "1");
+          }}
+        >
           <Icomoon icon="close" size=".22rem" />
         </div>
 
@@ -165,12 +185,55 @@ const TokenStake = (props: any) => {
 
           <a
             className="flex items-center cursor-pointer mr-[.3rem] shrink-0"
-            href="#faqs"
+            href="#faq1"
+            onClick={() => {
+              dispatch(setCollapseOpenId(FAQ_ID_CONFIGURE_FEE));
+            }}
           >
             <div className="text-warning text-[.24rem] mr-[.16rem]">
               Learn More
             </div>
             <Icomoon size=".26rem" icon="arrow-right" color="#0095EB" />
+          </a>
+        </div>
+      </div>
+      <div
+        className={classNames("px-[.56rem] py-[.32rem] bg-error/10 relative", {
+          hidden: !showSlashWarning,
+        })}
+      >
+        <div
+          className="absolute right-[.12rem] top-[.12rem] cursor-pointer"
+          onClick={() => {
+            setShowSlashWarning(false);
+            saveStorage(STORAGE_KEY_HIDE_SLASH_TIP, "1");
+          }}
+        >
+          <Icomoon icon="close" size=".22rem" />
+        </div>
+
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <div className="relative w-[.24rem] h-[.24rem] min-w-[.24rem]">
+              <Image src={redWarningIcon} layout="fill" alt="warning" />
+            </div>
+            <div className="text-error text-[.2rem] ml-[.12rem] leading-normal">
+              Your node has been slashed for 3.87 ETH, please configure your fee
+              recipient as adress for each node ASAP.
+            </div>
+          </div>
+
+          <a
+            className="flex items-center cursor-pointer mr-[.3rem] shrink-0"
+            href="#faq10"
+            onClick={() => {
+              dispatch(setCollapseOpenId(FAQ_ID_SLASH));
+            }}
+          >
+            <div className="text-error text-[.24rem] mr-[.16rem]">
+              Learn More
+            </div>
+            <Icomoon size=".26rem" icon="arrow-right" color="#FF52C4" />
           </a>
         </div>
       </div>
