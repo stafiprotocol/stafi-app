@@ -10,7 +10,9 @@ interface Props {
 }
 
 const RPoolMintClaimModal = (props: Props) => {
-  const onClickClaim = () => {};
+  const onClickClaim = () => {
+
+	};
 
   return (
     <Dialog
