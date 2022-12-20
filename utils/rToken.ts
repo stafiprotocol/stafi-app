@@ -55,7 +55,9 @@ export function getTokenSymbol(tokenName: TokenName): TokenSymbol | undefined {
   return undefined;
 }
 
-export const rTokenNameToTokenSymbol = (rTokenName: RTokenName): TokenSymbol => {
+export const rTokenNameToTokenSymbol = (
+  rTokenName: RTokenName
+): TokenSymbol => {
   switch (rTokenName) {
     case RTokenName.rATOM:
       return TokenSymbol.ATOM;
@@ -73,6 +75,27 @@ export const rTokenNameToTokenSymbol = (rTokenName: RTokenName): TokenSymbol => 
       return TokenSymbol.MATIC;
     default:
       return TokenSymbol.SOL;
+  }
+};
+
+export const rTokenNameToTokenName = (rTokenName: RTokenName): TokenName => {
+  switch (rTokenName) {
+    case RTokenName.rATOM:
+      return TokenName.ATOM;
+    case RTokenName.rBNB:
+      return TokenName.BNB;
+    case RTokenName.rDOT:
+      return TokenName.DOT;
+    case RTokenName.rETH:
+      return TokenName.ETH;
+    case RTokenName.rFIS:
+      return TokenName.FIS;
+    case RTokenName.rKSM:
+      return TokenName.KSM;
+    case RTokenName.rMATIC:
+      return TokenName.MATIC;
+    default:
+      return TokenName.SOL;
   }
 };
 

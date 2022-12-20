@@ -2,20 +2,43 @@ import { Button } from "components/common/button";
 import Image from "next/image";
 import ethLogo from "public/eth_type_black.svg";
 import maticLogo from "public/matic_type_black.svg";
-import maticChainLogo from "public/matic_logo_black.svg";
-import { RTokenName } from "interfaces/common";
+import { RTokenName, TokenStandard } from "interfaces/common";
 import { MyTooltip } from "components/common/MyTooltip";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
 import { formatDuration } from "utils/time";
+import { AllListItem } from "../tokenList/LiveList";
+import { useContext, useMemo, useState } from "react";
+import { MyLayoutContext } from "components/layout/layout";
+import { rTokenNameToTokenName } from "utils/rToken";
+import { useRouter } from "next/router";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
+import downIcon from "public/icon_down.png";
+import { Icomoon } from "components/icon/Icomoon";
+import classNames from "classnames";
 
 interface Props {
   rTokenName: RTokenName;
-  data: any;
+  data: AllListItem;
 }
 
 const MintTokenCard = (props: Props) => {
   const { data } = props;
+
+  const router = useRouter();
+
+  const { walletNotConnected } = useContext(MyLayoutContext);
+  // todo: tokenStandard
+  const rTokenBalance = useRTokenBalance(
+    TokenStandard.Native,
+    rTokenNameToTokenName(data.rToken)
+  );
+
+  const [showMore, setShowMore] = useState<boolean>(false);
+
+  const isBalanceValid = useMemo(() => {
+    return !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0;
+  }, [rTokenBalance]);
 
   const getRTokenLogo = (rTokenName: RTokenName) => {
     if (rTokenName === RTokenName.rMATIC) return maticLogo;
@@ -23,9 +46,13 @@ const MintTokenCard = (props: Props) => {
     return ethLogo;
   };
 
+  const onClickMint = () => {
+    router.push(`/rtoken/stake/${rTokenNameToTokenName(data.rToken)}`);
+  };
+
   return (
     <div
-      className="py-[0] px-[.24rem] h-[4.98rem] w-[3.35rem] rounded-[.16rem] bg-[#1a283533] hover:bg-[#58779826]"
+      className="py-[0] px-[.24rem] pb-[.24rem] w-[3.35rem] rounded-[.16rem] bg-[#1a283533] hover:bg-[#58779826]"
       style={{
         border: "1px solid #1a2835",
         backdropFilter: "blur(0.67rem)",
@@ -110,10 +137,15 @@ const MintTokenCard = (props: Props) => {
       </div>
 
       <div className="text-[#00F3AB] text-[.16rem] text-center mt-[.24rem] leading-[.18rem]">
-				{`${formatDuration(data.endTimeStamp - Date.now(), true)} left`}
+        {`${formatDuration(data.endTimeStamp - Date.now(), true)} left`}
       </div>
 
-      <Button mt="0.15rem" height="0.65rem" fontSize="0.24rem">
+      <Button
+        mt="0.15rem"
+        height="0.65rem"
+        fontSize="0.24rem"
+        onClick={onClickMint}
+      >
         Mint
       </Button>
 
@@ -126,6 +158,68 @@ const MintTokenCard = (props: Props) => {
       >
         Claim
       </div>
+
+      {!walletNotConnected && (
+        <div className="text-[.16rem] mt-[.24rem]">
+          <div
+            className="flex justify-center cursor-pointer"
+            onClick={() => setShowMore(!showMore)}
+          >
+            <div className={classNames(showMore ? "text-white" : "text-text2")}>
+              More
+            </div>
+            <div
+              className={classNames(
+                showMore ? "rotate-[-90deg]" : "rotate-[90deg]",
+                "ml-[.06rem]"
+              )}
+            >
+              <Icomoon
+                icon="right"
+                size=".16rem"
+                color={showMore ? "#FFFFFF" : "#5B6872"}
+              />
+            </div>
+          </div>
+
+          {showMore && (
+            <div
+              className="p-[.24rem] mt-[.16rem]"
+              style={{
+                background: "rgba(9, 15, 23, 0.25)",
+                backdropFilter: "blur(.7rem)",
+                border: "1px solid rgba(38, 73, 78, 0.5)",
+                borderRadius: ".32rem",
+              }}
+            >
+              <div>
+                <MyTooltip
+                  text="Reward Ratio"
+                  title=""
+                  className="text-text2"
+                />
+              </div>
+              <div className="text-text1 mt-[.1rem]">
+                1:
+                {numberUtil.tokenMintRewardRateToHuman(
+                  data.reward_rate,
+                  data.rToken
+                )}
+              </div>
+              <div className="mt-[.17rem]">
+                <MyTooltip
+                  text="Remaining Reward"
+                  title=""
+                  className="text-text2"
+                />
+              </div>
+              <div className="text-text1 mt-[.1rem]">
+                {formatNumber(numberUtil.fisAmountToHuman(data.left_amount))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

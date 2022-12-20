@@ -1,7 +1,7 @@
 import { RTokenName } from "interfaces/common";
 import { cloneDeep } from "lodash";
 import { useEffect, useMemo } from "react";
-import { getMintPrograms } from "redux/reducers/MintProgramSlice";
+import { getMintPrograms, RTokenActs } from "redux/reducers/MintProgramSlice";
 import { PriceItem, updateRTokenPriceList } from "redux/reducers/RTokenSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
@@ -10,9 +10,9 @@ import { getTokenSymbol, rTokenNameToTokenSymbol } from "utils/rToken";
 import { useAppDispatch, useAppSelector } from "./common";
 import { useInterval } from "./useInterval";
 
-interface RTokenListItem {
+export interface RTokenListItem {
   rToken: RTokenName;
-  children: any[];
+  children: RTokenActs[];
 }
 
 const rTokenList: RTokenListItem[] = [
@@ -133,15 +133,15 @@ export function useRPoolMintRTokenActs() {
   }, [priceList, mintDataList]);
 
   const { liveList, finishedList } = useMemo(() => {
-    const liveList: any[] = [];
-    const finishedList: any[] = [];
+    const liveList: RTokenListItem[] = [];
+    const finishedList: RTokenListItem[] = [];
     mintDataList.forEach((data: RTokenListItem) => {
       const { rToken } = data;
       const liveChildren = data.children.filter(
-        (item: any) => item.nowBlock < item.end
+        (item: RTokenActs) => item.nowBlock < item.end
       );
       const completedChildren = data.children.filter(
-        (item: any) => item.nowBlock >= item.end
+        (item: RTokenActs) => item.nowBlock >= item.end
       );
 
       liveList.push({

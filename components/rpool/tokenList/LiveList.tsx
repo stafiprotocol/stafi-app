@@ -1,12 +1,18 @@
 import { EmptyContent } from "components/common/EmptyContent";
+import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { RTokenName } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
 import { useMemo } from "react";
+import { RTokenActs } from "redux/reducers/MintProgramSlice";
 import MintTokenCard from "../tokenCard/MintTokenCard";
 
 interface Props {
   programTab: ProgramTab;
-  list: any[];
+  list: RTokenListItem[];
+}
+
+export interface AllListItem extends RTokenActs {
+	rToken: RTokenName;
 }
 
 const RPoolLiveList = (props: Props) => {
@@ -14,11 +20,11 @@ const RPoolLiveList = (props: Props) => {
 
   const flatList = useMemo(() => {
     const validList = list.filter(
-      (item: any) => Array.isArray(item.children) && item.children.length > 0
+      (item: RTokenListItem) => Array.isArray(item.children) && item.children.length > 0
     );
-    const allListData: any[] = [];
-    validList.forEach((item: any) => {
-      item.children.forEach((child: any) => {
+    const allListData: AllListItem[] = [];
+    validList.forEach((item: RTokenListItem) => {
+      item.children.forEach((child: RTokenActs) => {
         allListData.push({
           ...child,
           rToken: item.rToken,
@@ -39,7 +45,7 @@ const RPoolLiveList = (props: Props) => {
       )}
       {props.programTab === ProgramTab.Mint ? (
         <>
-          {flatList.map((item: any, index: number) => (
+          {flatList.map((item: AllListItem, index: number) => (
             <MintTokenCard
               key={`${item.rToken}${index}`}
               data={item}

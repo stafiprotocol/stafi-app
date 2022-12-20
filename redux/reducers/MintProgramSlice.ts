@@ -6,8 +6,20 @@ import { rTokenNameToTokenSymbol } from "utils/rToken";
 
 const rPoolServer = new RPoolServer();
 
+export interface RTokenActs {
+	begin: number;
+	end: number;
+	endTimeStamp: number;
+	nowBlock: number;
+	mintedValue: string;
+	reward_rate: number;
+	total_native_token_amount: number;
+	total_reward: string;
+	left_amount: string;
+}
+
 export type RTokenActsCollection = {
-  [rTokenName in RTokenName]?: any[];
+  [rTokenName in RTokenName]?: RTokenActs[];
 };
 
 export interface MintProgramState {
@@ -47,13 +59,14 @@ export const getMintPrograms = (): AppThunk => async (dispatch, getState) => {
     dispatch(getRTokenMintInfo(RTokenName.rSOL)),
   ])
     .then(() => {
+			console.log(getState().mintProgram.rTokenActs)
 		})
     .catch((err: any) => {});
 };
 
 const getREthMintInfo = (): AppThunk => async (dispatch, getState) => {
   try {
-    const acts: any[] = await rPoolServer.getREthMintRewardsActs();
+    const acts: RTokenActs[] = await rPoolServer.getREthMintRewardsActs();
     const rTokenActs = getState().mintProgram.rTokenActs;
     const newValue = {
       ...rTokenActs,
@@ -69,7 +82,7 @@ const getRTokenMintInfo =
   async (dispatch, getState) => {
     try {
       const tokenSymbol = rTokenNameToTokenSymbol(rTokenName);
-      const acts = await rPoolServer.getRTokenMintRewardsActs(tokenSymbol);
+      const acts: RTokenActs[] = await rPoolServer.getRTokenMintRewardsActs(tokenSymbol);
       const rTokenActs = getState().mintProgram.rTokenActs;
       const newValue = {
         ...rTokenActs,

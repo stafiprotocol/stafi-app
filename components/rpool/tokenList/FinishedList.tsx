@@ -1,14 +1,16 @@
 import { Button } from "components/common/button";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
+import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { ProgramTab } from "pages/rpool";
 import { useMemo } from "react";
+import { RTokenActs } from "redux/reducers/MintProgramSlice";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
 
 interface Props {
   programTab: ProgramTab;
-  list: any[];
+  list: RTokenListItem[];
 }
 
 const RPoolFinishedList = (props: Props) => {
@@ -16,7 +18,7 @@ const RPoolFinishedList = (props: Props) => {
 
   const renderedList = useMemo(() => {
     return list.filter(
-      (data: any) => Array.isArray(data.children) && data.children.length > 0
+      (data: RTokenListItem) => Array.isArray(data.children) && data.children.length > 0
     );
   }, [list]);
 
@@ -63,7 +65,7 @@ const RPoolFinishedList = (props: Props) => {
       </div>
 
       {!!renderedList &&
-        renderedList.map((data: any, i: number) => (
+        renderedList.map((data: RTokenListItem, i: number) => (
           <div
             key={`${data.rToken}${i}`}
             className="px-[.56rem]"

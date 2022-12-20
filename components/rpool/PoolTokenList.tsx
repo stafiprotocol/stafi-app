@@ -1,3 +1,4 @@
+import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { RTokenName } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
 import { useState } from "react";
@@ -7,8 +8,8 @@ import RPoolLiveList from "./tokenList/LiveList";
 
 interface Props {
   programTab: ProgramTab;
-  liveList: any[];
-  finishedList: any[];
+  liveList: RTokenListItem[];
+  finishedList: RTokenListItem[];
 }
 
 const PoolTokenList = (props: Props) => {
