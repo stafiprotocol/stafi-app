@@ -176,8 +176,12 @@ export const PublicKeyList = (props: PublicKeyListProps) => {
 
       <EthPubkeyDetailModal
         visible={pubkeyDetailModalVisible}
-        onClose={() => setPubkeyDetailModalVisible(false)}
         pubkey={displayPubkey}
+        // pubkey={
+        //   "0xb5f9b0c3b87913470ecf08bf968fe87e199d02f73a078c4d0187227975d34c69712d9f41833520dc7a261d9a6ac590ff"
+        // }
+        // visible={true}
+        onClose={() => setPubkeyDetailModalVisible(false)}
       />
     </CollapseCard>
   );

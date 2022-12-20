@@ -3,14 +3,21 @@ import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
 import { CustomPagination } from "components/common/pagination";
 import { Icomoon } from "components/icon/Icomoon";
+import { useEthPubkeySlashDetail } from "hooks/useEthPubkeySlashDetail";
 import Link from "next/link";
 import { useState } from "react";
 import { SlashDetailsItem } from "./SlashDetailsItem";
 
-export const SlashDetails = () => {
-  const totalCount = 1;
-  const list = [1, 2];
+interface SlashDetailsProps {
+  pubkey: string;
+}
+
+export const SlashDetails = (props: SlashDetailsProps) => {
   const [page, setPage] = useState(1);
+  const { totalCount, slashEventList } = useEthPubkeySlashDetail(
+    props.pubkey,
+    page
+  );
 
   return (
     <CollapseCard
@@ -20,13 +27,13 @@ export const SlashDetails = () => {
         <MyTooltip
           className="text-white text-[.32rem]"
           text="Slash Details"
-          title="xxxxx"
+          title="Slash Details"
         />
       }
     >
       <div>
         <div className="min-h-[2rem]">
-          {totalCount > 0 && (
+          {Number(totalCount) > 0 && (
             <div
               className="mb-[.32rem] grid"
               style={{ height: "auto", gridTemplateColumns: "20% 20% 20% 40%" }}
@@ -62,11 +69,11 @@ export const SlashDetails = () => {
             </div>
           )}
 
-          {list.map((item, index) => (
-            <SlashDetailsItem key={index} index={index} />
+          {slashEventList.map((item, index) => (
+            <SlashDetailsItem key={index} index={index} slashEvent={item} />
           ))}
 
-          {totalCount === 0 && (
+          {!totalCount && (
             <div className="flex flex-col items-center">
               <Link href="/validator/reth/choose-validator">
                 <div className="flex flex-col items-center cursor-pointer">
@@ -83,10 +90,10 @@ export const SlashDetails = () => {
           )}
         </div>
 
-        {totalCount > 0 && (
+        {Number(totalCount) > 0 && (
           <div className="mt-[.36rem] flex justify-center">
             <CustomPagination
-              totalCount={totalCount}
+              totalCount={Number(totalCount)}
               page={1}
               onChange={setPage}
             />
