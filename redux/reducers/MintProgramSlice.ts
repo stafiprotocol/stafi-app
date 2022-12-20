@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RTokenName, TokenSymbol } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import RPoolServer from "servers/rpool";
+import { stafiServer } from "servers/stafi";
 import { rTokenNameToTokenSymbol } from "utils/rToken";
 
 const rPoolServer = new RPoolServer();
@@ -92,3 +93,13 @@ const getRTokenMintInfo =
       dispatch(setRTokenActs(newValue));
     } catch (err: unknown) {}
   };
+
+export const claimRTokenReward = (): AppThunk =>
+async (dispatch, getState) => {
+	// todo: add noti
+	try {
+		const api = await stafiServer.createStafiApi();
+	} catch (err: any) {
+
+	}
+}

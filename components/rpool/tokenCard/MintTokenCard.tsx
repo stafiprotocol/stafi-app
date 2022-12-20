@@ -16,6 +16,7 @@ import { useRTokenBalance } from "hooks/useRTokenBalance";
 import downIcon from "public/icon_down.png";
 import { Icomoon } from "components/icon/Icomoon";
 import classNames from "classnames";
+import RPoolMintClaimModal from "components/modal/RPoolMintClaimModal";
 
 interface Props {
   rTokenName: RTokenName;
@@ -35,6 +36,7 @@ const MintTokenCard = (props: Props) => {
   );
 
   const [showMore, setShowMore] = useState<boolean>(false);
+  const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
 
   const isBalanceValid = useMemo(() => {
     return !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0;
@@ -46,9 +48,17 @@ const MintTokenCard = (props: Props) => {
     return ethLogo;
   };
 
+  const closeClaimModal = () => {
+    setClaimModalVisible(false);
+  };
+
   const onClickMint = () => {
     router.push(`/rtoken/stake/${rTokenNameToTokenName(data.rToken)}`);
   };
+
+  const onClickClaim = () => {
+		setClaimModalVisible(true);
+	};
 
   return (
     <div
@@ -154,7 +164,7 @@ const MintTokenCard = (props: Props) => {
         style={{
           border: "1px solid rgba(91, 104, 114, 0.5)",
         }}
-        onClick={() => {}}
+        onClick={onClickClaim}
       >
         Claim
       </div>
@@ -220,6 +230,11 @@ const MintTokenCard = (props: Props) => {
           )}
         </div>
       )}
+
+      <RPoolMintClaimModal
+        visible={claimModalVisible}
+        onClose={closeClaimModal}
+      />
     </div>
   );
 };
