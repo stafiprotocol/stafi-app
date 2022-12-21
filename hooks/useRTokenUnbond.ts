@@ -13,12 +13,13 @@ import { Symbol } from "keyring/defaults";
 import { hexToU8a, u8aToHex } from "@polkadot/util";
 import { useAppSlice } from "./selector";
 import { getTokenSymbol } from "utils/rToken";
-import { PAGE_SIZE } from "utils/constants";
+import { DOT_SS58_FORMAT, KSM_SS58_FORMAT, PAGE_SIZE } from "utils/constants";
 import numberUtil from "utils/numberUtil";
 import keyring from "servers/keyring";
 import { getRTokenUnbondRecords } from "utils/storage";
 import dayjs from "dayjs";
 import { estimateUnbondDays } from "config/unbond";
+import { encodeAddress } from "@polkadot/util-crypto";
 
 export interface UnbondModel {
   txHash?: string;
@@ -172,6 +173,16 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
               formatReceiveAddress = keyringInstance.encodeAddress(
                 item.receiveAddress as any
               );
+            } else if (tokenName === TokenName.KSM) {
+              formatReceiveAddress = encodeAddress(
+                hexToU8a(item.receiveAddress),
+                KSM_SS58_FORMAT
+              );
+            } else if (tokenName === TokenName.DOT) {
+              formatReceiveAddress = encodeAddress(
+                hexToU8a(item.receiveAddress),
+                DOT_SS58_FORMAT
+              );
             } else {
               formatReceiveAddress = keyringInstance.encodeAddress(
                 hexToU8a(item.receiveAddress)
@@ -204,12 +215,12 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
                 lockLeftTimeInDays: estimateUnbondDays(tokenName),
                 formatReceiveAddress: record.recipient,
                 formatTokenAmount: record.amount,
-								txHash: record.txHash,
-								formatRTokenAmount: record.rTokenAmount,
-								formatLeftTime: '10 D',
-								txTimestamp: record.txTimestamp,
-								receivedStatus: 1,
-								hasReceived: false,
+                txHash: record.txHash,
+                formatRTokenAmount: record.rTokenAmount,
+                formatLeftTime: "10 D",
+                txTimestamp: record.txTimestamp,
+                receivedStatus: 1,
+                hasReceived: false,
               });
             }
           }
