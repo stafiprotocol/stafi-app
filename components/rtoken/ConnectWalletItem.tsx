@@ -12,6 +12,7 @@ import {
   disconnectWallet,
 } from "redux/reducers/WalletSlice";
 import { isPolkadotWallet } from "utils/common";
+import { transformSs58Address } from "utils/polkadotUtils";
 import { getWalletIcon } from "utils/rToken";
 
 interface ConnectWalletItemProps {
@@ -25,7 +26,8 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
   const { walletType, targetMetaMaskChainId } = props;
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
-  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
+    useWalletAccount();
   const [showDetail, setShowDetail] = useState(true);
 
   const userAddress = useMemo(() => {
@@ -33,14 +35,33 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
       return metaMaskAccount;
     }
     if (walletType === WalletType.Polkadot) {
-      return polkadotAccount;
+      return transformSs58Address(polkadotAccount, walletType);
+    }
+    if (walletType === WalletType.Polkadot_KSM) {
+      return transformSs58Address(ksmAccount, walletType);
+    }
+    if (walletType === WalletType.Polkadot_DOT) {
+      return transformSs58Address(dotAccount, walletType);
     }
     return "";
-  }, [metaMaskAccount, walletType, polkadotAccount]);
+  }, [metaMaskAccount, walletType, polkadotAccount, ksmAccount, dotAccount]);
 
   const showWrongNetwork =
     walletType === WalletType.MetaMask &&
     targetMetaMaskChainId !== metaMaskChainId;
+
+  const getWalletName = () => {
+    if (walletType === WalletType.Polkadot_KSM) {
+      return "Kusama";
+    }
+    if (walletType === WalletType.Polkadot_DOT) {
+      return "Polkadot";
+    }
+    if (walletType === WalletType.Polkadot) {
+      return "StaFi";
+    }
+    return walletType;
+  };
 
   return (
     <div className="mb-[.24rem]">
@@ -65,7 +86,7 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
               </div>
 
               <div className="text-white text-[.2rem] ml-[.16rem]">
-                {walletType}
+                {getWalletName()}
               </div>
 
               {showWrongNetwork ? (
@@ -167,7 +188,13 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
             <div className="text-[.2rem] ml-[.16rem]">
               Connect to{" "}
               {isPolkadotWallet(props.walletType)
-                ? "Polkadot.js"
+                ? `Polkadot.js (${
+                    props.walletType === WalletType.Polkadot_KSM
+                      ? "Kusama"
+                      : props.walletType === WalletType.Polkadot_DOT
+                      ? "Polkadot"
+                      : "StaFi"
+                  })`
                 : props.walletType}
             </div>
           </div>

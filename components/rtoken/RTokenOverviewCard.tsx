@@ -35,7 +35,8 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
-  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
+    useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
 
@@ -103,18 +104,42 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         return;
       }
       router.push("/rtoken/stake/BNB");
+    } else if (tokenName === TokenName.KSM) {
+      if (!ksmAccount || !polkadotAccount) {
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.Polkadot, WalletType.Polkadot_KSM],
+            targetUrl: "/rtoken/stake/KSM",
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/KSM");
+    } else if (tokenName === TokenName.DOT) {
+      if (!dotAccount || !polkadotAccount) {
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.Polkadot, WalletType.Polkadot_DOT],
+            targetUrl: "/rtoken/stake/DOT",
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/DOT");
     }
   };
 
   return (
     <div
-      className="py-[0] px-[.24rem] h-[4.05rem] w-[3.35rem] rounded-[.16rem] bg-[#1a283533] hover:bg-[#58779826]"
+      className="py-[0] px-[.24rem] h-[4.05rem] w-full rounded-[.16rem] bg-[#1a283533] hover:bg-[#58779826]"
       style={{
         border: "1px solid #1a2835",
         backdropFilter: "blur(0.67rem)",
-				cursor: "pointer",
+        cursor: "pointer",
       }}
-			onClick={clickStake}
+      onClick={clickStake}
     >
       <div className="mt-[.36rem] flex items-center justify-between relative">
         <div className="w-[.76rem] h-[.76rem] relative">

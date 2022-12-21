@@ -56,16 +56,23 @@ const RTokenPage = () => {
 
       <div className="mt-[.56rem] text-white text-[.32rem]">All Stakes</div>
 
-      <div className="mt-[.35rem] flex">
+      <div
+        className="mt-[.35rem] grid"
+        style={{
+          gridTemplateColumns: "repeat(4, 3.35rem)",
+          justifyContent: "space-between",
+          rowGap: ".5rem",
+        }}
+      >
         <RTokenOverviewCard tokenName={TokenName.ETH} />
 
-        <div className="ml-[.875rem]">
-          <RTokenOverviewCard tokenName={TokenName.MATIC} />
-        </div>
+        <RTokenOverviewCard tokenName={TokenName.MATIC} />
 
-        {/* <div className="ml-[.875rem]">
-          <RTokenOverviewCard tokenName={TokenName.BNB} />
-        </div> */}
+        <RTokenOverviewCard tokenName={TokenName.KSM} />
+
+        <RTokenOverviewCard tokenName={TokenName.DOT} />
+
+        {/* <RTokenOverviewCard tokenName={TokenName.BNB} /> */}
       </div>
     </div>
   );

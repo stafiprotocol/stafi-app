@@ -428,7 +428,7 @@ export const updateTokenPoolData =
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            rsymbols: ["rmatic", "rbnb"],
+            rsymbols: ["rmatic", "rbnb", "rksm", "rdot"],
           }),
         }
       );
@@ -442,12 +442,16 @@ export const updateTokenPoolData =
         stakeList.forEach((data: any) => {
           const poolData: PoolData = {
             stakedAmount: data.stakeAmount,
-            stakedValue: data.stakeAmount,
+            stakedValue: data.stakeValue,
           };
           if (data.rsymbol === "Rmatic") {
             poolDataStore.MATIC = poolData;
           } else if (data.rsymbol === "Rbnb") {
             poolDataStore.BNB = poolData;
+          } else if (data.rsymbol === "Rksm") {
+            poolDataStore.KSM = poolData;
+          } else if (data.rsymbol === "Rdot") {
+            poolDataStore.DOT = poolData;
           }
         });
 

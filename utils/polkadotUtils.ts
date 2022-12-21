@@ -4,6 +4,11 @@ import StafiServer from "servers/stafi";
 import { chainAmountToHuman } from "./number";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { u8aToHex } from "@polkadot/util";
+import {
+  DOT_SS58_FORMAT,
+  KSM_SS58_FORMAT,
+  STAFI_SS58_FORMAT,
+} from "./constants";
 
 export async function getNativeRTokenBalance(
   userAddress: string | undefined,
@@ -74,6 +79,19 @@ export function polkadotAddressToHex(address: string) {
   return u8aToHex(decodeAddress(address));
 }
 
-export function transformSs58Address(address: string, ss58Prefix: number) {
-  return encodeAddress(decodeAddress(address), ss58Prefix);
+export function transformSs58Address(
+  address: string | undefined,
+  walletType: WalletType
+) {
+  if (!address) {
+    return "";
+  }
+  return encodeAddress(
+    decodeAddress(address),
+    walletType === WalletType.Polkadot_KSM
+      ? KSM_SS58_FORMAT
+      : walletType === WalletType.Polkadot_DOT
+      ? DOT_SS58_FORMAT
+      : STAFI_SS58_FORMAT
+  );
 }

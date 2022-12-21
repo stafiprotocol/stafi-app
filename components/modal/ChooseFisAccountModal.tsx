@@ -200,11 +200,7 @@ export const ChooseFisAccountModal = (props: Props) => {
                     <div className="text-text2 text-[.16rem] break-all mt-[.2rem] leading-normal">
                       {transformSs58Address(
                         account.address,
-                        chooseAccountWalletType === WalletType.Polkadot_KSM
-                          ? KSM_SS58_FORMAT
-                          : chooseAccountWalletType === WalletType.Polkadot_DOT
-                          ? DOT_SS58_FORMAT
-                          : STAFI_SS58_FORMAT
+                        chooseAccountWalletType
                       )}
                     </div>
                   </div>
