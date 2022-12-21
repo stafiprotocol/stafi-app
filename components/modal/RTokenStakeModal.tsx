@@ -926,23 +926,25 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               </div>
             </div>
 
-            <div
-              className={classNames(
-                "self-center mt-[.8rem] text-[.24rem] flex items-center",
-                { hidden: tokenName === TokenName.ETH }
-              )}
-            >
-              <div className="text-text2">Need FIS for Transaction?</div>
+            {tokenName !== TokenName.MATIC && (
               <div
-                className="ml-[.22rem] flex items-center text-primary cursor-pointer"
-                onClick={() => {
-                  openLink("https://app.stafi.io/feeStation");
-                }}
+                className={classNames(
+                  "self-center mt-[.8rem] text-[.24rem] flex items-center",
+                  { hidden: tokenName === TokenName.ETH }
+                )}
               >
-                <div className="mr-[.16rem]">Go FIS Station</div>
-                <Icomoon icon="arrow-right" size=".26rem" color="#00F3AB" />
+                <div className="text-text2">Need FIS for Transaction?</div>
+                <div
+                  className="ml-[.22rem] flex items-center text-primary cursor-pointer"
+                  onClick={() => {
+                    openLink("https://app.stafi.io/feeStation");
+                  }}
+                >
+                  <div className="mr-[.16rem]">Go FIS Station</div>
+                  <Icomoon icon="arrow-right" size=".26rem" color="#00F3AB" />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </Card>
 

@@ -5,6 +5,7 @@ import { CustomPagination } from "components/common/pagination";
 import { TableSkeleton } from "components/common/TableSkeleton";
 import { Icomoon } from "components/icon/Icomoon";
 import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
 import { EraRewardModel, useRTokenReward } from "hooks/useRTokenReward";
 import { TokenName } from "interfaces/common";
 import { useCallback, useMemo, useState } from "react";
@@ -14,6 +15,8 @@ import {
   getExchangeRateUpdateTime,
   getRewardText,
 } from "utils/rToken";
+
+dayjs.extend(utc);
 
 interface StakeMyRewardListProps {
   tokenName: TokenName;
@@ -105,11 +108,11 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             <Tooltip
               title={
-                dayjs(item.startTimestamp).format("YYYY-MM-DD HH:mm +UTC") +
+                dayjs(item.startTimestamp).utc().format("YYYY-MM-DD HH:mm +UTC") +
                 " - " +
                 (item.endTimestamp === 0
                   ? "Now"
-                  : dayjs(item.endTimestamp).format("YYYY-MM-DD HH:mm +UTC"))
+                  : dayjs(item.endTimestamp).utc().format("YYYY-MM-DD HH:mm +UTC"))
               }
             >
               <span>{item.era}</span>
