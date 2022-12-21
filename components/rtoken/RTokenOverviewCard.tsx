@@ -16,7 +16,9 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import circulate from "public/circulate.svg";
 import ethLogo from "public/eth_type_black.svg";
-import maticLogo from "public/matic_type_black.svg";
+import maticLogo from "public/matic_type_black.png";
+import ksmLogo from "public/ksm_type_black.png";
+import dotLogo from "public/dot_type_black.png";
 import maticChainLogo from "public/matic_logo_black.svg";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { formatNumber } from "utils/number";
@@ -54,6 +56,19 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const displayStakedAmount = useMemo(() => {
     return tokenName === TokenName.ETH ? allEth : stakedAmount;
   }, [tokenName, allEth, stakedAmount]);
+
+  const getLogo = () => {
+    if (tokenName === TokenName.MATIC) {
+      return maticLogo;
+    }
+    if (tokenName === TokenName.KSM) {
+      return ksmLogo;
+    }
+    if (tokenName === TokenName.DOT) {
+      return dotLogo;
+    }
+    return ethLogo;
+  };
 
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
@@ -143,28 +158,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     >
       <div className="mt-[.36rem] flex items-center justify-between relative">
         <div className="w-[.76rem] h-[.76rem] relative">
-          <Image
-            src={tokenName === TokenName.MATIC ? maticLogo : ethLogo}
-            layout="fill"
-            alt="logo"
-          />
-        </div>
-
-        <div
-          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.04rem] hidden"
-          style={{
-            background: "rgba(25, 38, 52, 0.4)",
-            border: "1px solid #1A2835",
-            backdropFilter: "blur(.13rem)",
-          }}
-        >
-          <div className="w-full h-full relative">
-            <Image
-              src={tokenName === TokenName.MATIC ? maticChainLogo : ethLogo}
-              layout="fill"
-              alt="circulate"
-            />
-          </div>
+          <Image src={getLogo(tokenName)} layout="fill" alt="logo" />
         </div>
 
         <div className="flex flex-col items-end">
