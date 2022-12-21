@@ -2,28 +2,20 @@ import { Box, Modal } from "@mui/material";
 import classNames from "classnames";
 import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { Icomoon } from "components/icon/Icomoon";
-import { StakeLoadingProgressItem } from "components/rtoken/StakeLoadingProgressItem";
+import { RedeemLoadingProgressItem } from "components/rtoken/RedeemLoadingProgressItem";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import checkFileSuccess from "public/check_file_success.svg";
 import checkFileError from "public/transaction_error.svg";
-import { useEffect, useMemo, useState } from "react";
-import {
-  resetStakeLoadingParams,
-  setRedeemLoadingParams,
-  updateStakeLoadingParams,
-} from "redux/reducers/AppSlice";
-import { handleEthTokenStake } from "redux/reducers/EthSlice";
+import { useEffect, useState } from "react";
+import { setRedeemLoadingParams } from "redux/reducers/AppSlice";
 import { unbondRMatic } from "redux/reducers/MaticSlice";
-import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
-import { bond } from "redux/reducers/FisSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
-import snackbarUtil from "utils/snackbarUtils";
-import { RedeemLoadingProgressItem } from "components/rtoken/RedeemLoadingProgressItem";
 import { getRedeemDaysLeft } from "utils/rToken";
+import snackbarUtil from "utils/snackbarUtils";
 
 export const RTokenRedeemLoadingModal = () => {
   const dispatch = useAppDispatch();
@@ -121,7 +113,9 @@ export const RTokenRedeemLoadingModal = () => {
                 )} ${redeemLoadingParams?.tokenName}`
               : redeemLoadingParams?.status === "error"
               ? "Transaction Failed"
-              : `You are now unstaking ${redeemLoadingParams?.amount} r${redeemLoadingParams?.tokenName}`}
+              : `You are now unstaking ${Number(
+                  redeemLoadingParams?.amount
+                )} r${redeemLoadingParams?.tokenName}`}
           </div>
 
           <div

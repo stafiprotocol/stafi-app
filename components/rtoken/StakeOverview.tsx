@@ -53,7 +53,16 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   const [rTokenRedeemModalVisible, setRTokenRedeemModalVisible] =
     useState(false);
 
-  const { metaMaskAccount } = useWalletAccount();
+  const { metaMaskAccount, ksmAccount, dotAccount } = useWalletAccount();
+
+  const defaultReceivingAddress = useMemo(() => {
+    if (props.tokenName === TokenName.KSM) {
+      return ksmAccount;
+    } else if (props.tokenName === TokenName.DOT) {
+      return dotAccount;
+    }
+    return metaMaskAccount;
+  }, [props.tokenName, metaMaskAccount, ksmAccount, dotAccount]);
 
   const selectedStandard = useTokenStandard(props.tokenName);
   const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
@@ -286,7 +295,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   {isWrongMetaMaskNetwork ? (
-                    <>$ --</>
+                    <>--</>
                   ) : isEmptyValue(totalRewardValue) ? (
                     <BubblesLoading color="white" />
                   ) : (
@@ -411,8 +420,8 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         onClose={() => setRTokenRedeemModalVisible(false)}
         tokenName={props.tokenName}
         balance={rTokenBalance}
-        defaultReceivingAddress={metaMaskAccount}
-				onClickConnectWallet={props.onClickConnectWallet}
+        defaultReceivingAddress={defaultReceivingAddress}
+        onClickConnectWallet={props.onClickConnectWallet}
       />
     </div>
   );

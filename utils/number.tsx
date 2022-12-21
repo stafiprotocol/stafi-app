@@ -41,7 +41,6 @@ export function formatNumber(
     withSplit?: boolean;
     toReadable?: boolean;
     roundMode?: "round" | "floor" | "ceil";
-    fixedLength?: boolean;
   } = {}
 ) {
   if (num === undefined || num === "") {

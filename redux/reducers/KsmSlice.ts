@@ -34,6 +34,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -162,7 +163,7 @@ export const handleKsmStake =
     }
 
     const chainAmount = numberToChain(stakeAmount, rSymbol.Ksm);
-    console.log("chainAmount", chainAmount);
+    // console.log("chainAmount", chainAmount);
     const noticeUuid = isReTry
       ? getState().app.stakeLoadingParams?.noticeUuid
       : stafiUuid();
@@ -195,7 +196,7 @@ export const handleKsmStake =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {
@@ -235,6 +236,9 @@ export const handleKsmStake =
         resetStakeLoadingParams({
           modalVisible: true,
           noticeUuid,
+          displayMsg: `Please approve the ${Number(
+            stakeAmount
+          )} KSM fund sending request in your Polkadot.js wallet`,
           status: "loading",
           tokenName: TokenName.KSM,
           amount: stakeAmount,
@@ -288,6 +292,13 @@ export const handleKsmStake =
       dispatch(
         sendPolkadotTx(ksmApi, ksmAccount, ksmBalance, {
           extrinsic,
+          txStartCb: () => {
+            dispatch(
+              updateStakeLoadingParams({
+                displayMsg: "Staking processing, please wait for a moment",
+              })
+            );
+          },
           txCancelCb: () => {
             handleError(new Error(CANCELLED_MESSAGE));
           },
@@ -457,19 +468,16 @@ export const unstakeRKsm =
     // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
-      resetStakeLoadingParams({
+      setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
         tokenName: TokenName.KSM,
         amount: amount,
         willReceiveAmount,
         newTotalStakedAmount,
-        steps: ["sending"],
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-        },
+        customMsg: `Please confirm the ${Number(
+          amount
+        ).toString()} rKSM unstaking transaction in your Polkadot.js wallet`,
       })
     );
     try {
@@ -518,19 +526,19 @@ export const unstakeRKsm =
     }
   };
 
-export const getUnbondCommision =
+export const getKsmUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
     dispatch(setUnbondCommision(unbondCommision?.toString() || "--"));
     // dispatch(updateMaticBalance());
   };
 
-export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
+export const getKsmUnbondFees = (): AppThunk => async (dispatch, getState) => {
   const unbondFees = await commonSlice.getUnbondFees(rSymbol.Ksm);
   dispatch(setUnbondFees(Number(unbondFees).toString()));
 };
 
-export const getBondFees = (): AppThunk => async (dispatch, getState) => {
+export const getKsmBondFees = (): AppThunk => async (dispatch, getState) => {
   const bondFees = await commonSlice.getBondFees(rSymbol.Ksm);
   dispatch(setBondFees(Number(bondFees).toString()));
 };

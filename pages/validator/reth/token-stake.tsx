@@ -9,12 +9,9 @@ import { ValidatorTokenStakeLayout } from "components/layout/layout_validator_to
 import { ChooseStakeTypeModal } from "components/modal/ChooseStakeTypeModal";
 import { TokenStakeTabs } from "components/reth/TokenStakeTabs";
 import { WaitingStakeCard } from "components/reth/WaitingStakeCard";
-import {
-  getEthValidatorSVFeeRecipient,
-  getEthValidatorTVFeeRecipient,
-} from "config/erc20Contract";
-import { getEtherScanAccountUrl } from "config/explorer";
 import { hooks } from "connectors/metaMask";
+import { useAppDispatch } from "hooks/common";
+import redWarningIcon from "public/icon_warning_red.svg";
 import { useEthMyData } from "hooks/useEthMyData";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useEthStakeList } from "hooks/useEthStakeList";
@@ -24,16 +21,17 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import warningIcon from "public/icon_warning.svg";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
-import { openLink } from "utils/common";
+import { setCollapseOpenId } from "redux/reducers/AppSlice";
+import { FAQ_ID_CONFIGURE_FEE, FAQ_ID_SLASH } from "utils/constants";
 import {
   getStorage,
-  removeStorage,
   saveStorage,
-  STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP,
+  STORAGE_KEY_HIDE_CONFIGURE_FEE_RECIPIENT_TIP,
+  STORAGE_KEY_HIDE_SLASH_TIP,
 } from "utils/storage";
-import { getShortAddress } from "utils/string";
 
 const TokenStake = (props: any) => {
+  const dispatch = useAppDispatch();
   const { useAccount } = hooks;
   const account = useAccount();
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -44,10 +42,11 @@ const TokenStake = (props: any) => {
   const [chooseStakeTypeModalVisible, setChooseStakeTypeModalVisible] =
     useState(false);
   const [showFeeWarning, setShowWarning] = useState(false);
+  const [showSlashWarning, setShowSlashWarning] = useState(false);
 
   const { depositList, loading, firstLoading } = useEthStakeList();
   const { unmatchedEth } = useEthPoolData();
-  const { totalCount } = useEthMyData();
+  const { totalCount, slashCount } = useEthMyData();
 
   useEffect(() => {
     if (router.query.checkNewUser && totalCount <= 0) {
@@ -56,9 +55,15 @@ const TokenStake = (props: any) => {
   }, [totalCount, router]);
 
   useEffect(() => {
-    const temp = getStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP);
-    setShowWarning(!temp);
-  }, []);
+    if (slashCount === undefined) {
+      return;
+    }
+    const temp1 = getStorage(STORAGE_KEY_HIDE_CONFIGURE_FEE_RECIPIENT_TIP);
+    const temp2 = getStorage(STORAGE_KEY_HIDE_SLASH_TIP);
+    const showSlash = Number(slashCount) > 0 && !temp2;
+    setShowWarning(!temp1 && !showSlash);
+    setShowSlashWarning(showSlash);
+  }, [slashCount]);
 
   useEffect(() => {
     setNavigation([
@@ -150,65 +155,86 @@ const TokenStake = (props: any) => {
   return (
     <div className="flex flex-col items-stretch">
       <div
-        className={classNames("px-[.56rem] py-[.32rem] bg-[#0095EB1A]", {
-          hidden: !showFeeWarning,
-        })}
+        className={classNames(
+          "px-[.56rem] py-[.32rem] bg-[#0095EB1A] relative",
+          {
+            hidden: !showFeeWarning,
+          }
+        )}
       >
-        <div className="flex justify-between">
-          <div className="flex">
+        <div
+          className="absolute right-[.12rem] top-[.12rem] cursor-pointer"
+          onClick={() => {
+            setShowWarning(false);
+            saveStorage(STORAGE_KEY_HIDE_CONFIGURE_FEE_RECIPIENT_TIP, "1");
+          }}
+        >
+          <Icomoon icon="close" size=".22rem" />
+        </div>
+
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
             <div className="relative w-[.24rem] h-[.24rem] min-w-[.24rem]">
               <Image src={warningIcon} layout="fill" alt="warning" />
             </div>
-            <div className="text-warning text-[.2rem] ml-[.12rem] leading-normal mt-[-.02rem]">
-              Please configure your Priority Fee recipient address for Solo
-              Validator(SV) and Trusted Validator(TV), <br />
-              otherwise you may be slashed by StaFi protocol.
+            <div className="text-warning text-[.2rem] ml-[.12rem] leading-normal">
+              Please configure your fee recipient as adress for each node,
+              Otherwise you may be slashed by StaFi protocol.
             </div>
           </div>
 
-          <div
-            className="flex items-center mt-[-0.3rem] cursor-pointer"
+          <a
+            className="flex items-center cursor-pointer mr-[.3rem] shrink-0"
+            href="#faq1"
             onClick={() => {
-              openLink(
-                "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide#3.join-eth2-mainnet-by-running-prysm"
-              );
+              dispatch(setCollapseOpenId(FAQ_ID_CONFIGURE_FEE));
             }}
           >
             <div className="text-warning text-[.24rem] mr-[.16rem]">
               Learn More
             </div>
             <Icomoon size=".26rem" icon="arrow-right" color="#0095EB" />
-          </div>
+          </a>
+        </div>
+      </div>
+      <div
+        className={classNames("px-[.56rem] py-[.32rem] bg-error/10 relative", {
+          hidden: !showSlashWarning,
+        })}
+      >
+        <div
+          className="absolute right-[.12rem] top-[.12rem] cursor-pointer"
+          onClick={() => {
+            setShowSlashWarning(false);
+            saveStorage(STORAGE_KEY_HIDE_SLASH_TIP, "1");
+          }}
+        >
+          <Icomoon icon="close" size=".22rem" />
         </div>
 
-        <div className="mt-[.32rem] flex">
-          <div
-            className="border-[1px] border-solid border-[#0095EB80] rounded-[.12rem] flex items-center justify-center h-[.48rem] w-[3.4rem] text-warning text-[.2rem] cursor-pointer"
-            onClick={() => {
-              openLink(getEtherScanAccountUrl(getEthValidatorSVFeeRecipient()));
-            }}
-          >
-            For SV: {getShortAddress(getEthValidatorSVFeeRecipient(), 4)}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <div className="relative w-[.24rem] h-[.24rem] min-w-[.24rem]">
+              <Image src={redWarningIcon} layout="fill" alt="warning" />
+            </div>
+            <div className="text-error text-[.2rem] ml-[.12rem] leading-normal">
+              Your node has been slashed for 3.87 ETH, please configure your fee
+              recipient as adress for each node ASAP.
+            </div>
           </div>
 
-          <div
-            className="ml-[.24rem] border-[1px] border-solid border-[#0095EB80] rounded-[.12rem] flex items-center justify-center h-[.48rem] w-[3.4rem] text-warning text-[.2rem] cursor-pointer"
+          <a
+            className="flex items-center cursor-pointer mr-[.3rem] shrink-0"
+            href="#faq10"
             onClick={() => {
-              openLink(getEtherScanAccountUrl(getEthValidatorTVFeeRecipient()));
+              dispatch(setCollapseOpenId(FAQ_ID_SLASH));
             }}
           >
-            For TV: {getShortAddress(getEthValidatorTVFeeRecipient(), 4)}
-          </div>
-
-          <div
-            className="ml-[.24rem] bg-[#0095EB1A] rounded-[.12rem] flex items-center justify-center h-[.48rem] w-[3.4rem] text-warning text-[.2rem] cursor-pointer"
-            onClick={() => {
-              saveStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP, "1");
-              setShowWarning(false);
-            }}
-          >
-            Completed
-          </div>
+            <div className="text-error text-[.24rem] mr-[.16rem]">
+              Learn More
+            </div>
+            <Icomoon size=".26rem" icon="arrow-right" color="#FF52C4" />
+          </a>
         </div>
       </div>
 

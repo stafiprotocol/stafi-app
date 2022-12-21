@@ -15,12 +15,18 @@ export interface BridgeState {
   erc20BridgeFee: string;
   bep20BridgeFee: string;
   solBridgeFee: string;
+  maticErc20BridgeFee: string;
+  maticBep20BridgeFee: string;
+  maticSolBridgeFee: string;
 }
 
 const initialState: BridgeState = {
   erc20BridgeFee: "--",
   bep20BridgeFee: "--",
   solBridgeFee: "--",
+  maticErc20BridgeFee: "--",
+  maticBep20BridgeFee: "--",
+  maticSolBridgeFee: "--",
 };
 
 export const bridgeSlice = createSlice({
@@ -36,11 +42,35 @@ export const bridgeSlice = createSlice({
     setSolBridgeFee: (state: BridgeState, action: PayloadAction<string>) => {
       state.solBridgeFee = action.payload;
     },
+    setMaticErc20BridgeFee: (
+      state: BridgeState,
+      action: PayloadAction<string>
+    ) => {
+      state.maticErc20BridgeFee = action.payload;
+    },
+    setMaticBep20BridgeFee: (
+      state: BridgeState,
+      action: PayloadAction<string>
+    ) => {
+      state.maticBep20BridgeFee = action.payload;
+    },
+    setMaticSolBridgeFee: (
+      state: BridgeState,
+      action: PayloadAction<string>
+    ) => {
+      state.maticSolBridgeFee = action.payload;
+    },
   },
 });
 
-export const { setBep20BridgeFee, setErc20BridgeFee, setSolBridgeFee } =
-  bridgeSlice.actions;
+export const {
+  setBep20BridgeFee,
+  setErc20BridgeFee,
+  setSolBridgeFee,
+  setMaticErc20BridgeFee,
+  setMaticBep20BridgeFee,
+  setMaticSolBridgeFee,
+} = bridgeSlice.actions;
 
 export default bridgeSlice.reducer;
 
@@ -93,21 +123,25 @@ export const getBridgeFee = (): AppThunk => async (dispatch, getState) => {
       .bridgeFee(ChainId.ETH)
       .call();
     if (!isNaN(Number(erc20BridgeFeeResult))) {
-      dispatch(setErc20BridgeFee(web3.utils.fromWei(erc20BridgeFeeResult)));
+      dispatch(
+        setMaticErc20BridgeFee(web3.utils.fromWei(erc20BridgeFeeResult))
+      );
     }
 
     const bep20BridgeFeeResult = await contractMatic.methods
       .bridgeFee(ChainId.BSC)
       .call();
     if (!isNaN(Number(bep20BridgeFeeResult))) {
-      dispatch(setBep20BridgeFee(web3.utils.fromWei(bep20BridgeFeeResult)));
+      dispatch(
+        setMaticBep20BridgeFee(web3.utils.fromWei(bep20BridgeFeeResult))
+      );
     }
 
     const solBridgeFeeResult = await contractMatic.methods
       .bridgeFee(ChainId.SOL)
       .call();
     if (!isNaN(Number(solBridgeFeeResult))) {
-      dispatch(setSolBridgeFee(web3.utils.fromWei(solBridgeFeeResult)));
+      dispatch(setMaticSolBridgeFee(web3.utils.fromWei(solBridgeFeeResult)));
     }
   } catch (err: unknown) {}
 };

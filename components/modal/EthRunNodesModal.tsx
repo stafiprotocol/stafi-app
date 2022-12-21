@@ -1,4 +1,4 @@
-import { Box, Modal } from "@mui/material";
+import { Box, Dialog, DialogContent, Modal } from "@mui/material";
 import { Button } from "components/common/button";
 import { Icomoon } from "components/icon/Icomoon";
 import { RunNodesLeftExplanation } from "components/reth/RunNodesLeftExplanation";
@@ -14,31 +14,29 @@ interface EthRunNodesModalProps {
 
 export const EthRunNodesModal = (props: EthRunNodesModalProps) => {
   return (
-    <Modal
+    <Dialog
       open={props.visible}
       onClose={props.onClose}
+      scroll="body"
       sx={{
-        backgroundColor: "#0A131Bba",
+        borderRadius: "0.16rem",
+        "& .MuiDialog-container": {
+          padding: "0",
+          "& .MuiPaper-root": {
+            width: "100%",
+            maxWidth: "16.88rem", // Set your width here
+            backgroundColor: "transparent",
+            padding: "0",
+          },
+          "& .MuiDialogContent-root": {
+            padding: "0",
+            width: "16.88rem",
+          },
+        },
       }}
     >
-      <Box
-        pt="0"
-        pl="0"
-        pr="0"
-        pb="0"
-        sx={{
-          border: "1px solid #1A2835",
-          backgroundColor: "#0A131B",
-          width: "14.88rem",
-          borderRadius: "0.16rem",
-          outline: "none",
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <div className="flex h-[9.65rem] items-stretch">
+      <DialogContent>
+        <div className="flex h-[9.65rem] items-stretch bg-[#0A131B]">
           <RunNodesLeftExplanation />
 
           <div className="flex-1 flex flex-col">
@@ -113,7 +111,11 @@ export const EthRunNodesModal = (props: EthRunNodesModalProps) => {
                   <Button
                     height="0.64rem"
                     fontSize="0.24rem"
-                    onClick={() => openLink("https://ssv.network/")}
+                    onClick={() =>
+                      openLink(
+                        "https://docs.stafi.io/rtoken-app/reth-solution/original-validator-guide"
+                      )
+                    }
                   >
                     Instruction
                   </Button>
@@ -122,7 +124,7 @@ export const EthRunNodesModal = (props: EthRunNodesModalProps) => {
             </div>
           </div>
         </div>
-      </Box>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 };

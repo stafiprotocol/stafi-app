@@ -36,7 +36,7 @@ import {
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
-import { isPolkadotWallet, openLink } from "utils/common";
+import { isEmptyValue, isPolkadotWallet, openLink } from "utils/common";
 import { formatNumber } from "utils/number";
 import { getWalletIcon } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
@@ -501,7 +501,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             </div>
           ) : (
             <div className="text-primary text-[.24rem] mr-[.2rem] flex items-center">
-              {!props.balance ? (
+              {isEmptyValue(props.balance) ? (
                 <BubblesLoading color="#00F3AB" />
               ) : (
                 formatNumber(props.balance)

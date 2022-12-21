@@ -23,7 +23,7 @@ export interface StakeLoadingParams {
   noticeUuid?: string;
   steps?: string[];
   status?: "loading" | "success" | "error";
-  errorMsg?: string;
+  displayMsg?: string;
   errorStep?: "sending" | "staking" | "minting" | "swapping";
   tokenName?: TokenName;
   tokenStandard?: TokenStandard;
@@ -111,7 +111,7 @@ export interface RedeemLoadingParams {
   broadcastStatus?: "loading" | "success" | "error";
   packStatus?: "loading" | "success" | "error";
   finalizeStatus?: "loading" | "success" | "error";
-	customMsg?: String;
+  customMsg?: String;
 }
 
 export interface AppState {
@@ -122,6 +122,7 @@ export interface AppState {
   connectWalletModalParams: ConnectWalletModalParams | undefined;
   redeemLoadingParams: RedeemLoadingParams | undefined;
   refreshDataFlag: number;
+  collapseOpenId: string | undefined;
 }
 
 const initialState: AppState = {
@@ -132,6 +133,7 @@ const initialState: AppState = {
   connectWalletModalParams: undefined,
   redeemLoadingParams: undefined,
   refreshDataFlag: 0,
+  collapseOpenId: undefined,
 };
 
 export const appSlice = createSlice({
@@ -180,6 +182,12 @@ export const appSlice = createSlice({
     setRefreshDataFlag: (state: AppState, action: PayloadAction<number>) => {
       state.refreshDataFlag = action.payload;
     },
+    setCollapseOpenId: (
+      state: AppState,
+      action: PayloadAction<string | undefined>
+    ) => {
+      state.collapseOpenId = action.payload;
+    },
   },
 });
 
@@ -192,6 +200,7 @@ export const {
   setConnectWalletModalParams,
   setRedeemLoadingParams,
   setRefreshDataFlag,
+  setCollapseOpenId,
 } = appSlice.actions;
 
 export default appSlice.reducer;

@@ -3,15 +3,12 @@ import classNames from "classnames";
 import { CircularLoading } from "components/common/CircularLoading";
 import { Icomoon } from "components/icon/Icomoon";
 import { TokenName } from "interfaces/common";
-import {
-  RedeemLoadingParams,
-  StakeLoadingProgressDetailItem,
-} from "redux/reducers/AppSlice";
+import { RedeemLoadingParams } from "redux/reducers/AppSlice";
 import { getShortAddress } from "utils/string";
 
 interface StakeLoadingProgressItemProps {
-	 name: string;
-	 stepIndex: number;
+  name: string;
+  stepIndex: number;
   data: RedeemLoadingParams | undefined;
   txHash?: string | undefined;
   scanUrl?: string | undefined;
