@@ -7,6 +7,8 @@ import { rTokenNameToTokenSymbol } from "utils/rToken";
 import keyring from "servers/keyring";
 import { Symbol } from "keyring/defaults";
 import { stringToHex, u8aToHex } from "@polkadot/util";
+import { PriceItem } from "./RTokenSlice";
+import { cloneDeep } from "lodash";
 
 declare const ethereum: any;
 
@@ -21,9 +23,22 @@ export interface RTokenActs {
   reward_rate: number;
   total_native_token_amount: number;
   total_reward: string;
-	total_rtoken_amount: string;
+  total_rtoken_amount: string;
   left_amount: string;
-	apr?: string;
+  apr?: string;
+}
+
+// todo: type
+export interface MintOverview {
+  actData: any;
+  userMintToken: any;
+  userMintRatio: any;
+  userMintReward: any;
+  fisTotalReward: any;
+  fisClaimableReward: any;
+  fisLockedReward: any;
+  claimIndexes: any;
+  vesting: string;
 }
 
 export type RTokenActsCollection = {
@@ -32,10 +47,14 @@ export type RTokenActsCollection = {
 
 export interface MintProgramState {
   rTokenActs: RTokenActsCollection;
+  queryActsLoading: boolean;
+  mintOverview: MintOverview | null;
 }
 
 const initialState: MintProgramState = {
   rTokenActs: {},
+  queryActsLoading: false,
+  mintOverview: null,
 };
 
 export const mintProgramSlice = createSlice({
@@ -48,14 +67,29 @@ export const mintProgramSlice = createSlice({
     ) => {
       state.rTokenActs = action.payload;
     },
+    setQueryActsLoading: (
+      state: MintProgramState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.queryActsLoading = action.payload;
+    },
+    setMintOverview: (
+      state: MintProgramState,
+      action: PayloadAction<MintOverview>
+    ) => {
+      state.mintOverview = action.payload;
+    },
   },
 });
 
-export const { setRTokenActs } = mintProgramSlice.actions;
+export const { setRTokenActs, setQueryActsLoading, setMintOverview } =
+  mintProgramSlice.actions;
 
 export default mintProgramSlice.reducer;
 
 export const getMintPrograms = (): AppThunk => async (dispatch, getState) => {
+  dispatch(setQueryActsLoading(true));
+
   Promise.all([
     dispatch(getREthMintInfo()),
     dispatch(getRTokenMintInfo(RTokenName.rATOM)),
@@ -69,7 +103,10 @@ export const getMintPrograms = (): AppThunk => async (dispatch, getState) => {
     .then(() => {
       console.log(getState().mintProgram.rTokenActs);
     })
-    .catch((err: any) => {});
+    .catch((err: any) => {})
+    .finally(() => {
+      dispatch(setQueryActsLoading(false));
+    });
 };
 
 const getREthMintInfo = (): AppThunk => async (dispatch, getState) => {
@@ -209,9 +246,53 @@ export const claimREthReward =
 
       tx.signAndSend(
         polkadotAccount,
-				// @ts-ignore
+        // @ts-ignore
         { signer: injector.signer },
         (result: any) => {}
       );
     } catch (err: any) {}
+  };
+
+export const getMintOverview =
+  (rTokenName: RTokenName, cycle: number): AppThunk =>
+  async (dispatch, getState) => {
+    const metaMaskAccount = getState().wallet.metaMaskAccount;
+    const polkadotAccount = getState().wallet.polkadotAccount;
+    const priceList = getState().rToken.priceList;
+    const fisPrice = priceList.find(
+      (item: PriceItem) => item.symbol === RTokenName.rFIS
+    );
+    if (!fisPrice) return;
+    if (rTokenName === RTokenName.rETH) {
+      if (!metaMaskAccount) return;
+    } else {
+      if (!polkadotAccount) return;
+    }
+    const response = await rPoolServer.getRTokenMintOverview(
+      rTokenNameToTokenSymbol(rTokenName),
+      cycle,
+      polkadotAccount as string,
+      metaMaskAccount as string,
+      fisPrice.price
+    );
+    if (!response) return;
+    let vesting: string = "0";
+    if (isNaN(response.vesting)) {
+      vesting = "--";
+    } else if (response.vesting * 1 > 0) {
+      vesting = Math.ceil(response.vesting * 1) + "D";
+    }
+    const mintOverview: MintOverview = {
+      actData: response.actData,
+      userMintToken: response.myMint,
+      userMintRatio: response.myMintRatio,
+      userMintReward: response.myReward,
+      fisTotalReward: response.fisTotalReward,
+      fisClaimableReward: response.fisClaimableReward,
+      fisLockedReward: response.fisLockedReward,
+      claimIndexes: cloneDeep(response.claimIndexes),
+      vesting,
+    };
+
+    dispatch(setMintOverview(mintOverview));
   };

@@ -8,7 +8,6 @@ export function formatDate(
 }
 
 export const formatDuration = (milliSeconds: number, withAlphabet?: boolean) => {
-	console.log(milliSeconds)
   if (milliSeconds <= 0) {
     return "00:00:00:00";
   }

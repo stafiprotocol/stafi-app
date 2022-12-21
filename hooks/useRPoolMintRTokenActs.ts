@@ -53,14 +53,18 @@ const rTokenList: RTokenListItem[] = [
 export function useRPoolMintRTokenActs() {
   const dispatch = useAppDispatch();
 
-  const { rTokenActs, priceList } = useAppSelector((state: RootState) => {
-    const rTokenActs = state.mintProgram.rTokenActs;
-    const priceList = state.rToken.priceList;
-    return {
-      rTokenActs,
-      priceList,
-    };
-  });
+  const { rTokenActs, priceList, queryActsLoading } = useAppSelector(
+    (state: RootState) => {
+      const rTokenActs = state.mintProgram.rTokenActs;
+      const priceList = state.rToken.priceList;
+      const queryActsLoading = state.mintProgram.queryActsLoading;
+      return {
+        rTokenActs,
+        priceList,
+        queryActsLoading,
+      };
+    }
+  );
 
   const mintDataList = useMemo(() => {
     const fisPrice = priceList.find(
@@ -118,25 +122,32 @@ export function useRPoolMintRTokenActs() {
           );
           if (!isNaN(Number(ratio))) {
             const apr =
-              ((Number(ratio) * Number(fisPrice.price)) / Number(unitPrice.price) * 100).toFixed(2) + "%";
+              (
+                ((Number(ratio) * Number(fisPrice.price)) /
+                  Number(unitPrice.price)) *
+                100
+              ).toFixed(2) + "%";
             child.apr = apr;
           }
         }
       });
     });
 
-    console.log(rTokenList);
     return [...rTokenList];
   }, [rTokenActs, priceList]);
 
   const { totalRewardFis, totalMintedValue } = useMemo(() => {
+    const result = { totalMintedValue: "", totalRewardFis: "" };
+		if (queryActsLoading) {
+			return result;
+		}
+
     let total = 0;
     let fisAmount = 0;
-    const result = { totalMintedValue: "--", totalRewardFis: "--" };
 
     mintDataList.forEach((item: RTokenListItem) => {
-      item.children.forEach((child: any) => {
-        total += child.mintedValue;
+      item.children.forEach((child: RTokenActs) => {
+        total += Number(child.mintedValue);
         fisAmount += numberUtil.fisAmountToHuman(child.total_reward);
       });
     });
@@ -145,7 +156,7 @@ export function useRPoolMintRTokenActs() {
     result.totalRewardFis = formatNumber(fisAmount);
 
     return result;
-  }, [priceList, mintDataList]);
+  }, [priceList, mintDataList, queryActsLoading]);
 
   const { liveList, finishedList } = useMemo(() => {
     const liveList: RTokenListItem[] = [];
@@ -184,5 +195,11 @@ export function useRPoolMintRTokenActs() {
     dispatch(getMintPrograms());
   }, 60000);
 
-  return { totalRewardFis, totalMintedValue, liveList, finishedList };
+  return {
+    totalRewardFis,
+    totalMintedValue,
+    liveList,
+    finishedList,
+    queryActsLoading,
+  };
 }
