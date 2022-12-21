@@ -101,7 +101,7 @@ export function chainAmountToHuman(
   num: string,
   tokenSymbol: TokenSymbol | undefined
 ) {
-  if (isNaN(Number(num))) {
+  if (num === "" || num === undefined || num === null || isNaN(Number(num))) {
     return "--";
   }
   let factor;

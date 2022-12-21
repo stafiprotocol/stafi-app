@@ -31,3 +31,17 @@ export function getStafiScanTxUrl(txHash: string) {
   }
   return `https://stafi.subscan.io/extrinsic/${txHash}`;
 }
+
+export function getKsmScanTxUrl(txHash: string) {
+  if (isDev()) {
+    return `https://kusama.subscan.io/extrinsic/${txHash}`;
+  }
+  return `https://kusama.subscan.io/extrinsic/${txHash}`;
+}
+
+export function getDotScanTxUrl(txHash: string) {
+  if (isDev()) {
+    return `https://polkadot.subscan.io/extrinsic/${txHash}`;
+  }
+  return `https://polkadot.subscan.io/extrinsic/${txHash}`;
+}

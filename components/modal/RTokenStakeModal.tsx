@@ -170,6 +170,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   }, [visible]);
 
   const estimateFee = useMemo(() => {
+    if (tokenName === TokenName.KSM) {
+      return "0.0005";
+    }
+    if (tokenName === TokenName.DOT) {
+      return "0.015";
+    }
     let gasLimit = 146316;
     if (tokenName === TokenName.MATIC) {
       gasLimit = 79724;
@@ -689,7 +695,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     return;
                   }
                   let amount = Number(balance);
-                  if (tokenName === TokenName.ETH) {
+                  if (tokenName !== TokenName.MATIC) {
                     amount = Math.max(
                       Number(balance) - Number(estimateFee) * 1.5,
                       0

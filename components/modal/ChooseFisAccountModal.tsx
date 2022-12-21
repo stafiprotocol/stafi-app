@@ -23,6 +23,12 @@ import { useRouter } from "next/router";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { WalletType } from "interfaces/common";
 import { formatNumber } from "utils/number";
+import { transformSs58Address } from "utils/polkadotUtils";
+import {
+  DOT_SS58_FORMAT,
+  KSM_SS58_FORMAT,
+  STAFI_SS58_FORMAT,
+} from "utils/constants";
 
 interface Props {}
 
@@ -104,7 +110,7 @@ export const ChooseFisAccountModal = (props: Props) => {
         sx={{
           border: "1px solid rgba(38, 73, 78, 0.5)",
           backgroundColor: "rgba(26, 40, 53, 0.9)",
-					backdropFilter: "blur(.14rem)",
+          backdropFilter: "blur(.14rem)",
           width: "6.04rem",
           borderRadius: "0.16rem",
           outline: "none",
@@ -192,7 +198,14 @@ export const ChooseFisAccountModal = (props: Props) => {
                       </div>
                     </div>
                     <div className="text-text2 text-[.16rem] break-all mt-[.2rem] leading-normal">
-                      {account.address}
+                      {transformSs58Address(
+                        account.address,
+                        chooseAccountWalletType === WalletType.Polkadot_KSM
+                          ? KSM_SS58_FORMAT
+                          : chooseAccountWalletType === WalletType.Polkadot_DOT
+                          ? DOT_SS58_FORMAT
+                          : STAFI_SS58_FORMAT
+                      )}
                     </div>
                   </div>
                 </Card>

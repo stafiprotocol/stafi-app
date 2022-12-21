@@ -1,6 +1,10 @@
 import { u8aToHex } from "@polkadot/util";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import {
+  getEtherScanTxUrl,
+  getKsmScanTxUrl,
+  getStafiScanTxUrl,
+} from "config/explorer";
 import { estimateUnbondDays } from "config/unbond";
 import dayjs from "dayjs";
 import {
@@ -313,7 +317,7 @@ export const handleKsmStake =
               updateStakeLoadingParams(
                 {
                   txHash: txHash,
-                  scanUrl: getEtherScanTxUrl(txHash),
+                  scanUrl: getKsmScanTxUrl(txHash),
                   blockHash: blockHash,
                   poolPubKey: selectedPool.poolPubKey,
                   progressDetail: {
@@ -344,7 +348,7 @@ export const handleKsmStake =
                       amount: Number(stakeAmount) + "",
                       willReceiveAmount: Number(willReceiveAmount) + "",
                     },
-                    scanUrl: getStafiScanTxUrl(txHash),
+                    scanUrl: getKsmScanTxUrl(txHash),
                     status: "Pending",
                     stakeLoadingParams: newParams,
                   };
@@ -408,7 +412,7 @@ export const retryStake =
     dispatch(
       updateStakeLoadingParams({
         txHash: txHash,
-        scanUrl: getEtherScanTxUrl(txHash as string),
+        scanUrl: getKsmScanTxUrl(txHash as string),
         blockHash: blockHash,
         poolPubKey: poolPubKey as string,
         progressDetail: {

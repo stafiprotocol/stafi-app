@@ -1,5 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import {
+  getDotScanTxUrl,
+  getEtherScanTxUrl,
+  getStafiScanTxUrl,
+} from "config/explorer";
 import { estimateUnbondDays } from "config/unbond";
 import dayjs from "dayjs";
 import {
@@ -309,7 +313,7 @@ export const handleDotStake =
               updateStakeLoadingParams(
                 {
                   txHash: txHash,
-                  scanUrl: getEtherScanTxUrl(txHash),
+                  scanUrl: getDotScanTxUrl(txHash),
                   blockHash: blockHash,
                   poolPubKey: selectedPool.poolPubKey,
                   progressDetail: {
@@ -340,7 +344,7 @@ export const handleDotStake =
                       amount: Number(stakeAmount) + "",
                       willReceiveAmount: Number(willReceiveAmount) + "",
                     },
-                    scanUrl: getStafiScanTxUrl(txHash),
+                    scanUrl: getDotScanTxUrl(txHash),
                     status: "Pending",
                     stakeLoadingParams: newParams,
                   };
@@ -404,7 +408,7 @@ export const retryStake =
     dispatch(
       updateStakeLoadingParams({
         txHash: txHash,
-        scanUrl: getEtherScanTxUrl(txHash as string),
+        scanUrl: getDotScanTxUrl(txHash as string),
         blockHash: blockHash,
         poolPubKey: poolPubKey as string,
         progressDetail: {

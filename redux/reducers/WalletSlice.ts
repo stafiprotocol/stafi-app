@@ -291,7 +291,7 @@ export const connectPolkadotJs =
   };
 
 /**
- * Reload stafi balance.
+ * Reload stafi/ksm/dot balance.
  */
 export const updatePolkadotExtensionAccountsBalances =
   (): AppThunk => async (dispatch, getState) => {

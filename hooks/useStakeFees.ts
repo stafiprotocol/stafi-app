@@ -59,7 +59,7 @@ export function useStakeFees(
   useEffect(() => {
     if (tokenName === TokenName.KSM) {
       setSendFee({
-        amount: "0.00005",
+        amount: "0.0005",
         tokenName: "KSM",
       });
 
