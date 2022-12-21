@@ -37,12 +37,13 @@ const RPoolLiveList = (props: Props) => {
   return (
     <div className="flex mt-[.36rem]">
       {flatList.length === 0 && (
-        <div className="flex flex-col items-center pb-[.3rem]">
+        <div className="flex flex-col items-center pb-[.3rem] w-full">
           <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />
           </div>
         </div>
       )}
+
       {props.programTab === ProgramTab.Mint ? (
         <>
           {flatList.map((item: AllListItem, index: number) => (

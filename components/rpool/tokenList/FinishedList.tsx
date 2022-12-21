@@ -18,7 +18,8 @@ const RPoolFinishedList = (props: Props) => {
 
   const renderedList = useMemo(() => {
     return list.filter(
-      (data: RTokenListItem) => Array.isArray(data.children) && data.children.length > 0
+      (data: RTokenListItem) =>
+        Array.isArray(data.children) && data.children.length > 0
     );
   }, [list]);
 
@@ -75,7 +76,7 @@ const RPoolFinishedList = (props: Props) => {
               background: i % 2 === 0 ? "transparent" : "rgba(26, 40, 53, 0.3)",
             }}
           >
-            {data.children.map((item: any, index: number) => (
+            {data.children.map((item: RTokenActs, index: number) => (
               <div
                 key={`${data.rToken}${i}${index}`}
                 className="grid h-[1.1rem] text-[.24rem] text-text1"
@@ -99,7 +100,9 @@ const RPoolFinishedList = (props: Props) => {
                     data.rToken
                   )}
                 </div>
-                <div className="flex justify-center items-center">1.03%</div>
+                <div className="flex justify-center items-center">
+                  {item.apr}
+                </div>
                 <div className="flex justify-end items-center">
                   <div
                     className="h-[.48rem] rounded-[.43rem] w-[1.58rem] text-text1 text-[.24rem] flex items-center justify-center cursor-pointer mr-[.16rem]"

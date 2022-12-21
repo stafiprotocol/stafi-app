@@ -21,7 +21,9 @@ export interface RTokenActs {
   reward_rate: number;
   total_native_token_amount: number;
   total_reward: string;
+	total_rtoken_amount: string;
   left_amount: string;
+	apr?: string;
 }
 
 export type RTokenActsCollection = {

@@ -57,8 +57,8 @@ const MintTokenCard = (props: Props) => {
   };
 
   const onClickClaim = () => {
-		setClaimModalVisible(true);
-	};
+    setClaimModalVisible(true);
+  };
 
   return (
     <div
@@ -110,7 +110,7 @@ const MintTokenCard = (props: Props) => {
             className="text-text2 text-[.16rem]"
           />
         </div>
-        <div className="text-text1 font-[700] text-[.28rem]">6.95%</div>
+        <div className="text-text1 font-[700] text-[.28rem]">{data.apr}</div>
       </div>
 
       <div className="mt-[.2rem] flex items-end justify-between">

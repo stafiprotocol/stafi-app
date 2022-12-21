@@ -1,4 +1,4 @@
-import { RTokenName } from "interfaces/common";
+import { RTokenName, TokenSymbol } from "interfaces/common";
 import { cloneDeep } from "lodash";
 import { useEffect, useMemo } from "react";
 import { getMintPrograms, RTokenActs } from "redux/reducers/MintProgramSlice";
@@ -63,6 +63,9 @@ export function useRPoolMintRTokenActs() {
   });
 
   const mintDataList = useMemo(() => {
+    const fisPrice = priceList.find(
+      (priceItem: PriceItem) => priceItem.symbol === RTokenName.rFIS
+    );
     rTokenList.forEach((item: RTokenListItem) => {
       item.children = cloneDeep(rTokenActs[item.rToken]) || [];
     });
@@ -100,13 +103,25 @@ export function useRPoolMintRTokenActs() {
       if (!unitPrice || !item.children || item.children.length === 0) {
         return true;
       }
-      item.children.forEach((child: any) => {
+      item.children.forEach((child: RTokenActs) => {
         const formatTotalRTokenAmount = numberUtil.tokenAmountToHuman(
           child.total_rtoken_amount,
           rTokenNameToTokenSymbol(item.rToken)
         );
-        child.mintedValue =
-          Number(unitPrice.price) * Number(formatTotalRTokenAmount);
+        child.mintedValue = (
+          Number(unitPrice.price) * Number(formatTotalRTokenAmount)
+        ).toString();
+        if (fisPrice) {
+          const ratio = numberUtil.tokenMintRewardRateToHuman(
+            child.reward_rate,
+            item.rToken
+          );
+          if (!isNaN(Number(ratio))) {
+            const apr =
+              ((Number(ratio) * Number(fisPrice.price)) / Number(unitPrice.price) * 100).toFixed(2) + "%";
+            child.apr = apr;
+          }
+        }
       });
     });
 
