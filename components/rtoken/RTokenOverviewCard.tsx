@@ -1,3 +1,4 @@
+import { BubblesLoading } from "components/common/BubblesLoading";
 import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
@@ -9,24 +10,20 @@ import {
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
-import { useMaticPoolData } from "hooks/useMaticPoolData";
+import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
+import { useTokenPoolData } from "hooks/useTokenPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import circulate from "public/circulate.svg";
-import ethLogo from "public/eth_type_black.svg";
-import maticLogo from "public/matic_type_black.png";
-import ksmLogo from "public/ksm_type_black.png";
 import dotLogo from "public/dot_type_black.png";
-import maticChainLogo from "public/matic_logo_black.svg";
-import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
-import { formatNumber } from "utils/number";
-import { setRouteNextPage } from "redux/reducers/FisSlice";
-import { useTokenPoolData } from "hooks/useTokenPoolData";
-import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
-import { BubblesLoading } from "components/common/BubblesLoading";
+import ethLogo from "public/eth_type_black.svg";
+import ksmLogo from "public/ksm_type_black.png";
+import maticLogo from "public/matic_type_black.png";
 import { useMemo } from "react";
+import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
+import { setRouteNextPage } from "redux/reducers/FisSlice";
+import { formatNumber } from "utils/number";
 
 interface RTokenOverviewCardProps {
   tokenName: TokenName;

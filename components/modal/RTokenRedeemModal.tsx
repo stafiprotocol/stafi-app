@@ -24,7 +24,7 @@ import Image from "next/image";
 import bulb from "public/bulb.svg";
 import ethIcon from "public/eth_type_green.svg";
 import downIcon from "public/icon_down.png";
-import maticBlackIcon from "public/matic_type_black.svg";
+import maticBlackIcon from "public/matic_type_black.png";
 import rectangle from "public/rectangle_h.svg";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
