@@ -155,7 +155,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     >
       <div className="mt-[.36rem] flex items-center justify-between relative">
         <div className="w-[.76rem] h-[.76rem] relative">
-          <Image src={getLogo(tokenName)} layout="fill" alt="logo" />
+          <Image src={getLogo()} layout="fill" alt="logo" />
         </div>
 
         <div className="flex flex-col items-end">

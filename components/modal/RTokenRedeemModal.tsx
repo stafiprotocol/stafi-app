@@ -25,6 +25,8 @@ import bulb from "public/bulb.svg";
 import ethIcon from "public/eth_type_green.svg";
 import downIcon from "public/icon_down.png";
 import maticBlackIcon from "public/matic_type_black.png";
+import ksmBlackIcon from "public/ksm_type_black.png";
+import dotBlackIcon from "public/dot_type_black.png";
 import rectangle from "public/rectangle_h.svg";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -308,6 +310,19 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     return "";
   };
 
+  const getLogo = () => {
+    if (tokenName === TokenName.MATIC) {
+      return maticBlackIcon;
+    }
+    if (tokenName === TokenName.KSM) {
+      return ksmBlackIcon;
+    }
+    if (tokenName === TokenName.DOT) {
+      return dotBlackIcon;
+    }
+    return ethIcon;
+  };
+
   return (
     <Dialog
       open={props.visible}
@@ -499,11 +514,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image
-                  src={tokenName === TokenName.MATIC ? maticBlackIcon : ethIcon}
-                  alt="icon"
-                  layout="fill"
-                />
+                <Image src={getLogo()} alt="icon" layout="fill" />
               </div>
 
               <div className="ml-[.35rem] text-text2 text-[.32rem]">

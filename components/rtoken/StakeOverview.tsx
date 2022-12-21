@@ -17,7 +17,7 @@ import { useRTokenReward } from "hooks/useRTokenReward";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName } from "interfaces/common";
+import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import rectangle from "public/rectangle_v.svg";
@@ -27,6 +27,7 @@ import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { isEmptyValue, isInvalidValue, openLink } from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
 import { formatNumber } from "utils/number";
+import { transformSs58Address } from "utils/polkadotUtils";
 import { getExchangeRateUpdateTime } from "utils/rToken";
 import { TokenStandardSelector } from "./TokenStandardSelector";
 
@@ -57,9 +58,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
   const defaultReceivingAddress = useMemo(() => {
     if (props.tokenName === TokenName.KSM) {
-      return ksmAccount;
+      return transformSs58Address(ksmAccount, WalletType.Polkadot_KSM);
     } else if (props.tokenName === TokenName.DOT) {
-      return dotAccount;
+      return transformSs58Address(dotAccount, WalletType.Polkadot_DOT);
     }
     return metaMaskAccount;
   }, [props.tokenName, metaMaskAccount, ksmAccount, dotAccount]);

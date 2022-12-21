@@ -9,6 +9,8 @@ import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
 import maticIcon from "public/matic_type_green.svg";
+import ksmIcon from "public/ksm_type_green.png";
+import dotIcon from "public/dot_type_green.png";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
@@ -442,6 +444,19 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     }
   };
 
+  const getLogo = () => {
+    if (tokenName === TokenName.MATIC) {
+      return maticIcon;
+    }
+    if (tokenName === TokenName.KSM) {
+      return ksmIcon;
+    }
+    if (tokenName === TokenName.DOT) {
+      return dotIcon;
+    }
+    return ethIcon;
+  };
+
   useEffect(() => {
     dispatch(getMaticBondTransactionFees(tokenStandard));
   }, [dispatch, targetAddress, tokenStandard]);
@@ -664,11 +679,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image
-                  src={tokenName === TokenName.MATIC ? maticIcon : ethIcon}
-                  alt="icon"
-                  layout="fill"
-                />
+                <Image src={getLogo()} alt="icon" layout="fill" />
               </div>
 
               <div className="ml-[.35rem] text-text2 text-[.32rem]">

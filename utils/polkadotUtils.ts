@@ -28,7 +28,7 @@ export async function getNativeRTokenBalance(
     return data;
   } catch (err: unknown) {
     // console.log(err);
-    return "--";
+    return undefined;
   }
 }
 

@@ -232,16 +232,18 @@ export const updateRTokenBalance =
         );
       }
 
-      const rTokenBalanceStore = getState().rToken.rTokenBalanceStore;
-      const newValue = {
-        ...rTokenBalanceStore,
-        [tokenStandard]: {
-          ...rTokenBalanceStore[tokenStandard],
-          [tokenName]: newBalance,
-        },
-      };
+      if (newBalance !== undefined) {
+        const rTokenBalanceStore = getState().rToken.rTokenBalanceStore;
+        const newValue = {
+          ...rTokenBalanceStore,
+          [tokenStandard]: {
+            ...rTokenBalanceStore[tokenStandard],
+            [tokenName]: newBalance,
+          },
+        };
 
-      dispatch(setRTokenBalanceStore(newValue));
+        dispatch(setRTokenBalanceStore(newValue));
+      }
     } catch (err: unknown) {}
   };
 
