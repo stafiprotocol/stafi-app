@@ -140,9 +140,9 @@ export const StakeMyUnbondList = (props: Props) => {
               } else if (props.tokenName === TokenName.ETH) {
                 openLink(getEtherScanTxUrl(item.txHash));
               } else if (props.tokenName === TokenName.KSM) {
-                openLink(getKsmScanTxUrl(item.txHash));
+                openLink(getStafiScanTxUrl(item.txHash));
               } else if (props.tokenName === TokenName.DOT) {
-                openLink(getDotScanTxUrl(item.txHash));
+                openLink(getStafiScanTxUrl(item.txHash));
               }
             }}
           >

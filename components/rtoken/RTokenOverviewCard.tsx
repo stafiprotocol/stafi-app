@@ -67,6 +67,22 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     return ethLogo;
   };
 
+  const getPlatform = () => {
+    if (tokenName === TokenName.MATIC) {
+      return "Ethereum";
+    }
+    if (tokenName === TokenName.ETH) {
+      return "Ethereum";
+    }
+    if (tokenName === TokenName.KSM) {
+      return "Kusama";
+    }
+    if (tokenName === TokenName.DOT) {
+      return "Polkadot";
+    }
+    return "Ethereum";
+  };
+
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
       if (!metaMaskAccount || metaMaskChainId !== getMetamaskEthChainId()) {
@@ -159,7 +175,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         </div>
 
         <div className="flex flex-col items-end">
-          <div className="mt-[.1rem] text-text1 text-[.12rem]">Ethereum</div>
+          <div className="mt-[.1rem] text-text1 text-[.12rem]">
+            {getPlatform()}
+          </div>
           <div className="mt-[.12rem]">
             <GradientText size=".4rem">{tokenName}</GradientText>
           </div>
@@ -181,6 +199,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
             <>
               {formatNumber(displayApr, {
                 decimals: 2,
+                toReadable: false,
               })}
               %
             </>

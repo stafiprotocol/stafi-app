@@ -227,7 +227,7 @@ const RTokenStakePage = () => {
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
           After completing the &quot;Unstake&quot; operation, plz wait for
-          around 8 days to get the unstaked DOT tokens, which will be
+          around 29 days to get the unstaked DOT tokens, which will be
           automatically sent to your designated account after the lock-up
           period.
         </div>

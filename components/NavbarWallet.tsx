@@ -172,10 +172,18 @@ export const NavbarWallet = () => {
       });
     }
     if (walletType === WalletType.Polkadot_KSM) {
-      if (metaMaskConnected) {
+      if (ksmConnected) {
         res.push({
           balance: ksmBalance,
           tokenName: "KSM",
+        });
+      }
+    }
+    if (walletType === WalletType.Polkadot_DOT) {
+      if (dotConnected) {
+        res.push({
+          balance: dotBalance,
+          tokenName: "DOT",
         });
       }
     } else if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
@@ -196,6 +204,9 @@ export const NavbarWallet = () => {
     displayMetaMaskBalance,
     isWrongMetaMaskNetwork,
     ksmBalance,
+    dotConnected,
+    dotBalance,
+    ksmConnected,
   ]);
 
   const [displayAddress, displayWalletType] = useMemo(() => {
