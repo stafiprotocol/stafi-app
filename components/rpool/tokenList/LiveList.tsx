@@ -50,7 +50,6 @@ const RPoolLiveList = (props: Props) => {
             <MintTokenCard
               key={`${item.rToken}${index}`}
               data={item}
-              rTokenName={item.rToken}
             />
           ))}
         </>

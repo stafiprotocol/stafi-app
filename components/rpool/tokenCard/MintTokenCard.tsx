@@ -2,7 +2,7 @@ import { Button } from "components/common/button";
 import Image from "next/image";
 import ethLogo from "public/eth_type_black.svg";
 import maticLogo from "public/matic_type_black.svg";
-import { RTokenName, TokenStandard } from "interfaces/common";
+import { RTokenName, TokenStandard, WalletType } from "interfaces/common";
 import { MyTooltip } from "components/common/MyTooltip";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
@@ -17,18 +17,23 @@ import downIcon from "public/icon_down.png";
 import { Icomoon } from "components/icon/Icomoon";
 import classNames from "classnames";
 import RPoolMintClaimModal from "components/modal/RPoolMintClaimModal";
+import { useWalletAccount } from "hooks/useWalletAccount";
+import { useAppDispatch } from "hooks/common";
+import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 
 interface Props {
-  rTokenName: RTokenName;
   data: AllListItem;
 }
 
 const MintTokenCard = (props: Props) => {
   const { data } = props;
 
+  const dispatch = useAppDispatch();
+
   const router = useRouter();
 
   const { walletNotConnected } = useContext(MyLayoutContext);
+  const { polkadotAccount, metaMaskAccount } = useWalletAccount();
   // todo: tokenStandard
   const rTokenBalance = useRTokenBalance(
     TokenStandard.Native,
@@ -53,11 +58,30 @@ const MintTokenCard = (props: Props) => {
   };
 
   const onClickMint = () => {
-    router.push(`/rtoken/stake/${rTokenNameToTokenName(data.rToken)}`);
+    if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
+      dispatch(
+        setConnectWalletModalParams({
+          visible: true,
+          walletList: [WalletType.MetaMask, WalletType.Polkadot],
+          targetUrl: "/rpool",
+        })
+      );
+    } else {
+    }
   };
 
   const onClickClaim = () => {
-    setClaimModalVisible(true);
+    if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
+      dispatch(
+        setConnectWalletModalParams({
+          visible: true,
+          walletList: [WalletType.MetaMask, WalletType.Polkadot],
+          targetUrl: "/rpool",
+        })
+      );
+    } else {
+      setClaimModalVisible(true);
+    }
   };
 
   return (
@@ -70,11 +94,7 @@ const MintTokenCard = (props: Props) => {
     >
       <div className="mt-[.36rem] flex items-center justify-between relative">
         <div className="w-[.76rem] h-[.76rem] relative">
-          <Image
-            src={getRTokenLogo(props.rTokenName)}
-            layout="fill"
-            alt="logo"
-          />
+          <Image src={getRTokenLogo(data.rToken)} layout="fill" alt="logo" />
         </div>
 
         <div
@@ -87,7 +107,7 @@ const MintTokenCard = (props: Props) => {
         >
           <div className="w-full h-full relative">
             <Image
-              src={getRTokenLogo(props.rTokenName)}
+              src={getRTokenLogo(data.rToken)}
               layout="fill"
               alt="circulate"
             />
@@ -97,7 +117,7 @@ const MintTokenCard = (props: Props) => {
         <div className="flex flex-col items-end">
           <div className="mt-[.1rem] text-text1 text-[.12rem]">StaFi</div>
           <div className="mt-[.12rem] text-[#FFA540] font-[700] text-[.36rem]">
-            {props.rTokenName}
+            {data.rToken}
           </div>
         </div>
       </div>
@@ -234,6 +254,9 @@ const MintTokenCard = (props: Props) => {
       <RPoolMintClaimModal
         visible={claimModalVisible}
         onClose={closeClaimModal}
+        rTokenName={data.rToken}
+        cycle={data.cycle}
+        totalMintedValue={data.mintedValue}
       />
     </div>
   );

@@ -25,6 +25,7 @@ export interface RTokenActs {
   total_reward: string;
   total_rtoken_amount: string;
   left_amount: string;
+	cycle: number;
   apr?: string;
 }
 
