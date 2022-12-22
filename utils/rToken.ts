@@ -218,7 +218,10 @@ export function getRedeemDaysLeft(tokenName: TokenName | undefined) {
   if (tokenName === TokenName.MATIC) {
     return "9";
   }
-  if (tokenName === TokenName.DOT || tokenName === TokenName.KSM) {
+  if (tokenName === TokenName.DOT) {
+    return "29";
+  }
+  if (tokenName === TokenName.KSM) {
     return "8";
   }
   return "9";
