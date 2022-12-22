@@ -1,12 +1,26 @@
 import { Button } from "components/common/button";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
+import { MyLayoutContext } from "components/layout/layout";
+import RPoolMintClaimModal from "components/modal/RPoolMintClaimModal";
+import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
+import {
+  getMetamaskEthChainId,
+  getMetamaskMaticChainId,
+} from "config/metaMask";
+import { useAppDispatch } from "hooks/common";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
+import { useWalletAccount } from "hooks/useWalletAccount";
+import { RTokenName, TokenStandard, WalletType } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
-import { useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
+import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { RTokenActs } from "redux/reducers/MintProgramSlice";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
+import { rTokenNameToTokenName } from "utils/rToken";
 
 interface Props {
   programTab: ProgramTab;
@@ -16,12 +30,79 @@ interface Props {
 const RPoolFinishedList = (props: Props) => {
   const { list } = props;
 
+  const dispatch = useAppDispatch();
+
+  const { walletNotConnected } = useContext(MyLayoutContext);
+  const { polkadotAccount, metaMaskAccount } = useWalletAccount();
+
+  const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
+  const [unstakeModalVisible, setUnstakeModalVisible] =
+    useState<boolean>(false);
+  const [currentRowItem, setCurrentRowItem] = useState<RTokenActs | undefined>(
+    undefined
+  );
+  const [currentRowRToken, setCurrentRowRToken] = useState<
+    RTokenName | undefined
+  >(undefined);
+
+  const rTokenBalance = useRTokenBalance(
+    TokenStandard.Native,
+    rTokenNameToTokenName(currentRowRToken || RTokenName.rETH)
+  );
+
   const renderedList = useMemo(() => {
     return list.filter(
       (data: RTokenListItem) =>
         Array.isArray(data.children) && data.children.length > 0
     );
   }, [list]);
+
+  const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
+    if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
+      dispatch(
+        setConnectWalletModalParams({
+          visible: true,
+          walletList: [WalletType.MetaMask, WalletType.Polkadot],
+          targetUrl: "/rpool",
+        })
+      );
+    } else {
+      setCurrentRowItem(row);
+      setCurrentRowRToken(rTokenName);
+      setUnstakeModalVisible(true);
+    }
+  };
+
+  const onClickClaim = (rTokenName: RTokenName, row: RTokenActs) => {
+    if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
+      dispatch(
+        setConnectWalletModalParams({
+          visible: true,
+          walletList: [WalletType.MetaMask, WalletType.Polkadot],
+          targetUrl: "/rpool",
+        })
+      );
+    } else {
+      setCurrentRowItem(row);
+      setCurrentRowRToken(rTokenName);
+      setClaimModalVisible(true);
+    }
+  };
+
+  const getDefaultReceivingAddress = () => {
+    if (currentRowRToken === RTokenName.rMATIC) {
+      return polkadotAccount;
+    }
+    return metaMaskAccount;
+  };
+
+  const onClickConnectWallet = () => {
+    if (currentRowRToken === RTokenName.rETH) {
+      dispatch(connectMetaMask(getMetamaskEthChainId()));
+    } else if (currentRowRToken === RTokenName.rMATIC) {
+      dispatch(connectMetaMask(getMetamaskMaticChainId()));
+    }
+  };
 
   return (
     <div
@@ -109,11 +190,16 @@ const RPoolFinishedList = (props: Props) => {
                     style={{
                       border: "1px solid rgba(91, 104, 114, 0.5)",
                     }}
-                    onClick={() => {}}
+                    onClick={() => onClickUnstake(data.rToken, item)}
                   >
                     Unstake
                   </div>
-                  <Button height="0.48rem" fontSize="0.24rem" width="1.58rem">
+                  <Button
+                    height="0.48rem"
+                    fontSize="0.24rem"
+                    width="1.58rem"
+                    onClick={() => onClickClaim(data.rToken, item)}
+                  >
                     Claim
                   </Button>
                 </div>
@@ -129,6 +215,24 @@ const RPoolFinishedList = (props: Props) => {
           </div>
         </div>
       )}
+
+      <RPoolMintClaimModal
+        visible={claimModalVisible}
+        onClose={() => setClaimModalVisible(false)}
+        rTokenName={currentRowRToken || RTokenName.rETH}
+        cycle={currentRowItem ? currentRowItem.cycle : 1}
+        totalMintedValue={currentRowItem ? currentRowItem.mintedValue : "0"}
+      />
+
+      <RTokenRedeemModal
+        visible={unstakeModalVisible}
+        onClose={() => setUnstakeModalVisible(false)}
+        tokenName={rTokenNameToTokenName(currentRowRToken as RTokenName)}
+        defaultReceivingAddress={getDefaultReceivingAddress()}
+        editAddressDisabled={currentRowRToken === RTokenName.rETH}
+        balance={rTokenBalance}
+        onClickConnectWallet={onClickConnectWallet}
+      />
     </div>
   );
 };

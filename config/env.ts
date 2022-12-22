@@ -6,7 +6,7 @@ export function isDev() {
 
 export function getStafiRpc() {
   if (isDev()) {
-    return "wss://stafi-seiya-rewrite.stafi.io";
+    // return "wss://stafi-seiya-rewrite.stafi.io";
   }
   return "wss://mainnet-rpc.stafi.io";
 }
