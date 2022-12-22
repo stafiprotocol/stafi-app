@@ -597,6 +597,7 @@ export const getMinting =
                         totalStatus: "loading",
                       },
                     },
+                    displayMsg: "Swapping processing, please wait for a moment",
                     customMsg: "Swapping processing, please wait for a moment",
                   },
                   (newParams) => {
@@ -871,7 +872,7 @@ export const fisUnbond =
           dispatch(setIsLoading(false));
           dispatch(
             setRedeemLoadingParams({
-              customMsg: "Unstaking processing, please wait for a moment.",
+              customMsg: "Unstaking processing, please wait for a moment",
             })
           );
 
