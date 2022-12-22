@@ -27,7 +27,7 @@ import {
   getMetamaskEthChainId,
   getMetamaskMaticChainId,
 } from "config/metaMask";
-import { updateMaticBalance } from "redux/reducers/MaticSlice";
+import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
 import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 
 interface Props {
@@ -96,6 +96,9 @@ const MintTokenCard = (props: Props) => {
         })
       );
     } else {
+      if (data.rToken === RTokenName.rMATIC) {
+        dispatch(getPools());
+      }
       setStakeModalVisible(true);
     }
   };

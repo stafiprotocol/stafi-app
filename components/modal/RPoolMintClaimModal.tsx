@@ -189,7 +189,7 @@ const RPoolMintClaimModal = (props: Props) => {
 
           <div className="mt-[.55rem] mb-[.56rem]">
             <Button
-              disabled={claimButtonDisabled}
+              // disabled={claimButtonDisabled}
               width="5.4rem"
               height=".65rem"
               fontSize=".24rem"

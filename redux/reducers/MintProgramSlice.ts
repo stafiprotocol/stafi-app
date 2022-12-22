@@ -25,7 +25,7 @@ export interface RTokenActs {
   total_reward: string;
   total_rtoken_amount: string;
   left_amount: string;
-	cycle: number;
+  cycle: number;
   apr?: string;
 }
 
@@ -179,21 +179,22 @@ export const claimRTokenReward =
         // @ts-ignore
         { signer: injector.signer },
         (result: any) => {
-          if (result.isError || !result.status.isInBlock) {
-            throw new Error(result.toHuman());
+          if (result.status.isInBlock) {
+            result.events
+              .filter((r: any) => r.event.section === "system")
+              .forEach((r: any) => {
+                const data = r.event.data;
+                const method = r.event.method;
+                if (method === "ExtrinsicFailed") {
+                  // todo: handle error msg
+                } else if (method === "ExtrinsicSuccess") {
+                  const txHash = tx.hash.toHex();
+                  // todo: successful
+                }
+              });
+          } else if (result.isError) {
+            // todo:
           }
-          result.events
-            .filter((r: any) => r.event.section === "system")
-            .forEach((r: any) => {
-              const data = r.event.data;
-              const method = r.event.method;
-              if (method === "ExtrinsicFailed") {
-                // todo: handle error msg
-              } else if (method === "ExtrinsicSuccess") {
-                const txHash = tx.hash.toHex();
-                // todo: successful
-              }
-            });
         }
       );
     } catch (err: any) {}
