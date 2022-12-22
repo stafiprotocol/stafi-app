@@ -164,6 +164,7 @@ export const bond =
               txHash,
               blockHash,
               amount: chainAmount,
+              willReceiveAmount,
               poolAddress,
               type: rsymbol,
               chainId,

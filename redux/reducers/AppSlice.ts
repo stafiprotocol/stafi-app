@@ -56,6 +56,7 @@ interface StakeLoadingProgressDetail {
   stakingParams?: {
     address: string;
     amount: string;
+    willReceiveAmount: string;
     txHash: string;
     blockHash: string;
     poolAddress: string;

@@ -109,6 +109,7 @@ export const RTokenStakeLoadingModal = () => {
           stakingParams.txHash,
           stakingParams.blockHash,
           stakingParams.amount,
+          stakingParams.willReceiveAmount,
           stakingParams.poolAddress,
           stakingParams.type,
           stakingParams.chainId,
