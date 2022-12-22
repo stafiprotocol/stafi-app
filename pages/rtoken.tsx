@@ -68,9 +68,9 @@ const RTokenPage = () => {
 
         <RTokenOverviewCard tokenName={TokenName.MATIC} />
 
-        {/* <RTokenOverviewCard tokenName={TokenName.KSM} />
+        <RTokenOverviewCard tokenName={TokenName.KSM} />
 
-        <RTokenOverviewCard tokenName={TokenName.DOT} /> */}
+        <RTokenOverviewCard tokenName={TokenName.DOT} />
 
         {/* <RTokenOverviewCard tokenName={TokenName.BNB} /> */}
       </div>
