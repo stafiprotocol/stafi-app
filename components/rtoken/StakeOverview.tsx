@@ -17,7 +17,7 @@ import { useRTokenReward } from "hooks/useRTokenReward";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName, WalletType } from "interfaces/common";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import rectangle from "public/rectangle_v.svg";
@@ -47,6 +47,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
     targetMetaMaskChainId,
   } = useContext(MyLayoutContext);
 
+  const tokenStandard = useTokenStandard(props.tokenName);
   const router = useRouter();
   const [tradeModalVisible, setTradeModalVisible] = useState(false);
   const [ethRedeemWarningModalVisible, setEthRedeemWarningModalVisible] =
@@ -377,13 +378,19 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 className={classNames(
                   "h-[.86rem] rounded-[.45rem] w-[4rem] border-solid border-[1px] border-[] text-[.24rem]",
                   "flex items-center justify-center",
-                  isWrongNetwork ? "cursor-default" : "cursor-pointer"
+                  isWrongNetwork || tokenStandard !== TokenStandard.Native
+                    ? "cursor-default"
+                    : "cursor-pointer",
+                  { "opacity-50": tokenStandard !== TokenStandard.Native }
                 )}
                 style={{
                   border: "1px solid rgba(91, 104, 114, 0.5)",
                 }}
                 onClick={() => {
-                  if (isWrongNetwork) {
+                  if (
+                    isWrongNetwork ||
+                    tokenStandard !== TokenStandard.Native
+                  ) {
                     return;
                   }
                   if (props.tokenName === TokenName.ETH) {
