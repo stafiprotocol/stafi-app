@@ -9,8 +9,9 @@ import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useDotBalance } from "hooks/useDotBalance";
+import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { getDotPools } from "redux/reducers/DotSlice";
@@ -19,12 +20,13 @@ import { connectMetaMask } from "redux/reducers/WalletSlice";
 const RTokenStakePage = () => {
   const dispatch = useAppDispatch();
   const { useChainId: useMetaMaskChainId } = hooks;
+  const tokenStandard = useTokenStandard(TokenName.DOT);
   const chainId = useMetaMaskChainId();
   const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
-  const { metaMaskAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
   const balance = useDotBalance();
 
   useEffect(() => {
@@ -37,6 +39,13 @@ const RTokenStakePage = () => {
   useEffect(() => {
     dispatch(getDotPools());
   }, [dispatch]);
+
+  const getDefaultReceivingAddress = () => {
+    if (tokenStandard === TokenStandard.Native) {
+      return polkadotAccount;
+    }
+    return metaMaskAccount;
+  };
 
   return (
     <div>
@@ -62,6 +71,18 @@ const RTokenStakePage = () => {
       <StakeMyHistory tokenName={TokenName.DOT} />
 
       <RTokenIntegrations tokenName={TokenName.DOT} />
+
+      <RTokenStakeModal
+        tokenName={TokenName.DOT}
+        defaultReceivingAddress={getDefaultReceivingAddress()}
+        visible={stakeModalVisible}
+        onClose={() => setStakeModalVisible(false)}
+        balance={balance || "--"}
+        editAddressDisabled
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskEthChainId()))
+        }
+      />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 
@@ -289,18 +310,6 @@ const RTokenStakePage = () => {
           StaFi.
         </div>
       </CollapseCard>
-
-      <RTokenStakeModal
-        tokenName={TokenName.DOT}
-        defaultReceivingAddress={metaMaskAccount}
-        visible={stakeModalVisible}
-        onClose={() => setStakeModalVisible(false)}
-        balance={balance || "--"}
-        editAddressDisabled
-        onClickConnectWallet={() =>
-          dispatch(connectMetaMask(getMetamaskEthChainId()))
-        }
-      />
     </div>
   );
 };
