@@ -6,6 +6,7 @@ import { useAppDispatch } from "hooks/common";
 import { useRPoolMintClaim } from "hooks/useRPoolMintClaim";
 import { RTokenName } from "interfaces/common";
 import Image from "next/image";
+import { useMemo } from "react";
 import {
   claimREthReward,
   claimRTokenReward,
@@ -26,6 +27,16 @@ const RPoolMintClaimModal = (props: Props) => {
 
   const { mintOverView } = useRPoolMintClaim(props.rTokenName, props.cycle);
   console.log({ mintOverView });
+
+  const [claimButtonDisabled, claimButtonContent] = useMemo(() => {
+    if (!mintOverView) {
+      return [true, "Claim"];
+    }
+    if (mintOverView.fisClaimableReward <= 0) {
+      return [true, "No Enough FIS Claimable"];
+    }
+    return [false, "Claim"];
+  }, [mintOverView]);
 
   const onClickClaim = () => {
     if (!mintOverView) return;
@@ -178,12 +189,13 @@ const RPoolMintClaimModal = (props: Props) => {
 
           <div className="mt-[.55rem] mb-[.56rem]">
             <Button
+              disabled={claimButtonDisabled}
               width="5.4rem"
               height=".65rem"
               fontSize=".24rem"
               onClick={onClickClaim}
             >
-              Claim
+              {claimButtonContent}
             </Button>
           </div>
         </Card>

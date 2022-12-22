@@ -8,7 +8,7 @@ import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
 import { formatDuration } from "utils/time";
 import { AllListItem } from "../tokenList/LiveList";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { MyLayoutContext } from "components/layout/layout";
 import { rTokenNameToTokenName } from "utils/rToken";
 import { useRouter } from "next/router";
@@ -18,8 +18,17 @@ import { Icomoon } from "components/icon/Icomoon";
 import classNames from "classnames";
 import RPoolMintClaimModal from "components/modal/RPoolMintClaimModal";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { useAppDispatch } from "hooks/common";
+import { useAppDispatch, useAppSelector } from "hooks/common";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
+import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
+import { RootState } from "redux/store";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
+import {
+  getMetamaskEthChainId,
+  getMetamaskMaticChainId,
+} from "config/metaMask";
+import { updateMaticBalance } from "redux/reducers/MaticSlice";
+import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 
 interface Props {
   data: AllListItem;
@@ -40,8 +49,20 @@ const MintTokenCard = (props: Props) => {
     rTokenNameToTokenName(data.rToken)
   );
 
+  const balance = useAppSelector((state: RootState) => {
+    if (data.rToken === RTokenName.rETH) {
+      return state.eth.balance;
+    }
+    if (data.rToken === RTokenName.rMATIC) {
+      return state.matic.balance;
+    }
+  });
+
   const [showMore, setShowMore] = useState<boolean>(false);
   const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
+  const [stakeModalVisible, setStakeModalVisible] = useState<boolean>(false);
+  const [unstakeModalVisible, setUnstakeModalVisible] =
+    useState<boolean>(false);
 
   const isBalanceValid = useMemo(() => {
     return !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0;
@@ -57,6 +78,14 @@ const MintTokenCard = (props: Props) => {
     setClaimModalVisible(false);
   };
 
+  const onClickConnectWallet = () => {
+    if (data.rToken === RTokenName.rETH) {
+      dispatch(connectMetaMask(getMetamaskEthChainId()));
+    } else if (data.rToken === RTokenName.rMATIC) {
+      dispatch(connectMetaMask(getMetamaskMaticChainId()));
+    }
+  };
+
   const onClickMint = () => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
       dispatch(
@@ -67,6 +96,7 @@ const MintTokenCard = (props: Props) => {
         })
       );
     } else {
+      setStakeModalVisible(true);
     }
   };
 
@@ -83,6 +113,34 @@ const MintTokenCard = (props: Props) => {
       setClaimModalVisible(true);
     }
   };
+
+  const onClickUnstake = () => {
+    if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
+      dispatch(
+        setConnectWalletModalParams({
+          visible: true,
+          walletList: [WalletType.MetaMask, WalletType.Polkadot],
+          targetUrl: "/rpool",
+        })
+      );
+    } else {
+      setUnstakeModalVisible(true);
+    }
+  };
+
+  const getDefaultReceivingAddress = () => {
+    if (data.rToken === RTokenName.rMATIC) {
+      return polkadotAccount;
+    }
+    return metaMaskAccount;
+  };
+
+  useEffect(() => {
+    if (data.rToken === RTokenName.rMATIC) {
+      dispatch(updateMaticBalance());
+    } else if (data.rToken === RTokenName.rETH) {
+    }
+  }, [dispatch, data.rToken]);
 
   return (
     <div
@@ -213,40 +271,51 @@ const MintTokenCard = (props: Props) => {
           </div>
 
           {showMore && (
-            <div
-              className="p-[.24rem] mt-[.16rem]"
-              style={{
-                background: "rgba(9, 15, 23, 0.25)",
-                backdropFilter: "blur(.7rem)",
-                border: "1px solid rgba(38, 73, 78, 0.5)",
-                borderRadius: ".32rem",
-              }}
-            >
-              <div>
-                <MyTooltip
-                  text="Reward Ratio"
-                  title=""
-                  className="text-text2"
-                />
+            <>
+              <div
+                className="p-[.24rem] mt-[.16rem]"
+                style={{
+                  background: "rgba(9, 15, 23, 0.25)",
+                  backdropFilter: "blur(.7rem)",
+                  border: "1px solid rgba(38, 73, 78, 0.5)",
+                  borderRadius: ".32rem",
+                }}
+              >
+                <div>
+                  <MyTooltip
+                    text="Reward Ratio"
+                    title=""
+                    className="text-text2"
+                  />
+                </div>
+                <div className="text-text1 mt-[.1rem]">
+                  1:
+                  {numberUtil.tokenMintRewardRateToHuman(
+                    data.reward_rate,
+                    data.rToken
+                  )}
+                </div>
+                <div className="mt-[.17rem]">
+                  <MyTooltip
+                    text="Remaining Reward"
+                    title=""
+                    className="text-text2"
+                  />
+                </div>
+                <div className="text-text1 mt-[.1rem]">
+                  {formatNumber(numberUtil.fisAmountToHuman(data.left_amount))}
+                </div>
               </div>
-              <div className="text-text1 mt-[.1rem]">
-                1:
-                {numberUtil.tokenMintRewardRateToHuman(
-                  data.reward_rate,
-                  data.rToken
-                )}
-              </div>
-              <div className="mt-[.17rem]">
-                <MyTooltip
-                  text="Remaining Reward"
-                  title=""
-                  className="text-text2"
-                />
-              </div>
-              <div className="text-text1 mt-[.1rem]">
-                {formatNumber(numberUtil.fisAmountToHuman(data.left_amount))}
-              </div>
-            </div>
+
+              {isBalanceValid && (
+                <div
+                  className="text-text1 text-[.2rem] text-center cursor-pointer mt-[.24rem]"
+                  onClick={onClickUnstake}
+                >
+                  Unstake
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
@@ -257,6 +326,26 @@ const MintTokenCard = (props: Props) => {
         rTokenName={data.rToken}
         cycle={data.cycle}
         totalMintedValue={data.mintedValue}
+      />
+
+      <RTokenStakeModal
+        visible={stakeModalVisible}
+        onClose={() => setStakeModalVisible(false)}
+        tokenName={rTokenNameToTokenName(data.rToken)}
+        defaultReceivingAddress={getDefaultReceivingAddress()}
+        editAddressDisabled={data.rToken === RTokenName.rETH}
+        balance={balance || "--"}
+        onClickConnectWallet={onClickConnectWallet}
+      />
+
+      <RTokenRedeemModal
+        visible={unstakeModalVisible}
+        onClose={() => setUnstakeModalVisible(false)}
+        tokenName={rTokenNameToTokenName(data.rToken)}
+        defaultReceivingAddress={getDefaultReceivingAddress()}
+        editAddressDisabled={data.rToken === RTokenName.rETH}
+        balance={rTokenBalance}
+        onClickConnectWallet={onClickConnectWallet}
       />
     </div>
   );
