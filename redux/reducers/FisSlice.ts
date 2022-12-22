@@ -108,7 +108,8 @@ export const bond =
     address: string,
     txHash: string,
     blockHash: string,
-    amount: string,
+    chainAmount: string,
+    willReceiveAmount: string,
     poolAddress: string,
     rsymbol: rSymbol,
     chainId: ChainId,
@@ -162,7 +163,7 @@ export const bond =
               address,
               txHash,
               blockHash,
-              amount,
+              amount: chainAmount,
               poolAddress,
               type: rsymbol,
               chainId,
@@ -240,7 +241,7 @@ export const bond =
     dispatch(
       updateStakeLoadingParams({
         displayMsg: `Please confirm the ${formatNumber(
-          chainAmountToHuman(amount, TokenSymbol.FIS),
+          chainAmountToHuman(chainAmount, rsymbol),
           { fixedDecimals: false }
         )} ${getTokenNameFromrSymbol(
           rsymbol
@@ -262,7 +263,7 @@ export const bond =
         poolPubKey,
         blockHash,
         txHash,
-        amount.toString(),
+        chainAmount.toString(),
         rsymbol
       );
       // console.log({
@@ -288,7 +289,7 @@ export const bond =
         poolPubKey,
         blockHash,
         txHash,
-        amount,
+        chainAmount,
         rsymbol,
         swapAddress,
         chainId
@@ -419,7 +420,15 @@ export const bond =
                         }
                       )
                     );
-                    dispatch(getMinting(rsymbol, txHash, blockHash, chainId));
+                    dispatch(
+                      getMinting(
+                        rsymbol,
+                        txHash,
+                        blockHash,
+                        chainId,
+                        willReceiveAmount
+                      )
+                    );
                     // console.log("loading");
                   }
                 });
@@ -471,6 +480,7 @@ export const getMinting =
     txHash: string,
     blockHash: string,
     chainId: ChainId,
+    willReceiveAmount: string,
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -605,7 +615,7 @@ export const getMinting =
                   targetAddress as string,
                   rsymbol,
                   oldBalance,
-                  amount as string,
+                  willReceiveAmount,
                   (result: string) => {
                     if (result === "successful") {
                       dispatch(setIsLoading(false));
@@ -730,7 +740,7 @@ export const queryRTokenSwapState =
     targetAddress: string,
     rsymbol: rSymbol,
     oldBalance: string,
-    amount: string,
+    willReceiveAmount: string,
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -756,11 +766,49 @@ export const queryRTokenSwapState =
           TokenName.MATIC
         );
       }
+    } else if (rsymbol === rSymbol.Ksm) {
+      if (chainId === ChainId.BSC) {
+        tokenAbi = getBep20RKsmTokenAbi();
+        tokenAddress = getBep20TokenContractConfig().rKSM;
+        balance = await getBep20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress
+        );
+      } else if (chainId === ChainId.ETH) {
+        tokenAbi = getErc20RKsmTokenAbi();
+        tokenAddress = getErc20TokenContractConfig().rKSM;
+        balance = await getErc20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress,
+          TokenName.DOT
+        );
+      }
+    } else if (rsymbol === rSymbol.Dot) {
+      if (chainId === ChainId.BSC) {
+        tokenAbi = getBep20RDotTokenAbi();
+        tokenAddress = getBep20TokenContractConfig().rDOT;
+        balance = await getBep20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress
+        );
+      } else if (chainId === ChainId.ETH) {
+        tokenAbi = getErc20RDotTokenAbi();
+        tokenAddress = getErc20TokenContractConfig().rDOT;
+        balance = await getErc20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress,
+          TokenName.DOT
+        );
+      }
     }
 
     if (
-      Number(balance) - Number(oldBalance) <= Number(amount) * 1.1 &&
-      Number(balance) - Number(oldBalance) >= Number(amount) * 0.9
+      Number(balance) - Number(oldBalance) <= Number(willReceiveAmount) * 1.1 &&
+      Number(balance) - Number(oldBalance) >= Number(willReceiveAmount) * 0.9
     ) {
       cb && cb("successful");
     } else {
@@ -771,7 +819,7 @@ export const queryRTokenSwapState =
             targetAddress,
             rsymbol,
             oldBalance,
-            amount,
+            willReceiveAmount,
             cb
           )
         );

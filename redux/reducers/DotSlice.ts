@@ -362,6 +362,7 @@ export const handleDotStake =
                   txHash,
                   blockHash,
                   chainAmount,
+                  willReceiveAmount,
                   selectedPool.poolPubKey,
                   rSymbol.Dot,
                   chainId,
@@ -394,6 +395,7 @@ export const retryStake =
       poolPubKey,
       targetAddress,
       tokenStandard,
+      willReceiveAmount,
     } = stakeLoadingParams;
 
     let chainId = ChainId.STAFI;
@@ -432,6 +434,7 @@ export const retryStake =
         txHash as string,
         blockHash as string,
         amount as string,
+        willReceiveAmount as string,
         poolPubKey as string,
         rSymbol.Dot,
         chainId,
@@ -503,8 +506,8 @@ export const unstakeRDot =
             TokenName.DOT
           )} days`,
           (r?: string, txHash?: string) => {
+            const uuid = stafiUuid();
             if (r === "Success") {
-              const uuid = stafiUuid();
               addRTokenUnbondRecords(TokenName.DOT, {
                 id: uuid,
                 txHash,
@@ -514,6 +517,34 @@ export const unstakeRDot =
                 amount: willReceiveAmount,
                 recipient,
               });
+
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.DOT,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  scanUrl: getStafiScanTxUrl(txHash),
+                  status: "Confirmed",
+                })
+              );
+            } else if (r === "Failed") {
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.DOT,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  scanUrl: getStafiScanTxUrl(txHash),
+                  status: "Error",
+                })
+              );
             }
           }
         )

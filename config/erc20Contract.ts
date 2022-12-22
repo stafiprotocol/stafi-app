@@ -62,8 +62,8 @@ export function getErc20TokenContractConfig(): Erc20TokenContractConfig {
     return {
       rETH: "0xE6b876ED4e9191645484FC8940A35784381c2f9B",
       rMATIC: "0x97dce48fb450590f3fc7e8caf4868c374804dd9e",
-      rKSM: "0xc8acfdbe0634d041f529d130e7cd33a5be3f73d3",
-      rDOT: "0x5561eecdabd404e36259a8b4edb198be838a1b02",
+      rKSM: "0xa3c51c171aed86d0565fd9034e6930e9454775fc",
+      rDOT: "0x945b5b949f700a8380e5501a1cfad8aa1a26f767",
     };
   }
 

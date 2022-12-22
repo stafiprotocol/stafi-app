@@ -178,8 +178,7 @@ export const NavbarWallet = () => {
           tokenName: "KSM",
         });
       }
-    }
-    if (walletType === WalletType.Polkadot_DOT) {
+    } else if (walletType === WalletType.Polkadot_DOT) {
       if (dotConnected) {
         res.push({
           balance: dotBalance,

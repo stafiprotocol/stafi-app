@@ -99,7 +99,7 @@ export function formatNumber(
 
 export function chainAmountToHuman(
   num: string,
-  tokenSymbol: TokenSymbol | undefined
+  tokenSymbol: TokenSymbol | rSymbol | undefined
 ) {
   if (num === "" || num === undefined || num === null || isNaN(Number(num))) {
     return "--";
@@ -107,30 +107,39 @@ export function chainAmountToHuman(
   let factor;
   switch (tokenSymbol) {
     case TokenSymbol.DOT:
+    case rSymbol.Dot:
       factor = "10000000000";
       break;
     case TokenSymbol.ATOM:
+    case rSymbol.Atom:
       factor = "1000000";
       break;
     case TokenSymbol.FIS:
+    case rSymbol.Fis:
       factor = "1000000000000";
       break;
     case TokenSymbol.KSM:
+    case rSymbol.Ksm:
       factor = "1000000000000";
       break;
     case TokenSymbol.SOL:
+    case rSymbol.Sol:
       factor = "1000000000";
       break;
     case TokenSymbol.ETH:
+    case rSymbol.Eth:
       factor = "1000000000000000000";
       break;
     case TokenSymbol.MATIC:
+    case rSymbol.Matic:
       factor = "1000000000000000000";
       break;
     case TokenSymbol.BNB:
+    case rSymbol.Bnb:
       factor = "100000000";
       break;
     case TokenSymbol.StafiHub:
+    case rSymbol.StafiHub:
       factor = "1000000";
       break;
     default:

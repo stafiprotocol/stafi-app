@@ -40,17 +40,17 @@ export const StakeFee = (props: StakeFeeProps) => {
     }
 
     if (
-      isNaN(Number(txFee)) ||
-      isNaN(Number(bridgeFee)) ||
-      isNaN(Number(sendFee))
+      isNaN(Number(txFee?.amount)) ||
+      isNaN(Number(bridgeFee?.amount)) ||
+      isNaN(Number(sendFee?.amount))
     ) {
       return undefined;
     }
 
     return (
-      Number(fisPrice) * Number(txFee) +
-      Number(fisPrice) * Number(bridgeFee) +
-      Number(tokenPrice) * Number(sendFee)
+      Number(fisPrice) * Number(txFee?.amount) +
+      Number(fisPrice) * Number(bridgeFee?.amount) +
+      Number(tokenPrice) * Number(sendFee?.amount)
     );
   }, [fisPrice, tokenPrice, txFee, bridgeFee, sendFee]);
 
