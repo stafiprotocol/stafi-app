@@ -47,7 +47,7 @@ import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
 import { getTokenNameFromrSymbol, getTokenSymbol } from "utils/rToken";
 import { getBep20RDotTokenAbi, getBep20RKsmTokenAbi } from "config/bep20Abi";
 import { getErc20RDotTokenAbi, getErc20RKsmTokenAbi } from "config/erc20Abi";
-import { chainAmountToHuman, formatNumber } from "utils/number";
+import { chainAmountToHuman, formatNumber, numberToChain } from "utils/number";
 
 declare const ethereum: any;
 
@@ -843,6 +843,11 @@ export const fisUnbond =
   ): AppThunk =>
   async (dispatch, getState) => {
     try {
+      dispatch(
+        setRedeemLoadingParams({
+          customMsg: "Unstaking processing, please wait for a moment",
+        })
+      );
       const address = getState().wallet.polkadotAccount as string;
       const api = await stafiServer.createStafiApi();
       const tokenName = getState().app.redeemLoadingParams?.tokenName;
@@ -862,7 +867,7 @@ export const fisUnbond =
       const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
         symbol,
         selectedPool,
-        numberUtil.tokenAmountToChain(amount, symbol).toString(),
+        numberToChain(amount, symbol).toString(),
         recipient
       );
 
@@ -870,11 +875,6 @@ export const fisUnbond =
         // @ts-ignore
         .signAndSend(address, { signer: injector.signer }, (result: any) => {
           dispatch(setIsLoading(false));
-          dispatch(
-            setRedeemLoadingParams({
-              customMsg: "Unstaking processing, please wait for a moment",
-            })
-          );
 
           try {
             if (result.status.isInBlock) {
@@ -897,11 +897,14 @@ export const fisUnbond =
                     );
                   } else if (data.event.method === "ExtrinsicFailed") {
                     cb && cb("Failed");
+                    const txHash = unbondResult.hash.toHex();
                     dispatch(
                       setRedeemLoadingParams({
                         status: "error",
                         errorMsg: "Unstake failed",
                         customMsg: undefined,
+                        txHash: txHash,
+                        scanUrl: getStafiScanTxUrl(txHash),
                       })
                     );
                   }

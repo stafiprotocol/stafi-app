@@ -474,6 +474,7 @@ export const unstakeRDot =
       setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.DOT,
         amount: amount,
         willReceiveAmount,

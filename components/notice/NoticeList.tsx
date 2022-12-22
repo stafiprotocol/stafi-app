@@ -129,19 +129,19 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
 
   const clickStatus = (notice: LocalNotice) => {
     props.onClose();
-    if (notice.status !== "Confirmed") {
-      openStakeLoadingModal(notice);
-    } else {
-      if (notice.type === "rToken Stake") {
+    if (notice.type === "rToken Stake") {
+      if (notice.status !== "Confirmed") {
+        openStakeLoadingModal(notice);
+      } else {
         const noticeData = notice.data as NoticeRTokenStakeData;
         if (noticeData.tokenName === TokenName.ETH) {
           openLink(getNoticeUrl(notice));
         } else {
           openStakeLoadingModal(notice);
         }
-      } else {
-        openLink(getNoticeUrl(notice));
       }
+    } else {
+      openLink(getNoticeUrl(notice));
     }
   };
 

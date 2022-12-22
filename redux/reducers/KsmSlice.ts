@@ -478,6 +478,7 @@ export const unstakeRKsm =
       setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.KSM,
         amount: amount,
         willReceiveAmount,

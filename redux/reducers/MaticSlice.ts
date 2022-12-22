@@ -504,6 +504,7 @@ export const unbondRMatic =
       setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.MATIC,
         amount,
         willReceiveAmount,
