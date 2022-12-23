@@ -250,7 +250,7 @@ const MintTokenCard = (props: Props) => {
         Claim
       </div>
 
-      {!walletNotConnected || !metaMaskAccount && (
+      {!walletNotConnected && metaMaskAccount && (
         <div className="text-[.16rem] mt-[.24rem]">
           <div
             className="flex justify-center cursor-pointer"
