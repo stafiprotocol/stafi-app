@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import {
   claimREthReward,
   claimRTokenReward,
+  getMintOverview,
 } from "redux/reducers/MintProgramSlice";
 import { PriceItem } from "redux/reducers/RTokenSlice";
 import { RootState } from "redux/store";
@@ -42,7 +43,7 @@ const RPoolMintClaimModal = (props: Props) => {
       return [true, "Claim"];
     }
     if (mintOverView.fisClaimableReward <= 0) {
-      return [true, "No Enough FIS Claimable"];
+      return [true, "Not Enough FIS Claimable"];
     }
     return [false, "Claim"];
   }, [mintOverView]);
@@ -67,7 +68,13 @@ const RPoolMintClaimModal = (props: Props) => {
         claimREthReward(
           mintOverView.fisClaimableReward,
           mintOverView.claimIndexes,
-          props.cycle
+          props.cycle,
+          (success?: boolean) => {
+            if (success) {
+              dispatch(getMintOverview(props.rTokenName, props.cycle));
+              props.onClose();
+            }
+          }
         )
       );
     } else {
@@ -76,7 +83,13 @@ const RPoolMintClaimModal = (props: Props) => {
           mintOverView.fisClaimableReward,
           mintOverView.claimIndexes,
           rTokenNameToTokenSymbol(props.rTokenName),
-          props.cycle
+          props.cycle,
+          (success?: boolean) => {
+            if (success) {
+              dispatch(getMintOverview(props.rTokenName, props.cycle));
+              props.onClose();
+            }
+          }
         )
       );
     }
@@ -146,7 +159,7 @@ const RPoolMintClaimModal = (props: Props) => {
             <div className="grid" style={{ gridTemplateColumns: "60% 40%" }}>
               <div className="text-text2">Total Minted Value</div>
               <div className="text-text1">
-                ${formatNumber(totalMintedValue, { decimals: 6 })}
+                ${formatNumber(totalMintedValue, { decimals: 2 })}
               </div>
             </div>
             <div
@@ -157,7 +170,7 @@ const RPoolMintClaimModal = (props: Props) => {
               <div className="text-text1">
                 $
                 {formatNumber(mintOverView ? mintOverView.userMintToken : 0, {
-                  decimals: 6,
+                  decimals: 2,
                 })}{" "}
                 ({!mintOverView ? 0 : mintOverView.userMintRatio} %)
               </div>

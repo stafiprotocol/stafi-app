@@ -239,7 +239,7 @@ export const claimRTokenReward =
                   dispatch(setIsLoading(false));
                   const txHash = tx.hash.toHex();
                   snackbarUtil.success("Claim Successfully");
-                  cb && cb();
+                  cb && cb(true);
                 }
               });
           } else if (result.isError) {
@@ -353,7 +353,7 @@ export const claimREthReward =
                 } else if (method === "ExtrinsicSuccess") {
                   dispatch(setIsLoading(false));
                   snackbarUtil.success("Claim Successfully");
-                  cb && cb();
+                  cb && cb(true);
                 }
               });
           } else if (result.isError) {

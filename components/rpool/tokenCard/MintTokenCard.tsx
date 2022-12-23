@@ -29,6 +29,9 @@ import {
 } from "config/metaMask";
 import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
 import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
+import UnableClaimModal from "components/modal/UnableClaimModal";
+import { useRPoolMintClaim } from "hooks/useRPoolMintClaim";
+import { getMintOverview } from "redux/reducers/MintProgramSlice";
 
 interface Props {
   data: AllListItem;
@@ -40,6 +43,8 @@ const MintTokenCard = (props: Props) => {
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+
+  const { mintOverView } = useRPoolMintClaim(data.rToken, data.cycle);
 
   const { walletNotConnected } = useContext(MyLayoutContext);
   const { polkadotAccount, metaMaskAccount } = useWalletAccount();
@@ -60,6 +65,8 @@ const MintTokenCard = (props: Props) => {
 
   const [showMore, setShowMore] = useState<boolean>(false);
   const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
+  const [unableClaimModalVisible, setUnableClaimModalVisible] =
+    useState<boolean>(false);
   const [stakeModalVisible, setStakeModalVisible] = useState<boolean>(false);
   const [unstakeModalVisible, setUnstakeModalVisible] =
     useState<boolean>(false);
@@ -76,6 +83,7 @@ const MintTokenCard = (props: Props) => {
 
   const closeClaimModal = () => {
     setClaimModalVisible(false);
+    dispatch(getMintOverview(data.rToken, data.cycle));
   };
 
   const onClickConnectWallet = () => {
@@ -113,7 +121,11 @@ const MintTokenCard = (props: Props) => {
         })
       );
     } else {
-      setClaimModalVisible(true);
+      if (!mintOverView || mintOverView.fisClaimableReward <= 0) {
+        setUnableClaimModalVisible(true);
+      } else {
+        setClaimModalVisible(true);
+      }
     }
   };
 
@@ -349,6 +361,11 @@ const MintTokenCard = (props: Props) => {
         editAddressDisabled={data.rToken === RTokenName.rETH}
         balance={rTokenBalance}
         onClickConnectWallet={onClickConnectWallet}
+      />
+
+      <UnableClaimModal
+        visible={unableClaimModalVisible}
+        onClose={() => setUnableClaimModalVisible(false)}
       />
     </div>
   );

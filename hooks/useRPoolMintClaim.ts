@@ -8,7 +8,7 @@ import { useWalletAccount } from "./useWalletAccount";
 export function useRPoolMintClaim(rTokenName: RTokenName, cycle: number) {
   const dispatch = useAppDispatch();
 
-  const { polkadotBalance } = useWalletAccount();
+  const { polkadotAccount, metaMaskAccount } = useWalletAccount();
 
   const { mintOverView } = useAppSelector((state: RootState) => {
     return {
@@ -18,7 +18,7 @@ export function useRPoolMintClaim(rTokenName: RTokenName, cycle: number) {
 
   useEffect(() => {
     dispatch(getMintOverview(rTokenName, cycle));
-  }, [dispatch, rTokenName, cycle]);
+  }, [dispatch, rTokenName, cycle, polkadotAccount, metaMaskAccount]);
 
   return { mintOverView };
 }

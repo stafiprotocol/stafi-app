@@ -95,6 +95,7 @@ const PoolTokenList = (props: Props) => {
 
       {tab === "finished" && (
         <RPoolFinishedList
+					viewMyStakes={viewMyStakes}
           programTab={props.programTab}
           list={props.finishedList}
         />
