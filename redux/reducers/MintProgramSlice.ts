@@ -53,12 +53,14 @@ export interface MintProgramState {
   rTokenActs: RTokenActsCollection;
   queryActsLoading: boolean;
   mintOverview: MintOverview | null;
+  firstQueryActs: boolean;
 }
 
 const initialState: MintProgramState = {
   rTokenActs: {},
   queryActsLoading: false,
   mintOverview: null,
+  firstQueryActs: true,
 };
 
 export const mintProgramSlice = createSlice({
@@ -83,11 +85,21 @@ export const mintProgramSlice = createSlice({
     ) => {
       state.mintOverview = action.payload;
     },
+    setFirstQueryActs: (
+      state: MintProgramState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.firstQueryActs = action.payload;
+    },
   },
 });
 
-export const { setRTokenActs, setQueryActsLoading, setMintOverview } =
-  mintProgramSlice.actions;
+export const {
+  setRTokenActs,
+  setQueryActsLoading,
+  setMintOverview,
+  setFirstQueryActs,
+} = mintProgramSlice.actions;
 
 export default mintProgramSlice.reducer;
 
@@ -105,7 +117,8 @@ export const getMintPrograms = (): AppThunk => async (dispatch, getState) => {
     dispatch(getRTokenMintInfo(RTokenName.rSOL)),
   ])
     .then(() => {
-      console.log(getState().mintProgram.rTokenActs);
+      // console.log(getState().mintProgram.rTokenActs);
+      dispatch(setFirstQueryActs(false));
     })
     .catch((err: any) => {})
     .finally(() => {

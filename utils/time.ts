@@ -41,7 +41,7 @@ export const formatDuration = (milliSeconds: number, withAlphabet?: boolean) => 
     seconds = "0" + seconds;
   }
 	if (withAlphabet) {
-		return `${days}d${hours}h`;
+		return `${days}d: ${hours}h`;
 	}
   return `${days}:${hours}:${minutes}:${seconds}`;
 };

@@ -36,7 +36,6 @@ const RPoolMintClaimModal = (props: Props) => {
   const { isLoading } = useAppSlice();
 
   const { mintOverView } = useRPoolMintClaim(props.rTokenName, props.cycle);
-  console.log({ mintOverView });
 
   const [claimButtonDisabled, claimButtonContent] = useMemo(() => {
     if (!mintOverView) {

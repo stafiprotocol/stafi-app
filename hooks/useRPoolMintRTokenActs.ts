@@ -1,12 +1,16 @@
-import { RTokenName, TokenSymbol } from "interfaces/common";
+import { RTokenName, TokenName, TokenSymbol } from "interfaces/common";
 import { cloneDeep } from "lodash";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getMintPrograms, RTokenActs } from "redux/reducers/MintProgramSlice";
 import { PriceItem, updateRTokenPriceList } from "redux/reducers/RTokenSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
-import { getTokenSymbol, rTokenNameToTokenSymbol } from "utils/rToken";
+import {
+  getTokenSymbol,
+  rTokenNameToTokenName,
+  rTokenNameToTokenSymbol,
+} from "utils/rToken";
 import { useAppDispatch, useAppSelector } from "./common";
 import { useInterval } from "./useInterval";
 
@@ -53,22 +57,23 @@ const rTokenList: RTokenListItem[] = [
 export function useRPoolMintRTokenActs() {
   const dispatch = useAppDispatch();
 
-  const { rTokenActs, priceList, queryActsLoading } = useAppSelector(
-    (state: RootState) => {
+  const { rTokenActs, priceList, queryActsLoading, firstQueryActs } =
+    useAppSelector((state: RootState) => {
       const rTokenActs = state.mintProgram.rTokenActs;
       const priceList = state.rToken.priceList;
       const queryActsLoading = state.mintProgram.queryActsLoading;
+      const firstQueryActs = state.mintProgram.firstQueryActs;
       return {
         rTokenActs,
         priceList,
         queryActsLoading,
+        firstQueryActs,
       };
-    }
-  );
+    });
 
   const mintDataList = useMemo(() => {
     const fisPrice = priceList.find(
-      (priceItem: PriceItem) => priceItem.symbol === RTokenName.rFIS
+      (priceItem: PriceItem) => priceItem.symbol === TokenName.FIS
     );
     rTokenList.forEach((item: RTokenListItem) => {
       item.children = cloneDeep(rTokenActs[item.rToken]) || [];
@@ -102,7 +107,8 @@ export function useRPoolMintRTokenActs() {
     });
     rTokenList.forEach((item: RTokenListItem) => {
       const unitPrice = priceList.find(
-        (priceItem: PriceItem) => priceItem.symbol === item.rToken
+        (priceItem: PriceItem) =>
+          priceItem.symbol === rTokenNameToTokenName(item.rToken)
       );
       if (!unitPrice || !item.children || item.children.length === 0) {
         return true;
@@ -138,9 +144,9 @@ export function useRPoolMintRTokenActs() {
 
   const { totalRewardFis, totalMintedValue } = useMemo(() => {
     const result = { totalMintedValue: "", totalRewardFis: "" };
-		if (queryActsLoading) {
-			return result;
-		}
+    if (queryActsLoading && firstQueryActs) {
+      return result;
+    }
 
     let total = 0;
     let fisAmount = 0;
@@ -152,7 +158,7 @@ export function useRPoolMintRTokenActs() {
       });
     });
 
-    result.totalMintedValue = formatNumber(total);
+    result.totalMintedValue = formatNumber(total, { decimals: 2 });
     result.totalRewardFis = formatNumber(fisAmount);
 
     return result;

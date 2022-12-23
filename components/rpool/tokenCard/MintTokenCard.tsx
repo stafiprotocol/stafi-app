@@ -228,7 +228,7 @@ const MintTokenCard = (props: Props) => {
       </div>
 
       <div className="text-[#00F3AB] text-[.16rem] text-center mt-[.24rem] leading-[.18rem]">
-        {`${formatDuration(data.endTimeStamp - Date.now(), true)} left`}
+        {`${formatDuration(data.endTimeStamp - Date.now(), true)} Left`}
       </div>
 
       <Button
