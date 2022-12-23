@@ -13,7 +13,7 @@ export default class RPoolServer {
     const actLatestCycle = Number(actLatestCycleResult);
 
     if (actLatestCycle === 0) {
-      console.log(`empty ${tokenSymbol} mint info`);
+      // console.log(`empty ${tokenSymbol} mint info`);
     } else {
       const lastHeader = await api.rpc.chain.getHeader();
       if (!lastHeader || !lastHeader.toJSON()) {
@@ -57,7 +57,7 @@ export default class RPoolServer {
     const rEthActLatestCycle = Number(rEthActLatestCycleResult);
 
     if (rEthActLatestCycle === 0) {
-      console.log("empty rEth mint info");
+      // console.log("empty rEth mint info");
     } else {
       const lastHeader = await api.rpc.chain.getHeader();
       if (!lastHeader || !lastHeader.toJSON()) {

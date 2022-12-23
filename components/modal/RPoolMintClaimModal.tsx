@@ -212,6 +212,15 @@ const RPoolMintClaimModal = (props: Props) => {
                 FIS
               </div>
             </div>
+            <div
+              className="grid mt-[.15rem]"
+              style={{ gridTemplateColumns: "60% 40%" }}
+            >
+              <div className="text-text2">Vesting</div>
+              <div className="text-text1">
+                {mintOverView ? mintOverView.vesting : "--"}
+              </div>
+            </div>
           </div>
 
           <div className="mt-[.55rem] mb-[.56rem]">
