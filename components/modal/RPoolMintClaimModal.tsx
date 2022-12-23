@@ -51,7 +51,7 @@ const RPoolMintClaimModal = (props: Props) => {
     const unitPrice = priceList.find(
       (item: PriceItem) => item.symbol === props.rTokenName
     );
-    if (!unitPrice || !mintOverView) return "--";
+    if (!unitPrice || !mintOverView || !mintOverView.actData) return "--";
     const rTokenTotalReward = numberUtil.tokenAmountToHuman(
       mintOverView.actData.total_rtoken_amount,
       rTokenNameToTokenSymbol(props.rTokenName)

@@ -1,27 +1,56 @@
 import { EmptyContent } from "components/common/EmptyContent";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
-import { RTokenName } from "interfaces/common";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
+import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
 import { useMemo } from "react";
 import { RTokenActs } from "redux/reducers/MintProgramSlice";
+import { rTokenNameToTokenName } from "utils/rToken";
 import MintTokenCard from "../tokenCard/MintTokenCard";
 
 interface Props {
   programTab: ProgramTab;
   list: RTokenListItem[];
+  viewMyStakes: boolean;
 }
 
 export interface AllListItem extends RTokenActs {
-	rToken: RTokenName;
+  rToken: RTokenName;
 }
 
 const RPoolLiveList = (props: Props) => {
-  const { list } = props;
+  const { list, viewMyStakes } = props;
+
+  const balanceRAtom = useRTokenBalance(TokenStandard.Native, TokenName.ATOM);
+  const balanceRMatic = useRTokenBalance(TokenStandard.Native, TokenName.MATIC);
+  const balanceREth = useRTokenBalance(TokenStandard.Native, TokenName.ETH);
+  const balanceRDot = useRTokenBalance(TokenStandard.Native, TokenName.DOT);
+  const balanceRKsm = useRTokenBalance(TokenStandard.Native, TokenName.KSM);
+  const balanceRBnb = useRTokenBalance(TokenStandard.Native, TokenName.BNB);
+  const balanceRSol = useRTokenBalance(TokenStandard.Native, TokenName.SOL);
+
+  const getRTokenBalance = (rTokenName: RTokenName) => {
+    const tokenName = rTokenNameToTokenName(rTokenName);
+    if (tokenName === TokenName.ATOM) return balanceRAtom;
+    if (tokenName === TokenName.BNB) return balanceRBnb;
+    if (tokenName === TokenName.DOT) return balanceRDot;
+    if (tokenName === TokenName.ETH) return balanceREth;
+    if (tokenName === TokenName.KSM) return balanceRKsm;
+    if (tokenName === TokenName.MATIC) return balanceRMatic;
+    if (tokenName === TokenName.SOL) return balanceRSol;
+  };
 
   const flatList = useMemo(() => {
-    const validList = list.filter(
-      (item: RTokenListItem) => Array.isArray(item.children) && item.children.length > 0
-    );
+    const validList = list.filter((item: RTokenListItem) => {
+      const criteria = Array.isArray(item.children) && item.children.length > 0;
+      if (viewMyStakes) {
+        const rTokenBalance = getRTokenBalance(item.rToken);
+        return (
+          !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0 && criteria
+        );
+      }
+      return criteria;
+    });
     const allListData: AllListItem[] = [];
     validList.forEach((item: RTokenListItem) => {
       item.children.forEach((child: RTokenActs) => {
@@ -31,8 +60,19 @@ const RPoolLiveList = (props: Props) => {
         });
       });
     });
+
     return allListData;
-  }, [list]);
+  }, [
+    list,
+    viewMyStakes,
+    balanceRAtom,
+    balanceRBnb,
+    balanceRDot,
+    balanceREth,
+    balanceRKsm,
+    balanceRMatic,
+    balanceRSol,
+  ]);
 
   return (
     <div className="flex mt-[.36rem]">
@@ -47,10 +87,7 @@ const RPoolLiveList = (props: Props) => {
       {props.programTab === ProgramTab.Mint ? (
         <>
           {flatList.map((item: AllListItem, index: number) => (
-            <MintTokenCard
-              key={`${item.rToken}${index}`}
-              data={item}
-            />
+            <MintTokenCard key={`${item.rToken}${index}`} data={item} />
           ))}
         </>
       ) : (

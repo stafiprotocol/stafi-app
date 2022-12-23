@@ -12,7 +12,12 @@ import { useAppDispatch } from "hooks/common";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { RTokenName, TokenStandard, WalletType } from "interfaces/common";
+import {
+  RTokenName,
+  TokenName,
+  TokenStandard,
+  WalletType,
+} from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
 import { useContext, useMemo, useState } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
@@ -25,10 +30,30 @@ import { rTokenNameToTokenName } from "utils/rToken";
 interface Props {
   programTab: ProgramTab;
   list: RTokenListItem[];
+  viewMyStakes: boolean;
 }
 
 const RPoolFinishedList = (props: Props) => {
-  const { list } = props;
+  const { list, viewMyStakes } = props;
+
+  const balanceRAtom = useRTokenBalance(TokenStandard.Native, TokenName.ATOM);
+  const balanceRMatic = useRTokenBalance(TokenStandard.Native, TokenName.MATIC);
+  const balanceREth = useRTokenBalance(TokenStandard.Native, TokenName.ETH);
+  const balanceRDot = useRTokenBalance(TokenStandard.Native, TokenName.DOT);
+  const balanceRKsm = useRTokenBalance(TokenStandard.Native, TokenName.KSM);
+  const balanceRBnb = useRTokenBalance(TokenStandard.Native, TokenName.BNB);
+  const balanceRSol = useRTokenBalance(TokenStandard.Native, TokenName.SOL);
+
+  const getRTokenBalance = (rTokenName: RTokenName) => {
+    const tokenName = rTokenNameToTokenName(rTokenName);
+    if (tokenName === TokenName.ATOM) return balanceRAtom;
+    if (tokenName === TokenName.BNB) return balanceRBnb;
+    if (tokenName === TokenName.DOT) return balanceRDot;
+    if (tokenName === TokenName.ETH) return balanceREth;
+    if (tokenName === TokenName.KSM) return balanceRKsm;
+    if (tokenName === TokenName.MATIC) return balanceRMatic;
+    if (tokenName === TokenName.SOL) return balanceRSol;
+  };
 
   const dispatch = useAppDispatch();
 
@@ -51,11 +76,27 @@ const RPoolFinishedList = (props: Props) => {
   );
 
   const renderedList = useMemo(() => {
-    return list.filter(
-      (data: RTokenListItem) =>
-        Array.isArray(data.children) && data.children.length > 0
-    );
-  }, [list]);
+    return list.filter((data: RTokenListItem) => {
+      const criteria = Array.isArray(data.children) && data.children.length > 0;
+      if (viewMyStakes) {
+        const rTokenBalance = getRTokenBalance(data.rToken);
+        return (
+          !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0 && criteria
+        );
+      }
+      return criteria;
+    });
+  }, [
+    list,
+    viewMyStakes,
+    balanceRAtom,
+    balanceRBnb,
+    balanceRDot,
+    balanceREth,
+    balanceRKsm,
+    balanceRMatic,
+    balanceRSol,
+  ]);
 
   const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
