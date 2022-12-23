@@ -1,12 +1,14 @@
 import { Box, Stack } from "@mui/material";
 import classNames from "classnames";
 import { EmptyContent } from "components/common/EmptyContent";
+import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "hooks/common";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import { useEffect, useState } from "react";
 import {
   resetStakeLoadingParams,
   setUnreadNoticeFlag,
+  updateNotice,
   updateStakeLoadingParams,
 } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
@@ -33,12 +35,78 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
 
   useEffect(() => {
     if (props.isOpen) {
-      setNoticeList(getNoticeList());
+      const noticeList = getNoticeList();
+      setNoticeList(noticeList);
 
       dispatch(setUnreadNoticeFlag(false));
       removeStorage(STORAGE_KEY_UNREAD_NOTICE);
+
+      noticeList?.forEach((notice) => {
+        if (notice.type === "rToken Stake" && notice.status === "Pending") {
+          if (dayjs().valueOf() - Number(notice.timestamp) > 3600000) {
+            const noticeStakeLoadingParams = notice.stakeLoadingParams;
+            if (!noticeStakeLoadingParams) {
+              return;
+            }
+            if (
+              noticeStakeLoadingParams.tokenStandard !== TokenStandard.Native
+            ) {
+              if (
+                noticeStakeLoadingParams.progressDetail?.sending
+                  ?.totalStatus === "success" &&
+                noticeStakeLoadingParams.progressDetail?.staking
+                  ?.totalStatus === "success" &&
+                noticeStakeLoadingParams.progressDetail?.minting
+                  ?.totalStatus === "success" &&
+                noticeStakeLoadingParams.progressDetail?.swapping
+                  ?.totalStatus === "loading"
+              ) {
+                dispatch(
+                  updateNotice(notice.id, {
+                    status: "Confirmed",
+                    stakeLoadingParams: {
+                      ...noticeStakeLoadingParams,
+                      status: "success",
+                      progressDetail: {
+                        ...noticeStakeLoadingParams.progressDetail,
+                        swapping: {
+                          totalStatus: "success",
+                        },
+                      },
+                    },
+                  })
+                );
+
+                if (
+                  stakeLoadingParams &&
+                  stakeLoadingParams.noticeUuid === notice.id
+                ) {
+                  dispatch(
+                    updateStakeLoadingParams({
+                      status: "success",
+                      progressDetail: {
+                        swapping: {
+                          totalStatus: "success",
+                        },
+                      },
+                    })
+                  );
+                }
+                setTimeout(() => {
+                  updateNoticeList();
+                }, 500);
+              }
+            }
+          }
+        }
+      });
     }
-  }, [dispatch, props.isOpen]);
+  }, [dispatch, props.isOpen, stakeLoadingParams]);
+
+  const updateNoticeList = () => {
+    const noticeList = getNoticeList();
+    setNoticeList(noticeList);
+  };
 
   const getNoticeTitle = (notice: LocalNotice): string => {
     return notice.type;
@@ -129,19 +197,19 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
 
   const clickStatus = (notice: LocalNotice) => {
     props.onClose();
-    if (notice.status !== "Confirmed") {
-      openStakeLoadingModal(notice);
-    } else {
-      if (notice.type === "rToken Stake") {
+    if (notice.type === "rToken Stake") {
+      if (notice.status !== "Confirmed") {
+        openStakeLoadingModal(notice);
+      } else {
         const noticeData = notice.data as NoticeRTokenStakeData;
         if (noticeData.tokenName === TokenName.ETH) {
           openLink(getNoticeUrl(notice));
         } else {
           openStakeLoadingModal(notice);
         }
-      } else {
-        openLink(getNoticeUrl(notice));
       }
+    } else {
+      openLink(getNoticeUrl(notice));
     }
   };
 

@@ -9,6 +9,8 @@ import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
 import maticIcon from "public/matic_type_green.svg";
+import ksmIcon from "public/ksm_type_green.png";
+import dotIcon from "public/dot_type_green.png";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
@@ -56,7 +58,10 @@ import { validateETHAddress, validateSS58Address } from "utils/validator";
 import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 import { BubblesLoading } from "components/common/BubblesLoading";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
-import { getPolkadotAccountBalance } from "utils/polkadotUtils";
+import {
+  getPolkadotAccountBalance,
+  transformSs58Address,
+} from "utils/polkadotUtils";
 import { handleDotStake } from "redux/reducers/DotSlice";
 import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
 import { useStakeFees } from "hooks/useStakeFees";
@@ -124,11 +129,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     if (walletType === WalletType.MetaMask) {
       return metaMaskAccount;
     } else if (walletType === WalletType.Polkadot) {
-      return polkadotAccount;
+      return transformSs58Address(polkadotAccount, walletType);
     } else if (walletType === WalletType.Polkadot_KSM) {
-      return ksmAccount;
+      return transformSs58Address(ksmAccount, walletType);
     } else if (walletType === WalletType.Polkadot_DOT) {
-      return dotAccount;
+      return transformSs58Address(dotAccount, walletType);
     }
     return "";
   }, [walletType, metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);
@@ -170,6 +175,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   }, [visible]);
 
   const estimateFee = useMemo(() => {
+    if (tokenName === TokenName.KSM) {
+      return "0.0005";
+    }
+    if (tokenName === TokenName.DOT) {
+      return "0.015";
+    }
     let gasLimit = 146316;
     if (tokenName === TokenName.MATIC) {
       gasLimit = 79724;
@@ -436,6 +447,19 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     }
   };
 
+  const getLogo = () => {
+    if (tokenName === TokenName.MATIC) {
+      return maticIcon;
+    }
+    if (tokenName === TokenName.KSM) {
+      return ksmIcon;
+    }
+    if (tokenName === TokenName.DOT) {
+      return dotIcon;
+    }
+    return ethIcon;
+  };
+
   useEffect(() => {
     dispatch(getMaticBondTransactionFees(tokenStandard));
   }, [dispatch, targetAddress, tokenStandard]);
@@ -658,11 +682,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image
-                  src={tokenName === TokenName.MATIC ? maticIcon : ethIcon}
-                  alt="icon"
-                  layout="fill"
-                />
+                <Image src={getLogo()} alt="icon" layout="fill" />
               </div>
 
               <div className="ml-[.35rem] text-text2 text-[.32rem]">
@@ -689,7 +709,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     return;
                   }
                   let amount = Number(balance);
-                  if (tokenName === TokenName.ETH) {
+                  if (tokenName !== TokenName.MATIC) {
                     amount = Math.max(
                       Number(balance) - Number(estimateFee) * 1.5,
                       0

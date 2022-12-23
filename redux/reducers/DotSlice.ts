@@ -1,5 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import {
+  getDotScanTxUrl,
+  getEtherScanTxUrl,
+  getStafiScanTxUrl,
+} from "config/explorer";
 import { estimateUnbondDays } from "config/unbond";
 import dayjs from "dayjs";
 import {
@@ -309,7 +313,7 @@ export const handleDotStake =
               updateStakeLoadingParams(
                 {
                   txHash: txHash,
-                  scanUrl: getEtherScanTxUrl(txHash),
+                  scanUrl: getDotScanTxUrl(txHash),
                   blockHash: blockHash,
                   poolPubKey: selectedPool.poolPubKey,
                   progressDetail: {
@@ -340,7 +344,7 @@ export const handleDotStake =
                       amount: Number(stakeAmount) + "",
                       willReceiveAmount: Number(willReceiveAmount) + "",
                     },
-                    scanUrl: getStafiScanTxUrl(txHash),
+                    scanUrl: getDotScanTxUrl(txHash),
                     status: "Pending",
                     stakeLoadingParams: newParams,
                   };
@@ -358,6 +362,7 @@ export const handleDotStake =
                   txHash,
                   blockHash,
                   chainAmount,
+                  willReceiveAmount,
                   selectedPool.poolPubKey,
                   rSymbol.Dot,
                   chainId,
@@ -365,6 +370,8 @@ export const handleDotStake =
                   cb
                 )
               );
+
+            cb && cb(true);
           },
         })
       );
@@ -390,6 +397,7 @@ export const retryStake =
       poolPubKey,
       targetAddress,
       tokenStandard,
+      willReceiveAmount,
     } = stakeLoadingParams;
 
     let chainId = ChainId.STAFI;
@@ -404,7 +412,7 @@ export const retryStake =
     dispatch(
       updateStakeLoadingParams({
         txHash: txHash,
-        scanUrl: getEtherScanTxUrl(txHash as string),
+        scanUrl: getDotScanTxUrl(txHash as string),
         blockHash: blockHash,
         poolPubKey: poolPubKey as string,
         progressDetail: {
@@ -428,6 +436,7 @@ export const retryStake =
         txHash as string,
         blockHash as string,
         amount as string,
+        willReceiveAmount as string,
         poolPubKey as string,
         rSymbol.Dot,
         chainId,
@@ -467,6 +476,7 @@ export const unstakeRDot =
       setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.DOT,
         amount: amount,
         willReceiveAmount,
@@ -499,8 +509,8 @@ export const unstakeRDot =
             TokenName.DOT
           )} days`,
           (r?: string, txHash?: string) => {
+            const uuid = stafiUuid();
             if (r === "Success") {
-              const uuid = stafiUuid();
               addRTokenUnbondRecords(TokenName.DOT, {
                 id: uuid,
                 txHash,
@@ -510,6 +520,34 @@ export const unstakeRDot =
                 amount: willReceiveAmount,
                 recipient,
               });
+
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.DOT,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  scanUrl: getStafiScanTxUrl(txHash),
+                  status: "Confirmed",
+                })
+              );
+            } else if (r === "Failed") {
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.DOT,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  scanUrl: getStafiScanTxUrl(txHash),
+                  status: "Error",
+                })
+              );
             }
           }
         )

@@ -1,3 +1,4 @@
+import { BubblesLoading } from "components/common/BubblesLoading";
 import { Button } from "components/common/button";
 import { GradientText } from "components/common/GradientText";
 import { MyTooltip } from "components/common/MyTooltip";
@@ -9,22 +10,20 @@ import {
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
-import { useMaticPoolData } from "hooks/useMaticPoolData";
+import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
+import { useTokenPoolData } from "hooks/useTokenPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import circulate from "public/circulate.svg";
+import dotLogo from "public/dot_type_black.png";
 import ethLogo from "public/eth_type_black.svg";
-import maticLogo from "public/matic_type_black.svg";
-import maticChainLogo from "public/matic_logo_black.svg";
-import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
-import { formatNumber } from "utils/number";
-import { setRouteNextPage } from "redux/reducers/FisSlice";
-import { useTokenPoolData } from "hooks/useTokenPoolData";
-import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
-import { BubblesLoading } from "components/common/BubblesLoading";
+import ksmLogo from "public/ksm_type_black.png";
+import maticLogo from "public/matic_type_black.png";
 import { useMemo } from "react";
+import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
+import { setRouteNextPage } from "redux/reducers/FisSlice";
+import { formatNumber } from "utils/number";
 
 interface RTokenOverviewCardProps {
   tokenName: TokenName;
@@ -35,7 +34,8 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
-  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
+    useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
 
@@ -53,6 +53,35 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const displayStakedAmount = useMemo(() => {
     return tokenName === TokenName.ETH ? allEth : stakedAmount;
   }, [tokenName, allEth, stakedAmount]);
+
+  const getLogo = () => {
+    if (tokenName === TokenName.MATIC) {
+      return maticLogo;
+    }
+    if (tokenName === TokenName.KSM) {
+      return ksmLogo;
+    }
+    if (tokenName === TokenName.DOT) {
+      return dotLogo;
+    }
+    return ethLogo;
+  };
+
+  const getPlatform = () => {
+    if (tokenName === TokenName.MATIC) {
+      return "Ethereum";
+    }
+    if (tokenName === TokenName.ETH) {
+      return "Ethereum";
+    }
+    if (tokenName === TokenName.KSM) {
+      return "Kusama";
+    }
+    if (tokenName === TokenName.DOT) {
+      return "Polkadot";
+    }
+    return "Ethereum";
+  };
 
   const clickStake = () => {
     if (tokenName === TokenName.ETH) {
@@ -103,47 +132,52 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         return;
       }
       router.push("/rtoken/stake/BNB");
+    } else if (tokenName === TokenName.KSM) {
+      if (!ksmAccount || !polkadotAccount) {
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.Polkadot, WalletType.Polkadot_KSM],
+            targetUrl: "/rtoken/stake/KSM",
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/KSM");
+    } else if (tokenName === TokenName.DOT) {
+      if (!dotAccount || !polkadotAccount) {
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.Polkadot, WalletType.Polkadot_DOT],
+            targetUrl: "/rtoken/stake/DOT",
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/DOT");
     }
   };
 
   return (
     <div
-      className="py-[0] px-[.24rem] h-[4.05rem] w-[3.35rem] rounded-[.16rem] bg-[#1a283533] hover:bg-[#58779826]"
+      className="py-[0] px-[.24rem] h-[4.05rem] w-full rounded-[.16rem] bg-[#1a283533] hover:bg-[#58779826]"
       style={{
         border: "1px solid #1a2835",
         backdropFilter: "blur(0.67rem)",
-				cursor: "pointer",
+        cursor: "pointer",
       }}
-			onClick={clickStake}
+      onClick={clickStake}
     >
       <div className="mt-[.36rem] flex items-center justify-between relative">
         <div className="w-[.76rem] h-[.76rem] relative">
-          <Image
-            src={tokenName === TokenName.MATIC ? maticLogo : ethLogo}
-            layout="fill"
-            alt="logo"
-          />
-        </div>
-
-        <div
-          className="w-[.38rem] h-[.38rem] absolute left-[.55rem] bottom-[.07rem] rounded-full z-10 p-[.04rem] hidden"
-          style={{
-            background: "rgba(25, 38, 52, 0.4)",
-            border: "1px solid #1A2835",
-            backdropFilter: "blur(.13rem)",
-          }}
-        >
-          <div className="w-full h-full relative">
-            <Image
-              src={tokenName === TokenName.MATIC ? maticChainLogo : ethLogo}
-              layout="fill"
-              alt="circulate"
-            />
-          </div>
+          <Image src={getLogo()} layout="fill" alt="logo" />
         </div>
 
         <div className="flex flex-col items-end">
-          <div className="mt-[.1rem] text-text1 text-[.12rem]">Ethereum</div>
+          <div className="mt-[.1rem] text-text1 text-[.12rem]">
+            {getPlatform()}
+          </div>
           <div className="mt-[.12rem]">
             <GradientText size=".4rem">{tokenName}</GradientText>
           </div>
@@ -165,6 +199,7 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
             <>
               {formatNumber(displayApr, {
                 decimals: 2,
+                toReadable: false,
               })}
               %
             </>

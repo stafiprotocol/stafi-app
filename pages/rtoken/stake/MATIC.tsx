@@ -1,6 +1,5 @@
 import { CollapseCard } from "components/common/CollapseCard";
 import { MyLayoutContext } from "components/layout/layout";
-import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
 import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
@@ -9,7 +8,6 @@ import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskMaticChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
-import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { ChartDu, TokenName, TokenStandard } from "interfaces/common";

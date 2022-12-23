@@ -291,7 +291,7 @@ export const connectPolkadotJs =
   };
 
 /**
- * Reload stafi balance.
+ * Reload stafi/ksm/dot balance.
  */
 export const updatePolkadotExtensionAccountsBalances =
   (): AppThunk => async (dispatch, getState) => {
@@ -331,12 +331,12 @@ export const updatePolkadotExtensionAccountsBalances =
           let ksmBalance = chainAmountToHuman(
             // @ts-ignore
             ksmBalanceResult.data.free.toString(),
-            TokenSymbol.FIS
+            TokenSymbol.KSM
           );
           let dotBalance = chainAmountToHuman(
             // @ts-ignore
             dotBalanceResult.data.free.toString(),
-            TokenSymbol.FIS
+            TokenSymbol.DOT
           );
 
           return { fisBalance, ksmBalance, dotBalance };

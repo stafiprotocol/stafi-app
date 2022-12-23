@@ -10,12 +10,17 @@ import numberUtil from "utils/numberUtil";
 import { getShortAddress } from "utils/string";
 import classNames from "classnames";
 import { openLink } from "utils/common";
-import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import {
+  getDotScanTxUrl,
+  getEtherScanTxUrl,
+  getKsmScanTxUrl,
+  getStafiScanTxUrl,
+} from "config/explorer";
 import { Tooltip } from "@mui/material";
 import { formatNumber } from "utils/number";
 import dayjs from "dayjs";
 import { getRedeemDaysLeft } from "utils/rToken";
-import utc from 'dayjs/plugin/utc';
+import utc from "dayjs/plugin/utc";
 
 dayjs.extend(utc);
 
@@ -107,7 +112,9 @@ export const StakeMyUnbondList = (props: Props) => {
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {item.txTimestamp
-              ? dayjs(item.txTimestamp * 1000).utc().format("YYYY-MM-DD HH:mm:ss")
+              ? dayjs(item.txTimestamp * 1000)
+                  .utc()
+                  .format("YYYY-MM-DD HH:mm:ss")
               : "--"}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
@@ -132,6 +139,10 @@ export const StakeMyUnbondList = (props: Props) => {
                 openLink(getStafiScanTxUrl(item.txHash));
               } else if (props.tokenName === TokenName.ETH) {
                 openLink(getEtherScanTxUrl(item.txHash));
+              } else if (props.tokenName === TokenName.KSM) {
+                openLink(getStafiScanTxUrl(item.txHash));
+              } else if (props.tokenName === TokenName.DOT) {
+                openLink(getStafiScanTxUrl(item.txHash));
               }
             }}
           >

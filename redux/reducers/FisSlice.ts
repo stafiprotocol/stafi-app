@@ -47,7 +47,7 @@ import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
 import { getTokenNameFromrSymbol, getTokenSymbol } from "utils/rToken";
 import { getBep20RDotTokenAbi, getBep20RKsmTokenAbi } from "config/bep20Abi";
 import { getErc20RDotTokenAbi, getErc20RKsmTokenAbi } from "config/erc20Abi";
-import { chainAmountToHuman, formatNumber } from "utils/number";
+import { chainAmountToHuman, formatNumber, numberToChain } from "utils/number";
 
 declare const ethereum: any;
 
@@ -108,7 +108,8 @@ export const bond =
     address: string,
     txHash: string,
     blockHash: string,
-    amount: string,
+    chainAmount: string,
+    willReceiveAmount: string,
     poolAddress: string,
     rsymbol: rSymbol,
     chainId: ChainId,
@@ -162,7 +163,8 @@ export const bond =
               address,
               txHash,
               blockHash,
-              amount,
+              amount: chainAmount,
+              willReceiveAmount,
               poolAddress,
               type: rsymbol,
               chainId,
@@ -240,7 +242,7 @@ export const bond =
     dispatch(
       updateStakeLoadingParams({
         displayMsg: `Please confirm the ${formatNumber(
-          chainAmountToHuman(amount, TokenSymbol.FIS),
+          chainAmountToHuman(chainAmount, rsymbol),
           { fixedDecimals: false }
         )} ${getTokenNameFromrSymbol(
           rsymbol
@@ -262,7 +264,7 @@ export const bond =
         poolPubKey,
         blockHash,
         txHash,
-        amount.toString(),
+        chainAmount.toString(),
         rsymbol
       );
       // console.log({
@@ -288,7 +290,7 @@ export const bond =
         poolPubKey,
         blockHash,
         txHash,
-        amount,
+        chainAmount,
         rsymbol,
         swapAddress,
         chainId
@@ -419,7 +421,15 @@ export const bond =
                         }
                       )
                     );
-                    dispatch(getMinting(rsymbol, txHash, blockHash, chainId));
+                    dispatch(
+                      getMinting(
+                        rsymbol,
+                        txHash,
+                        blockHash,
+                        chainId,
+                        willReceiveAmount
+                      )
+                    );
                     // console.log("loading");
                   }
                 });
@@ -471,6 +481,7 @@ export const getMinting =
     txHash: string,
     blockHash: string,
     chainId: ChainId,
+    willReceiveAmount: string,
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -587,6 +598,7 @@ export const getMinting =
                         totalStatus: "loading",
                       },
                     },
+                    displayMsg: "Swapping processing, please wait for a moment",
                     customMsg: "Swapping processing, please wait for a moment",
                   },
                   (newParams) => {
@@ -605,7 +617,7 @@ export const getMinting =
                   targetAddress as string,
                   rsymbol,
                   oldBalance,
-                  amount as string,
+                  willReceiveAmount,
                   (result: string) => {
                     if (result === "successful") {
                       dispatch(setIsLoading(false));
@@ -730,7 +742,7 @@ export const queryRTokenSwapState =
     targetAddress: string,
     rsymbol: rSymbol,
     oldBalance: string,
-    amount: string,
+    willReceiveAmount: string,
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -756,11 +768,49 @@ export const queryRTokenSwapState =
           TokenName.MATIC
         );
       }
+    } else if (rsymbol === rSymbol.Ksm) {
+      if (chainId === ChainId.BSC) {
+        tokenAbi = getBep20RKsmTokenAbi();
+        tokenAddress = getBep20TokenContractConfig().rKSM;
+        balance = await getBep20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress
+        );
+      } else if (chainId === ChainId.ETH) {
+        tokenAbi = getErc20RKsmTokenAbi();
+        tokenAddress = getErc20TokenContractConfig().rKSM;
+        balance = await getErc20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress,
+          TokenName.DOT
+        );
+      }
+    } else if (rsymbol === rSymbol.Dot) {
+      if (chainId === ChainId.BSC) {
+        tokenAbi = getBep20RDotTokenAbi();
+        tokenAddress = getBep20TokenContractConfig().rDOT;
+        balance = await getBep20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress
+        );
+      } else if (chainId === ChainId.ETH) {
+        tokenAbi = getErc20RDotTokenAbi();
+        tokenAddress = getErc20TokenContractConfig().rDOT;
+        balance = await getErc20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress,
+          TokenName.DOT
+        );
+      }
     }
 
     if (
-      Number(balance) - Number(oldBalance) <= Number(amount) * 1.1 &&
-      Number(balance) - Number(oldBalance) >= Number(amount) * 0.9
+      Number(balance) - Number(oldBalance) <= Number(willReceiveAmount) * 1.1 &&
+      Number(balance) - Number(oldBalance) >= Number(willReceiveAmount) * 0.9
     ) {
       cb && cb("successful");
     } else {
@@ -771,7 +821,7 @@ export const queryRTokenSwapState =
             targetAddress,
             rsymbol,
             oldBalance,
-            amount,
+            willReceiveAmount,
             cb
           )
         );
@@ -794,6 +844,11 @@ export const fisUnbond =
   ): AppThunk =>
   async (dispatch, getState) => {
     try {
+      dispatch(
+        setRedeemLoadingParams({
+          customMsg: "Unstaking processing, please wait for a moment",
+        })
+      );
       const address = getState().wallet.polkadotAccount as string;
       const api = await stafiServer.createStafiApi();
       const tokenName = getState().app.redeemLoadingParams?.tokenName;
@@ -813,7 +868,7 @@ export const fisUnbond =
       const unbondResult = await api.tx.rTokenSeries.liquidityUnbond(
         symbol,
         selectedPool,
-        numberUtil.tokenAmountToChain(amount, symbol).toString(),
+        numberToChain(amount, symbol).toString(),
         recipient
       );
 
@@ -821,11 +876,6 @@ export const fisUnbond =
         // @ts-ignore
         .signAndSend(address, { signer: injector.signer }, (result: any) => {
           dispatch(setIsLoading(false));
-          dispatch(
-            setRedeemLoadingParams({
-              customMsg: "Unstaking processing, please wait for a moment.",
-            })
-          );
 
           try {
             if (result.status.isInBlock) {
@@ -848,11 +898,14 @@ export const fisUnbond =
                     );
                   } else if (data.event.method === "ExtrinsicFailed") {
                     cb && cb("Failed");
+                    const txHash = unbondResult.hash.toHex();
                     dispatch(
                       setRedeemLoadingParams({
                         status: "error",
                         errorMsg: "Unstake failed",
                         customMsg: undefined,
+                        txHash: txHash,
+                        scanUrl: getStafiScanTxUrl(txHash),
                       })
                     );
                   }

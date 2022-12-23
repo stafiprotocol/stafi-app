@@ -11,6 +11,8 @@ import checkFileSuccess from "public/check_file_success.svg";
 import checkFileError from "public/transaction_error.svg";
 import { useEffect, useState } from "react";
 import { setRedeemLoadingParams } from "redux/reducers/AppSlice";
+import { unstakeRDot } from "redux/reducers/DotSlice";
+import { unstakeRKsm } from "redux/reducers/KsmSlice";
 import { unbondRMatic } from "redux/reducers/MaticSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
@@ -45,21 +47,42 @@ export const RTokenRedeemLoadingModal = () => {
       return;
     }
 
-    if (redeemLoadingParams.tokenName === TokenName.MATIC) {
-      const { amount, targetAddress, willReceiveAmount, newTotalStakedAmount } =
-        redeemLoadingParams;
+    const { amount, targetAddress, willReceiveAmount, newTotalStakedAmount } =
+      redeemLoadingParams;
 
-      if (
-        !amount ||
-        !targetAddress ||
-        !willReceiveAmount ||
-        !newTotalStakedAmount
-      ) {
-        snackbarUtil.error("Invalid params, please retry manually");
-        return;
-      }
+    if (
+      !amount ||
+      !targetAddress ||
+      !willReceiveAmount ||
+      !newTotalStakedAmount
+    ) {
+      snackbarUtil.error("Invalid params, please retry manually");
+      return;
+    }
+
+    if (redeemLoadingParams.tokenName === TokenName.MATIC) {
       dispatch(
         unbondRMatic(
+          amount as string,
+          targetAddress as string,
+          willReceiveAmount as string,
+          newTotalStakedAmount
+        )
+      );
+    }
+    if (redeemLoadingParams.tokenName === TokenName.KSM) {
+      dispatch(
+        unstakeRKsm(
+          amount as string,
+          targetAddress as string,
+          willReceiveAmount as string,
+          newTotalStakedAmount
+        )
+      );
+    }
+    if (redeemLoadingParams.tokenName === TokenName.DOT) {
+      dispatch(
+        unstakeRDot(
           amount as string,
           targetAddress as string,
           willReceiveAmount as string,

@@ -391,6 +391,7 @@ export const handleMaticStake =
               txHash,
               blockHash,
               amount,
+              willReceiveAmount,
               selectedPool.poolPubKey,
               rSymbol.Matic,
               chainId,
@@ -503,6 +504,7 @@ export const unbondRMatic =
       setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.MATIC,
         amount,
         willReceiveAmount,
@@ -1040,7 +1042,16 @@ export const stakeMatic =
 
       // query bond state
       console.log({ txHash, blockHash });
-      dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId, cb));
+      dispatch(
+        getMinting(
+          rSymbol.Matic,
+          txHash,
+          blockHash,
+          chainId,
+          willReceiveAmount,
+          cb
+        )
+      );
     } catch (err: any) {
       cb && cb(false);
       console.error(err);

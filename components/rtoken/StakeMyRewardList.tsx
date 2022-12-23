@@ -5,7 +5,7 @@ import { CustomPagination } from "components/common/pagination";
 import { TableSkeleton } from "components/common/TableSkeleton";
 import { Icomoon } from "components/icon/Icomoon";
 import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc';
+import utc from "dayjs/plugin/utc";
 import { EraRewardModel, useRTokenReward } from "hooks/useRTokenReward";
 import { TokenName } from "interfaces/common";
 import { useCallback, useMemo, useState } from "react";
@@ -59,14 +59,14 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
             <MyTooltip
               text="Era"
               title="UTC time record for the onchain transaction"
-							className="text-text2"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text={`Staked ${tokenName}`}
               title={`Your overall staked ${tokenName} amount, including compound ${tokenName}`}
-							className="text-text2"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
@@ -75,21 +75,21 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
               title={`The Current Exchange Rate for r${tokenName} and ${tokenName}, the exchange rate of r${tokenName} will be updated every ${getExchangeRateUpdateTime(
                 tokenName
               )} hours`}
-							className="text-text2"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text={`r${tokenName} Balance`}
               title={`Your current r${tokenName} amount`}
-							className="text-text2"
+              className="text-text2"
             />
           </div>
           <div className="flex justify-center">
             <MyTooltip
               text="Est. Reward"
               title={`Estimated staking reward that generated in this time period`}
-							className="text-text2"
+              className="text-text2"
             />
           </div>
         </div>
@@ -108,11 +108,15 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             <Tooltip
               title={
-                dayjs(item.startTimestamp).utc().format("YYYY-MM-DD HH:mm +UTC") +
+                dayjs(item.startTimestamp)
+                  .utc()
+                  .format("YYYY-MM-DD HH:mm +UTC") +
                 " - " +
                 (item.endTimestamp === 0
                   ? "Now"
-                  : dayjs(item.endTimestamp).utc().format("YYYY-MM-DD HH:mm +UTC"))
+                  : dayjs(item.endTimestamp)
+                      .utc()
+                      .format("YYYY-MM-DD HH:mm +UTC"))
               }
             >
               <span>{item.era}</span>
@@ -120,12 +124,32 @@ export const StakeMyRewardList = (props: StakeMyRewardListProps) => {
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {formatNumber(item.stakeValue)}
+            {Number(formatNumber(item.addedStakeAmount)) > 0 && (
+              <span className="text-primary ml-[.1rem]">
+                +{formatNumber(item.addedStakeAmount)}
+              </span>
+            )}
+            {Number(formatNumber(item.addedStakeAmount)) < 0 && (
+              <span className="text-error ml-[.1rem]">
+                {formatNumber(item.addedStakeAmount)}
+              </span>
+            )}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {formatNumber(item.rate, { decimals: 4 })}
           </div>
           <div className="flex justify-center items-center text-text1 text-[.24rem]">
             {formatNumber(item.rTokenBalance)}
+            {Number(formatNumber(item.addedRTokenAmount)) > 0 && (
+              <span className="text-primary ml-[.1rem]">
+                +{formatNumber(item.addedRTokenAmount)}
+              </span>
+            )}
+            {Number(formatNumber(item.addedRTokenAmount)) < 0 && (
+              <span className="text-error ml-[.1rem]">
+                {formatNumber(item.addedRTokenAmount)}
+              </span>
+            )}
           </div>
           <div className="flex justify-center items-center text-primary text-[.24rem]">
             <Tooltip title={getEraEstTimeTip(item, tokenName)}>

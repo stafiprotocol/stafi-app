@@ -10,7 +10,9 @@ export const NO_VALID_POOL_MESSAGE = "No valid pool";
 export const NO_ENOUGH_FEE_MESSAGE = "No enough fee in your account";
 
 export const PAGE_SIZE = 10;
-export const STAFI_SS58_FORMAT = 42;
+export const STAFI_SS58_FORMAT = 20;
+export const KSM_SS58_FORMAT = 2;
+export const DOT_SS58_FORMAT = 0;
 
 export const FAQ_ID_CONFIGURE_FEE = "faq_id_configure_fee";
 export const FAQ_ID_SLASH = "faq_id_slash";

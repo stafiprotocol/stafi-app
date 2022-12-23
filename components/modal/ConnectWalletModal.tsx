@@ -24,7 +24,8 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
 
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
-  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
+    useWalletAccount();
 
   useEffect(() => {
     if (!connectWalletModalParams) {
@@ -48,6 +49,16 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
           notConnected = true;
         }
       }
+      if (item === WalletType.Polkadot_KSM) {
+        if (!ksmAccount) {
+          notConnected = true;
+        }
+      }
+      if (item === WalletType.Polkadot_DOT) {
+        if (!dotAccount) {
+          notConnected = true;
+        }
+      }
     });
 
     if (!notConnected) {
@@ -61,6 +72,8 @@ export const ConnectWalletModal = (props: ConnectWalletModalProps) => {
     metaMaskAccount,
     polkadotAccount,
     metaMaskChainId,
+    ksmAccount,
+    dotAccount,
   ]);
 
   if (!connectWalletModalParams) {

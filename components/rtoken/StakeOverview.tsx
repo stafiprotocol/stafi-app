@@ -17,7 +17,7 @@ import { useRTokenReward } from "hooks/useRTokenReward";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import rectangle from "public/rectangle_v.svg";
@@ -27,6 +27,7 @@ import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { isEmptyValue, isInvalidValue, openLink } from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
 import { formatNumber } from "utils/number";
+import { transformSs58Address } from "utils/polkadotUtils";
 import { getExchangeRateUpdateTime } from "utils/rToken";
 import { TokenStandardSelector } from "./TokenStandardSelector";
 
@@ -46,6 +47,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
     targetMetaMaskChainId,
   } = useContext(MyLayoutContext);
 
+  const tokenStandard = useTokenStandard(props.tokenName);
   const router = useRouter();
   const [tradeModalVisible, setTradeModalVisible] = useState(false);
   const [ethRedeemWarningModalVisible, setEthRedeemWarningModalVisible] =
@@ -57,9 +59,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
   const defaultReceivingAddress = useMemo(() => {
     if (props.tokenName === TokenName.KSM) {
-      return ksmAccount;
+      return transformSs58Address(ksmAccount, WalletType.Polkadot_KSM);
     } else if (props.tokenName === TokenName.DOT) {
-      return dotAccount;
+      return transformSs58Address(dotAccount, WalletType.Polkadot_DOT);
     }
     return metaMaskAccount;
   }, [props.tokenName, metaMaskAccount, ksmAccount, dotAccount]);
@@ -213,11 +215,11 @@ export const StakeOverview = (props: StakeOverviewProps) => {
               r{props.tokenName} Balance
             </div>
           </div>
-          <div className="w-[.8rem] h-[1.3rem] relative">
+          <div className="w-[.8rem] relative">
             <Image
               src={getChainIcon(props.tokenName)}
               alt="chain"
-              layout="fill"
+              layout="responsive"
             />
           </div>
         </div>
@@ -376,13 +378,19 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 className={classNames(
                   "h-[.86rem] rounded-[.45rem] w-[4rem] border-solid border-[1px] border-[] text-[.24rem]",
                   "flex items-center justify-center",
-                  isWrongNetwork ? "cursor-default" : "cursor-pointer"
+                  isWrongNetwork || tokenStandard !== TokenStandard.Native
+                    ? "cursor-default"
+                    : "cursor-pointer",
+                  { "opacity-50": tokenStandard !== TokenStandard.Native }
                 )}
                 style={{
                   border: "1px solid rgba(91, 104, 114, 0.5)",
                 }}
                 onClick={() => {
-                  if (isWrongNetwork) {
+                  if (
+                    isWrongNetwork ||
+                    tokenStandard !== TokenStandard.Native
+                  ) {
                     return;
                   }
                   if (props.tokenName === TokenName.ETH) {

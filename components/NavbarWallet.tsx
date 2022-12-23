@@ -38,6 +38,7 @@ import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
 import { isEmptyValue, isPolkadotWallet, openLink } from "utils/common";
 import { formatNumber } from "utils/number";
+import { transformSs58Address } from "utils/polkadotUtils";
 import { getWalletIcon } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
@@ -171,10 +172,17 @@ export const NavbarWallet = () => {
       });
     }
     if (walletType === WalletType.Polkadot_KSM) {
-      if (metaMaskConnected) {
+      if (ksmConnected) {
         res.push({
           balance: ksmBalance,
           tokenName: "KSM",
+        });
+      }
+    } else if (walletType === WalletType.Polkadot_DOT) {
+      if (dotConnected) {
+        res.push({
+          balance: dotBalance,
+          tokenName: "DOT",
         });
       }
     } else if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
@@ -195,6 +203,9 @@ export const NavbarWallet = () => {
     displayMetaMaskBalance,
     isWrongMetaMaskNetwork,
     ksmBalance,
+    dotConnected,
+    dotBalance,
+    ksmConnected,
   ]);
 
   const [displayAddress, displayWalletType] = useMemo(() => {
@@ -398,7 +409,7 @@ export const NavbarWallet = () => {
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
 
-          {/* <WalletAccountItem
+          <WalletAccountItem
             name="Kusama"
             walletType={WalletType.Polkadot_KSM}
             connected={ksmConnected}
@@ -416,7 +427,7 @@ export const NavbarWallet = () => {
             balance={dotBalance}
             tokenName={"DOT"}
             onClickConnect={() => clickConnectWallet(WalletType.Polkadot_DOT)}
-          /> */}
+          />
         </div>
       </Popover>
     </div>
@@ -563,10 +574,15 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           <div
             className="text-center py-[.24rem] cursor-pointer active:text-primary"
             onClick={() => {
-              navigator.clipboard.writeText(props.address).then(() => {
-                snackbarUtil.success("Copied");
-                menuPopupState.close();
-              });
+              try {
+                const address = isPolkadotWallet(props.walletType)
+                  ? transformSs58Address(props.address, props.walletType)
+                  : props.address;
+                navigator.clipboard.writeText(address).then(() => {
+                  snackbarUtil.success("Copied");
+                  menuPopupState.close();
+                });
+              } catch (err: unknown) {}
             }}
           >
             Copy Address

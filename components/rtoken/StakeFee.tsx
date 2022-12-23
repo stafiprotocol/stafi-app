@@ -40,17 +40,17 @@ export const StakeFee = (props: StakeFeeProps) => {
     }
 
     if (
-      isNaN(Number(txFee)) ||
-      isNaN(Number(bridgeFee)) ||
-      isNaN(Number(sendFee))
+      isNaN(Number(txFee?.amount)) ||
+      isNaN(Number(bridgeFee?.amount)) ||
+      isNaN(Number(sendFee?.amount))
     ) {
       return undefined;
     }
 
     return (
-      Number(fisPrice) * Number(txFee) +
-      Number(fisPrice) * Number(bridgeFee) +
-      Number(tokenPrice) * Number(sendFee)
+      Number(fisPrice) * Number(txFee?.amount) +
+      Number(fisPrice) * Number(bridgeFee?.amount) +
+      Number(tokenPrice) * Number(sendFee?.amount)
     );
   }, [fisPrice, tokenPrice, txFee, bridgeFee, sendFee]);
 
@@ -58,11 +58,13 @@ export const StakeFee = (props: StakeFeeProps) => {
     return (
       <>
         <div>
-          {formatNumber(sendFee?.amount)} {sendFee?.tokenName}
+          {formatNumber(sendFee?.amount, { decimals: 4 })} {sendFee?.tokenName}
         </div>
         <div className="mx-[.06rem]">+</div>
         <div>
-          {formatNumber(Number(txFee?.amount) + Number(bridgeFee?.amount))}{" "}
+          {formatNumber(Number(txFee?.amount) + Number(bridgeFee?.amount), {
+            decimals: 4,
+          })}{" "}
           {txFee?.tokenName}
         </div>
       </>
@@ -106,17 +108,17 @@ export const StakeFee = (props: StakeFeeProps) => {
           <div className="flex justify-between">
             <div>Send Fund</div>
             <div>
-              {formatNumber(sendFee?.amount, { decimals: 6 })}{" "}
+              {formatNumber(sendFee?.amount, { decimals: 4 })}{" "}
               {sendFee?.tokenName}
             </div>
           </div>
           <div className="flex justify-between mt-[.18rem]">
             <div>Bridge Fee</div>
-            <div>{formatNumber(bridgeFee?.amount, { decimals: 6 })} FIS</div>
+            <div>{formatNumber(bridgeFee?.amount, { decimals: 4 })} FIS</div>
           </div>
           <div className="flex justify-between mt-[.18rem]">
             <div>FIS Tx Fee</div>
-            <div>{formatNumber(txFee?.amount, { decimals: 6 })} FIS</div>
+            <div>{formatNumber(txFee?.amount, { decimals: 4 })} FIS</div>
           </div>
           <div className="mt-[.28rem] h-[1px] bg-text3 mb-[.1rem]" />
           <div className="text-text1">
