@@ -215,11 +215,11 @@ export const StakeOverview = (props: StakeOverviewProps) => {
               r{props.tokenName} Balance
             </div>
           </div>
-          <div className="w-[.8rem] h-[1.3rem] relative">
+          <div className="w-[.8rem] relative">
             <Image
               src={getChainIcon(props.tokenName)}
               alt="chain"
-              layout="fill"
+              layout="responsive"
             />
           </div>
         </div>

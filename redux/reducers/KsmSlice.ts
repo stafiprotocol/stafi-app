@@ -374,6 +374,7 @@ export const handleKsmStake =
                   cb
                 )
               );
+            cb && cb(true);
           },
         })
       );

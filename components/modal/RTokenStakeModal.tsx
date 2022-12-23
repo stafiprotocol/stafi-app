@@ -58,7 +58,10 @@ import { validateETHAddress, validateSS58Address } from "utils/validator";
 import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 import { BubblesLoading } from "components/common/BubblesLoading";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
-import { getPolkadotAccountBalance } from "utils/polkadotUtils";
+import {
+  getPolkadotAccountBalance,
+  transformSs58Address,
+} from "utils/polkadotUtils";
 import { handleDotStake } from "redux/reducers/DotSlice";
 import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
 import { useStakeFees } from "hooks/useStakeFees";
@@ -126,11 +129,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     if (walletType === WalletType.MetaMask) {
       return metaMaskAccount;
     } else if (walletType === WalletType.Polkadot) {
-      return polkadotAccount;
+      return transformSs58Address(polkadotAccount, walletType);
     } else if (walletType === WalletType.Polkadot_KSM) {
-      return ksmAccount;
+      return transformSs58Address(ksmAccount, walletType);
     } else if (walletType === WalletType.Polkadot_DOT) {
-      return dotAccount;
+      return transformSs58Address(dotAccount, walletType);
     }
     return "";
   }, [walletType, metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);

@@ -475,7 +475,7 @@ export const handleEthTokenStake =
       const result = await contract.methods
         .deposit()
         .send({ value: stakeAmountInWei });
-      console.log("stake result", result);
+      // console.log("stake result", result);
 
       callback && callback(result.status, result);
       if (result && result.status) {

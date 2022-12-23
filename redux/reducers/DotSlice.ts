@@ -370,6 +370,8 @@ export const handleDotStake =
                   cb
                 )
               );
+
+            cb && cb(true);
           },
         })
       );
