@@ -9,6 +9,9 @@ import { Symbol } from "keyring/defaults";
 import { stringToHex, u8aToHex } from "@polkadot/util";
 import { PriceItem } from "./RTokenSlice";
 import { cloneDeep } from "lodash";
+import { setIsLoading } from "./AppSlice";
+import snackbarUtil from "utils/snackbarUtils";
+import { CANCELLED_MESSAGE } from "utils/constants";
 
 declare const ethereum: any;
 
@@ -31,7 +34,7 @@ export interface RTokenActs {
 
 // todo: type
 export interface MintOverview {
-  actData: any;
+  actData: RTokenActs;
   userMintToken: any;
   userMintRatio: any;
   userMintReward: any;
@@ -152,6 +155,8 @@ export const claimRTokenReward =
   async (dispatch, getState) => {
     // todo: add noti
     try {
+      dispatch(setIsLoading(true));
+
       const api = await stafiServer.createStafiApi();
       const txs = claimIndexes.map((index: any) =>
         api.tx.rClaim.claimRtokenReward(tokenSymbol, cycle, index)
@@ -186,18 +191,61 @@ export const claimRTokenReward =
                 const data = r.event.data;
                 const method = r.event.method;
                 if (method === "ExtrinsicFailed") {
-                  // todo: handle error msg
+                  dispatch(setIsLoading(false));
+                  const [dispatchError] = data;
+                  if (dispatchError.isModule) {
+                    try {
+                      const mod = dispatchError.asModule;
+                      const error = data.registry.findMetaError(
+                        new Uint8Array([
+                          mod.index.toNumber(),
+                          mod.error.toNumber(),
+                        ])
+                      );
+
+                      let messageStr =
+                        "Something is wrong, please try again later!";
+                      if (error.name == "NominateSwitchClosed") {
+                        messageStr =
+                          "Unable to stake, system is waiting for matching validators";
+                      } else if (error.name == "LiquidityBondZero") {
+                        messageStr = "The amount should be larger than 0";
+                      } else if (error.name == "PoolLimitReached") {
+                        messageStr =
+                          "The cumulative FIS amount exceeds the pool limit, please try again later!";
+                      } else if (error.name == "InsufficientFis") {
+                        messageStr =
+                          "Insufficient balance of the pool, please try again later!";
+                      }
+                      snackbarUtil.error(messageStr);
+                    } catch (err: any) {
+                      snackbarUtil.error(err.message);
+                    }
+                  }
                 } else if (method === "ExtrinsicSuccess") {
+                  dispatch(setIsLoading(false));
                   const txHash = tx.hash.toHex();
-                  // todo: successful
+                  snackbarUtil.success("Claim Successfully");
+                  cb && cb();
                 }
               });
           } else if (result.isError) {
-            // todo:
+            dispatch(setIsLoading(false));
+            snackbarUtil.error(result.toHuman());
           }
         }
-      );
-    } catch (err: any) {}
+      ).catch((err: any) => {
+        dispatch(setIsLoading(false));
+        if (err.message === "Error: Cancelled") {
+          snackbarUtil.error(CANCELLED_MESSAGE);
+        } else {
+          snackbarUtil.error(err.message);
+        }
+      });
+    } catch (err: any) {
+      dispatch(setIsLoading(false));
+      snackbarUtil.error(err.message);
+    }
   };
 
 export const claimREthReward =
@@ -250,9 +298,68 @@ export const claimREthReward =
         polkadotAccount,
         // @ts-ignore
         { signer: injector.signer },
-        (result: any) => {}
-      );
-    } catch (err: any) {}
+        (result: any) => {
+          if (result.status.isInBlock) {
+            result.events
+              .filter((r: any) => r.event.section === "system")
+              .forEach((r: any) => {
+                const data = r.event.data;
+                const method = r.event.method;
+                if (method === "ExtrinsicFailed") {
+                  const [dispatchError] = data;
+                  if (dispatchError.isModule) {
+                    try {
+                      const mod = dispatchError.asModule;
+                      const error = data.registry.findMetaError(
+                        new Uint8Array([
+                          mod.index.toNumber(),
+                          mod.error.toNumber(),
+                        ])
+                      );
+
+                      let messageStr =
+                        "Something is wrong, please try again later!";
+                      if (error.name == "NominateSwitchClosed") {
+                        messageStr =
+                          "Unable to stake, system is waiting for matching validators";
+                      } else if (error.name == "LiquidityBondZero") {
+                        messageStr = "The amount should be larger than 0";
+                      } else if (error.name == "PoolLimitReached") {
+                        messageStr =
+                          "The cumulative FIS amount exceeds the pool limit, please try again later!";
+                      } else if (error.name == "InsufficientFis") {
+                        messageStr =
+                          "Insufficient balance of the pool, please try again later!";
+                      }
+                      snackbarUtil.error(messageStr);
+                    } catch (err: any) {
+                      snackbarUtil.error(err.message);
+                    }
+                    dispatch(setIsLoading(false));
+                  }
+                } else if (method === "ExtrinsicSuccess") {
+                  dispatch(setIsLoading(false));
+                  snackbarUtil.success("Claim Successfully");
+                  cb && cb();
+                }
+              });
+          } else if (result.isError) {
+            dispatch(setIsLoading(false));
+            snackbarUtil.error(result.toHuman());
+          }
+        }
+      ).catch((err: any) => {
+        dispatch(setIsLoading(false));
+        if (err.message === "Error: Cancelled") {
+          snackbarUtil.error(CANCELLED_MESSAGE);
+        } else {
+          snackbarUtil.error(err.message);
+        }
+      });
+    } catch (err: any) {
+      dispatch(setIsLoading(false));
+      snackbarUtil.error(err.message);
+    }
   };
 
 export const getMintOverview =

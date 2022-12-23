@@ -1,7 +1,7 @@
 import { Button } from "components/common/button";
 import Image from "next/image";
 import ethLogo from "public/eth_type_black.svg";
-import maticLogo from "public/matic_type_black.svg";
+import maticLogo from "public/matic_type_black.png";
 import { RTokenName, TokenStandard, WalletType } from "interfaces/common";
 import { MyTooltip } from "components/common/MyTooltip";
 import { formatNumber } from "utils/number";
@@ -250,7 +250,7 @@ const MintTokenCard = (props: Props) => {
         Claim
       </div>
 
-      {!walletNotConnected && (
+      {!walletNotConnected || !metaMaskAccount && (
         <div className="text-[.16rem] mt-[.24rem]">
           <div
             className="flex justify-center cursor-pointer"

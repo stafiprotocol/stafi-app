@@ -2,7 +2,8 @@ import { Dialog, DialogContent } from "@mui/material";
 import { Button } from "components/common/button";
 import { Card } from "components/common/card";
 import { Icomoon } from "components/icon/Icomoon";
-import { useAppDispatch } from "hooks/common";
+import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useAppSlice } from "hooks/selector";
 import { useRPoolMintClaim } from "hooks/useRPoolMintClaim";
 import { RTokenName } from "interfaces/common";
 import Image from "next/image";
@@ -11,7 +12,10 @@ import {
   claimREthReward,
   claimRTokenReward,
 } from "redux/reducers/MintProgramSlice";
+import { PriceItem } from "redux/reducers/RTokenSlice";
+import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
+import numberUtil from "utils/numberUtil";
 import { rTokenNameToTokenSymbol } from "utils/rToken";
 
 interface Props {
@@ -25,6 +29,12 @@ interface Props {
 const RPoolMintClaimModal = (props: Props) => {
   const dispatch = useAppDispatch();
 
+  const priceList = useAppSelector((state: RootState) => {
+    return state.rToken.priceList;
+  });
+
+  const { isLoading } = useAppSlice();
+
   const { mintOverView } = useRPoolMintClaim(props.rTokenName, props.cycle);
   console.log({ mintOverView });
 
@@ -37,6 +47,19 @@ const RPoolMintClaimModal = (props: Props) => {
     }
     return [false, "Claim"];
   }, [mintOverView]);
+
+  const totalMintedValue = useMemo(() => {
+    const unitPrice = priceList.find(
+      (item: PriceItem) => item.symbol === props.rTokenName
+    );
+    if (!unitPrice || !mintOverView) return "--";
+    const rTokenTotalReward = numberUtil.tokenAmountToHuman(
+      mintOverView.actData.total_rtoken_amount,
+      rTokenNameToTokenSymbol(props.rTokenName)
+    );
+    if (isNaN(Number(rTokenTotalReward))) return "--";
+    return Number(rTokenTotalReward) * Number(unitPrice.price);
+  }, [priceList, mintOverView, props.rTokenName]);
 
   const onClickClaim = () => {
     if (!mintOverView) return;
@@ -124,7 +147,7 @@ const RPoolMintClaimModal = (props: Props) => {
             <div className="grid" style={{ gridTemplateColumns: "60% 40%" }}>
               <div className="text-text2">Total Minted Value</div>
               <div className="text-text1">
-                ${formatNumber(props.totalMintedValue, { decimals: 2 })}
+                ${formatNumber(totalMintedValue, { decimals: 6 })}
               </div>
             </div>
             <div
@@ -134,18 +157,10 @@ const RPoolMintClaimModal = (props: Props) => {
               <div className="text-text2">My Mint</div>
               <div className="text-text1">
                 $
-                {formatNumber(mintOverView ? mintOverView.userMintReward : 0, {
-                  decimals: 2,
+                {formatNumber(mintOverView ? mintOverView.userMintToken : 0, {
+                  decimals: 6,
                 })}{" "}
-                (
-                {!mintOverView
-                  ? 0
-                  : (
-                      (mintOverView.userMintReward /
-                        Number(props.totalMintedValue)) *
-                      100
-                    ).toFixed(2)}{" "}
-                %)
+                ({!mintOverView ? 0 : mintOverView.userMintRatio} %)
               </div>
             </div>
             <div
@@ -155,7 +170,7 @@ const RPoolMintClaimModal = (props: Props) => {
               <div className="text-text2">Total Rewards</div>
               <div className="text-text1">
                 {formatNumber(mintOverView ? mintOverView.fisTotalReward : 0, {
-                  decimals: 2,
+                  decimals: 6,
                 })}{" "}
                 FIS
               </div>
@@ -168,7 +183,7 @@ const RPoolMintClaimModal = (props: Props) => {
               <div className="text-text1">
                 {formatNumber(
                   mintOverView ? mintOverView.fisClaimableReward : 0,
-                  { decimals: 2 }
+                  { decimals: 6 }
                 )}{" "}
                 FIS
               </div>
@@ -180,7 +195,7 @@ const RPoolMintClaimModal = (props: Props) => {
               <div className="text-text2">Locked Reward</div>
               <div className="text-text1">
                 {formatNumber(mintOverView ? mintOverView.fisLockedReward : 0, {
-                  decimals: 2,
+                  decimals: 6,
                 })}{" "}
                 FIS
               </div>
@@ -189,11 +204,12 @@ const RPoolMintClaimModal = (props: Props) => {
 
           <div className="mt-[.55rem] mb-[.56rem]">
             <Button
-              // disabled={claimButtonDisabled}
+              disabled={claimButtonDisabled}
               width="5.4rem"
               height=".65rem"
               fontSize=".24rem"
               onClick={onClickClaim}
+              loading={isLoading}
             >
               {claimButtonContent}
             </Button>
