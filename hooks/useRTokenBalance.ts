@@ -14,7 +14,7 @@ export function useRTokenBalance(
   tokenName: TokenName
 ) {
   const dispatch = useAppDispatch();
-  const { updateFlag15s } = useAppSlice();
+  const { updateFlag15s, refreshDataFlag } = useAppSlice();
   const { metaMaskAccount, polkadotAccount } = useWalletAccount();
   const balance = useAppSelector((state: RootState) => {
     if (!tokenStandard) {
@@ -41,6 +41,7 @@ export function useRTokenBalance(
     tokenStandard,
     tokenName,
     updateFlag15s,
+    refreshDataFlag,
   ]);
 
   return balance;
