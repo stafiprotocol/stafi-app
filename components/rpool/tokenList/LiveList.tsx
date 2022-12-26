@@ -76,7 +76,7 @@ const RPoolLiveList = (props: Props) => {
 
   return (
     <div
-      className="mt-[.36rem] grid"
+      className="mt-[.36rem] grid relative min-h-[1rem]"
       style={{
         gridTemplateColumns: "repeat(4, 3.35rem)",
         justifyContent: "space-between",
@@ -84,7 +84,7 @@ const RPoolLiveList = (props: Props) => {
       }}
     >
       {flatList.length === 0 && (
-        <div className="flex flex-col items-center pb-[.3rem] w-full">
+        <div className="flex flex-col items-center pb-[.3rem] w-full absolute top-0 left-0">
           <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />
           </div>

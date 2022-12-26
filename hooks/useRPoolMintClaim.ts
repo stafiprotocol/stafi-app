@@ -12,7 +12,7 @@ export function useRPoolMintClaim(rTokenName: RTokenName, cycle: number) {
 
   const { mintOverView } = useAppSelector((state: RootState) => {
     return {
-      mintOverView: state.mintProgram.mintOverview,
+      mintOverView: state.mintProgram.mintOverviews[rTokenName],
     };
   });
 

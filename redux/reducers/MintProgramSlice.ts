@@ -49,17 +49,21 @@ export type RTokenActsCollection = {
   [rTokenName in RTokenName]?: RTokenActs[];
 };
 
+export type MintOverviewCollection = {
+	[rTokenName in RTokenName]?: MintOverview;
+}
+
 export interface MintProgramState {
   rTokenActs: RTokenActsCollection;
   queryActsLoading: boolean;
-  mintOverview: MintOverview | null;
+  mintOverviews: MintOverviewCollection;
   firstQueryActs: boolean;
 }
 
 const initialState: MintProgramState = {
   rTokenActs: {},
   queryActsLoading: false,
-  mintOverview: null,
+  mintOverviews: {},
   firstQueryActs: true,
 };
 
@@ -79,11 +83,11 @@ export const mintProgramSlice = createSlice({
     ) => {
       state.queryActsLoading = action.payload;
     },
-    setMintOverview: (
+    setMintOverviews: (
       state: MintProgramState,
-      action: PayloadAction<MintOverview>
+      action: PayloadAction<MintOverviewCollection>
     ) => {
-      state.mintOverview = action.payload;
+      state.mintOverviews = action.payload;
     },
     setFirstQueryActs: (
       state: MintProgramState,
@@ -97,7 +101,7 @@ export const mintProgramSlice = createSlice({
 export const {
   setRTokenActs,
   setQueryActsLoading,
-  setMintOverview,
+  setMintOverviews,
   setFirstQueryActs,
 } = mintProgramSlice.actions;
 
@@ -416,5 +420,10 @@ export const getMintOverview =
       vesting,
     };
 
-    dispatch(setMintOverview(mintOverview));
+		const newValue = {
+			...getState().mintProgram.mintOverviews,
+			[rTokenName]: mintOverview,
+		};
+
+    dispatch(setMintOverviews(newValue));
   };
