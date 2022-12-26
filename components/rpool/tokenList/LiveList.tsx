@@ -75,7 +75,14 @@ const RPoolLiveList = (props: Props) => {
   ]);
 
   return (
-    <div className="flex mt-[.36rem]">
+    <div
+      className="mt-[.36rem] grid"
+      style={{
+        gridTemplateColumns: "repeat(4, 3.35rem)",
+        justifyContent: "space-between",
+        rowGap: ".5rem",
+      }}
+    >
       {flatList.length === 0 && (
         <div className="flex flex-col items-center pb-[.3rem] w-full">
           <div className="flex flex-col items-center">
