@@ -27,7 +27,11 @@ import { string } from "mathjs";
 import { ProgramTab } from "pages/rpool";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
-import { getAllUserActs, RTokenActs } from "redux/reducers/MintProgramSlice";
+import {
+  getAllUserActs,
+  RTokenActs,
+  UserActs,
+} from "redux/reducers/MintProgramSlice";
 import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
@@ -43,6 +47,8 @@ interface Props {
   };
   queryActsLoading: boolean;
   firstQueryActs: boolean;
+  userActs: UserActs;
+  loading: boolean;
 }
 
 const RPoolFinishedList = (props: Props) => {
@@ -52,20 +58,14 @@ const RPoolFinishedList = (props: Props) => {
     rTokenBalances,
     queryActsLoading,
     firstQueryActs,
+    userActs,
+    loading,
   } = props;
 
   const dispatch = useAppDispatch();
 
-  const { updateFlag15s } = useAppSlice();
-
   const { walletNotConnected } = useContext(MyLayoutContext);
   const { polkadotAccount, metaMaskAccount } = useWalletAccount();
-
-  const { userActs } = useAppSelector((state: RootState) => {
-    return {
-      userActs: state.mintProgram.userActs,
-    };
-  });
 
   const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
   const [unstakeModalVisible, setUnstakeModalVisible] =
@@ -81,17 +81,38 @@ const RPoolFinishedList = (props: Props) => {
   >(undefined);
 
   const renderedList = useMemo(() => {
-    return list.filter((data: RTokenListItem) => {
-      const criteria = Array.isArray(data.children) && data.children.length > 0;
-      if (viewMyStakes) {
-        const rTokenBalance = rTokenBalances[data.rToken];
-        return (
-          !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0 && criteria
-        );
+    const allListData: RTokenListItem[] = [];
+    list.forEach((data: RTokenListItem) => {
+      if (Array.isArray(data.children) && data.children.length > 0) {
+        if (!viewMyStakes) {
+          allListData.push({
+            rToken: data.rToken,
+            children: [...data.children],
+          });
+        } else {
+          const children: RTokenActs[] = [];
+          data.children.forEach((child: RTokenActs) => {
+            if (
+              userActs[data.rToken] &&
+              (userActs[data.rToken] as any)[child.cycle] &&
+              (userActs[data.rToken] as any)[child.cycle].mintsCount > 0
+            ) {
+              children.push(child);
+            }
+          });
+          if (children.length > 0) {
+            allListData.push({
+              rToken: data.rToken,
+              children: [...children],
+            });
+          }
+        }
       }
-      return criteria;
     });
-  }, [list, viewMyStakes, rTokenBalances]);
+    return allListData.filter(
+      (data: RTokenListItem) => data.children.length > 0
+    );
+  }, [list, viewMyStakes, rTokenBalances, userActs]);
 
   const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
@@ -123,8 +144,9 @@ const RPoolFinishedList = (props: Props) => {
       setCurrentRowRToken(rTokenName);
       if (
         userActs[rTokenName] &&
-        !isNaN(Number((userActs[rTokenName] as any)[row.cycle])) &&
-        Number((userActs[rTokenName] as any)[row.cycle]) > 0
+        (userActs[rTokenName] as any)[row.cycle] &&
+        !isNaN(Number((userActs[rTokenName] as any)[row.cycle].mintsCount)) &&
+        Number((userActs[rTokenName] as any)[row.cycle].mintsCount) > 0
       ) {
         setClaimModalVisible(true);
       } else {
@@ -147,10 +169,6 @@ const RPoolFinishedList = (props: Props) => {
       dispatch(connectMetaMask(getMetamaskMaticChainId()));
     }
   };
-
-  useEffect(() => {
-    dispatch(getAllUserActs());
-  }, [dispatch, polkadotAccount, metaMaskAccount, updateFlag15s]);
 
   return (
     <div
@@ -194,7 +212,7 @@ const RPoolFinishedList = (props: Props) => {
         </div>
       </div>
 
-      {queryActsLoading && firstQueryActs && (
+      {((queryActsLoading && firstQueryActs) || loading) && (
         <div className="px-[.56rem] mb-[.5rem]">
           <TableSkeleton />
         </div>
@@ -246,8 +264,17 @@ const RPoolFinishedList = (props: Props) => {
                       {
                         hidden:
                           !userActs[data.rToken] ||
-                          isNaN(Number((userActs[data.rToken] as any)[item.cycle])) ||
-                          Number((userActs[data.rToken] as any)[item.cycle]) === 0
+                          !(userActs[data.rToken] as any)[item.cycle] ||
+                          isNaN(
+                            Number(
+                              (userActs[data.rToken] as any)[item.cycle]
+                                .mintsCount
+                            )
+                          ) ||
+                          Number(
+                            (userActs[data.rToken] as any)[item.cycle]
+                              .mintsCount
+                          ) === 0,
                       }
                     )}
                     style={{
@@ -271,13 +298,14 @@ const RPoolFinishedList = (props: Props) => {
           </div>
         ))}
 
-      {!(queryActsLoading && firstQueryActs) && renderedList.length === 0 && (
-        <div className="flex flex-col items-center pb-[.3rem]">
-          <div className="flex flex-col items-center">
-            <EmptyContent mt="0.2rem" size=".8rem" />
+      {!((queryActsLoading && firstQueryActs) || loading) &&
+        renderedList.length === 0 && (
+          <div className="flex flex-col items-center pb-[.3rem]">
+            <div className="flex flex-col items-center">
+              <EmptyContent mt="0.2rem" size=".8rem" />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       <RPoolMintClaimModal
         visible={claimModalVisible}

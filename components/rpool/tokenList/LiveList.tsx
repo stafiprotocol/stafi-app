@@ -5,7 +5,7 @@ import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
 import { useMemo } from "react";
-import { RTokenActs } from "redux/reducers/MintProgramSlice";
+import { RTokenActs, UserActs } from "redux/reducers/MintProgramSlice";
 import { rTokenNameToTokenName } from "utils/rToken";
 import MintTokenCard from "../tokenCard/MintTokenCard";
 
@@ -16,8 +16,10 @@ interface Props {
   rTokenBalances: {
     [rTokenName in RTokenName]?: string;
   };
-	queryActsLoading: boolean;
-	firstQueryLoading: boolean;
+  queryActsLoading: boolean;
+  firstQueryLoading: boolean;
+  userActs: UserActs;
+  loading: boolean;
 }
 
 export interface AllListItem extends RTokenActs {
@@ -25,34 +27,46 @@ export interface AllListItem extends RTokenActs {
 }
 
 const RPoolLiveList = (props: Props) => {
-  const { list, viewMyStakes, rTokenBalances, queryActsLoading, firstQueryLoading } = props;
+  const {
+    list,
+    viewMyStakes,
+    rTokenBalances,
+    queryActsLoading,
+    firstQueryLoading,
+    userActs,
+    loading,
+  } = props;
 
   const flatList = useMemo(() => {
-    // console.log(list, balanceRMatic, viewMyStakes, balanceRAtom, balanceRBnb, balanceRDot, balanceREth, balanceRKsm, balanceRSol)
     const validList = list.filter((item: RTokenListItem) => {
       const criteria = Array.isArray(item.children) && item.children.length > 0;
-      if (viewMyStakes) {
-        const rTokenBalance = rTokenBalances[item.rToken];
-        // console.log({rToken: item.rToken, rTokenBalance})
-        return (
-          !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0 && criteria
-        );
-      }
       return criteria;
     });
     const allListData: AllListItem[] = [];
     validList.forEach((item: RTokenListItem) => {
       item.children.forEach((child: RTokenActs) => {
-        allListData.push({
-          ...child,
-          rToken: item.rToken,
-        });
+        if (!viewMyStakes) {
+          allListData.push({
+            ...child,
+            rToken: item.rToken,
+          });
+        } else {
+          if (
+            userActs[item.rToken] &&
+            (userActs[item.rToken] as any)[child.cycle] &&
+            (userActs[item.rToken] as any)[child.cycle].mintsCount > 0
+          ) {
+            allListData.push({
+              ...child,
+              rToken: item.rToken,
+            });
+          }
+        }
       });
     });
 
     return allListData;
-  }, [list, viewMyStakes, rTokenBalances]);
-	console.log(flatList)
+  }, [list, viewMyStakes, userActs]);
 
   return (
     <div
@@ -60,23 +74,25 @@ const RPoolLiveList = (props: Props) => {
       style={{
         gridTemplateColumns: "repeat(4, 3.35rem)",
         justifyContent: "space-between",
-				alignItems: "start",
+        alignItems: "start",
         rowGap: ".5rem",
       }}
     >
-			{queryActsLoading && firstQueryLoading && (
-				<div className="absolute top-0 left-0 w-full">
-					<TableSkeleton />
-				</div>
-			)}
-
-      {!(queryActsLoading && firstQueryLoading) && flatList.length === 0 && (
-        <div className="flex flex-col items-center pb-[.3rem] w-full absolute top-0 left-0">
-          <div className="flex flex-col items-center">
-            <EmptyContent mt="0.2rem" size=".8rem" />
+      {((queryActsLoading && firstQueryLoading) || loading) &&
+        flatList.length === 0 && (
+          <div className="absolute top-0 left-0 w-full">
+            <TableSkeleton />
           </div>
-        </div>
-      )}
+        )}
+
+      {!((queryActsLoading && firstQueryLoading) || loading) &&
+        flatList.length === 0 && (
+          <div className="flex flex-col items-center pb-[.3rem] w-full absolute top-0 left-0">
+            <div className="flex flex-col items-center">
+              <EmptyContent mt="0.2rem" size=".8rem" />
+            </div>
+          </div>
+        )}
 
       {props.programTab === ProgramTab.Mint ? (
         <>

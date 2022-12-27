@@ -43,7 +43,7 @@ export interface MintOverview {
   fisLockedReward: any;
   claimIndexes: any;
   vesting: string;
-	mintsCount: number;
+  mintsCount: number;
 }
 
 export type RTokenActsCollection = {
@@ -56,7 +56,10 @@ export type MintOverviewCollection = {
 
 export type UserActs = {
   [rTokenName in RTokenName]?: {
-    [cycle: number]: string;
+    [cycle: number]: {
+      fisClaimableReward: string;
+      mintsCount: number;
+    };
   };
 };
 
@@ -66,6 +69,7 @@ export interface MintProgramState {
   mintOverviews: MintOverviewCollection;
   firstQueryActs: boolean;
   userActs: UserActs;
+  queryUserActsLoading: boolean;
 }
 
 const initialState: MintProgramState = {
@@ -74,6 +78,7 @@ const initialState: MintProgramState = {
   mintOverviews: {},
   firstQueryActs: true,
   userActs: {},
+  queryUserActsLoading: false,
 };
 
 export const mintProgramSlice = createSlice({
@@ -107,6 +112,12 @@ export const mintProgramSlice = createSlice({
     setUserActs: (state: MintProgramState, action: PayloadAction<UserActs>) => {
       state.userActs = action.payload;
     },
+    setQueryUserActsLoading: (
+      state: MintProgramState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.queryUserActsLoading = action.payload;
+    },
   },
 });
 
@@ -116,6 +127,7 @@ export const {
   setMintOverviews,
   setFirstQueryActs,
   setUserActs,
+  setQueryUserActsLoading,
 } = mintProgramSlice.actions;
 
 export default mintProgramSlice.reducer;
@@ -134,7 +146,7 @@ export const getMintPrograms = (): AppThunk => async (dispatch, getState) => {
     dispatch(getRTokenMintInfo(RTokenName.rSOL)),
   ])
     .then(() => {
-      console.log(getState().mintProgram.rTokenActs);
+      // console.log(getState().mintProgram.rTokenActs);
       dispatch(setFirstQueryActs(false));
     })
     .catch((err: any) => {})
@@ -431,7 +443,7 @@ export const getMintOverview =
       fisLockedReward: response.fisLockedReward,
       claimIndexes: cloneDeep(response.claimIndexes),
       vesting,
-			mintsCount: response.mintsCount,
+      mintsCount: response.mintsCount,
     };
 
     const newValue = {
@@ -452,6 +464,8 @@ export const getAllUserActs = (): AppThunk => async (dispatch, getState) => {
   );
   if (!fisPrice) return;
 
+  dispatch(setQueryUserActsLoading(true));
+
   Promise.all([
     dispatch(getUserActs(RTokenName.rATOM, fisPrice.price)),
     dispatch(getUserActs(RTokenName.rBNB, fisPrice.price)),
@@ -462,7 +476,12 @@ export const getAllUserActs = (): AppThunk => async (dispatch, getState) => {
     dispatch(getUserActs(RTokenName.rSOL, fisPrice.price)),
   ])
     .then()
-    .catch((err: any) => console.error(err));
+    .catch((err: any) => console.error(err))
+    .finally(() => {
+      setTimeout(() => {
+        dispatch(setQueryUserActsLoading(false));
+      }, 2000);
+    });
 };
 
 const getUserActs =
@@ -491,7 +510,10 @@ const getUserActs =
           ...userActs,
           [rTokenName]: {
             ...userActs[rTokenName],
-            [cycle]: mintOverView.fisClaimableReward,
+            [cycle]: {
+              fisClaimableReward: mintOverView.fisClaimableReward,
+              mintsCount: mintOverView.mintsCount,
+            },
           },
         };
         dispatch(setUserActs(newValue));

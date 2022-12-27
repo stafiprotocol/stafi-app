@@ -1,7 +1,12 @@
+import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useAppSlice } from "hooks/selector";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
+import { useWalletAccount } from "hooks/useWalletAccount";
 import { RTokenName } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getAllUserActs } from "redux/reducers/MintProgramSlice";
+import { RootState } from "redux/store";
 import MintTokenCard from "./tokenCard/MintTokenCard";
 import RPoolFinishedList from "./tokenList/FinishedList";
 import RPoolLiveList from "./tokenList/LiveList";
@@ -13,13 +18,34 @@ interface Props {
   rTokenBalances: {
     [rTokenName in RTokenName]?: string;
   };
-	queryActsLoading: boolean;
-	firstQueryActs: boolean;
+  queryActsLoading: boolean;
+  firstQueryActs: boolean;
 }
 
 const PoolTokenList = (props: Props) => {
+  const dispatch = useAppDispatch();
+
+  const { updateFlag15s } = useAppSlice();
+  const { polkadotAccount, metaMaskAccount } = useWalletAccount();
+
+  const { userActs, queryUserActsLoading } = useAppSelector(
+    (state: RootState) => {
+      return {
+        userActs: state.mintProgram.userActs,
+        queryUserActsLoading: state.mintProgram.queryUserActsLoading,
+      };
+    }
+  );
+
   const [tab, setTab] = useState<"live" | "finished">("live");
   const [viewMyStakes, setViewMyStakes] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!viewMyStakes || !polkadotAccount || !metaMaskAccount) {
+      return;
+    }
+    dispatch(getAllUserActs());
+  }, [dispatch, viewMyStakes, polkadotAccount, metaMaskAccount, updateFlag15s]);
 
   return (
     <>
@@ -92,8 +118,10 @@ const PoolTokenList = (props: Props) => {
 
       {tab === "live" && (
         <RPoolLiveList
-					firstQueryLoading={props.firstQueryActs}
-					queryActsLoading={props.queryActsLoading}
+          loading={queryUserActsLoading}
+          userActs={userActs}
+          firstQueryLoading={props.firstQueryActs}
+          queryActsLoading={props.queryActsLoading}
           rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
           programTab={props.programTab}
@@ -103,8 +131,10 @@ const PoolTokenList = (props: Props) => {
 
       {tab === "finished" && (
         <RPoolFinishedList
-					firstQueryActs={props.firstQueryActs}
-					queryActsLoading={props.queryActsLoading}
+          loading={queryUserActsLoading}
+          userActs={userActs}
+          firstQueryActs={props.firstQueryActs}
+          queryActsLoading={props.queryActsLoading}
           rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
           programTab={props.programTab}

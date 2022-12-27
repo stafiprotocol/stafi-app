@@ -45,7 +45,6 @@ export default class RPoolServer {
         return 0;
       });
     }
-		console.log(acts)
 
     return acts;
   }
