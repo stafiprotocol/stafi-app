@@ -35,6 +35,8 @@ import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 import UnableClaimModal from "components/modal/UnableClaimModal";
 import { useRPoolMintClaim } from "hooks/useRPoolMintClaim";
 import { getMintOverview } from "redux/reducers/MintProgramSlice";
+import { transformSs58Address } from "utils/polkadotUtils";
+import { getDotPools } from "redux/reducers/DotSlice";
 
 interface Props {
   data: AllListItem;
@@ -50,7 +52,7 @@ const MintTokenCard = (props: Props) => {
   const { mintOverView } = useRPoolMintClaim(data.rToken, data.cycle);
 
   const { walletNotConnected } = useContext(MyLayoutContext);
-  const { polkadotAccount, metaMaskAccount } = useWalletAccount();
+  const { polkadotAccount, metaMaskAccount, ksmAccount, dotAccount } = useWalletAccount();
   // todo: tokenStandard
   const rTokenBalance = useRTokenBalance(
     TokenStandard.Native,
@@ -112,7 +114,9 @@ const MintTokenCard = (props: Props) => {
     } else {
       if (data.rToken === RTokenName.rMATIC) {
         dispatch(getPools());
-      }
+      } else if (data.rToken === RTokenName.rDOT) {
+				dispatch(getDotPools());
+			}
       setStakeModalVisible(true);
     }
   };
@@ -150,10 +154,16 @@ const MintTokenCard = (props: Props) => {
     }
   };
 
-  const getDefaultReceivingAddress = () => {
-    if (data.rToken === RTokenName.rMATIC) {
-      return polkadotAccount;
+  const getDefaultReceivingAddress = (type: "stake" | "unstake") => {
+		if (type === "stake") {
+			return polkadotAccount;
+		}
+    if (data.rToken === RTokenName.rKSM) {
+      return transformSs58Address(ksmAccount, WalletType.Polkadot_KSM);
     }
+		if (data.rToken === RTokenName.rDOT) {
+			return transformSs58Address(dotAccount, WalletType.Polkadot_DOT);
+		}
     return metaMaskAccount;
   };
 
@@ -354,7 +364,7 @@ const MintTokenCard = (props: Props) => {
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         tokenName={rTokenNameToTokenName(data.rToken)}
-        defaultReceivingAddress={getDefaultReceivingAddress()}
+        defaultReceivingAddress={getDefaultReceivingAddress("stake")}
         editAddressDisabled={data.rToken === RTokenName.rETH}
         balance={balance || "--"}
         onClickConnectWallet={onClickConnectWallet}
@@ -364,7 +374,7 @@ const MintTokenCard = (props: Props) => {
         visible={unstakeModalVisible}
         onClose={() => setUnstakeModalVisible(false)}
         tokenName={rTokenNameToTokenName(data.rToken)}
-        defaultReceivingAddress={getDefaultReceivingAddress()}
+        defaultReceivingAddress={getDefaultReceivingAddress("unstake")}
         editAddressDisabled={data.rToken === RTokenName.rETH}
         balance={rTokenBalance}
         onClickConnectWallet={onClickConnectWallet}

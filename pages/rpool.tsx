@@ -8,6 +8,7 @@ import PoolTokenList from "components/rpool/PoolTokenList";
 import MintFaq from "components/rpool/MintFaq";
 import LpFaq from "components/rpool/LpFaq";
 import { useRPoolMintRTokenActs } from "hooks/useRPoolMintRTokenActs";
+import { TokenStandard } from "interfaces/common";
 
 export enum ProgramTab {
   Mint = "mint",
@@ -51,6 +52,7 @@ const RPoolPage = () => {
         query: {
           ...router.query,
           program: ProgramTab.Mint,
+					tokenStandard: TokenStandard.Native,
         },
       });
     }
