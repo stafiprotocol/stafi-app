@@ -81,7 +81,7 @@ const RTokenStakePage = () => {
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         balance={balance || "--"}
-        editAddressDisabled
+        editAddressDisabled={false}
         onClickConnectWallet={() =>
           dispatch(connectMetaMask(getMetamaskEthChainId()))
         }

@@ -84,7 +84,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const rTokenRatio = useRTokenRatio(tokenName);
   const ethGasPrice = useEthGasPrice();
 
-  const { polkadotAccount, metaMaskAccount } = useWalletAccount();
+  const { polkadotAccount, metaMaskAccount, polkadotBalance } =
+    useWalletAccount();
 
   const commisionFee = useMemo(() => {
     if (
@@ -200,6 +201,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (!addressCorrect) {
       return [true, "Invalid Receiving Address"];
     }
+    if (
+      (tokenName === TokenName.KSM || tokenName === TokenName.DOT) &&
+      Number(polkadotBalance) < Number(transactionCost)
+    ) {
+      return [true, "Not Enough FIS for Fee"];
+    }
     return [false, "Unstake"];
   }, [
     walletType,
@@ -209,6 +216,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     addressCorrect,
     walletNotConnected,
     tokenName,
+    polkadotBalance,
+    transactionCost,
   ]);
 
   const estimateFee = useMemo(() => {

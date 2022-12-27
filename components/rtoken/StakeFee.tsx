@@ -4,13 +4,14 @@ import { useTokenPrice } from "hooks/useTokenPrice";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { TokenName, TokenStandard } from "interfaces/common";
 import {
-  usePopupState,
   bindHover,
   bindPopover,
+  usePopupState,
 } from "material-ui-popup-state/hooks";
 import HoverPopover from "material-ui-popup-state/HoverPopover";
+import Image from "next/image";
+import downIcon from "public/icon_down.png";
 import { useMemo } from "react";
-import { isEmptyValue } from "utils/common";
 import { formatNumber } from "utils/number";
 
 interface StakeFeeProps {
@@ -78,6 +79,10 @@ export const StakeFee = (props: StakeFeeProps) => {
         {...bindHover(commonTxCostPopupState)}
       >
         {renderTotalCost()}
+
+        <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
+          <Image src={downIcon} layout="fill" alt="down" />
+        </div>
       </div>
 
       <HoverPopover

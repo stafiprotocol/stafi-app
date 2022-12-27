@@ -16,7 +16,7 @@ import { useAppDispatch, useAppSelector } from "./common";
 
 export function useStakeFees(
   tokenName: TokenName,
-  tokenStandard: TokenStandard
+  tokenStandard: TokenStandard | undefined
 ) {
   const dispatch = useAppDispatch();
 

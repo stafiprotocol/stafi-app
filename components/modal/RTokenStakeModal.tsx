@@ -140,6 +140,8 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return "";
   }, [walletType, metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);
 
+  const { txFee, bridgeFee } = useStakeFees(props.tokenName, tokenStandard);
+
   const willReceiveAmount = useMemo(() => {
     if (
       isNaN(Number(stakeAmount)) ||
@@ -157,6 +159,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     if (tokenName === TokenName.ETH) {
       return validateETHAddress(targetAddress);
     } else if (tokenName === TokenName.MATIC) {
+      if (tokenStandard === TokenStandard.Native) {
+        return validateSS58Address(targetAddress);
+      } else {
+        return validateETHAddress(targetAddress);
+      }
+    } else if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
       if (tokenStandard === TokenStandard.Native) {
         return validateSS58Address(targetAddress);
       } else {
@@ -305,6 +313,26 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       if (Number(ethBalance) <= Number(transactionCost)) {
         return [true, "Not Enough Gas Fee"];
       }
+    } else if (tokenName === TokenName.KSM) {
+      if (Number(stakeAmount) + Number(estimateFee) * 1.5 > Number(balance)) {
+        return [true, "Not Enough KSM to Stake"];
+      }
+      if (
+        Number(polkadotBalance) <
+        Number(txFee?.amount) + Number(bridgeFee?.amount)
+      ) {
+        return [true, "Not Enough FIS for Fee"];
+      }
+    } else if (tokenName === TokenName.DOT) {
+      if (Number(stakeAmount) + Number(estimateFee) * 1.5 > Number(balance)) {
+        return [true, "Not Enough DOT to Stake"];
+      }
+      if (
+        Number(polkadotBalance) <
+        Number(txFee?.amount) + Number(bridgeFee?.amount)
+      ) {
+        return [true, "Not Enough FIS for Fee"];
+      }
     }
 
     if (!addressCorrect) {
@@ -322,6 +350,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     ethBalance,
     transactionCost,
     walletNotConnected,
+    polkadotBalance,
+    txFee,
+    bridgeFee,
   ]);
 
   const newTotalStakedAmount = useMemo(() => {
