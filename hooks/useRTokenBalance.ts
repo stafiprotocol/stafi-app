@@ -30,7 +30,6 @@ export function useRTokenBalance(
   });
 
   useEffect(() => {
-		console.log(metaMaskAccount, polkadotAccount, tokenStandard, tokenName)
     if (!dontClear) {
       dispatch(clearRTokenBalance(tokenStandard, tokenName));
     }

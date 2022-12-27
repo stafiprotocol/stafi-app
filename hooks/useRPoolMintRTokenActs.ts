@@ -207,5 +207,6 @@ export function useRPoolMintRTokenActs() {
     liveList,
     finishedList,
     queryActsLoading,
+		firstQueryActs,
   };
 }

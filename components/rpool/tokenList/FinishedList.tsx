@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { Button } from "components/common/button";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
+import { TableSkeleton } from "components/common/TableSkeleton";
 import { MyLayoutContext } from "components/layout/layout";
 import RPoolMintClaimModal from "components/modal/RPoolMintClaimModal";
 import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
@@ -37,10 +38,18 @@ interface Props {
   rTokenBalances: {
     [rTokenName in RTokenName]?: string;
   };
+  queryActsLoading: boolean;
+  firstQueryActs: boolean;
 }
 
 const RPoolFinishedList = (props: Props) => {
-  const { list, viewMyStakes, rTokenBalances } = props;
+  const {
+    list,
+    viewMyStakes,
+    rTokenBalances,
+    queryActsLoading,
+    firstQueryActs,
+  } = props;
 
   const dispatch = useAppDispatch();
 
@@ -159,7 +168,14 @@ const RPoolFinishedList = (props: Props) => {
         </div>
       </div>
 
+      {queryActsLoading && firstQueryActs && (
+        <div className="px-[.56rem] mb-[.5rem]">
+          <TableSkeleton />
+        </div>
+      )}
+
       {!!renderedList &&
+        !(queryActsLoading && firstQueryActs) &&
         renderedList.map((data: RTokenListItem, i: number) => (
           <div
             key={`${data.rToken}${i}`}
@@ -228,7 +244,7 @@ const RPoolFinishedList = (props: Props) => {
           </div>
         ))}
 
-      {renderedList.length === 0 && (
+      {!(queryActsLoading && firstQueryActs) && renderedList.length === 0 && (
         <div className="flex flex-col items-center pb-[.3rem]">
           <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />

@@ -21,8 +21,14 @@ const RPoolPage = () => {
 
   const { setNavigation } = useContext(MyLayoutContext);
 
-  const { totalMintedValue, totalRewardFis, liveList, finishedList } =
-    useRPoolMintRTokenActs();
+  const {
+    totalMintedValue,
+    totalRewardFis,
+    liveList,
+    finishedList,
+    queryActsLoading,
+    firstQueryActs,
+  } = useRPoolMintRTokenActs();
 
   const balanceRAtom = useRTokenBalance(TokenStandard.Native, TokenName.ATOM);
   const balanceRMatic = useRTokenBalance(TokenStandard.Native, TokenName.MATIC);
@@ -120,6 +126,8 @@ const RPoolPage = () => {
       />
 
       <PoolTokenList
+        queryActsLoading={queryActsLoading}
+        firstQueryActs={firstQueryActs}
         rTokenBalances={rTokenBalances}
         programTab={currentPage}
         liveList={liveList}

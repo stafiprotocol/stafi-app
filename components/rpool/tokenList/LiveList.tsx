@@ -1,4 +1,5 @@
 import { EmptyContent } from "components/common/EmptyContent";
+import { TableSkeleton } from "components/common/TableSkeleton";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
@@ -15,6 +16,8 @@ interface Props {
   rTokenBalances: {
     [rTokenName in RTokenName]?: string;
   };
+	queryActsLoading: boolean;
+	firstQueryLoading: boolean;
 }
 
 export interface AllListItem extends RTokenActs {
@@ -22,7 +25,7 @@ export interface AllListItem extends RTokenActs {
 }
 
 const RPoolLiveList = (props: Props) => {
-  const { list, viewMyStakes, rTokenBalances } = props;
+  const { list, viewMyStakes, rTokenBalances, queryActsLoading, firstQueryLoading } = props;
 
   const flatList = useMemo(() => {
     // console.log(list, balanceRMatic, viewMyStakes, balanceRAtom, balanceRBnb, balanceRDot, balanceREth, balanceRKsm, balanceRSol)
@@ -52,14 +55,20 @@ const RPoolLiveList = (props: Props) => {
 
   return (
     <div
-      className="mt-[.36rem] grid relative min-h-[1rem]"
+      className="mt-[.36rem] grid relative min-h-[2.2rem]"
       style={{
         gridTemplateColumns: "repeat(4, 3.35rem)",
         justifyContent: "space-between",
         rowGap: ".5rem",
       }}
     >
-      {flatList.length === 0 && (
+			{queryActsLoading && firstQueryLoading && (
+				<div className="absolute top-0 left-0 w-full">
+					<TableSkeleton />
+				</div>
+			)}
+
+      {!(queryActsLoading && firstQueryLoading) && flatList.length === 0 && (
         <div className="flex flex-col items-center pb-[.3rem] w-full absolute top-0 left-0">
           <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />

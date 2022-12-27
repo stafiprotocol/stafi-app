@@ -13,11 +13,13 @@ interface Props {
   rTokenBalances: {
     [rTokenName in RTokenName]?: string;
   };
+	queryActsLoading: boolean;
+	firstQueryActs: boolean;
 }
 
 const PoolTokenList = (props: Props) => {
   const [tab, setTab] = useState<"live" | "finished">("live");
-  const [viewMyStakes, setViewMyStakes] = useState<boolean>(true);
+  const [viewMyStakes, setViewMyStakes] = useState<boolean>(false);
 
   return (
     <>
@@ -90,6 +92,8 @@ const PoolTokenList = (props: Props) => {
 
       {tab === "live" && (
         <RPoolLiveList
+					firstQueryLoading={props.firstQueryActs}
+					queryActsLoading={props.queryActsLoading}
           rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
           programTab={props.programTab}
@@ -99,6 +103,8 @@ const PoolTokenList = (props: Props) => {
 
       {tab === "finished" && (
         <RPoolFinishedList
+					firstQueryActs={props.firstQueryActs}
+					queryActsLoading={props.queryActsLoading}
           rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
           programTab={props.programTab}
