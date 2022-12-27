@@ -80,7 +80,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   );
   const defaultTransactionFee = 0.0129;
 
-  const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
+  // const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
   const ethGasPrice = useEthGasPrice();
 
@@ -147,16 +147,16 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const newTotalStakedAmount = useMemo(() => {
     // console.log(rTokenBalance, redeemAmount, rTokenRatio)
     if (
-      isNaN(Number(rTokenBalance)) ||
+      isNaN(Number(balance)) ||
       isNaN(Number(redeemAmount)) ||
       isNaN(Number(rTokenRatio))
     ) {
       return "--";
     }
     return (
-      (Number(rTokenBalance) - Number(redeemAmount)) * Number(rTokenRatio) + ""
+      (Number(balance) - Number(redeemAmount)) * Number(rTokenRatio) + ""
     );
-  }, [rTokenBalance, rTokenRatio, redeemAmount]);
+  }, [balance, rTokenRatio, redeemAmount]);
 
   const { isLoading } = useAppSlice();
 

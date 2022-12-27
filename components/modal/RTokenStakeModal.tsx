@@ -75,6 +75,7 @@ interface RTokenStakeModalProps {
   onClose: () => void;
   balance: string;
   onClickConnectWallet: () => void;
+	rTokenBalance: string | undefined;
 }
 
 export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
@@ -87,6 +88,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     balance,
     defaultReceivingAddress,
     editAddressDisabled,
+		rTokenBalance,
   } = props;
   const tokenStandard = useTokenStandard(tokenName);
   const [expandUserAddress, setExpandUserAddress] = useState(false);
@@ -94,7 +96,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const [targetAddress, setTargetAddress] = useState("");
   const [stakeAmount, setStakeAmount] = useState("");
 
-  const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
+  // const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();

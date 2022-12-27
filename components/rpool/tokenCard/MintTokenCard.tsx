@@ -37,13 +37,16 @@ import { useRPoolMintClaim } from "hooks/useRPoolMintClaim";
 import { getMintOverview } from "redux/reducers/MintProgramSlice";
 import { transformSs58Address } from "utils/polkadotUtils";
 import { getDotPools } from "redux/reducers/DotSlice";
+import { useDotBalance } from "hooks/useDotBalance";
+import { useKsmBalance } from "hooks/useKsmBalance";
 
 interface Props {
   data: AllListItem;
+  rTokenBalance: string | undefined;
 }
 
 const MintTokenCard = (props: Props) => {
-  const { data } = props;
+  const { data, rTokenBalance } = props;
 
   const dispatch = useAppDispatch();
 
@@ -52,12 +55,10 @@ const MintTokenCard = (props: Props) => {
   const { mintOverView } = useRPoolMintClaim(data.rToken, data.cycle);
 
   const { walletNotConnected } = useContext(MyLayoutContext);
-  const { polkadotAccount, metaMaskAccount, ksmAccount, dotAccount } = useWalletAccount();
-  // todo: tokenStandard
-  const rTokenBalance = useRTokenBalance(
-    TokenStandard.Native,
-    rTokenNameToTokenName(data.rToken)
-  );
+  const { polkadotAccount, metaMaskAccount, ksmAccount, dotAccount } =
+    useWalletAccount();
+  const ksmBalance = useKsmBalance();
+  const dotBalance = useDotBalance();
 
   const balance = useAppSelector((state: RootState) => {
     if (data.rToken === RTokenName.rETH) {
@@ -115,8 +116,8 @@ const MintTokenCard = (props: Props) => {
       if (data.rToken === RTokenName.rMATIC) {
         dispatch(getPools());
       } else if (data.rToken === RTokenName.rDOT) {
-				dispatch(getDotPools());
-			}
+        dispatch(getDotPools());
+      }
       setStakeModalVisible(true);
     }
   };
@@ -154,16 +155,26 @@ const MintTokenCard = (props: Props) => {
   };
 
   const getDefaultReceivingAddress = (type: "stake" | "unstake") => {
-		if (type === "stake") {
-			return polkadotAccount;
-		}
+    if (type === "stake") {
+      return polkadotAccount;
+    }
     if (data.rToken === RTokenName.rKSM) {
       return transformSs58Address(ksmAccount, WalletType.Polkadot_KSM);
     }
-		if (data.rToken === RTokenName.rDOT) {
-			return transformSs58Address(dotAccount, WalletType.Polkadot_DOT);
-		}
+    if (data.rToken === RTokenName.rDOT) {
+      return transformSs58Address(dotAccount, WalletType.Polkadot_DOT);
+    }
     return metaMaskAccount;
+  };
+
+  const getTokenBalance = () => {
+    if (data.rToken === RTokenName.rKSM) {
+      return ksmBalance;
+    }
+    if (data.rToken === RTokenName.rDOT) {
+      return dotBalance;
+    }
+    return balance;
   };
 
   useEffect(() => {
@@ -360,12 +371,13 @@ const MintTokenCard = (props: Props) => {
       />
 
       <RTokenStakeModal
+        rTokenBalance={rTokenBalance}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         tokenName={rTokenNameToTokenName(data.rToken)}
         defaultReceivingAddress={getDefaultReceivingAddress("stake")}
         editAddressDisabled={data.rToken === RTokenName.rETH}
-        balance={balance || "--"}
+        balance={getTokenBalance() || "--"}
         onClickConnectWallet={onClickConnectWallet}
       />
 

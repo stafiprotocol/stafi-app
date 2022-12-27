@@ -11,7 +11,8 @@ import { useWalletAccount } from "./useWalletAccount";
 
 export function useRTokenBalance(
   tokenStandard: TokenStandard | undefined,
-  tokenName: TokenName
+  tokenName: TokenName,
+  dontClear?: boolean
 ) {
   const dispatch = useAppDispatch();
   const { updateFlag15s, refreshDataFlag } = useAppSlice();
@@ -29,8 +30,18 @@ export function useRTokenBalance(
   });
 
   useEffect(() => {
-    dispatch(clearRTokenBalance(tokenStandard, tokenName));
-  }, [metaMaskAccount, polkadotAccount, dispatch, tokenStandard, tokenName]);
+		console.log(metaMaskAccount, polkadotAccount, tokenStandard, tokenName)
+    if (!dontClear) {
+      dispatch(clearRTokenBalance(tokenStandard, tokenName));
+    }
+  }, [
+    metaMaskAccount,
+    polkadotAccount,
+    dispatch,
+    tokenStandard,
+    tokenName,
+    dontClear,
+  ]);
 
   useEffect(() => {
     dispatch(updateRTokenBalance(tokenStandard, tokenName));

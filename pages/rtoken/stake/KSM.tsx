@@ -8,6 +8,7 @@ import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useKsmBalance } from "hooks/useKsmBalance";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, TokenStandard } from "interfaces/common";
@@ -18,6 +19,7 @@ import { connectMetaMask } from "redux/reducers/WalletSlice";
 const RTokenStakePage = () => {
   const dispatch = useAppDispatch();
   const tokenStandard = useTokenStandard(TokenName.KSM);
+  const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.KSM);
   const { setNavigation } = React.useContext(MyLayoutContext);
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
@@ -68,6 +70,7 @@ const RTokenStakePage = () => {
       <RTokenIntegrations tokenName={TokenName.KSM} />
 
       <RTokenStakeModal
+				rTokenBalance={rTokenBalance}
         tokenName={TokenName.KSM}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         visible={stakeModalVisible}

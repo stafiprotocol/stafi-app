@@ -8,6 +8,7 @@ import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskMaticChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
@@ -24,6 +25,8 @@ const RMaticStakePage = () => {
   const dispatch = useAppDispatch();
 
   const tokenStandard = useTokenStandard(TokenName.MATIC);
+
+  const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.MATIC);
 
   const { metaMaskAccount } = useWalletAccount();
 
@@ -94,6 +97,7 @@ const RMaticStakePage = () => {
       <RTokenIntegrations tokenName={TokenName.MATIC} />
 
       <RTokenStakeModal
+        rTokenBalance={rTokenBalance}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         tokenName={TokenName.MATIC}
         visible={stakeModalVisible}

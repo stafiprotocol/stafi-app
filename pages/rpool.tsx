@@ -8,7 +8,8 @@ import PoolTokenList from "components/rpool/PoolTokenList";
 import MintFaq from "components/rpool/MintFaq";
 import LpFaq from "components/rpool/LpFaq";
 import { useRPoolMintRTokenActs } from "hooks/useRPoolMintRTokenActs";
-import { TokenStandard } from "interfaces/common";
+import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 
 export enum ProgramTab {
   Mint = "mint",
@@ -22,6 +23,34 @@ const RPoolPage = () => {
 
   const { totalMintedValue, totalRewardFis, liveList, finishedList } =
     useRPoolMintRTokenActs();
+
+  const balanceRAtom = useRTokenBalance(TokenStandard.Native, TokenName.ATOM);
+  const balanceRMatic = useRTokenBalance(TokenStandard.Native, TokenName.MATIC);
+  const balanceREth = useRTokenBalance(TokenStandard.Native, TokenName.ETH);
+  const balanceRDot = useRTokenBalance(TokenStandard.Native, TokenName.DOT);
+  const balanceRKsm = useRTokenBalance(TokenStandard.Native, TokenName.KSM);
+  const balanceRBnb = useRTokenBalance(TokenStandard.Native, TokenName.BNB);
+  const balanceRSol = useRTokenBalance(TokenStandard.Native, TokenName.SOL);
+
+  const rTokenBalances = useMemo(() => {
+    return {
+      [RTokenName.rATOM]: balanceRAtom,
+      [RTokenName.rBNB]: balanceRBnb,
+      [RTokenName.rDOT]: balanceRDot,
+      [RTokenName.rETH]: balanceREth,
+      [RTokenName.rKSM]: balanceRKsm,
+      [RTokenName.rMATIC]: balanceRMatic,
+      [RTokenName.rSOL]: balanceRSol,
+    };
+  }, [
+    balanceRAtom,
+    balanceRBnb,
+    balanceRDot,
+    balanceREth,
+    balanceRKsm,
+    balanceRMatic,
+    balanceRSol,
+  ]);
 
   const switchProgramTab = (tab: ProgramTab) => {
     const currentTab = router.query.program;
@@ -52,7 +81,7 @@ const RPoolPage = () => {
         query: {
           ...router.query,
           program: ProgramTab.Mint,
-					tokenStandard: TokenStandard.Native,
+          tokenStandard: TokenStandard.Native,
         },
       });
     }
@@ -91,6 +120,7 @@ const RPoolPage = () => {
       />
 
       <PoolTokenList
+        rTokenBalances={rTokenBalances}
         programTab={currentPage}
         liveList={liveList}
         finishedList={finishedList}

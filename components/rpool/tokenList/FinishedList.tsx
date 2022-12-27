@@ -20,6 +20,7 @@ import {
   TokenStandard,
   WalletType,
 } from "interfaces/common";
+import { string } from "mathjs";
 import { ProgramTab } from "pages/rpool";
 import { useContext, useMemo, useState } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
@@ -33,30 +34,13 @@ interface Props {
   programTab: ProgramTab;
   list: RTokenListItem[];
   viewMyStakes: boolean;
+  rTokenBalances: {
+    [rTokenName in RTokenName]?: string;
+  };
 }
 
 const RPoolFinishedList = (props: Props) => {
-  const { list, viewMyStakes } = props;
-
-  const balanceRAtom = useRTokenBalance(TokenStandard.Native, TokenName.ATOM);
-  const balanceRMatic = useRTokenBalance(TokenStandard.Native, TokenName.MATIC);
-  const balanceREth = useRTokenBalance(TokenStandard.Native, TokenName.ETH);
-  const balanceRDot = useRTokenBalance(TokenStandard.Native, TokenName.DOT);
-  const balanceRKsm = useRTokenBalance(TokenStandard.Native, TokenName.KSM);
-  const balanceRBnb = useRTokenBalance(TokenStandard.Native, TokenName.BNB);
-  const balanceRSol = useRTokenBalance(TokenStandard.Native, TokenName.SOL);
-
-  const getRTokenBalance = (rTokenName: RTokenName | undefined) => {
-    if (!rTokenName) return;
-    const tokenName = rTokenNameToTokenName(rTokenName);
-    if (tokenName === TokenName.ATOM) return balanceRAtom;
-    if (tokenName === TokenName.BNB) return balanceRBnb;
-    if (tokenName === TokenName.DOT) return balanceRDot;
-    if (tokenName === TokenName.ETH) return balanceREth;
-    if (tokenName === TokenName.KSM) return balanceRKsm;
-    if (tokenName === TokenName.MATIC) return balanceRMatic;
-    if (tokenName === TokenName.SOL) return balanceRSol;
-  };
+  const { list, viewMyStakes, rTokenBalances } = props;
 
   const dispatch = useAppDispatch();
 
@@ -77,24 +61,14 @@ const RPoolFinishedList = (props: Props) => {
     return list.filter((data: RTokenListItem) => {
       const criteria = Array.isArray(data.children) && data.children.length > 0;
       if (viewMyStakes) {
-        const rTokenBalance = getRTokenBalance(data.rToken);
+        const rTokenBalance = rTokenBalances[data.rToken];
         return (
           !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0 && criteria
         );
       }
       return criteria;
     });
-  }, [
-    list,
-    viewMyStakes,
-    balanceRAtom,
-    balanceRBnb,
-    balanceRDot,
-    balanceREth,
-    balanceRKsm,
-    balanceRMatic,
-    balanceRSol,
-  ]);
+  }, [list, viewMyStakes, rTokenBalances]);
 
   const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
@@ -229,8 +203,8 @@ const RPoolFinishedList = (props: Props) => {
                       "h-[.48rem] rounded-[.43rem] w-[1.58rem] text-text1 text-[.24rem] flex items-center justify-center cursor-pointer mr-[.16rem]",
                       {
                         hidden:
-                          isNaN(Number(getRTokenBalance(data.rToken))) ||
-                          Number(getRTokenBalance(data.rToken)) === 0,
+                          isNaN(Number(rTokenBalances[data.rToken])) ||
+                          Number(rTokenBalances[data.rToken]) === 0,
                       }
                     )}
                     style={{
@@ -276,7 +250,7 @@ const RPoolFinishedList = (props: Props) => {
         tokenName={rTokenNameToTokenName(currentRowRToken as RTokenName)}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         editAddressDisabled={currentRowRToken === RTokenName.rETH}
-        balance={getRTokenBalance(currentRowRToken)}
+        balance={currentRowRToken ? rTokenBalances[currentRowRToken] : "--"}
         onClickConnectWallet={onClickConnectWallet}
       />
     </div>

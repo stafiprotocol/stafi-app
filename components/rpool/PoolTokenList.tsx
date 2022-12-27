@@ -10,11 +10,14 @@ interface Props {
   programTab: ProgramTab;
   liveList: RTokenListItem[];
   finishedList: RTokenListItem[];
+  rTokenBalances: {
+    [rTokenName in RTokenName]?: string;
+  };
 }
 
 const PoolTokenList = (props: Props) => {
   const [tab, setTab] = useState<"live" | "finished">("live");
-  const [viewMyStakes, setViewMyStakes] = useState<boolean>(false);
+  const [viewMyStakes, setViewMyStakes] = useState<boolean>(true);
 
   return (
     <>
@@ -87,6 +90,7 @@ const PoolTokenList = (props: Props) => {
 
       {tab === "live" && (
         <RPoolLiveList
+          rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
           programTab={props.programTab}
           list={props.liveList}
@@ -95,7 +99,8 @@ const PoolTokenList = (props: Props) => {
 
       {tab === "finished" && (
         <RPoolFinishedList
-					viewMyStakes={viewMyStakes}
+          rTokenBalances={props.rTokenBalances}
+          viewMyStakes={viewMyStakes}
           programTab={props.programTab}
           list={props.finishedList}
         />

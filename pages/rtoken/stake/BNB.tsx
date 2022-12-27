@@ -8,6 +8,7 @@ import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getMetamaskBscChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, TokenStandard } from "interfaces/common";
@@ -24,6 +25,8 @@ const RBnbStakePage = () => {
   const dispatch = useAppDispatch();
 
   const tokenStandard = useTokenStandard(TokenName.MATIC);
+
+  const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.BNB);
 
   const { metaMaskAccount } = useWalletAccount();
 
@@ -93,6 +96,7 @@ const RBnbStakePage = () => {
       <RTokenIntegrations tokenName={TokenName.BNB} />
 
       <RTokenStakeModal
+				rTokenBalance={rTokenBalance}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         tokenName={TokenName.BNB}
         visible={stakeModalVisible}

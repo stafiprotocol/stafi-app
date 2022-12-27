@@ -191,7 +191,7 @@ export function useRPoolMintRTokenActs() {
 
   useEffect(() => {
     dispatch(getMintPrograms());
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(updateRTokenPriceList());

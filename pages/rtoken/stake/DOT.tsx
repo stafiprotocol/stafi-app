@@ -9,6 +9,7 @@ import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useDotBalance } from "hooks/useDotBalance";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenName, TokenStandard } from "interfaces/common";
@@ -21,6 +22,7 @@ const RTokenStakePage = () => {
   const dispatch = useAppDispatch();
   const { useChainId: useMetaMaskChainId } = hooks;
   const tokenStandard = useTokenStandard(TokenName.DOT);
+  const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.DOT);
   const chainId = useMetaMaskChainId();
   const { setNavigation } = React.useContext(MyLayoutContext);
   const router = useRouter();
@@ -73,6 +75,7 @@ const RTokenStakePage = () => {
       <RTokenIntegrations tokenName={TokenName.DOT} />
 
       <RTokenStakeModal
+				rTokenBalance={rTokenBalance}
         tokenName={TokenName.DOT}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         visible={stakeModalVisible}
