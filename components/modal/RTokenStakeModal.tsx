@@ -138,6 +138,8 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return "";
   }, [walletType, metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);
 
+  const { txFee, bridgeFee } = useStakeFees(props.tokenName, tokenStandard);
+
   const willReceiveAmount = useMemo(() => {
     if (
       isNaN(Number(stakeAmount)) ||
@@ -313,9 +315,21 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       if (Number(stakeAmount) + Number(estimateFee) * 1.5 > Number(balance)) {
         return [true, "Not Enough KSM to Stake"];
       }
+      if (
+        Number(polkadotBalance) <
+        Number(txFee?.amount) + Number(bridgeFee?.amount)
+      ) {
+        return [true, "Not Enough FIS for Fee"];
+      }
     } else if (tokenName === TokenName.DOT) {
       if (Number(stakeAmount) + Number(estimateFee) * 1.5 > Number(balance)) {
         return [true, "Not Enough DOT to Stake"];
+      }
+      if (
+        Number(polkadotBalance) <
+        Number(txFee?.amount) + Number(bridgeFee?.amount)
+      ) {
+        return [true, "Not Enough FIS for Fee"];
       }
     }
 
@@ -334,6 +348,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     ethBalance,
     transactionCost,
     walletNotConnected,
+    polkadotBalance,
+    txFee,
+    bridgeFee,
   ]);
 
   const newTotalStakedAmount = useMemo(() => {
