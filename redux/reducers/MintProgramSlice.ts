@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RTokenName, TokenSymbol } from "interfaces/common";
+import { RTokenName, TokenName, TokenSymbol } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import RPoolServer from "servers/rpool";
 import { stafiServer } from "servers/stafi";
@@ -43,6 +43,7 @@ export interface MintOverview {
   fisLockedReward: any;
   claimIndexes: any;
   vesting: string;
+	mintsCount: number;
 }
 
 export type RTokenActsCollection = {
@@ -54,7 +55,9 @@ export type MintOverviewCollection = {
 };
 
 export type UserActs = {
-  [rTokenName in RTokenName]?: number[];
+  [rTokenName in RTokenName]?: {
+    [cycle: number]: string;
+  };
 };
 
 export interface MintProgramState {
@@ -428,6 +431,7 @@ export const getMintOverview =
       fisLockedReward: response.fisLockedReward,
       claimIndexes: cloneDeep(response.claimIndexes),
       vesting,
+			mintsCount: response.mintsCount,
     };
 
     const newValue = {
@@ -442,22 +446,27 @@ export const getAllUserActs = (): AppThunk => async (dispatch, getState) => {
   const metaMaskAccount = getState().wallet.metaMaskAccount;
   const polkadotAccount = getState().wallet.polkadotAccount;
   if (!metaMaskAccount || !polkadotAccount) return;
+  const priceList = getState().rToken.priceList;
+  const fisPrice = priceList.find(
+    (item: PriceItem) => item.symbol === TokenName.FIS
+  );
+  if (!fisPrice) return;
 
   Promise.all([
-    dispatch(getUserActs(RTokenName.rATOM)),
-    dispatch(getUserActs(RTokenName.rBNB)),
-    dispatch(getUserActs(RTokenName.rDOT)),
-    dispatch(getUserActs(RTokenName.rETH)),
-    dispatch(getUserActs(RTokenName.rKSM)),
-    dispatch(getUserActs(RTokenName.rMATIC)),
-    dispatch(getUserActs(RTokenName.rSOL)),
+    dispatch(getUserActs(RTokenName.rATOM, fisPrice.price)),
+    dispatch(getUserActs(RTokenName.rBNB, fisPrice.price)),
+    dispatch(getUserActs(RTokenName.rDOT, fisPrice.price)),
+    dispatch(getUserActs(RTokenName.rETH, fisPrice.price)),
+    dispatch(getUserActs(RTokenName.rKSM, fisPrice.price)),
+    dispatch(getUserActs(RTokenName.rMATIC, fisPrice.price)),
+    dispatch(getUserActs(RTokenName.rSOL, fisPrice.price)),
   ])
     .then()
     .catch((err: any) => console.error(err));
 };
 
 const getUserActs =
-  (rTokenName: RTokenName): AppThunk =>
+  (rTokenName: RTokenName, fisPrice: string): AppThunk =>
   async (dispatch, getState) => {
     const metaMaskAccount = getState().wallet.metaMaskAccount;
     const polkadotAccount = getState().wallet.polkadotAccount;
@@ -468,11 +477,24 @@ const getUserActs =
       metaMaskAccount as string
     );
     if (response) {
-      const userActs = getState().mintProgram.userActs;
-      const newValue = {
-        ...userActs,
-        [rTokenName]: response,
-      };
-      dispatch(setUserActs(newValue));
+      let cycles: number[] = response as number[];
+      cycles.forEach(async (cycle: number) => {
+        const mintOverView = await rPoolServer.getRTokenMintOverview(
+          rTokenNameToTokenSymbol(rTokenName),
+          cycle,
+          polkadotAccount as string,
+          metaMaskAccount as string,
+          fisPrice
+        );
+        const userActs = getState().mintProgram.userActs;
+        const newValue = {
+          ...userActs,
+          [rTokenName]: {
+            ...userActs[rTokenName],
+            [cycle]: mintOverView.fisClaimableReward,
+          },
+        };
+        dispatch(setUserActs(newValue));
+      });
     }
   };

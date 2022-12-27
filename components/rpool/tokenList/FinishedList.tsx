@@ -122,10 +122,9 @@ const RPoolFinishedList = (props: Props) => {
       setCurrentRowItem(row);
       setCurrentRowRToken(rTokenName);
       if (
-        Array.isArray(userActs) &&
-        userActs[rTokenName]?.includes(row?.cycle) &&
-        !isNaN(Number(rTokenBalances[rTokenName])) &&
-        Number(rTokenBalances[rTokenName]) > 0
+        userActs[rTokenName] &&
+        !isNaN(Number((userActs[rTokenName] as any)[row.cycle])) &&
+        Number((userActs[rTokenName] as any)[row.cycle]) > 0
       ) {
         setClaimModalVisible(true);
       } else {
@@ -246,10 +245,9 @@ const RPoolFinishedList = (props: Props) => {
                       "h-[.48rem] rounded-[.43rem] w-[1.58rem] text-text1 text-[.24rem] flex items-center justify-center cursor-pointer mr-[.16rem]",
                       {
                         hidden:
-                          !Array.isArray(userActs[data.rToken]) ||
-                          !userActs[data.rToken]?.includes(item.cycle) ||
-                          isNaN(Number(rTokenBalances[data.rToken])) ||
-                          Number(rTokenBalances[data.rToken]) === 0,
+                          !userActs[data.rToken] ||
+                          isNaN(Number((userActs[data.rToken] as any)[item.cycle])) ||
+                          Number((userActs[data.rToken] as any)[item.cycle]) === 0
                       }
                     )}
                     style={{

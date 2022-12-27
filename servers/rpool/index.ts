@@ -45,6 +45,7 @@ export default class RPoolServer {
         return 0;
       });
     }
+		console.log(acts)
 
     return acts;
   }
@@ -117,6 +118,7 @@ export default class RPoolServer {
         fisLockedReward: "--",
         claimIndexs: [],
         vesting: "--",
+				mintsCount: 0,
       };
       const api = await stafiServer.createStafiApi();
       let act;
@@ -269,6 +271,7 @@ export default class RPoolServer {
         )
         .toFixed(4);
       response.claimIndexes = claimIndexes;
+			response.mintsCount = mintsCount;
 
       return response;
     } catch (err: any) {}

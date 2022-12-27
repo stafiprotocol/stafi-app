@@ -52,6 +52,7 @@ const RPoolLiveList = (props: Props) => {
 
     return allListData;
   }, [list, viewMyStakes, rTokenBalances]);
+	console.log(flatList)
 
   return (
     <div

@@ -77,9 +77,12 @@ const MintTokenCard = (props: Props) => {
   const [unstakeModalVisible, setUnstakeModalVisible] =
     useState<boolean>(false);
 
-  const isBalanceValid = useMemo(() => {
-    return !isNaN(Number(rTokenBalance)) && Number(rTokenBalance) > 0;
-  }, [rTokenBalance]);
+	const unstakeAvaiable = useMemo(() => {
+		if (!mintOverView || mintOverView.mintsCount === 0) {
+			return false;
+		}
+		return true;
+	}, [mintOverView]);
 
   const getRTokenLogo = (rTokenName: RTokenName) => {
     if (rTokenName === RTokenName.rMATIC) return maticLogo;
@@ -349,7 +352,7 @@ const MintTokenCard = (props: Props) => {
                 </div>
               </div>
 
-              {isBalanceValid && (
+              {unstakeAvaiable && (
                 <div
                   className="text-text1 text-[.2rem] text-center cursor-pointer mt-[.24rem]"
                   onClick={onClickUnstake}
