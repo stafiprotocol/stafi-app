@@ -2,6 +2,9 @@ import { Button } from "components/common/button";
 import Image from "next/image";
 import ethLogo from "public/eth_type_black.svg";
 import maticLogo from "public/matic_type_black.png";
+import ksmLogo from "public/ksm_type_black.png";
+import dotLogo from "public/dot_type_black.png";
+import bnbLogo from "public/bnb_type_black.png";
 import { RTokenName, TokenStandard, WalletType } from "interfaces/common";
 import { MyTooltip } from "components/common/MyTooltip";
 import { formatNumber } from "utils/number";
@@ -77,7 +80,10 @@ const MintTokenCard = (props: Props) => {
 
   const getRTokenLogo = (rTokenName: RTokenName) => {
     if (rTokenName === RTokenName.rMATIC) return maticLogo;
+    if (rTokenName === RTokenName.rKSM) return ksmLogo;
     if (rTokenName === RTokenName.rETH) return ethLogo;
+    if (rTokenName === RTokenName.rDOT) return dotLogo;
+    if (rTokenName === RTokenName.rBNB) return bnbLogo;
     return ethLogo;
   };
 
@@ -121,7 +127,7 @@ const MintTokenCard = (props: Props) => {
         })
       );
     } else {
-			console.log({mintOverView, data})
+      console.log({ mintOverView, data });
       if (!mintOverView || mintOverView.fisClaimableReward <= 0) {
         setUnableClaimModalVisible(true);
       } else {
