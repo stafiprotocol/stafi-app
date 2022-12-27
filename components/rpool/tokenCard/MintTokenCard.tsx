@@ -131,7 +131,6 @@ const MintTokenCard = (props: Props) => {
         })
       );
     } else {
-      console.log({ mintOverView, data });
       if (!mintOverView || mintOverView.fisClaimableReward <= 0) {
         setUnableClaimModalVisible(true);
       } else {

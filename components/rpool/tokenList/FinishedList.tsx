@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { Button } from "components/common/button";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
@@ -9,6 +10,7 @@ import {
   getMetamaskMaticChainId,
 } from "config/metaMask";
 import { useAppDispatch } from "hooks/common";
+import { useRPoolMintClaim } from "hooks/useRPoolMintClaim";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useWalletAccount } from "hooks/useWalletAccount";
@@ -44,7 +46,8 @@ const RPoolFinishedList = (props: Props) => {
   const balanceRBnb = useRTokenBalance(TokenStandard.Native, TokenName.BNB);
   const balanceRSol = useRTokenBalance(TokenStandard.Native, TokenName.SOL);
 
-  const getRTokenBalance = (rTokenName: RTokenName) => {
+  const getRTokenBalance = (rTokenName: RTokenName | undefined) => {
+    if (!rTokenName) return;
     const tokenName = rTokenNameToTokenName(rTokenName);
     if (tokenName === TokenName.ATOM) return balanceRAtom;
     if (tokenName === TokenName.BNB) return balanceRBnb;
@@ -69,11 +72,6 @@ const RPoolFinishedList = (props: Props) => {
   const [currentRowRToken, setCurrentRowRToken] = useState<
     RTokenName | undefined
   >(undefined);
-
-  const rTokenBalance = useRTokenBalance(
-    TokenStandard.Native,
-    rTokenNameToTokenName(currentRowRToken || RTokenName.rETH)
-  );
 
   const renderedList = useMemo(() => {
     return list.filter((data: RTokenListItem) => {
@@ -156,7 +154,7 @@ const RPoolFinishedList = (props: Props) => {
     >
       <div
         className="grid mb-[.5rem] mt-[.56rem] mx-[.56rem]"
-        style={{ gridTemplateColumns: "16% 16% 16% 16% 16% 20%" }}
+        style={{ gridTemplateColumns: "14% 16% 16% 16% 14% 24%" }}
       >
         <div className="flex justify-start text-text2 text-[.2rem]">
           Token Name
@@ -203,7 +201,7 @@ const RPoolFinishedList = (props: Props) => {
                 key={`${data.rToken}${i}${index}`}
                 className="grid h-[1.1rem] text-[.24rem] text-text1"
                 style={{
-                  gridTemplateColumns: "16% 16% 16% 16% 16% 20%",
+                  gridTemplateColumns: "14% 16% 16% 16% 14% 24%",
                 }}
               >
                 <div className="flex justify-start items-center">
@@ -227,7 +225,14 @@ const RPoolFinishedList = (props: Props) => {
                 </div>
                 <div className="flex justify-end items-center">
                   <div
-                    className="h-[.48rem] rounded-[.43rem] w-[1.58rem] text-text1 text-[.24rem] flex items-center justify-center cursor-pointer mr-[.16rem]"
+                    className={classNames(
+                      "h-[.48rem] rounded-[.43rem] w-[1.58rem] text-text1 text-[.24rem] flex items-center justify-center cursor-pointer mr-[.16rem]",
+                      {
+                        hidden:
+                          isNaN(Number(getRTokenBalance(data.rToken))) ||
+                          Number(getRTokenBalance(data.rToken)) === 0,
+                      }
+                    )}
                     style={{
                       border: "1px solid rgba(91, 104, 114, 0.5)",
                     }}
@@ -271,7 +276,7 @@ const RPoolFinishedList = (props: Props) => {
         tokenName={rTokenNameToTokenName(currentRowRToken as RTokenName)}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         editAddressDisabled={currentRowRToken === RTokenName.rETH}
-        balance={rTokenBalance}
+        balance={getRTokenBalance(currentRowRToken)}
         onClickConnectWallet={onClickConnectWallet}
       />
     </div>
