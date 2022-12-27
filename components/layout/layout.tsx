@@ -124,6 +124,9 @@ export const Layout = (props: LayoutProps) => {
     } else if (router.pathname === "/rtoken/stake/DOT") {
       setTargetMetaMaskChainId(undefined);
       setWalletType(WalletType.Polkadot_DOT);
+    } else if (router.pathname.startsWith("/rpool")) {
+      setTargetMetaMaskChainId(undefined);
+      setWalletType(WalletType.MetaMask);
     } else {
       setTargetMetaMaskChainId(getMetamaskMaticChainId());
       setWalletType(WalletType.Polkadot);
