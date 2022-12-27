@@ -26,9 +26,9 @@ import { useContext, useMemo, useState } from "react";
 import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { isEmptyValue, isInvalidValue, openLink } from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
-import { formatNumber } from "utils/number";
+import { formatNumber, getDecimals } from "utils/number";
 import { transformSs58Address } from "utils/polkadotUtils";
-import { getExchangeRateUpdateTime } from "utils/rToken";
+import { getExchangeRateUpdateTime, getTokenSymbol } from "utils/rToken";
 import { TokenStandardSelector } from "./TokenStandardSelector";
 
 interface StakeOverviewProps {
@@ -91,8 +91,15 @@ export const StakeOverview = (props: StakeOverviewProps) => {
     if (isInvalidValue(rTokenBalance) || isInvalidValue(rTokenRatio)) {
       return "--";
     }
-    return Number(rTokenBalance) * Number(rTokenRatio) + "";
-  }, [rTokenBalance, rTokenRatio]);
+
+    const stakedAmount = Number(rTokenBalance) * Number(rTokenRatio);
+    const decimals = getDecimals(getTokenSymbol(props.tokenName));
+
+    return (
+      Math.ceil((((stakedAmount * 1000000) / decimals) * decimals) / 1000000) +
+      ""
+    );
+  }, [rTokenBalance, rTokenRatio, props.tokenName]);
 
   // User staked token value.
   const stakedValue = useMemo(() => {

@@ -15,7 +15,7 @@ export async function getNativeRTokenBalance(
   tokenSymbol: TokenSymbol | undefined
 ) {
   if (!userAddress || tokenSymbol === undefined) {
-    return "--";
+    return undefined;
   }
   try {
     const api = await new StafiServer().createStafiApi();

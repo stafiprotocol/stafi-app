@@ -160,6 +160,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       } else {
         return validateETHAddress(targetAddress);
       }
+    } else if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
+      if (tokenStandard === TokenStandard.Native) {
+        return validateSS58Address(targetAddress);
+      } else {
+        return validateETHAddress(targetAddress);
+      }
     }
     return true;
   }, [targetAddress, tokenName, tokenStandard]);
@@ -302,6 +308,14 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       }
       if (Number(ethBalance) <= Number(transactionCost)) {
         return [true, "Not Enough Gas Fee"];
+      }
+    } else if (tokenName === TokenName.KSM) {
+      if (Number(stakeAmount) + Number(estimateFee) * 1.5 > Number(balance)) {
+        return [true, "Not Enough KSM to Stake"];
+      }
+    } else if (tokenName === TokenName.DOT) {
+      if (Number(stakeAmount) + Number(estimateFee) * 1.5 > Number(balance)) {
+        return [true, "Not Enough DOT to Stake"];
       }
     }
 
