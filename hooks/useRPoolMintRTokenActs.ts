@@ -1,7 +1,7 @@
 import { RTokenName, TokenName, TokenSymbol } from "interfaces/common";
 import { cloneDeep } from "lodash";
 import { useEffect, useMemo, useState } from "react";
-import { getMintPrograms, getUserActs, RTokenActs } from "redux/reducers/MintProgramSlice";
+import { getMintPrograms, RTokenActs } from "redux/reducers/MintProgramSlice";
 import { PriceItem, updateRTokenPriceList } from "redux/reducers/RTokenSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
