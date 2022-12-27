@@ -172,7 +172,7 @@ const RPoolMintClaimModal = (props: Props) => {
                 {formatNumber(mintOverView ? mintOverView.userMintToken : 0, {
                   decimals: 2,
                 })}{" "}
-                ({!mintOverView ? 0 : mintOverView.userMintRatio} %)
+                ({!mintOverView ? 0 : mintOverView.userMintRatio}%)
               </div>
             </div>
             <div
