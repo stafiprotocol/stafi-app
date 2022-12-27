@@ -59,6 +59,7 @@ const RPoolLiveList = (props: Props) => {
       style={{
         gridTemplateColumns: "repeat(4, 3.35rem)",
         justifyContent: "space-between",
+				alignItems: "start",
         rowGap: ".5rem",
       }}
     >

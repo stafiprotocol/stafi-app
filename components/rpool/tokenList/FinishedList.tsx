@@ -6,11 +6,13 @@ import { TableSkeleton } from "components/common/TableSkeleton";
 import { MyLayoutContext } from "components/layout/layout";
 import RPoolMintClaimModal from "components/modal/RPoolMintClaimModal";
 import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
+import UnableClaimModal from "components/modal/UnableClaimModal";
 import {
   getMetamaskEthChainId,
   getMetamaskMaticChainId,
 } from "config/metaMask";
-import { useAppDispatch } from "hooks/common";
+import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useAppSlice } from "hooks/selector";
 import { useRPoolMintClaim } from "hooks/useRPoolMintClaim";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
@@ -23,10 +25,11 @@ import {
 } from "interfaces/common";
 import { string } from "mathjs";
 import { ProgramTab } from "pages/rpool";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
-import { RTokenActs } from "redux/reducers/MintProgramSlice";
+import { getAllUserActs, RTokenActs } from "redux/reducers/MintProgramSlice";
 import { connectMetaMask } from "redux/reducers/WalletSlice";
+import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
 import { rTokenNameToTokenName } from "utils/rToken";
@@ -53,12 +56,23 @@ const RPoolFinishedList = (props: Props) => {
 
   const dispatch = useAppDispatch();
 
+  const { updateFlag15s } = useAppSlice();
+
   const { walletNotConnected } = useContext(MyLayoutContext);
   const { polkadotAccount, metaMaskAccount } = useWalletAccount();
+
+  const { userActs } = useAppSelector((state: RootState) => {
+    return {
+      userActs: state.mintProgram.userActs,
+    };
+  });
 
   const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
   const [unstakeModalVisible, setUnstakeModalVisible] =
     useState<boolean>(false);
+  const [unableClaimModalVisible, setUnableClaimModalVisible] =
+    useState<boolean>(false);
+
   const [currentRowItem, setCurrentRowItem] = useState<RTokenActs | undefined>(
     undefined
   );
@@ -107,7 +121,16 @@ const RPoolFinishedList = (props: Props) => {
     } else {
       setCurrentRowItem(row);
       setCurrentRowRToken(rTokenName);
-      setClaimModalVisible(true);
+      if (
+        Array.isArray(userActs) &&
+        userActs[rTokenName]?.includes(row?.cycle) &&
+        !isNaN(Number(rTokenBalances[rTokenName])) &&
+        Number(rTokenBalances[rTokenName]) > 0
+      ) {
+        setClaimModalVisible(true);
+      } else {
+        setUnableClaimModalVisible(true);
+      }
     }
   };
 
@@ -125,6 +148,10 @@ const RPoolFinishedList = (props: Props) => {
       dispatch(connectMetaMask(getMetamaskMaticChainId()));
     }
   };
+
+  useEffect(() => {
+    dispatch(getAllUserActs());
+  }, [dispatch, polkadotAccount, metaMaskAccount, updateFlag15s]);
 
   return (
     <div
@@ -219,6 +246,8 @@ const RPoolFinishedList = (props: Props) => {
                       "h-[.48rem] rounded-[.43rem] w-[1.58rem] text-text1 text-[.24rem] flex items-center justify-center cursor-pointer mr-[.16rem]",
                       {
                         hidden:
+                          !Array.isArray(userActs[data.rToken]) ||
+                          !userActs[data.rToken]?.includes(item.cycle) ||
                           isNaN(Number(rTokenBalances[data.rToken])) ||
                           Number(rTokenBalances[data.rToken]) === 0,
                       }
@@ -268,6 +297,11 @@ const RPoolFinishedList = (props: Props) => {
         editAddressDisabled={currentRowRToken === RTokenName.rETH}
         balance={currentRowRToken ? rTokenBalances[currentRowRToken] : "--"}
         onClickConnectWallet={onClickConnectWallet}
+      />
+
+      <UnableClaimModal
+        visible={unableClaimModalVisible}
+        onClose={() => setUnableClaimModalVisible(false)}
       />
     </div>
   );

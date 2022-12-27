@@ -50,14 +50,19 @@ export type RTokenActsCollection = {
 };
 
 export type MintOverviewCollection = {
-	[rTokenName in RTokenName]?: MintOverview;
-}
+  [rTokenName in RTokenName]?: MintOverview;
+};
+
+export type UserActs = {
+  [rTokenName in RTokenName]?: number[];
+};
 
 export interface MintProgramState {
   rTokenActs: RTokenActsCollection;
   queryActsLoading: boolean;
   mintOverviews: MintOverviewCollection;
   firstQueryActs: boolean;
+  userActs: UserActs;
 }
 
 const initialState: MintProgramState = {
@@ -65,6 +70,7 @@ const initialState: MintProgramState = {
   queryActsLoading: false,
   mintOverviews: {},
   firstQueryActs: true,
+  userActs: {},
 };
 
 export const mintProgramSlice = createSlice({
@@ -95,6 +101,9 @@ export const mintProgramSlice = createSlice({
     ) => {
       state.firstQueryActs = action.payload;
     },
+    setUserActs: (state: MintProgramState, action: PayloadAction<UserActs>) => {
+      state.userActs = action.payload;
+    },
   },
 });
 
@@ -103,6 +112,7 @@ export const {
   setQueryActsLoading,
   setMintOverviews,
   setFirstQueryActs,
+  setUserActs,
 } = mintProgramSlice.actions;
 
 export default mintProgramSlice.reducer;
@@ -121,7 +131,7 @@ export const getMintPrograms = (): AppThunk => async (dispatch, getState) => {
     dispatch(getRTokenMintInfo(RTokenName.rSOL)),
   ])
     .then(() => {
-      // console.log(getState().mintProgram.rTokenActs);
+      console.log(getState().mintProgram.rTokenActs);
       dispatch(setFirstQueryActs(false));
     })
     .catch((err: any) => {})
@@ -420,10 +430,49 @@ export const getMintOverview =
       vesting,
     };
 
-		const newValue = {
-			...getState().mintProgram.mintOverviews,
-			[rTokenName]: mintOverview,
-		};
+    const newValue = {
+      ...getState().mintProgram.mintOverviews,
+      [rTokenName]: mintOverview,
+    };
 
     dispatch(setMintOverviews(newValue));
+  };
+
+export const getAllUserActs = (): AppThunk => async (dispatch, getState) => {
+  const metaMaskAccount = getState().wallet.metaMaskAccount;
+  const polkadotAccount = getState().wallet.polkadotAccount;
+  if (!metaMaskAccount || !polkadotAccount) return;
+
+  Promise.all([
+    dispatch(getUserActs(RTokenName.rATOM)),
+    dispatch(getUserActs(RTokenName.rBNB)),
+    dispatch(getUserActs(RTokenName.rDOT)),
+    dispatch(getUserActs(RTokenName.rETH)),
+    dispatch(getUserActs(RTokenName.rKSM)),
+    dispatch(getUserActs(RTokenName.rMATIC)),
+    dispatch(getUserActs(RTokenName.rSOL)),
+  ])
+    .then()
+    .catch((err: any) => console.error(err));
+};
+
+const getUserActs =
+  (rTokenName: RTokenName): AppThunk =>
+  async (dispatch, getState) => {
+    const metaMaskAccount = getState().wallet.metaMaskAccount;
+    const polkadotAccount = getState().wallet.polkadotAccount;
+
+    const response = await rPoolServer.getUserActs(
+      rTokenNameToTokenSymbol(rTokenName),
+      polkadotAccount as string,
+      metaMaskAccount as string
+    );
+    if (response) {
+      const userActs = getState().mintProgram.userActs;
+      const newValue = {
+        ...userActs,
+        [rTokenName]: response,
+      };
+      dispatch(setUserActs(newValue));
+    }
   };

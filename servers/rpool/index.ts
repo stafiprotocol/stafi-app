@@ -103,7 +103,7 @@ export default class RPoolServer {
     tokenSymbol: TokenSymbol,
     cycle: number,
     polkadotAccount: string,
-		metaMaskAccount: string,
+    metaMaskAccount: string,
     fisPrice: string | number
   ) {
     try {
@@ -119,12 +119,12 @@ export default class RPoolServer {
         vesting: "--",
       };
       const api = await stafiServer.createStafiApi();
-			let act;
-			if (tokenSymbol === TokenSymbol.ETH) {
-				act = await api.query.rClaim.rEthActs(cycle);
-			} else {
-				act = await api.query.rClaim.acts([tokenSymbol, cycle]);
-			}
+      let act;
+      if (tokenSymbol === TokenSymbol.ETH) {
+        act = await api.query.rClaim.rEthActs(cycle);
+      } else {
+        act = await api.query.rClaim.acts([tokenSymbol, cycle]);
+      }
       if (!act.toJSON()) {
         return response;
       }
@@ -132,16 +132,19 @@ export default class RPoolServer {
       response.actData = actJson;
       response.vesting = (actJson.locked_blocks * 6) / 60 / 60 / 24;
 
-			let userMintsCount;
-			if (tokenSymbol === TokenSymbol.ETH) {
-				userMintsCount = await api.query.rClaim.userREthMintsCount([metaMaskAccount, cycle]);
-			} else {
-				userMintsCount = await api.query.rClaim.userMintsCount([
-					polkadotAccount,
-					tokenSymbol,
-					cycle,
-				]);
-			}
+      let userMintsCount;
+      if (tokenSymbol === TokenSymbol.ETH) {
+        userMintsCount = await api.query.rClaim.userREthMintsCount([
+          metaMaskAccount,
+          cycle,
+        ]);
+      } else {
+        userMintsCount = await api.query.rClaim.userMintsCount([
+          polkadotAccount,
+          tokenSymbol,
+          cycle,
+        ]);
+      }
       if (!userMintsCount) return response;
 
       let totalReward = BigInt(0);
@@ -162,17 +165,21 @@ export default class RPoolServer {
 
       for (let i = 0; i < mintsCount; i++) {
         try {
-					let claimInfo;
-					if (tokenSymbol === TokenSymbol.ETH) {
-						claimInfo = await api.query.rClaim.rEthClaimInfos([metaMaskAccount, cycle, i]);
-					} else {
-						claimInfo = await api.query.rClaim.claimInfos([
-							polkadotAccount,
-							tokenSymbol,
-							cycle,
-							i,
-						]);
-					}
+          let claimInfo;
+          if (tokenSymbol === TokenSymbol.ETH) {
+            claimInfo = await api.query.rClaim.rEthClaimInfos([
+              metaMaskAccount,
+              cycle,
+              i,
+            ]);
+          } else {
+            claimInfo = await api.query.rClaim.claimInfos([
+              polkadotAccount,
+              tokenSymbol,
+              cycle,
+              i,
+            ]);
+          }
           if (!claimInfo.toJSON()) continue;
           const claimInfoJson: any = claimInfo.toJSON();
           totalReward += BigInt(claimInfoJson.total_reward);
@@ -202,11 +209,11 @@ export default class RPoolServer {
           }
 
           fisClaimedReward += claimInfoJson.total_claimed;
-					if (tokenSymbol === TokenSymbol.ETH) {
-						userMint += BigInt(BigInt(claimInfoJson.mint_amount).toString(16));
-					} else {
-						userMint += BigInt(BigInt(claimInfoJson.mint_amount).toString(10));
-					}
+          if (tokenSymbol === TokenSymbol.ETH) {
+            userMint += BigInt(BigInt(claimInfoJson.mint_amount).toString(16));
+          } else {
+            userMint += BigInt(BigInt(claimInfoJson.mint_amount).toString(10));
+          }
         } catch (err: any) {
           console.error(err);
           continue;
@@ -266,5 +273,26 @@ export default class RPoolServer {
       return response;
     } catch (err: any) {}
   }
+
+  async getUserActs(
+    tokenSymbol: TokenSymbol,
+    polkadotAccount: string,
+    metaMaskAccount: string
+  ) {
+    try {
+      const api = await stafiServer.createStafiApi();
+      let acts;
+      if (tokenSymbol === TokenSymbol.ETH) {
+        acts = await api.query.rClaim.userREthActs([
+          metaMaskAccount,
+          tokenSymbol,
+        ]);
+      } else {
+        acts = await api.query.rClaim.userActs([polkadotAccount, tokenSymbol]);
+      }
+      if (acts && acts.toJSON()) {
+        return acts.toJSON();
+      }
+    } catch (err: any) {}
+  }
 }
-	
