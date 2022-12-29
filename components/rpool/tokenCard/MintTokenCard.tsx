@@ -134,11 +134,6 @@ const MintTokenCard = (props: Props) => {
         })
       );
     } else {
-      if (data.rToken === RTokenName.rMATIC) {
-        dispatch(getPools());
-      } else if (data.rToken === RTokenName.rDOT) {
-        dispatch(getDotPools());
-      }
       setStakeModalVisible(true);
     }
   };

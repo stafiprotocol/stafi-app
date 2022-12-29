@@ -1,10 +1,14 @@
 import { EmptyContent } from "components/common/EmptyContent";
 import { TableSkeleton } from "components/common/TableSkeleton";
+import { useAppDispatch } from "hooks/common";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { getDotPools } from "redux/reducers/DotSlice";
+import { getKsmPools } from "redux/reducers/KsmSlice";
+import { getPools } from "redux/reducers/MaticSlice";
 import { RTokenActs, UserActs } from "redux/reducers/MintProgramSlice";
 import { rTokenNameToTokenName } from "utils/rToken";
 import MintTokenCard from "../tokenCard/MintTokenCard";
@@ -37,6 +41,8 @@ const RPoolLiveList = (props: Props) => {
     loading,
   } = props;
 
+	const dispatch = useAppDispatch();
+
   const flatList = useMemo(() => {
     const validList = list.filter((item: RTokenListItem) => {
       const criteria = Array.isArray(item.children) && item.children.length > 0;
@@ -67,6 +73,12 @@ const RPoolLiveList = (props: Props) => {
 
     return allListData;
   }, [list, viewMyStakes, userActs]);
+
+	useEffect(() => {
+		dispatch(getPools());
+		dispatch(getDotPools());
+		dispatch(getKsmPools());
+	}, [dispatch]);
 
   return (
     <div
