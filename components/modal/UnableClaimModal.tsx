@@ -57,7 +57,7 @@ const UnableClaimModal = (props: Props) => {
             Unable to Claim
           </div>
           <div className="text-[.2rem] text-text1 text-center mt-[.24rem]">
-            Sorry, it seems you don’t have claimable rewards
+            Sorry, it seems that you don&apos;t have claimable rewards
           </div>
 
           <div className="my-[.56rem] mx-[.48rem]">

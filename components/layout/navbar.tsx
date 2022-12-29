@@ -43,7 +43,6 @@ export const Navbar = () => {
               router.pathname.startsWith("/rtoken")
                 ? styles["rtoken-button_active"]
                 : "",
-              "text-white"
             )}
           >
             rToken
@@ -56,7 +55,6 @@ export const Navbar = () => {
               router.pathname.startsWith("/rpool")
                 ? styles["rtoken-button_active"]
                 : "",
-              "text-white"
             )}
           >
             rPool
