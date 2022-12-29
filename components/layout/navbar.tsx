@@ -62,6 +62,19 @@ export const Navbar = () => {
             rPool
           </div>
         </Link>
+        <Link href="/fis-station">
+          <div
+            className={classNames(
+              styles["rtoken-button"],
+              router.pathname.startsWith("/fis-station")
+                ? styles["rtoken-button_active"]
+                : "",
+              "text-white"
+            )}
+          >
+            FIS Station
+          </div>
+        </Link>
       </div>
 
       <div className="flex items-center pr-[.85rem]">
