@@ -30,8 +30,8 @@ const RPoolBanner = (props: Props) => {
           Take part in rPool programs, earn tokens easily.
         </div>
       </div>
-      <div className="absolute top-[.44rem] left-[6.2rem]">
-        <div className="self-center relative w-[1.6rem] h-[1.6rem]">
+      <div className="absolute top-[.7rem] left-[6.2rem]">
+        <div className="self-center relative w-[1.2rem] h-[1.2rem]">
           <Image src={rPoolGift} layout="fill" alt="gift" />
         </div>
       </div>
