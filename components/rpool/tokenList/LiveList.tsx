@@ -1,16 +1,22 @@
 import { EmptyContent } from "components/common/EmptyContent";
 import { TableSkeleton } from "components/common/TableSkeleton";
+import dayjs from "dayjs";
+import { useAppDispatch } from "hooks/common";
+import { useInterval } from "hooks/useInterval";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getDotPools } from "redux/reducers/DotSlice";
+import { getKsmPools } from "redux/reducers/KsmSlice";
+import { getPools } from "redux/reducers/MaticSlice";
 import { RTokenActs, UserActs } from "redux/reducers/MintProgramSlice";
 import { rTokenNameToTokenName } from "utils/rToken";
 import MintTokenCard from "../tokenCard/MintTokenCard";
 
 interface Props {
-  programTab: ProgramTab;
+  // programTab: ProgramTab;
   list: RTokenListItem[];
   viewMyStakes: boolean;
   rTokenBalances: {
@@ -36,6 +42,10 @@ const RPoolLiveList = (props: Props) => {
     userActs,
     loading,
   } = props;
+
+	const dispatch = useAppDispatch();
+
+	const [updateFlag, setUpdateFlag] = useState<number>(dayjs().unix());
 
   const flatList = useMemo(() => {
     const validList = list.filter((item: RTokenListItem) => {
@@ -66,7 +76,17 @@ const RPoolLiveList = (props: Props) => {
     });
 
     return allListData;
-  }, [list, viewMyStakes, userActs]);
+  }, [list, viewMyStakes, userActs, updateFlag]);
+
+	useEffect(() => {
+		dispatch(getPools());
+		dispatch(getDotPools());
+		dispatch(getKsmPools());
+	}, [dispatch]);
+
+	useInterval(() => {
+		setUpdateFlag(dayjs().unix());
+	}, 1000);
 
   return (
     <div
@@ -94,19 +114,19 @@ const RPoolLiveList = (props: Props) => {
           </div>
         )}
 
-      {props.programTab === ProgramTab.Mint ? (
-        <>
-          {flatList.map((item: AllListItem, index: number) => (
-            <MintTokenCard
-              key={`${item.rToken}${index}`}
-              data={item}
-              rTokenBalance={rTokenBalances[item.rToken]}
-            />
-          ))}
-        </>
+      {/* {props.programTab === ProgramTab.Mint ? ( */}
+      {/* <> */}
+      {flatList.map((item: AllListItem, index: number) => (
+        <MintTokenCard
+          key={`${item.rToken}${index}`}
+          data={item}
+          rTokenBalance={rTokenBalances[item.rToken]}
+        />
+      ))}
+      {/* </>
       ) : (
         <></>
-      )}
+      )} */}
     </div>
   );
 };

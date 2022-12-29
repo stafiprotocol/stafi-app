@@ -24,15 +24,11 @@ interface Props {
   onClose: () => void;
   rTokenName: RTokenName;
   cycle: number;
-  totalMintedValue: string;
+  totalMintedValue: string | number;
 }
 
 const RPoolMintClaimModal = (props: Props) => {
   const dispatch = useAppDispatch();
-
-  const priceList = useAppSelector((state: RootState) => {
-    return state.rToken.priceList;
-  });
 
   const { isLoading } = useAppSlice();
 
@@ -47,19 +43,6 @@ const RPoolMintClaimModal = (props: Props) => {
     }
     return [false, "Claim"];
   }, [mintOverView]);
-
-  const totalMintedValue = useMemo(() => {
-    const unitPrice = priceList.find(
-      (item: PriceItem) => item.symbol === props.rTokenName
-    );
-    if (!unitPrice || !mintOverView || !mintOverView.actData) return "--";
-    const rTokenTotalReward = numberUtil.tokenAmountToHuman(
-      mintOverView.actData.total_rtoken_amount,
-      rTokenNameToTokenSymbol(props.rTokenName)
-    );
-    if (isNaN(Number(rTokenTotalReward))) return "--";
-    return Number(rTokenTotalReward) * Number(unitPrice.price);
-  }, [priceList, mintOverView, props.rTokenName]);
 
   const onClickClaim = () => {
     if (!mintOverView) return;
@@ -159,7 +142,7 @@ const RPoolMintClaimModal = (props: Props) => {
             <div className="grid" style={{ gridTemplateColumns: "60% 40%" }}>
               <div className="text-text2">Total Minted Value</div>
               <div className="text-text1">
-                ${formatNumber(totalMintedValue, { decimals: 2 })}
+                ${formatNumber(props.totalMintedValue, { decimals: 2 })}
               </div>
             </div>
             <div

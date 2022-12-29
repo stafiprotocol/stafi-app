@@ -13,7 +13,7 @@ import { formatDuration } from "utils/time";
 import { AllListItem } from "../tokenList/LiveList";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { MyLayoutContext } from "components/layout/layout";
-import { rTokenNameToTokenName } from "utils/rToken";
+import { rTokenNameToTokenName, rTokenNameToTokenSymbol } from "utils/rToken";
 import { useRouter } from "next/router";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import downIcon from "public/icon_down.png";
@@ -39,6 +39,7 @@ import { transformSs58Address } from "utils/polkadotUtils";
 import { getDotPools } from "redux/reducers/DotSlice";
 import { useDotBalance } from "hooks/useDotBalance";
 import { useKsmBalance } from "hooks/useKsmBalance";
+import { PriceItem } from "redux/reducers/RTokenSlice";
 
 interface Props {
   data: AllListItem;
@@ -69,6 +70,10 @@ const MintTokenCard = (props: Props) => {
     }
   });
 
+	// const priceList = useAppSelector((state: RootState) => {
+  //   return state.rToken.priceList;
+  // });
+
   const [showMore, setShowMore] = useState<boolean>(false);
   const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
   const [unableClaimModalVisible, setUnableClaimModalVisible] =
@@ -77,12 +82,25 @@ const MintTokenCard = (props: Props) => {
   const [unstakeModalVisible, setUnstakeModalVisible] =
     useState<boolean>(false);
 
-	const unstakeAvaiable = useMemo(() => {
-		if (!mintOverView || mintOverView.mintsCount === 0) {
-			return false;
-		}
-		return true;
-	}, [mintOverView]);
+  const unstakeAvaiable = useMemo(() => {
+    if (!mintOverView || mintOverView.mintsCount === 0) {
+      return false;
+    }
+    return true;
+  }, [mintOverView]);
+
+	// const totalMintedValue = useMemo(() => {
+  //   const unitPrice = priceList.find(
+  //     (item: PriceItem) => item.symbol === data.rToken
+  //   );
+  //   if (!unitPrice || !mintOverView || !mintOverView.actData) return "--";
+  //   const rTokenTotalReward = numberUtil.tokenAmountToHuman(
+  //     mintOverView.actData.total_rtoken_amount,
+  //     rTokenNameToTokenSymbol(data.rToken)
+  //   );
+  //   if (isNaN(Number(rTokenTotalReward))) return "--";
+  //   return Number(rTokenTotalReward) * Number(unitPrice.price);
+  // }, [priceList, mintOverView, data.rToken]);
 
   const getRTokenLogo = (rTokenName: RTokenName) => {
     if (rTokenName === RTokenName.rMATIC) return maticLogo;
@@ -116,11 +134,6 @@ const MintTokenCard = (props: Props) => {
         })
       );
     } else {
-      if (data.rToken === RTokenName.rMATIC) {
-        dispatch(getPools());
-      } else if (data.rToken === RTokenName.rDOT) {
-        dispatch(getDotPools());
-      }
       setStakeModalVisible(true);
     }
   };
@@ -229,7 +242,7 @@ const MintTokenCard = (props: Props) => {
         <div className="flex items-center">
           <MyTooltip
             text="APR"
-            title="Moving average of APR for 7 days period"
+            title="Mint APR estimated based on the last 7 days"
             className="text-text2 text-[.16rem]"
           />
         </div>
@@ -240,7 +253,7 @@ const MintTokenCard = (props: Props) => {
         <div className="flex items-center">
           <MyTooltip
             text="Reward"
-            title="Moving average of APR for 7 days period"
+            title="Overall mint reward, counted by reward token amount"
             className="text-text2 text-[.16rem]"
           />
         </div>
@@ -260,7 +273,7 @@ const MintTokenCard = (props: Props) => {
         <div className="flex items-center">
           <MyTooltip
             text="Minted Value"
-            title="Moving average of APR for 7 days period"
+            title="Overall minted value for this rtoken, counted by USD"
             className="text-text2 text-[.16rem]"
           />
         </div>
@@ -328,27 +341,16 @@ const MintTokenCard = (props: Props) => {
               >
                 <div>
                   <MyTooltip
-                    text="Reward Ratio"
-                    title=""
-                    className="text-text2"
-                  />
-                </div>
-                <div className="text-text1 mt-[.1rem]">
-                  1:
-                  {numberUtil.tokenMintRewardRateToHuman(
-                    data.reward_rate,
-                    data.rToken
-                  )}
-                </div>
-                <div className="mt-[.17rem]">
-                  <MyTooltip
                     text="Remaining Reward"
-                    title=""
+                    title="Remaining mint reward, counted by reward token value in USD"
                     className="text-text2"
                   />
                 </div>
                 <div className="text-text1 mt-[.1rem]">
-                  {formatNumber(numberUtil.fisAmountToHuman(data.left_amount))}
+                  $
+                  {formatNumber(numberUtil.fisAmountToHuman(data.left_amount), {
+                    decimals: 2,
+                  })}
                 </div>
               </div>
 

@@ -12,7 +12,7 @@ import RPoolFinishedList from "./tokenList/FinishedList";
 import RPoolLiveList from "./tokenList/LiveList";
 
 interface Props {
-  programTab: ProgramTab;
+  // programTab: ProgramTab;
   liveList: RTokenListItem[];
   finishedList: RTokenListItem[];
   rTokenBalances: {
@@ -64,6 +64,7 @@ const PoolTokenList = (props: Props) => {
               border: tab === "live" ? "1px solid rgba(38, 73, 78, 0.5)" : "",
               color: tab === "live" ? "#1a2835" : "#9dafbe",
               backdropFilter: tab === "live" ? "blur(1.35rem)" : "blur(.67rem)",
+              fontWeight: tab === "live" ? "700" : "400",
             }}
             onClick={() => setTab("live")}
           >
@@ -81,6 +82,7 @@ const PoolTokenList = (props: Props) => {
               color: tab === "finished" ? "#1a2835" : "#9dafbe",
               backdropFilter:
                 tab === "finished" ? "blur(1.35rem)" : "blur(.67rem)",
+              fontWeight: tab === "finished" ? "700" : "400",
             }}
             onClick={() => setTab("finished")}
           >
@@ -124,7 +126,7 @@ const PoolTokenList = (props: Props) => {
           queryActsLoading={props.queryActsLoading}
           rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
-          programTab={props.programTab}
+          // programTab={props.programTab}
           list={props.liveList}
         />
       )}
@@ -137,7 +139,7 @@ const PoolTokenList = (props: Props) => {
           queryActsLoading={props.queryActsLoading}
           rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
-          programTab={props.programTab}
+          // programTab={props.programTab}
           list={props.finishedList}
         />
       )}

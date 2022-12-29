@@ -108,7 +108,7 @@ export function useRPoolMintRTokenActs() {
     rTokenList.forEach((item: RTokenListItem) => {
       const unitPrice = priceList.find(
         (priceItem: PriceItem) =>
-          priceItem.symbol === rTokenNameToTokenName(item.rToken)
+          priceItem.symbol === item.rToken
       );
       if (!unitPrice || !item.children || item.children.length === 0) {
         return true;

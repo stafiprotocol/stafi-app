@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { Button } from "components/common/button";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
+import { CustomPagination } from "components/common/pagination";
 import { TableSkeleton } from "components/common/TableSkeleton";
 import { MyLayoutContext } from "components/layout/layout";
 import RPoolMintClaimModal from "components/modal/RPoolMintClaimModal";
@@ -39,7 +40,7 @@ import numberUtil from "utils/numberUtil";
 import { rTokenNameToTokenName } from "utils/rToken";
 
 interface Props {
-  programTab: ProgramTab;
+  // programTab: ProgramTab;
   list: RTokenListItem[];
   viewMyStakes: boolean;
   rTokenBalances: {
@@ -80,6 +81,8 @@ const RPoolFinishedList = (props: Props) => {
     RTokenName | undefined
   >(undefined);
 
+  const [page, setPage] = useState<number>(1);
+
   const renderedList = useMemo(() => {
     const allListData: RTokenListItem[] = [];
     list.forEach((data: RTokenListItem) => {
@@ -113,6 +116,11 @@ const RPoolFinishedList = (props: Props) => {
       (data: RTokenListItem) => data.children.length > 0
     );
   }, [list, viewMyStakes, userActs]);
+
+  const paginatedList = useMemo(() => {
+    const beginIndex = 10 * (page - 1);
+    return renderedList.slice(beginIndex, beginIndex + 10);
+  }, [renderedList, page]);
 
   const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
@@ -181,7 +189,7 @@ const RPoolFinishedList = (props: Props) => {
     >
       <div
         className="grid mb-[.5rem] mt-[.56rem] mx-[.56rem]"
-        style={{ gridTemplateColumns: "14% 16% 16% 16% 14% 24%" }}
+        style={{ gridTemplateColumns: "14% 21% 21% 16% 28%" }}
       >
         <div className="flex justify-start text-text2 text-[.2rem]">
           Token Name
@@ -189,26 +197,23 @@ const RPoolFinishedList = (props: Props) => {
         <div className="flex justify-center">
           <MyTooltip
             text="Minted Value"
-            title=""
+            title="Overall minted value for this rtoken, counted by USD"
             className="text-text2 text-[.2rem]"
           />
         </div>
         <div className="flex justify-center">
           <MyTooltip
             text="Reward"
-            title=""
+            title="Overall mint reward, counted by reward token amount"
             className="text-text2 text-[.2rem]"
           />
         </div>
         <div className="flex justify-center">
           <MyTooltip
-            text="Reward Ratio"
-            title=""
+            text="APR"
+            title="Mint APR estimated based on the last 7 days"
             className="text-text2 text-[.2rem]"
           />
-        </div>
-        <div className="flex justify-center">
-          <MyTooltip text="APR" title="" className="text-text2 text-[.2rem]" />
         </div>
       </div>
 
@@ -218,15 +223,14 @@ const RPoolFinishedList = (props: Props) => {
         </div>
       )}
 
-      {!!renderedList &&
+      {!!paginatedList &&
         !(queryActsLoading && firstQueryActs) &&
-        renderedList.map((data: RTokenListItem, i: number) => (
+        paginatedList.map((data: RTokenListItem, i: number) => (
           <div
             key={`${data.rToken}${i}`}
             className="px-[.56rem]"
             style={{
-              borderTop: i % 2 === 1 ? "1px solid #1A2835" : "none",
-              borderBottom: i % 2 === 1 ? "1px solid #1A2835" : "none",
+              borderBottom: "1px solid #1A2835",
               background: i % 2 === 0 ? "transparent" : "rgba(26, 40, 53, 0.3)",
             }}
           >
@@ -235,7 +239,7 @@ const RPoolFinishedList = (props: Props) => {
                 key={`${data.rToken}${i}${index}`}
                 className="grid h-[1.1rem] text-[.24rem] text-text1"
                 style={{
-                  gridTemplateColumns: "14% 16% 16% 16% 14% 24%",
+                  gridTemplateColumns: "14% 21% 21% 16% 28%",
                 }}
               >
                 <div className="flex justify-start items-center">
@@ -246,13 +250,6 @@ const RPoolFinishedList = (props: Props) => {
                 </div>
                 <div className="flex justify-center items-center">
                   {formatNumber(numberUtil.fisAmountToHuman(item.total_reward))}
-                </div>
-                <div className="flex justify-center items-center">
-                  1:
-                  {numberUtil.tokenMintRewardRateToHuman(
-                    item.reward_rate,
-                    data.rToken
-                  )}
                 </div>
                 <div className="flex justify-center items-center">
                   {item.apr}
@@ -299,11 +296,22 @@ const RPoolFinishedList = (props: Props) => {
         ))}
 
       {!((queryActsLoading && firstQueryActs) || loading) &&
-        renderedList.length === 0 && (
+        paginatedList.length === 0 && (
           <div className="flex flex-col items-center pb-[.3rem]">
             <div className="flex flex-col items-center">
               <EmptyContent mt="0.2rem" size=".8rem" />
             </div>
+          </div>
+        )}
+
+      {!((queryActsLoading && firstQueryActs) || loading) &&
+        renderedList.length > 0 && (
+          <div className="mt-[.36rem] flex justify-center mb-[.56rem]">
+            <CustomPagination
+              totalCount={renderedList.length}
+              page={page}
+              onChange={setPage}
+            />
           </div>
         )}
 

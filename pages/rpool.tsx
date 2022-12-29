@@ -58,40 +58,40 @@ const RPoolPage = () => {
     balanceRSol,
   ]);
 
-  const switchProgramTab = (tab: ProgramTab) => {
-    const currentTab = router.query.program;
-    if (tab === currentTab) return;
+  // const switchProgramTab = (tab: ProgramTab) => {
+  //   const currentTab = router.query.program;
+  //   if (tab === currentTab) return;
 
-    router.replace({
-      pathname: router.pathname,
-      query: {
-        ...router.query,
-        program: tab,
-      },
-    });
-  };
+  //   router.replace({
+  //     pathname: router.pathname,
+  //     query: {
+  //       ...router.query,
+  //       program: tab,
+  //     },
+  //   });
+  // };
 
-  const currentPage = useMemo(() => {
-    const currentTab = router.query.program;
-    if (currentTab === ProgramTab.LP) {
-      return ProgramTab.LP;
-    }
-    return ProgramTab.Mint;
-  }, [router.query]);
+  // const currentPage = useMemo(() => {
+  //   const currentTab = router.query.program;
+  //   if (currentTab === ProgramTab.LP) {
+  //     return ProgramTab.LP;
+  //   }
+  //   return ProgramTab.Mint;
+  // }, [router.query]);
 
-  useEffect(() => {
-    const programTabQuery = router.query.program;
-    if (!programTabQuery) {
-      router.replace({
-        pathname: router.pathname,
-        query: {
-          ...router.query,
-          program: ProgramTab.Mint,
-          tokenStandard: TokenStandard.Native,
-        },
-      });
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const programTabQuery = router.query.program;
+  //   if (!programTabQuery) {
+  //     router.replace({
+  //       pathname: router.pathname,
+  //       query: {
+  //         ...router.query,
+  //         program: ProgramTab.Mint,
+  //         tokenStandard: TokenStandard.Native,
+  //       },
+  //     });
+  //   }
+  // }, [router]);
 
   useEffect(() => {
     setNavigation([{ name: "rPool Mint", path: "/rpool" }]);
@@ -99,7 +99,7 @@ const RPoolPage = () => {
 
   return (
     <div>
-      <div
+      {/* <div
         className="flex justify-center text-[.24rem] mb-[.32rem] h-[.28rem] items-center"
         style={{
           backdropFilter: "blur(.7rem)",
@@ -115,12 +115,12 @@ const RPoolPage = () => {
           onClick={() => switchProgramTab(ProgramTab.LP)}
           routerQuery={currentPage}
         />
-      </div>
+      </div> */}
 
-      <RPoolBanner programTab={currentPage} />
+      <RPoolBanner />
 
       <RPoolChart
-        programTab={currentPage}
+        // programTab={currentPage}
         totalMintedValue={totalMintedValue}
         totalRewardFis={totalRewardFis}
       />
@@ -129,18 +129,20 @@ const RPoolPage = () => {
         queryActsLoading={queryActsLoading}
         firstQueryActs={firstQueryActs}
         rTokenBalances={rTokenBalances}
-        programTab={currentPage}
+        // programTab={currentPage}
         liveList={liveList}
         finishedList={finishedList}
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 
-      {currentPage === ProgramTab.Mint ? <MintFaq /> : <LpFaq />}
+      {/* {currentPage === ProgramTab.Mint ? <MintFaq /> : <LpFaq />} */}
+			<MintFaq />
     </div>
   );
 };
 
+/*
 interface ProgramTabItemProps {
   programTab: ProgramTab;
   onClick: () => void;
@@ -179,5 +181,6 @@ const ProgramTabItem = (props: ProgramTabItemProps) => {
     </div>
   );
 };
+*/
 
 export default RPoolPage;
