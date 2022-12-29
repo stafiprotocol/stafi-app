@@ -77,12 +77,12 @@ const MintTokenCard = (props: Props) => {
   const [unstakeModalVisible, setUnstakeModalVisible] =
     useState<boolean>(false);
 
-	const unstakeAvaiable = useMemo(() => {
-		if (!mintOverView || mintOverView.mintsCount === 0) {
-			return false;
-		}
-		return true;
-	}, [mintOverView]);
+  const unstakeAvaiable = useMemo(() => {
+    if (!mintOverView || mintOverView.mintsCount === 0) {
+      return false;
+    }
+    return true;
+  }, [mintOverView]);
 
   const getRTokenLogo = (rTokenName: RTokenName) => {
     if (rTokenName === RTokenName.rMATIC) return maticLogo;
@@ -328,27 +328,16 @@ const MintTokenCard = (props: Props) => {
               >
                 <div>
                   <MyTooltip
-                    text="Reward Ratio"
-                    title=""
-                    className="text-text2"
-                  />
-                </div>
-                <div className="text-text1 mt-[.1rem]">
-                  1:
-                  {numberUtil.tokenMintRewardRateToHuman(
-                    data.reward_rate,
-                    data.rToken
-                  )}
-                </div>
-                <div className="mt-[.17rem]">
-                  <MyTooltip
                     text="Remaining Reward"
                     title="Remaining mint reward, counted by reward token value in USD"
                     className="text-text2"
                   />
                 </div>
                 <div className="text-text1 mt-[.1rem]">
-                  {formatNumber(numberUtil.fisAmountToHuman(data.left_amount))}
+                  $
+                  {formatNumber(numberUtil.fisAmountToHuman(data.left_amount), {
+                    decimals: 2,
+                  })}
                 </div>
               </div>
 

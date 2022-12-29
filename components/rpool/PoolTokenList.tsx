@@ -64,6 +64,7 @@ const PoolTokenList = (props: Props) => {
               border: tab === "live" ? "1px solid rgba(38, 73, 78, 0.5)" : "",
               color: tab === "live" ? "#1a2835" : "#9dafbe",
               backdropFilter: tab === "live" ? "blur(1.35rem)" : "blur(.67rem)",
+              fontWeight: tab === "live" ? "700" : "400",
             }}
             onClick={() => setTab("live")}
           >
@@ -81,6 +82,7 @@ const PoolTokenList = (props: Props) => {
               color: tab === "finished" ? "#1a2835" : "#9dafbe",
               backdropFilter:
                 tab === "finished" ? "blur(1.35rem)" : "blur(.67rem)",
+              fontWeight: tab === "finished" ? "700" : "400",
             }}
             onClick={() => setTab("finished")}
           >
