@@ -13,7 +13,7 @@ import { formatDuration } from "utils/time";
 import { AllListItem } from "../tokenList/LiveList";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { MyLayoutContext } from "components/layout/layout";
-import { rTokenNameToTokenName } from "utils/rToken";
+import { rTokenNameToTokenName, rTokenNameToTokenSymbol } from "utils/rToken";
 import { useRouter } from "next/router";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import downIcon from "public/icon_down.png";
@@ -39,6 +39,7 @@ import { transformSs58Address } from "utils/polkadotUtils";
 import { getDotPools } from "redux/reducers/DotSlice";
 import { useDotBalance } from "hooks/useDotBalance";
 import { useKsmBalance } from "hooks/useKsmBalance";
+import { PriceItem } from "redux/reducers/RTokenSlice";
 
 interface Props {
   data: AllListItem;
@@ -69,6 +70,10 @@ const MintTokenCard = (props: Props) => {
     }
   });
 
+	// const priceList = useAppSelector((state: RootState) => {
+  //   return state.rToken.priceList;
+  // });
+
   const [showMore, setShowMore] = useState<boolean>(false);
   const [claimModalVisible, setClaimModalVisible] = useState<boolean>(false);
   const [unableClaimModalVisible, setUnableClaimModalVisible] =
@@ -83,6 +88,19 @@ const MintTokenCard = (props: Props) => {
     }
     return true;
   }, [mintOverView]);
+
+	// const totalMintedValue = useMemo(() => {
+  //   const unitPrice = priceList.find(
+  //     (item: PriceItem) => item.symbol === data.rToken
+  //   );
+  //   if (!unitPrice || !mintOverView || !mintOverView.actData) return "--";
+  //   const rTokenTotalReward = numberUtil.tokenAmountToHuman(
+  //     mintOverView.actData.total_rtoken_amount,
+  //     rTokenNameToTokenSymbol(data.rToken)
+  //   );
+  //   if (isNaN(Number(rTokenTotalReward))) return "--";
+  //   return Number(rTokenTotalReward) * Number(unitPrice.price);
+  // }, [priceList, mintOverView, data.rToken]);
 
   const getRTokenLogo = (rTokenName: RTokenName) => {
     if (rTokenName === RTokenName.rMATIC) return maticLogo;
