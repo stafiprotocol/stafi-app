@@ -7,8 +7,10 @@ import {
 import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getApiHost, getDropHost } from "config/env";
 import {
+  getErc20FisTokenAbi,
   getErc20RDotTokenAbi,
   getErc20REthTokenAbi,
+  getErc20RFisTokenAbi,
   getErc20RKsmTokenAbi,
 } from "config/erc20Abi";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
@@ -19,7 +21,10 @@ import { rSymbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import StafiServer, { stafiServer } from "servers/stafi";
 import numberUtil from "utils/numberUtil";
-import { getNativeRTokenBalance } from "utils/polkadotUtils";
+import {
+  getNativeFisBalance,
+  getNativeRTokenBalance,
+} from "utils/polkadotUtils";
 import { getTokenSymbol } from "utils/rToken";
 import {
   createWeb3,
@@ -27,6 +32,10 @@ import {
   getErc20AssetBalance,
 } from "utils/web3Utils";
 import Web3 from "web3";
+
+export type FisBalanceStore = {
+  [tokenStandard in TokenStandard]: string | undefined;
+};
 
 export type RTokenBalanceStore = {
   [tokenStandard in TokenStandard]: RTokenBalanceCollection;
@@ -61,6 +70,7 @@ export interface PriceItem {
 
 export interface RTokenState {
   priceList: PriceItem[];
+  fisBalanceStore: FisBalanceStore;
   rTokenBalanceStore: RTokenBalanceStore;
   rTokenRatioStore: RTokenRatioCollection;
   rTokenStakerAprStore: RTokenStakerAprCollection;
@@ -69,6 +79,12 @@ export interface RTokenState {
 
 const initialState: RTokenState = {
   priceList: [],
+  fisBalanceStore: {
+    [TokenStandard.Native]: undefined,
+    [TokenStandard.ERC20]: undefined,
+    [TokenStandard.BEP20]: undefined,
+    [TokenStandard.SPL]: undefined,
+  },
   rTokenBalanceStore: {
     [TokenStandard.Native]: {},
     [TokenStandard.ERC20]: {},
@@ -86,6 +102,12 @@ export const rTokenSlice = createSlice({
   reducers: {
     setPriceList: (state: RTokenState, action: PayloadAction<PriceItem[]>) => {
       state.priceList = action.payload;
+    },
+    setFisBalanceStore: (
+      state: RTokenState,
+      action: PayloadAction<FisBalanceStore>
+    ) => {
+      state.fisBalanceStore = action.payload;
     },
     setRTokenBalanceStore: (
       state: RTokenState,
@@ -116,6 +138,7 @@ export const rTokenSlice = createSlice({
 
 export const {
   setPriceList,
+  setFisBalanceStore,
   setRTokenBalanceStore,
   setRTokenRatioStore,
   setRTokenStakerAprStore,
@@ -166,6 +189,43 @@ export const clearRTokenBalance =
     } catch (err: unknown) {}
   };
 
+export const updateFisBalance =
+  (tokenStandard: TokenStandard | undefined): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const metaMaskAccount = getState().wallet.metaMaskAccount;
+      const polkadotAccount = getState().wallet.polkadotAccount;
+      if (!tokenStandard) {
+        return;
+      }
+
+      let newBalance = undefined;
+      if (tokenStandard === TokenStandard.Native) {
+        newBalance = await getNativeFisBalance(polkadotAccount);
+      } else if (tokenStandard === TokenStandard.ERC20) {
+        // Query erc20 rToken balance.
+        const erc20TokenContractConfig = getErc20TokenContractConfig();
+        let tokenAbi = getErc20FisTokenAbi();
+        let tokenAddress = erc20TokenContractConfig.FIS;
+        newBalance = await getErc20AssetBalance(
+          metaMaskAccount,
+          tokenAbi,
+          tokenAddress,
+          TokenName.FIS
+        );
+      }
+
+      if (newBalance !== undefined) {
+        const fisBalanceStore = getState().rToken.fisBalanceStore;
+        const newValue = {
+          ...fisBalanceStore,
+          [tokenStandard]: newBalance,
+        };
+
+        dispatch(setFisBalanceStore(newValue));
+      }
+    } catch (err: unknown) {}
+  };
 export const updateRTokenBalance =
   (tokenStandard: TokenStandard | undefined, tokenName: TokenName): AppThunk =>
   async (dispatch, getState) => {
@@ -211,7 +271,10 @@ export const updateRTokenBalance =
         const erc20TokenContractConfig = getErc20TokenContractConfig();
         let tokenAbi = undefined;
         let tokenAddress = undefined;
-        if (tokenName === TokenName.ETH) {
+        if (tokenName === TokenName.FIS) {
+          tokenAbi = getErc20RFisTokenAbi();
+          tokenAddress = erc20TokenContractConfig.rFIS;
+        } else if (tokenName === TokenName.ETH) {
           tokenAbi = getErc20REthTokenAbi();
           tokenAddress = erc20TokenContractConfig.rETH;
         } else if (tokenName === TokenName.MATIC) {

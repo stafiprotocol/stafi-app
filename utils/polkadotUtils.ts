@@ -1,6 +1,6 @@
 import { TokenSymbol, WalletType } from "interfaces/common";
 import { InjectedPolkadotAccountWithMeta } from "redux/reducers/WalletSlice";
-import StafiServer from "servers/stafi";
+import StafiServer, { stafiServer } from "servers/stafi";
 import { chainAmountToHuman } from "./number";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { u8aToHex } from "@polkadot/util";
@@ -10,6 +10,24 @@ import {
   STAFI_SS58_FORMAT,
 } from "./constants";
 
+export async function getNativeFisBalance(userAddress: string | undefined) {
+  if (!userAddress) {
+    return undefined;
+  }
+  try {
+    const api = await stafiServer.createStafiApi();
+    const result = await api.query.system.account(userAddress);
+    let fisBalance = chainAmountToHuman(
+      result.data.free.toString(),
+      TokenSymbol.FIS
+    );
+    return fisBalance;
+  } catch (err: unknown) {
+    // console.log(err);
+    return undefined;
+  }
+}
+
 export async function getNativeRTokenBalance(
   userAddress: string | undefined,
   tokenSymbol: TokenSymbol | undefined
@@ -18,7 +36,7 @@ export async function getNativeRTokenBalance(
     return undefined;
   }
   try {
-    const api = await new StafiServer().createStafiApi();
+    const api = await stafiServer.createStafiApi();
     const accountData = await api.query.rBalances.account(
       tokenSymbol,
       userAddress

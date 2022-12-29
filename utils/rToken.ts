@@ -4,6 +4,7 @@ import {
   TokenName,
   TokenStandard,
   TokenSymbol,
+  TokenType,
   WalletType,
 } from "interfaces/common";
 import { formatNumber } from "./number";
@@ -20,6 +21,7 @@ import { EraRewardModel } from "hooks/useRTokenReward";
 import dayjs from "dayjs";
 import { isPolkadotWallet } from "./common";
 import { rSymbol } from "keyring/defaults";
+import { isDev } from "config/env";
 
 export interface DexItem {
   type: DexType;
@@ -54,6 +56,46 @@ export function getTokenSymbol(tokenName: TokenName): TokenSymbol | undefined {
     return TokenSymbol.ATOM;
   }
   return undefined;
+}
+
+export function getTokenType(tokenName: TokenName | RTokenName): TokenType {
+  if (tokenName === TokenName.FIS) {
+    return TokenType.FIS;
+  } else if (tokenName === RTokenName.rFIS) {
+    return TokenType.rFIS;
+  } else if (tokenName === RTokenName.rETH) {
+    return TokenType.rETH;
+  } else if (tokenName === RTokenName.rMATIC) {
+    return TokenType.rMATIC;
+  } else if (tokenName === RTokenName.rKSM) {
+    return TokenType.rKSM;
+  } else if (tokenName === RTokenName.rDOT) {
+    return TokenType.rDOT;
+  }
+  return TokenType.FIS;
+}
+
+export function getTokenSymbolFromTokenType(tokenType: string): TokenSymbol {
+  switch (tokenType) {
+    case "rfis":
+      return TokenSymbol.FIS;
+    case "rdot":
+      return TokenSymbol.DOT;
+    case "rksm":
+      return TokenSymbol.KSM;
+    case "ratom":
+      return TokenSymbol.ATOM;
+    case "rsol":
+      return TokenSymbol.SOL;
+    case "rmatic":
+      return TokenSymbol.MATIC;
+    case "rbnb":
+      return TokenSymbol.BNB;
+    case "reth":
+      return TokenSymbol.ETH;
+    default:
+      return TokenSymbol.FIS;
+  }
 }
 
 export const rTokenNameToTokenSymbol = (
@@ -279,4 +321,30 @@ export function getStakeTransactionCount(tokenName: TokenName | undefined) {
     return 3;
   }
   return 1;
+}
+
+export function getErc20BridgeResourceId(tokenType: TokenType) {
+  if (tokenType == "fis") {
+    return "0x000000000000000000000000000000a9e0095b8965c01e6a09c97938f3860901";
+  } else if (tokenType == "rfis") {
+    if (isDev()) {
+      return "0x000000000000000000000000000000b9e0095b8965c01e6a09c97938f3860901";
+    } else {
+      return "0x000000000000000000000000000000df7e6fee39d3ace035c108833854667701";
+    }
+  } else if (tokenType == "rksm") {
+    return "0x00000000000000000000000000000004130f9412e9ecd9d97cf280361d2cbd01";
+  } else if (tokenType == "rdot") {
+    return "0x000000000000000000000000000000bada4d69537ffd62dbcde10ddda21b2001";
+  } else if (tokenType == "ratom") {
+    return "0x0000000000000000000000000000006e15faef60f5e197166fe64110456a8601";
+  } else if (tokenType == "rsol") {
+    return "0x000000000000000000000000000000659b930f8568952cb7b0c8b7eda3060b01";
+  } else if (tokenType == "reth") {
+    return "0x000000000000000000000000000000b2c61e66d44fd65f6070c628e20b44dd01";
+  } else if (tokenType == "rmatic") {
+    return "0x00000000000000000000000000000014c28bae959bb2de5085d17682eca7b001";
+  } else if (tokenType == "rbnb") {
+    return "0x000000000000000000000000000000ab226cdfdcd7e0d15fa85810f500d8e601";
+  }
 }

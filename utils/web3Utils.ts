@@ -1,4 +1,8 @@
 import { isDev } from "config/env";
+import {
+  getErc20BridgeContractConfig,
+  getErc20ContractConfig,
+} from "config/erc20Contract";
 import { getWeb3ProviderUrlConfig } from "config/metaMask";
 
 import { TokenName } from "interfaces/common";
@@ -8,6 +12,9 @@ import { KeyringServer } from "servers/keyring";
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import { REJECTED_MESSAGE } from "./constants";
+
+let stafiEthWeb3: undefined | Web3 = undefined;
+let ethWeb3: undefined | Web3 = undefined;
 
 export function createWeb3(provider?: any) {
   var web3 = new Web3(provider || Web3.givenProvider);
@@ -51,16 +58,24 @@ export async function getErc20AssetBalance(
     return "--";
   }
   try {
-    let web3 =
-      tokenName === TokenName.ETH
-        ? createWeb3(
-            new Web3.providers.WebsocketProvider(
-              getWeb3ProviderUrlConfig().stafiEth
-            )
+    let web3;
+    if (tokenName === TokenName.ETH) {
+      if (!stafiEthWeb3) {
+        stafiEthWeb3 = createWeb3(
+          new Web3.providers.WebsocketProvider(
+            getWeb3ProviderUrlConfig().stafiEth
           )
-        : createWeb3(
-            new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
-          );
+        );
+      }
+      web3 = stafiEthWeb3;
+    } else {
+      if (!ethWeb3) {
+        ethWeb3 = createWeb3(
+          new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+        );
+      }
+      web3 = ethWeb3;
+    }
     if (tokenName === TokenName.MATIC && window.ethereum) {
       web3 = createWeb3(window.ethereum);
     }
@@ -123,4 +138,30 @@ export function getMetaMaskTxErrorMsg(result: any) {
   }
 
   return result.message || "Transaction failed";
+}
+
+export async function getErc20Allowance(
+  ethAddress: string,
+  tokenAbi: any,
+  tokenAddress: string
+) {
+  let web3;
+  if (!ethWeb3) {
+    ethWeb3 = createWeb3(
+      new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().eth)
+    );
+  }
+  web3 = ethWeb3;
+  let contract = new web3.eth.Contract(tokenAbi, tokenAddress, {
+    from: ethAddress,
+  });
+  try {
+    const allowance = await contract.methods
+      .allowance(ethAddress, getErc20BridgeContractConfig().bridgeHandler)
+      .call();
+    return allowance;
+  } catch (e: any) {
+    console.error(e);
+    return "--";
+  }
 }

@@ -6,7 +6,7 @@ import {
 } from "./storage";
 import * as _ from "lodash";
 import dayjs from "dayjs";
-import { TokenName } from "interfaces/common";
+import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import { StakeLoadingParams } from "redux/reducers/AppSlice";
 
 export interface LocalNotice {
@@ -27,7 +27,8 @@ export type NoticeType =
   | "ETH Deposit"
   | "ETH Stake"
   | "rToken Stake"
-	| "rToken Unstake";
+  | "rToken Unstake"
+  | "rBridge Swap";
 
 export type NoticeStatus = "Pending" | "Error" | "Confirmed";
 
@@ -36,7 +37,10 @@ export interface NoticeTxDetail {
   transactionHash: string;
 }
 
-export type NoticeDataType = NoticeEthDepositData | NoticeRTokenStakeData;
+export type NoticeDataType =
+  | NoticeEthDepositData
+  | NoticeRTokenStakeData
+  | NoticeRBridgeSwapData;
 
 export interface NoticeEthDepositData {
   type: "solo" | "trusted";
@@ -54,6 +58,14 @@ export interface NoticeRTokenStakeData {
   amount: string;
   willReceiveAmount: string;
   tokenName: TokenName;
+}
+
+export interface NoticeRBridgeSwapData {
+  amount: string;
+  tokenName: TokenName | RTokenName;
+  srcTokenStandard: TokenStandard;
+  dstTokenStandard: TokenStandard;
+  targetAddress: string;
 }
 
 export function addNoticeInternal(newNotice: LocalNotice) {

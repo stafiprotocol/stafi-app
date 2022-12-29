@@ -28,6 +28,7 @@ import {
 import { RTokenStakeLoadingSidebar } from "components/modal/RTokenStakeLoadingSidebar";
 import { RTokenRedeemLoadingModal } from "components/modal/RTokenRedeemLoadingModal";
 import { RTokenRedeemLoadingSidebar } from "components/modal/RTokenRedeemLoadingSidebar";
+import { RBridgeModal } from "components/modal/RBridgeModal";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
@@ -334,6 +335,8 @@ export const Layout = (props: LayoutProps) => {
         <ConnectWalletModal />
 
         <ChooseFisAccountModal />
+
+        <RBridgeModal />
       </div>
     </MyLayoutContext.Provider>
   );

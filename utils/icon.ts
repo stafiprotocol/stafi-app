@@ -1,4 +1,4 @@
-import { TokenName, TokenStandard } from "interfaces/common";
+import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import ethWhiteIcon from "public/token/eth_white.svg";
 import ethChainIcon from "public/token/eth_chain.svg";
 import ksmWhiteIcon from "public/token/ksm_white.png";
@@ -58,4 +58,27 @@ export function getTokenStandardIcon(tokenStandard: TokenStandard) {
   }
 
   return ethLogo;
+}
+
+export function getRBridgeTokenIcon(tokenName: TokenName | RTokenName) {
+  if (tokenName === TokenName.FIS) {
+    return nativeLogo;
+  }
+  if (tokenName === RTokenName.rFIS) {
+    return nativeLogo;
+  }
+  if (tokenName === RTokenName.rETH) {
+    return ethWhiteIcon;
+  }
+  if (tokenName === RTokenName.rMATIC) {
+    return maticLogoBlack;
+  }
+  if (tokenName === RTokenName.rKSM) {
+    return ksmWhiteIcon;
+  }
+  if (tokenName === RTokenName.rDOT) {
+    return dotWhiteIcon;
+  }
+
+  return nativeLogo;
 }

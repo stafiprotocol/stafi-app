@@ -2,6 +2,7 @@ import { Popover } from "@mui/material";
 import classNames from "classnames";
 import { NavbarWallet } from "components/NavbarWallet";
 import { NoticeList } from "components/notice/NoticeList";
+import { useAppDispatch } from "hooks/common";
 import {
   bindPopover,
   bindTrigger,
@@ -13,10 +14,12 @@ import { useRouter } from "next/router";
 import notificationIcon from "public/icon_notification.svg";
 import stafiLogo from "public/stafi_logo.svg";
 import { useSelector } from "react-redux";
+import { setBridgeModalVisible } from "redux/reducers/BridgeSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
 
 export const Navbar = () => {
+  const dispatch = useAppDispatch();
   const { unreadNoticeFlag } = useSelector((state: RootState) => {
     return {
       unreadNoticeFlag: state.app.unreadNoticeFlag,
@@ -62,6 +65,14 @@ export const Navbar = () => {
             rPool
           </div>
         </Link>
+        <div
+          className={classNames(styles["rtoken-button"], "text-white")}
+          onClick={() => {
+            dispatch(setBridgeModalVisible(true));
+          }}
+        >
+          rBridge
+        </div>
       </div>
 
       <div className="flex items-center pr-[.85rem]">
