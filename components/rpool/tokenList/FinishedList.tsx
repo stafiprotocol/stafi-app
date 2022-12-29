@@ -122,6 +122,21 @@ const RPoolFinishedList = (props: Props) => {
     return renderedList.slice(beginIndex, beginIndex + 10);
   }, [renderedList, page]);
 
+  const getClaimButtonDisabled = (rTokenName: RTokenName, row: RTokenActs) => {
+    if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
+      return true;
+    }
+    if (
+      !userActs[rTokenName] ||
+      !(userActs[rTokenName] as any)[row.cycle] ||
+      isNaN(Number((userActs[rTokenName] as any)[row.cycle].mintsCount)) ||
+      Number((userActs[rTokenName] as any)[row.cycle].mintsCount) <= 0
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
       dispatch(
@@ -246,7 +261,7 @@ const RPoolFinishedList = (props: Props) => {
                   {index === 0 && data.rToken}
                 </div>
                 <div className="flex justify-center items-center">
-                  {formatNumber(item.mintedValue)}
+                  ${formatNumber(item.mintedValue, { decimals: 2 })}
                 </div>
                 <div className="flex justify-center items-center">
                   {formatNumber(numberUtil.fisAmountToHuman(item.total_reward))}
@@ -282,6 +297,7 @@ const RPoolFinishedList = (props: Props) => {
                     Unstake
                   </div>
                   <Button
+                    disabled={getClaimButtonDisabled(data.rToken, item)}
                     height="0.48rem"
                     fontSize="0.24rem"
                     width="1.58rem"
