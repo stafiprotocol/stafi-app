@@ -229,7 +229,7 @@ const MintTokenCard = (props: Props) => {
         <div className="flex items-center">
           <MyTooltip
             text="APR"
-            title="Moving average of APR for 7 days period"
+            title="Mint APR estimated based on the last 7 days"
             className="text-text2 text-[.16rem]"
           />
         </div>
@@ -240,7 +240,7 @@ const MintTokenCard = (props: Props) => {
         <div className="flex items-center">
           <MyTooltip
             text="Reward"
-            title="Moving average of APR for 7 days period"
+            title="Overall mint reward, counted by reward token amount"
             className="text-text2 text-[.16rem]"
           />
         </div>
@@ -260,7 +260,7 @@ const MintTokenCard = (props: Props) => {
         <div className="flex items-center">
           <MyTooltip
             text="Minted Value"
-            title="Moving average of APR for 7 days period"
+            title="Overall minted value for this rtoken, counted by USD"
             className="text-text2 text-[.16rem]"
           />
         </div>
@@ -343,7 +343,7 @@ const MintTokenCard = (props: Props) => {
                 <div className="mt-[.17rem]">
                   <MyTooltip
                     text="Remaining Reward"
-                    title=""
+                    title="Remaining mint reward, counted by reward token value in USD"
                     className="text-text2"
                   />
                 </div>

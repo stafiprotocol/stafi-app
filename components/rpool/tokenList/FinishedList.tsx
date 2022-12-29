@@ -189,14 +189,14 @@ const RPoolFinishedList = (props: Props) => {
         <div className="flex justify-center">
           <MyTooltip
             text="Minted Value"
-            title=""
+            title="Overall minted value for this rtoken, counted by USD"
             className="text-text2 text-[.2rem]"
           />
         </div>
         <div className="flex justify-center">
           <MyTooltip
             text="Reward"
-            title=""
+            title="Overall mint reward, counted by reward token amount"
             className="text-text2 text-[.2rem]"
           />
         </div>
@@ -208,7 +208,11 @@ const RPoolFinishedList = (props: Props) => {
           />
         </div>
         <div className="flex justify-center">
-          <MyTooltip text="APR" title="" className="text-text2 text-[.2rem]" />
+          <MyTooltip
+            text="APR"
+            title="Mint APR estimated based on the last 7 days"
+            className="text-text2 text-[.2rem]"
+          />
         </div>
       </div>
 

@@ -39,7 +39,7 @@ const RPoolBanner = (props: Props) => {
       <div
         className="flex items-center self-end mr-[.56rem] mb-[.65rem] cursor-pointer"
         onClick={() => {
-          openLink("https://www.stafi.io/rtoken/");
+          openLink("https://docs.stafi.io/rtoken-app/rpool/the-guide-for-mint-program");
         }}
       >
         <div className="text-[#FFA540] text-[.24rem] mr-[.18rem]">
