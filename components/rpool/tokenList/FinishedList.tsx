@@ -112,7 +112,7 @@ const RPoolFinishedList = (props: Props) => {
     return allListData.filter(
       (data: RTokenListItem) => data.children.length > 0
     );
-  }, [list, viewMyStakes, rTokenBalances, userActs]);
+  }, [list, viewMyStakes, userActs]);
 
   const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
