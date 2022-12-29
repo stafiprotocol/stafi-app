@@ -40,6 +40,7 @@ import { getDotPools } from "redux/reducers/DotSlice";
 import { useDotBalance } from "hooks/useDotBalance";
 import { useKsmBalance } from "hooks/useKsmBalance";
 import { PriceItem } from "redux/reducers/RTokenSlice";
+import { hooks } from "connectors/metaMask";
 
 interface Props {
   data: AllListItem;
@@ -50,6 +51,9 @@ const MintTokenCard = (props: Props) => {
   const { data, rTokenBalance } = props;
 
   const dispatch = useAppDispatch();
+
+  const { useChainId: useMetaMaskChainId } = hooks;
+  const metaMaskChainId = useMetaMaskChainId();
 
   const router = useRouter();
 
@@ -70,7 +74,7 @@ const MintTokenCard = (props: Props) => {
     }
   });
 
-	// const priceList = useAppSelector((state: RootState) => {
+  // const priceList = useAppSelector((state: RootState) => {
   //   return state.rToken.priceList;
   // });
 
@@ -89,14 +93,14 @@ const MintTokenCard = (props: Props) => {
     return true;
   }, [mintOverView]);
 
-	const claimAvaiable = useMemo(() => {
-		if (!mintOverView || mintOverView.fisClaimableReward <= 0) {
-			return false;
-		}
-		return true;
-	}, [mintOverView]);
+  const claimAvaiable = useMemo(() => {
+    if (!mintOverView || mintOverView.fisClaimableReward <= 0) {
+      return false;
+    }
+    return true;
+  }, [mintOverView]);
 
-	// const totalMintedValue = useMemo(() => {
+  // const totalMintedValue = useMemo(() => {
   //   const unitPrice = priceList.find(
   //     (item: PriceItem) => item.symbol === data.rToken
   //   );
@@ -132,11 +136,24 @@ const MintTokenCard = (props: Props) => {
   };
 
   const onClickMint = () => {
-    if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
+    let targetMetaMaskChainId = getMetamaskMaticChainId();
+    if (data.rToken === RTokenName.rMATIC) {
+      targetMetaMaskChainId = getMetamaskMaticChainId();
+    } else if (data.rToken === RTokenName.rETH) {
+      targetMetaMaskChainId = getMetamaskEthChainId();
+    }
+
+    if (
+      walletNotConnected ||
+      !metaMaskAccount ||
+      !polkadotAccount ||
+      metaMaskChainId !== targetMetaMaskChainId
+    ) {
       dispatch(
         setConnectWalletModalParams({
           visible: true,
           walletList: [WalletType.MetaMask, WalletType.Polkadot],
+          targetMetaMaskChainId,
           targetUrl: "/rpool",
         })
       );
@@ -306,8 +323,8 @@ const MintTokenCard = (props: Props) => {
         className="h-[.65rem] rounded-[.45rem] w-[2.87rem] text-text1 text-[.24rem] flex items-center justify-center mt-[.24rem]"
         style={{
           border: claimAvaiable ? "1px solid rgba(91, 104, 114, 0.5)" : "",
-					backgroundColor: claimAvaiable ? "" : "#1A2835",
-					cursor: claimAvaiable ? "pointer" : "default",
+          backgroundColor: claimAvaiable ? "" : "#1A2835",
+          cursor: claimAvaiable ? "pointer" : "default",
         }}
         onClick={onClickClaim}
       >
