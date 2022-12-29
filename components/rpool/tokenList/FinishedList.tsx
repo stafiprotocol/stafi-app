@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { Button } from "components/common/button";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
+import { CustomPagination } from "components/common/pagination";
 import { TableSkeleton } from "components/common/TableSkeleton";
 import { MyLayoutContext } from "components/layout/layout";
 import RPoolMintClaimModal from "components/modal/RPoolMintClaimModal";
@@ -80,6 +81,8 @@ const RPoolFinishedList = (props: Props) => {
     RTokenName | undefined
   >(undefined);
 
+  const [page, setPage] = useState<number>(1);
+
   const renderedList = useMemo(() => {
     const allListData: RTokenListItem[] = [];
     list.forEach((data: RTokenListItem) => {
@@ -113,6 +116,11 @@ const RPoolFinishedList = (props: Props) => {
       (data: RTokenListItem) => data.children.length > 0
     );
   }, [list, viewMyStakes, userActs]);
+
+  const paginatedList = useMemo(() => {
+    const beginIndex = 10 * (page - 1);
+    return renderedList.slice(beginIndex, beginIndex + 10);
+  }, [renderedList, page]);
 
   const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
@@ -222,15 +230,14 @@ const RPoolFinishedList = (props: Props) => {
         </div>
       )}
 
-      {!!renderedList &&
+      {!!paginatedList &&
         !(queryActsLoading && firstQueryActs) &&
-        renderedList.map((data: RTokenListItem, i: number) => (
+        paginatedList.map((data: RTokenListItem, i: number) => (
           <div
             key={`${data.rToken}${i}`}
             className="px-[.56rem]"
             style={{
-              borderTop: i % 2 === 1 ? "1px solid #1A2835" : "none",
-              borderBottom: i % 2 === 1 ? "1px solid #1A2835" : "none",
+              borderBottom: "1px solid #1A2835",
               background: i % 2 === 0 ? "transparent" : "rgba(26, 40, 53, 0.3)",
             }}
           >
@@ -303,11 +310,22 @@ const RPoolFinishedList = (props: Props) => {
         ))}
 
       {!((queryActsLoading && firstQueryActs) || loading) &&
-        renderedList.length === 0 && (
+        paginatedList.length === 0 && (
           <div className="flex flex-col items-center pb-[.3rem]">
             <div className="flex flex-col items-center">
               <EmptyContent mt="0.2rem" size=".8rem" />
             </div>
+          </div>
+        )}
+
+      {!((queryActsLoading && firstQueryActs) || loading) &&
+        renderedList.length > 0 && (
+          <div className="mt-[.36rem] flex justify-center mb-[.56rem]">
+            <CustomPagination
+              totalCount={renderedList.length}
+              page={page}
+              onChange={setPage}
+            />
           </div>
         )}
 
