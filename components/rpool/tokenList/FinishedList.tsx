@@ -189,7 +189,7 @@ const RPoolFinishedList = (props: Props) => {
     >
       <div
         className="grid mb-[.5rem] mt-[.56rem] mx-[.56rem]"
-        style={{ gridTemplateColumns: "14% 16% 16% 16% 14% 24%" }}
+        style={{ gridTemplateColumns: "14% 21% 21% 16% 28%" }}
       >
         <div className="flex justify-start text-text2 text-[.2rem]">
           Token Name
@@ -205,13 +205,6 @@ const RPoolFinishedList = (props: Props) => {
           <MyTooltip
             text="Reward"
             title="Overall mint reward, counted by reward token amount"
-            className="text-text2 text-[.2rem]"
-          />
-        </div>
-        <div className="flex justify-center">
-          <MyTooltip
-            text="Reward Ratio"
-            title=""
             className="text-text2 text-[.2rem]"
           />
         </div>
@@ -246,7 +239,7 @@ const RPoolFinishedList = (props: Props) => {
                 key={`${data.rToken}${i}${index}`}
                 className="grid h-[1.1rem] text-[.24rem] text-text1"
                 style={{
-                  gridTemplateColumns: "14% 16% 16% 16% 14% 24%",
+                  gridTemplateColumns: "14% 21% 21% 16% 28%",
                 }}
               >
                 <div className="flex justify-start items-center">
@@ -257,13 +250,6 @@ const RPoolFinishedList = (props: Props) => {
                 </div>
                 <div className="flex justify-center items-center">
                   {formatNumber(numberUtil.fisAmountToHuman(item.total_reward))}
-                </div>
-                <div className="flex justify-center items-center">
-                  1:
-                  {numberUtil.tokenMintRewardRateToHuman(
-                    item.reward_rate,
-                    data.rToken
-                  )}
                 </div>
                 <div className="flex justify-center items-center">
                   {item.apr}
