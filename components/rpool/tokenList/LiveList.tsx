@@ -1,11 +1,13 @@
 import { EmptyContent } from "components/common/EmptyContent";
 import { TableSkeleton } from "components/common/TableSkeleton";
+import dayjs from "dayjs";
 import { useAppDispatch } from "hooks/common";
+import { useInterval } from "hooks/useInterval";
 import { RTokenListItem } from "hooks/useRPoolMintRTokenActs";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import { ProgramTab } from "pages/rpool";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getDotPools } from "redux/reducers/DotSlice";
 import { getKsmPools } from "redux/reducers/KsmSlice";
 import { getPools } from "redux/reducers/MaticSlice";
@@ -43,6 +45,8 @@ const RPoolLiveList = (props: Props) => {
 
 	const dispatch = useAppDispatch();
 
+	const [updateFlag, setUpdateFlag] = useState<number>(dayjs().unix());
+
   const flatList = useMemo(() => {
     const validList = list.filter((item: RTokenListItem) => {
       const criteria = Array.isArray(item.children) && item.children.length > 0;
@@ -72,13 +76,17 @@ const RPoolLiveList = (props: Props) => {
     });
 
     return allListData;
-  }, [list, viewMyStakes, userActs]);
+  }, [list, viewMyStakes, userActs, updateFlag]);
 
 	useEffect(() => {
 		dispatch(getPools());
 		dispatch(getDotPools());
 		dispatch(getKsmPools());
 	}, [dispatch]);
+
+	useInterval(() => {
+		setUpdateFlag(dayjs().unix());
+	}, 1000);
 
   return (
     <div

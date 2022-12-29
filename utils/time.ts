@@ -41,6 +41,9 @@ export const formatDuration = (milliSeconds: number, withAlphabet?: boolean) => 
     seconds = "0" + seconds;
   }
 	if (withAlphabet) {
+		if (Number(days) <=0 && Number(hours) <= 0) {
+			return `${minutes}m: ${seconds}s`;
+		}
 		if (days.startsWith("0")) {
 			days = days.substring(1);
 		}
