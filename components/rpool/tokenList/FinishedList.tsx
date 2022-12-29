@@ -39,7 +39,7 @@ import numberUtil from "utils/numberUtil";
 import { rTokenNameToTokenName } from "utils/rToken";
 
 interface Props {
-  programTab: ProgramTab;
+  // programTab: ProgramTab;
   list: RTokenListItem[];
   viewMyStakes: boolean;
   rTokenBalances: {

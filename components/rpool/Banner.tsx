@@ -7,13 +7,13 @@ import rPoolGift from "public/rpool_gift.svg";
 import { ProgramTab } from "pages/rpool";
 
 interface Props {
-  programTab: ProgramTab;
+  // programTab: ProgramTab;
 }
 
 const RPoolBanner = (props: Props) => {
   return (
     <div
-      className="rounded-[.16rem] h-[3rem] flex items-center justify-between relative mt-[.32rem] border-[1px] border-[#1A2835]"
+      className="rounded-[.16rem] h-[3rem] flex items-center justify-between relative mt-[.24rem] border-[1px] border-[#1A2835]"
       style={{
         background: "rgba(23, 38, 54, 0.15)",
         backdropFilter: "blur(.7rem)",

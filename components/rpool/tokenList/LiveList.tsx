@@ -10,7 +10,7 @@ import { rTokenNameToTokenName } from "utils/rToken";
 import MintTokenCard from "../tokenCard/MintTokenCard";
 
 interface Props {
-  programTab: ProgramTab;
+  // programTab: ProgramTab;
   list: RTokenListItem[];
   viewMyStakes: boolean;
   rTokenBalances: {
@@ -94,19 +94,19 @@ const RPoolLiveList = (props: Props) => {
           </div>
         )}
 
-      {props.programTab === ProgramTab.Mint ? (
-        <>
-          {flatList.map((item: AllListItem, index: number) => (
-            <MintTokenCard
-              key={`${item.rToken}${index}`}
-              data={item}
-              rTokenBalance={rTokenBalances[item.rToken]}
-            />
-          ))}
-        </>
+      {/* {props.programTab === ProgramTab.Mint ? ( */}
+      {/* <> */}
+      {flatList.map((item: AllListItem, index: number) => (
+        <MintTokenCard
+          key={`${item.rToken}${index}`}
+          data={item}
+          rTokenBalance={rTokenBalances[item.rToken]}
+        />
+      ))}
+      {/* </>
       ) : (
         <></>
-      )}
+      )} */}
     </div>
   );
 };

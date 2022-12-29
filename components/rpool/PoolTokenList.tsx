@@ -12,7 +12,7 @@ import RPoolFinishedList from "./tokenList/FinishedList";
 import RPoolLiveList from "./tokenList/LiveList";
 
 interface Props {
-  programTab: ProgramTab;
+  // programTab: ProgramTab;
   liveList: RTokenListItem[];
   finishedList: RTokenListItem[];
   rTokenBalances: {
@@ -124,7 +124,7 @@ const PoolTokenList = (props: Props) => {
           queryActsLoading={props.queryActsLoading}
           rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
-          programTab={props.programTab}
+          // programTab={props.programTab}
           list={props.liveList}
         />
       )}
@@ -137,7 +137,7 @@ const PoolTokenList = (props: Props) => {
           queryActsLoading={props.queryActsLoading}
           rTokenBalances={props.rTokenBalances}
           viewMyStakes={viewMyStakes}
-          programTab={props.programTab}
+          // programTab={props.programTab}
           list={props.finishedList}
         />
       )}
