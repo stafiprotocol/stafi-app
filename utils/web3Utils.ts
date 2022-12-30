@@ -5,7 +5,7 @@ import {
 } from "config/erc20Contract";
 import { getWeb3ProviderUrlConfig } from "config/metaMask";
 
-import { TokenName } from "interfaces/common";
+import { RTokenName, TokenName } from "interfaces/common";
 import { Symbol } from "keyring/defaults";
 import { FisAccount } from "redux/reducers/FisSlice";
 import { KeyringServer } from "servers/keyring";
@@ -52,7 +52,7 @@ export async function getErc20AssetBalance(
   userAddress: string | undefined,
   tokenAbi: AbiItem | AbiItem[],
   tokenAddress: string | undefined,
-  tokenName?: TokenName
+  tokenName?: TokenName | RTokenName
 ) {
   if (!userAddress || !tokenAbi || !tokenAddress) {
     return "--";

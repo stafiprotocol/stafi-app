@@ -93,14 +93,25 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
                     })
                   );
                 }
-                setTimeout(() => {
-                  updateNoticeList();
-                }, 500);
               }
             }
           }
         }
+
+        if (notice.type === "rBridge Swap" && notice.status === "Pending") {
+          if (dayjs().valueOf() - Number(notice.timestamp) > 3600000) {
+            dispatch(
+              updateNotice(notice.id, {
+                status: "Confirmed",
+              })
+            );
+          }
+        }
       });
+
+      setTimeout(() => {
+        updateNoticeList();
+      }, 500);
     }
   }, [dispatch, props.isOpen, stakeLoadingParams]);
 

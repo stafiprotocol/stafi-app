@@ -120,3 +120,7 @@ export function isPolkadotWallet(walletType: WalletType | undefined) {
     walletType === WalletType.Polkadot_DOT
   );
 }
+
+export function timeout(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

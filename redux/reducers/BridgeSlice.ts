@@ -1,6 +1,13 @@
 import { u8aToHex } from "@polkadot/util";
 import { decodeAddress } from "@polkadot/util-crypto";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  getBep20FisTokenAbi,
+  getBep20RDotTokenAbi,
+  getBep20REthTokenAbi,
+  getBep20RKsmTokenAbi,
+} from "config/bep20Abi";
+import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { isDev } from "config/env";
 import {
   getErc20BridgeAbi,
@@ -15,8 +22,10 @@ import {
   getErc20BridgeContractConfig,
   getErc20TokenContractConfig,
 } from "config/erc20Contract";
-import { getStafiScanTxUrl } from "config/explorer";
+import { getBridgeSwapScanUrl, getStafiScanTxUrl } from "config/explorer";
 import {
+  getBSCRMaticAbi,
+  getERCMaticAbi,
   getMaticStakePortalAbi,
   getMaticStakePortalAddress,
 } from "config/matic";
@@ -28,26 +37,45 @@ import {
   TokenSymbol,
   TokenType,
 } from "interfaces/common";
-import { rSymbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
-import { stafiUuid } from "utils/common";
+import { stafiUuid, timeout } from "utils/common";
 import { CANCELLED_MESSAGE } from "utils/constants";
 import { LocalNotice } from "utils/notice";
 import { numberToChain } from "utils/number";
 import numberUtil from "utils/numberUtil";
 import {
+  getNativeFisBalance,
+  getNativeRTokenBalance,
+} from "utils/polkadotUtils";
+import {
   getErc20BridgeResourceId,
   getTokenSymbolFromTokenType,
 } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
-import { createWeb3, getErc20Allowance } from "utils/web3Utils";
-import { addNotice, setIsLoading } from "./AppSlice";
+import {
+  createWeb3,
+  getBep20AssetBalance,
+  getErc20Allowance,
+  getErc20AssetBalance,
+} from "utils/web3Utils";
+import { addNotice, setIsLoading, updateNotice } from "./AppSlice";
 
 const stafiServer = new StafiServer();
 
+interface BridgeSwapLoadingParams {
+  modalVisible?: boolean;
+  status?: "loading" | "success" | "error";
+  swapAmount?: string;
+  srcTokenStandard?: TokenStandard;
+  dstTokenStandard?: TokenStandard;
+  tokenName?: TokenName | RTokenName;
+  scanUrl?: string;
+}
+
 export interface BridgeState {
   bridgeModalVisible: boolean;
+  bridgeSwapLoadingParams: BridgeSwapLoadingParams | undefined;
   erc20BridgeFee: string;
   bep20BridgeFee: string;
   solBridgeFee: string;
@@ -58,6 +86,7 @@ export interface BridgeState {
 
 const initialState: BridgeState = {
   bridgeModalVisible: false,
+  bridgeSwapLoadingParams: undefined,
   erc20BridgeFee: "--",
   bep20BridgeFee: "--",
   solBridgeFee: "--",
@@ -75,6 +104,19 @@ export const bridgeSlice = createSlice({
       action: PayloadAction<boolean>
     ) => {
       state.bridgeModalVisible = action.payload;
+    },
+    setBridgeSwapLoadingParams: (
+      state: BridgeState,
+      action: PayloadAction<BridgeSwapLoadingParams | undefined>
+    ) => {
+      if (!action.payload) {
+        state.bridgeSwapLoadingParams = undefined;
+      } else {
+        state.bridgeSwapLoadingParams = {
+          ...state.bridgeSwapLoadingParams,
+          ...action.payload,
+        };
+      }
     },
     setErc20BridgeFee: (state: BridgeState, action: PayloadAction<string>) => {
       state.erc20BridgeFee = action.payload;
@@ -108,6 +150,7 @@ export const bridgeSlice = createSlice({
 
 export const {
   setBridgeModalVisible,
+  setBridgeSwapLoadingParams,
   setBep20BridgeFee,
   setErc20BridgeFee,
   setSolBridgeFee,
@@ -363,11 +406,47 @@ export const nativeToOtherSwap =
                         dstTokenStandard,
                         targetAddress: targetAddress,
                       },
-                      scanUrl: getStafiScanTxUrl(txHash),
+                      scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
                       status: "Pending",
                     };
                     dispatch(addNotice(newNotice));
                     cb && cb();
+
+                    dispatch(
+                      setBridgeSwapLoadingParams({
+                        modalVisible: true,
+                        tokenName: tokenStr,
+                        swapAmount: tokenAmount,
+                        srcTokenStandard: TokenStandard.Native,
+                        dstTokenStandard: dstTokenStandard,
+                        status: "loading",
+                        scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+                      })
+                    );
+
+                    dispatch(
+                      checkSwapStatus(
+                        dstTokenStandard,
+                        tokenStr,
+                        tokenType,
+                        tokenAmount,
+                        targetAddress,
+                        (status) => {
+                          if (status === "success") {
+                            dispatch(
+                              setBridgeSwapLoadingParams({
+                                status: "success",
+                              })
+                            );
+
+                            dispatch(
+                              updateNotice(noticeUuid, { status: "Confirmed" })
+                            );
+                          } else if (status === "pending") {
+                          }
+                        }
+                      )
+                    );
                   }
                 });
             } else if (result.isError) {
@@ -413,7 +492,7 @@ export const erc20ToOtherSwap =
     // dispatch(setSwapLoadingStatus(1));
     // dispatch(setSwapWaitingTime(600));
     const memtaMaskAddress = getState().wallet.metaMaskAccount;
-    const notice_uuid = stafiUuid();
+    const noticeUuid = stafiUuid();
 
     // if (dstTokenStandard === BSC_CHAIN_ID) {
     //   updateSwapParamsOfBep(dispatch, notice_uuid, tokenType, tokenAmount, targetAddress);
@@ -534,6 +613,59 @@ export const erc20ToOtherSwap =
             // );
             // dispatch(setSwapLoadingStatus(2));
             cb && cb({ txHash: result.transactionHash });
+
+            const newNotice: LocalNotice = {
+              id: noticeUuid,
+              type: "rBridge Swap",
+              txDetail: {
+                transactionHash: result.transactionHash,
+                sender: memtaMaskAddress,
+              },
+              data: {
+                tokenName: tokenStr,
+                amount: Number(tokenAmount) + "",
+                srcTokenStandard: TokenStandard.ERC20,
+                dstTokenStandard,
+                targetAddress: targetAddress,
+              },
+              scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+              status: "Pending",
+            };
+            dispatch(addNotice(newNotice));
+
+            dispatch(
+              setBridgeSwapLoadingParams({
+                modalVisible: true,
+                tokenName: tokenStr,
+                swapAmount: tokenAmount,
+                srcTokenStandard: TokenStandard.ERC20,
+                dstTokenStandard: dstTokenStandard,
+                status: "loading",
+                scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+              })
+            );
+
+            dispatch(
+              checkSwapStatus(
+                dstTokenStandard,
+                tokenStr,
+                tokenType,
+                tokenAmount,
+                targetAddress,
+                (status) => {
+                  if (status === "success") {
+                    dispatch(
+                      setBridgeSwapLoadingParams({
+                        status: "success",
+                      })
+                    );
+
+                    dispatch(updateNotice(noticeUuid, { status: "Confirmed" }));
+                  } else if (status === "pending") {
+                  }
+                }
+              )
+            );
           } else {
             // dispatch(setSwapLoadingStatus(0));
             // message.error("Error! Please try again");
@@ -593,6 +725,59 @@ export const erc20ToOtherSwap =
           // );
           // dispatch(setSwapLoadingStatus(2));
           cb && cb({ txHash: result.transactionHash });
+
+          const newNotice: LocalNotice = {
+            id: noticeUuid,
+            type: "rBridge Swap",
+            txDetail: {
+              transactionHash: result.transactionHash,
+              sender: memtaMaskAddress,
+            },
+            data: {
+              tokenName: tokenStr,
+              amount: Number(tokenAmount) + "",
+              srcTokenStandard: TokenStandard.ERC20,
+              dstTokenStandard,
+              targetAddress: targetAddress,
+            },
+            scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+            status: "Pending",
+          };
+          dispatch(addNotice(newNotice));
+
+          dispatch(
+            setBridgeSwapLoadingParams({
+              modalVisible: true,
+              tokenName: tokenStr,
+              swapAmount: tokenAmount,
+              srcTokenStandard: TokenStandard.ERC20,
+              dstTokenStandard: dstTokenStandard,
+              status: "loading",
+              scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+            })
+          );
+
+          dispatch(
+            checkSwapStatus(
+              dstTokenStandard,
+              tokenStr,
+              tokenType,
+              tokenAmount,
+              targetAddress,
+              (status) => {
+                if (status === "success") {
+                  dispatch(
+                    setBridgeSwapLoadingParams({
+                      status: "success",
+                    })
+                  );
+
+                  dispatch(updateNotice(noticeUuid, { status: "Confirmed" }));
+                } else if (status === "pending") {
+                }
+              }
+            )
+          );
         } else {
           // dispatch(setSwapLoadingStatus(0));
           // message.error("Error! Please try again");
@@ -618,4 +803,174 @@ const getBridgeEstimateEthFee = () => {
   } else {
     return "0.000020";
   }
+};
+
+export const checkSwapStatus =
+  (
+    dstTokenStandard: TokenStandard,
+    tokenStr: TokenName | RTokenName,
+    tokenType: TokenType,
+    tokenAmount: any,
+    targetAddress: string,
+    cb?: (status: string) => void
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    const chainId =
+      dstTokenStandard === TokenStandard.Native
+        ? ChainId.STAFI
+        : dstTokenStandard === TokenStandard.ERC20
+        ? ChainId.ETH
+        : dstTokenStandard === TokenStandard.BEP20
+        ? ChainId.BSC
+        : dstTokenStandard === TokenStandard.SPL
+        ? ChainId.SOL
+        : -1;
+
+    const { tokenAbi, tokenAddress } = getTokenAbiAndAddress(
+      chainId,
+      tokenType
+    );
+    let oldBalance: string = "0";
+    if (chainId === ChainId.BSC) {
+      oldBalance = await getBep20AssetBalance(
+        targetAddress,
+        tokenAbi,
+        tokenAddress
+      );
+    } else if (chainId === ChainId.ETH) {
+      oldBalance = await getErc20AssetBalance(
+        targetAddress,
+        tokenAbi,
+        tokenAddress,
+        tokenStr
+      );
+    } else if (chainId === ChainId.STAFI) {
+      if (tokenType === TokenType.FIS) {
+        oldBalance = (await getNativeFisBalance(targetAddress)) || "0";
+      } else {
+        oldBalance = await getNativeRTokenBalance(
+          targetAddress,
+          getTokenSymbolFromTokenType(tokenType)
+        );
+      }
+    }
+
+    // const checkNewTokenAmount = async () => {
+    //   let newBalance: string = "0";
+    //   if (chainId === ChainId.BSC) {
+    //     newBalance = await getBep20AssetBalance(
+    //       targetAddress,
+    //       tokenAbi,
+    //       tokenAddress
+    //     );
+    //   } else if (chainId === ChainId.ETH) {
+    //     newBalance = await getErc20AssetBalance(
+    //       targetAddress,
+    //       tokenAbi,
+    //       tokenAddress,
+    //       tokenStr
+    //     );
+    //   }
+
+    //   console.log("xxx newBalance", newBalance);
+
+    //   if (
+    //     Number(newBalance) - Number(oldBalance) <= Number(tokenAmount) * 1.1 &&
+    //     Number(newBalance) - Number(oldBalance) >= Number(tokenAmount) * 0.9
+    //   ) {
+    //     cb && cb("success");
+    //   } else {
+    //     setTimeout(() => {
+    //       checkNewTokenAmount();
+    //     }, 3000);
+    //   }
+    // };
+    // checkNewTokenAmount();
+
+    let count = 0;
+    while (true) {
+      let newBalance: string = "0";
+      if (chainId === ChainId.BSC) {
+        newBalance = await getBep20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress
+        );
+      } else if (chainId === ChainId.ETH) {
+        newBalance = await getErc20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress,
+          tokenStr
+        );
+      } else if (chainId === ChainId.STAFI) {
+        if (tokenType === TokenType.FIS) {
+          newBalance = (await getNativeFisBalance(targetAddress)) || "0";
+        } else {
+          newBalance = await getNativeRTokenBalance(
+            targetAddress,
+            getTokenSymbolFromTokenType(tokenType)
+          );
+        }
+      }
+
+      console.log("newBalance", newBalance);
+
+      if (
+        Number(newBalance) - Number(oldBalance) <= Number(tokenAmount) * 1.1 &&
+        Number(newBalance) - Number(oldBalance) >= Number(tokenAmount) * 0.9
+      ) {
+        cb && cb("success");
+        break;
+      }
+      count++;
+      await timeout(3000);
+
+      if (count > 100) {
+        cb && cb("pending");
+        break;
+      }
+    }
+  };
+
+const getTokenAbiAndAddress = (chainId: ChainId, tokenType: TokenType) => {
+  let tokenAbi: any = "";
+  let tokenAddress: any = "";
+  if (chainId === ChainId.BSC) {
+    if (tokenType === TokenType.FIS) {
+      tokenAbi = getBep20FisTokenAbi();
+      tokenAddress = getBep20TokenContractConfig().FIS;
+    } else if (tokenType === TokenType.rETH) {
+      tokenAbi = getBep20REthTokenAbi();
+      tokenAddress = getBep20TokenContractConfig().rETH;
+    } else if (tokenType === TokenType.rMATIC) {
+      tokenAbi = getBSCRMaticAbi();
+      tokenAddress = getBep20TokenContractConfig().rMATIC;
+    } else if (tokenType === TokenType.rKSM) {
+      tokenAbi = getBep20RKsmTokenAbi();
+      tokenAddress = getBep20TokenContractConfig().rKSM;
+    } else if (tokenType === TokenType.rDOT) {
+      tokenAbi = getBep20RDotTokenAbi();
+      tokenAddress = getBep20TokenContractConfig().rDOT;
+    }
+  } else if (chainId === ChainId.ETH) {
+    if (tokenType === TokenType.FIS) {
+      tokenAbi = getErc20FisTokenAbi();
+      tokenAddress = getErc20TokenContractConfig().FIS;
+    } else if (tokenType === TokenType.rETH) {
+      tokenAbi = getErc20REthTokenAbi();
+      tokenAddress = getErc20TokenContractConfig().rETH;
+    } else if (tokenType === TokenType.rMATIC) {
+      tokenAbi = getERCMaticAbi();
+      tokenAddress = getErc20TokenContractConfig().rMATIC;
+    } else if (tokenType === TokenType.rKSM) {
+      tokenAbi = getErc20RKsmTokenAbi();
+      tokenAddress = getErc20TokenContractConfig().rKSM;
+    } else if (tokenType === TokenType.rDOT) {
+      tokenAbi = getErc20RDotTokenAbi();
+      tokenAddress = getErc20TokenContractConfig().rDOT;
+    }
+  }
+
+  return { tokenAbi, tokenAddress };
 };

@@ -6,7 +6,12 @@ import {
 } from "./storage";
 import * as _ from "lodash";
 import dayjs from "dayjs";
-import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
+import {
+  ChainId,
+  RTokenName,
+  TokenName,
+  TokenStandard,
+} from "interfaces/common";
 import { StakeLoadingParams } from "redux/reducers/AppSlice";
 
 export interface LocalNotice {

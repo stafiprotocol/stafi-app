@@ -35,19 +35,20 @@ import { isEmptyValue, openLink } from "utils/common";
 import { getTokenStandardIcon } from "utils/icon";
 import { formatNumber } from "utils/number";
 import { getTokenType, rTokenNameToTokenName } from "utils/rToken";
+import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import { validateETHAddress, validateSS58Address } from "utils/validator";
 
 export const RBridgeModal = () => {
   const dispatch = useAppDispatch();
-  const { bridgeModalVisible, erc20BridgeFee } = useAppSelector(
-    (state: RootState) => {
+  const { bridgeModalVisible, bridgeSwapLoadingParams, erc20BridgeFee } =
+    useAppSelector((state: RootState) => {
       return {
         bridgeModalVisible: state.bridge.bridgeModalVisible,
+        bridgeSwapLoadingParams: state.bridge.bridgeSwapLoadingParams,
         erc20BridgeFee: state.bridge.erc20BridgeFee,
       };
-    }
-  );
+    });
   const { isLoading } = useAppSlice();
   const { polkadotAccount, metaMaskAccount } = useWalletAccount();
 
@@ -172,6 +173,11 @@ export const RBridgeModal = () => {
       return;
     }
 
+    if (bridgeSwapLoadingParams) {
+      snackbarUtil.warning("A swap operation is on-going, please wait");
+      return;
+    }
+
     if (srcTokenStandard === TokenStandard.Native) {
       dispatch(
         nativeToOtherSwap(
@@ -180,7 +186,10 @@ export const RBridgeModal = () => {
           getTokenType(selectedTokenName),
           swapAmount,
           targetAddress,
-          () => {}
+          () => {
+            setSwapAmount("");
+            dispatch(setBridgeModalVisible(false));
+          }
         )
       );
     } else if (srcTokenStandard === TokenStandard.ERC20) {
@@ -191,7 +200,10 @@ export const RBridgeModal = () => {
           getTokenType(selectedTokenName),
           swapAmount,
           targetAddress,
-          () => {}
+          () => {
+            setSwapAmount("");
+            dispatch(setBridgeModalVisible(false));
+          }
         )
       );
     }
