@@ -379,16 +379,15 @@ const RPoolFinishedList = (props: Props) => {
           </div>
         )}
 
-      {!((queryActsLoading && firstQueryActs) || loading) &&
-        renderedList.length > 0 && (
-          <div className="mt-[.36rem] flex justify-center mb-[.56rem]">
-            <CustomPagination
-              totalCount={renderedList.length}
-              page={page}
-              onChange={setPage}
-            />
-          </div>
-        )}
+      {renderedList.length > 0 && (
+        <div className="mt-[.36rem] flex justify-center mb-[.56rem]">
+          <CustomPagination
+            totalCount={renderedList.length}
+            page={page}
+            onChange={setPage}
+          />
+        </div>
+      )}
 
       <RPoolMintClaimModal
         visible={claimModalVisible}
