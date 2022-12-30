@@ -132,7 +132,9 @@ const MintTokenCard = (props: Props) => {
       dispatch(connectMetaMask(getMetamaskEthChainId()));
     } else if (data.rToken === RTokenName.rMATIC) {
       dispatch(connectMetaMask(getMetamaskMaticChainId()));
-    }
+    } else {
+      dispatch(connectMetaMask(getMetamaskMaticChainId()));
+		}
   };
 
   const onClickMint = () => {
