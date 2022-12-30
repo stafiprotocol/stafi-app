@@ -8,6 +8,7 @@ import { useRPoolMintClaim } from "hooks/useRPoolMintClaim";
 import { RTokenName } from "interfaces/common";
 import Image from "next/image";
 import { useMemo } from "react";
+import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
 import {
   claimREthReward,
   claimRTokenReward,
@@ -55,6 +56,7 @@ const RPoolMintClaimModal = (props: Props) => {
           (success?: boolean) => {
             if (success) {
               dispatch(getMintOverview(props.rTokenName, props.cycle));
+							dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }
@@ -70,6 +72,7 @@ const RPoolMintClaimModal = (props: Props) => {
           (success?: boolean) => {
             if (success) {
               dispatch(getMintOverview(props.rTokenName, props.cycle));
+							dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }
