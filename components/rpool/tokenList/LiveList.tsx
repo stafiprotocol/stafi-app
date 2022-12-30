@@ -78,6 +78,10 @@ const RPoolLiveList = (props: Props) => {
     return allListData;
   }, [list, viewMyStakes, userActs, updateFlag]);
 
+	const isListEmpty = useMemo(() => {
+		return !((queryActsLoading && firstQueryLoading) || loading) && flatList.length === 0;
+	}, [queryActsLoading, firstQueryLoading, loading, flatList]);
+
 	useEffect(() => {
 		dispatch(getPools());
 		dispatch(getDotPools());
@@ -96,17 +100,16 @@ const RPoolLiveList = (props: Props) => {
         justifyContent: "space-between",
         alignItems: "start",
         rowGap: ".5rem",
+				marginTop: isListEmpty ? "1.2rem" : "",
       }}
     >
-      {((queryActsLoading && firstQueryLoading) || loading) &&
-        flatList.length === 0 && (
+      {((queryActsLoading && firstQueryLoading) || loading) && flatList.length === 0 && (
           <div className="absolute top-0 left-0 w-full">
             <TableSkeleton />
           </div>
         )}
 
-      {!((queryActsLoading && firstQueryLoading) || loading) &&
-        flatList.length === 0 && (
+      {isListEmpty && (
           <div className="flex flex-col items-center pb-[.3rem] w-full absolute top-0 left-0">
             <div className="flex flex-col items-center">
               <EmptyContent mt="0.2rem" size=".8rem" />

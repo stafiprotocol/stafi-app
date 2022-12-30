@@ -258,15 +258,15 @@ const RPoolFinishedList = (props: Props) => {
                 }}
               >
                 <div className="flex justify-start items-center">
-                  {index === 0 && data.rToken}
+                  {data.rToken}
                 </div>
                 <div className="flex justify-center items-center">
                   ${formatNumber(item.mintedValue, { decimals: 2 })}
                 </div>
                 <div className="flex justify-center items-center">
-                  {formatNumber(numberUtil.fisAmountToHuman(item.total_reward))}
+                  {formatNumber(numberUtil.fisAmountToHuman(item.total_reward))} FIS
                 </div>
-                <div className="flex justify-center items-center">
+                <div className="flex justify-center items-center text-[#00F3AB]">
                   {item.apr}
                 </div>
                 <div className="flex justify-end items-center">
@@ -313,7 +313,7 @@ const RPoolFinishedList = (props: Props) => {
 
       {!((queryActsLoading && firstQueryActs) || loading) &&
         paginatedList.length === 0 && (
-          <div className="flex flex-col items-center pb-[.3rem]">
+          <div className="flex flex-col items-center pb-[.56rem]">
             <div className="flex flex-col items-center">
               <EmptyContent mt="0.2rem" size=".8rem" />
             </div>
