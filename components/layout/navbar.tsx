@@ -37,27 +37,37 @@ export const Navbar = () => {
           <Image src={stafiLogo} alt="logo" layout="fill" />
         </div>
         <Link href="/rtoken">
-          <div
-            className={classNames(
-              styles["rtoken-button"],
-              router.pathname.startsWith("/rtoken")
-                ? styles["rtoken-button_active"]
-                : "",
+          <div className="flex flex-col items-center">
+            <div
+              className={classNames(
+                styles["rtoken-button"],
+                router.pathname.startsWith("/rtoken")
+                  ? styles["rtoken-button_active"]
+                  : ""
+              )}
+            >
+              rToken
+            </div>
+            {router.pathname.startsWith("/rtoken") && (
+              <div className="h-[.04rem] w-[1.2rem] bg-primary ml-[.27rem] translate-y-[-.04rem]" />
             )}
-          >
-            rToken
           </div>
         </Link>
         <Link href="/rpool">
-          <div
-            className={classNames(
-              styles["rtoken-button"],
-              router.pathname.startsWith("/rpool")
-                ? styles["rtoken-button_active"]
-                : "",
+          <div className="flex flex-col items-center">
+            <div
+              className={classNames(
+                styles["rtoken-button"],
+                router.pathname.startsWith("/rpool")
+                  ? styles["rtoken-button_active"]
+                  : ""
+              )}
+            >
+              rPool
+            </div>
+            {router.pathname.startsWith("/rpool") && (
+              <div className="h-[.04rem] w-[1.2rem] bg-primary ml-[.27rem] translate-y-[-.04rem]" />
             )}
-          >
-            rPool
           </div>
         </Link>
         <Link href="/fis-station">

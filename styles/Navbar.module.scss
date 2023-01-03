@@ -4,6 +4,7 @@
   padding: 0.15rem 0.32rem;
   cursor: pointer;
 	color: #5B6872;
+	z-index: 10;
 
   &_active {
     background: rgba(25, 38, 52, 0.35);

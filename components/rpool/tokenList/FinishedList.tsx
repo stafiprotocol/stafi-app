@@ -38,6 +38,14 @@ import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
 import { rTokenNameToTokenName } from "utils/rToken";
+import ethLogo from "public/eth_type_black.svg";
+import maticLogo from "public/matic_type_black.png";
+import ksmLogo from "public/ksm_type_black.png";
+import dotLogo from "public/dot_type_black.png";
+import bnbLogo from "public/bnb_type_black.png";
+import Image from "next/image";
+import { Icomoon } from "components/icon/Icomoon";
+import { useRouter } from "next/router";
 
 interface Props {
   // programTab: ProgramTab;
@@ -64,6 +72,8 @@ const RPoolFinishedList = (props: Props) => {
   } = props;
 
   const dispatch = useAppDispatch();
+
+  const router = useRouter();
 
   const { walletNotConnected } = useContext(MyLayoutContext);
   const { polkadotAccount, metaMaskAccount } = useWalletAccount();
@@ -122,6 +132,21 @@ const RPoolFinishedList = (props: Props) => {
     return renderedList.slice(beginIndex, beginIndex + 10);
   }, [renderedList, page]);
 
+  const getClaimButtonDisabled = (rTokenName: RTokenName, row: RTokenActs) => {
+    if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
+      return true;
+    }
+    if (
+      !userActs[rTokenName] ||
+      !(userActs[rTokenName] as any)[row.cycle] ||
+      isNaN(Number((userActs[rTokenName] as any)[row.cycle].mintsCount)) ||
+      Number((userActs[rTokenName] as any)[row.cycle].mintsCount) <= 0
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   const onClickUnstake = (rTokenName: RTokenName, row: RTokenActs) => {
     if (walletNotConnected || !metaMaskAccount || !polkadotAccount) {
       dispatch(
@@ -175,7 +200,34 @@ const RPoolFinishedList = (props: Props) => {
       dispatch(connectMetaMask(getMetamaskEthChainId()));
     } else if (currentRowRToken === RTokenName.rMATIC) {
       dispatch(connectMetaMask(getMetamaskMaticChainId()));
+    } else {
+      dispatch(connectMetaMask(getMetamaskMaticChainId()));
     }
+  };
+
+  const onClickRTokenName = (rTokenName: RTokenName) => {
+    if (rTokenName === RTokenName.rMATIC) {
+      router.push("/rtoken/stake/MATIC");
+    } else if (rTokenName === RTokenName.rETH) {
+      router.push("/rtoken/stake/ETH");
+    } else if (rTokenName === RTokenName.rBNB) {
+      router.push("/rtoken/stake/BNB");
+    } else if (rTokenName === RTokenName.rDOT) {
+      router.push("/rtoken/stake/DOT");
+    } else if (rTokenName === RTokenName.rKSM) {
+      router.push("/rtoken/stake/KSM");
+    } else if (rTokenName === RTokenName.rSOL) {
+      router.push("/rtoken/stake/SOL");
+    }
+  };
+
+  const getRTokenLogo = (rTokenName: RTokenName) => {
+    if (rTokenName === RTokenName.rMATIC) return maticLogo;
+    if (rTokenName === RTokenName.rKSM) return ksmLogo;
+    if (rTokenName === RTokenName.rETH) return ethLogo;
+    if (rTokenName === RTokenName.rDOT) return dotLogo;
+    if (rTokenName === RTokenName.rBNB) return bnbLogo;
+    return ethLogo;
   };
 
   return (
@@ -217,11 +269,12 @@ const RPoolFinishedList = (props: Props) => {
         </div>
       </div>
 
-      {((queryActsLoading && firstQueryActs) || loading) && (
-        <div className="px-[.56rem] mb-[.5rem]">
-          <TableSkeleton />
-        </div>
-      )}
+      {((queryActsLoading && firstQueryActs) || loading) &&
+        paginatedList.length === 0 && (
+          <div className="px-[.56rem] mb-[.5rem]">
+            <TableSkeleton />
+          </div>
+        )}
 
       {!!paginatedList &&
         !(queryActsLoading && firstQueryActs) &&
@@ -243,15 +296,36 @@ const RPoolFinishedList = (props: Props) => {
                 }}
               >
                 <div className="flex justify-start items-center">
-                  {index === 0 && data.rToken}
+                  <div
+                    className="rounded-[.16rem] h-[.6rem] flex items-center px-[.24rem] py-[.16rem] cursor-pointer"
+                    style={{
+                      border: "1px solid #1A2835",
+                      background: "rgba(25, 38, 52, 0.35)",
+                      backdropFilter: "blur(.4rem)",
+                    }}
+                    onClick={() => onClickRTokenName(data.rToken)}
+                  >
+                    <div className="w-[.28rem] h-[.28rem] relative mr-[.14rem]">
+                      <Image
+                        src={getRTokenLogo(data.rToken)}
+                        alt="logo"
+                        layout="fill"
+                      />
+                    </div>
+                    {data.rToken}
+                    <div className={classNames("ml-[.4rem]")}>
+                      <Icomoon icon="right" size=".16rem" color="#5B6872" />
+                    </div>
+                  </div>
                 </div>
                 <div className="flex justify-center items-center">
-                  {formatNumber(item.mintedValue)}
+                  ${formatNumber(item.mintedValue, { decimals: 2 })}
                 </div>
                 <div className="flex justify-center items-center">
-                  {formatNumber(numberUtil.fisAmountToHuman(item.total_reward))}
+                  {formatNumber(numberUtil.fisAmountToHuman(item.total_reward))}{" "}
+                  FIS
                 </div>
-                <div className="flex justify-center items-center">
+                <div className="flex justify-center items-center text-[#00F3AB]">
                   {item.apr}
                 </div>
                 <div className="flex justify-end items-center">
@@ -282,6 +356,7 @@ const RPoolFinishedList = (props: Props) => {
                     Unstake
                   </div>
                   <Button
+                    disabled={getClaimButtonDisabled(data.rToken, item)}
                     height="0.48rem"
                     fontSize="0.24rem"
                     width="1.58rem"
@@ -297,23 +372,22 @@ const RPoolFinishedList = (props: Props) => {
 
       {!((queryActsLoading && firstQueryActs) || loading) &&
         paginatedList.length === 0 && (
-          <div className="flex flex-col items-center pb-[.3rem]">
+          <div className="flex flex-col items-center pb-[.56rem]">
             <div className="flex flex-col items-center">
               <EmptyContent mt="0.2rem" size=".8rem" />
             </div>
           </div>
         )}
 
-      {!((queryActsLoading && firstQueryActs) || loading) &&
-        renderedList.length > 0 && (
-          <div className="mt-[.36rem] flex justify-center mb-[.56rem]">
-            <CustomPagination
-              totalCount={renderedList.length}
-              page={page}
-              onChange={setPage}
-            />
-          </div>
-        )}
+      {renderedList.length > 0 && (
+        <div className="mt-[.36rem] flex justify-center mb-[.56rem]">
+          <CustomPagination
+            totalCount={renderedList.length}
+            page={page}
+            onChange={setPage}
+          />
+        </div>
+      )}
 
       <RPoolMintClaimModal
         visible={claimModalVisible}

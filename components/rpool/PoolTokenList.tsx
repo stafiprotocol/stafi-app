@@ -25,7 +25,7 @@ interface Props {
 const PoolTokenList = (props: Props) => {
   const dispatch = useAppDispatch();
 
-  const { updateFlag15s } = useAppSlice();
+  const { updateFlag15s, refreshDataFlag } = useAppSlice();
   const { polkadotAccount, metaMaskAccount } = useWalletAccount();
 
   const { userActs, queryUserActsLoading } = useAppSelector(
@@ -41,11 +41,18 @@ const PoolTokenList = (props: Props) => {
   const [viewMyStakes, setViewMyStakes] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!viewMyStakes || !polkadotAccount || !metaMaskAccount) {
+    if (!polkadotAccount || !metaMaskAccount) {
       return;
     }
     dispatch(getAllUserActs());
-  }, [dispatch, viewMyStakes, polkadotAccount, metaMaskAccount, updateFlag15s]);
+  }, [
+    dispatch,
+    viewMyStakes,
+    polkadotAccount,
+    metaMaskAccount,
+    updateFlag15s,
+    refreshDataFlag,
+  ]);
 
   return (
     <>
