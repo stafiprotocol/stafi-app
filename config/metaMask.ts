@@ -10,7 +10,8 @@ export function getMetamaskValidatorChainId() {
 
 export function getMetamaskEthChainId() {
   if (isDev()) {
-    return 1338;
+    // return 1338;
+    return 5;
   }
   return 1;
 }

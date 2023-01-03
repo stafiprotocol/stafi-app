@@ -88,8 +88,8 @@ interface Erc20BridgeContractConfig {
 export function getErc20BridgeContractConfig(): Erc20BridgeContractConfig {
   if (isDev()) {
     return {
-      bridgeHandler: "0xc4e7ab051af21f1196b6a91a66802abafd8cd740",
-      bridge: "0x5ad90c4c30c7f9989e0748fce3da6aec1a612279",
+      bridgeHandler: "0x7284f366e415b92dbb8240340be5da5a233a28e1",
+      bridge: "0x091232d4a9808acf5762df387a1c2de4c938f762",
     };
   }
 

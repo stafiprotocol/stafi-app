@@ -323,7 +323,7 @@ export function getStakeTransactionCount(tokenName: TokenName | undefined) {
   return 1;
 }
 
-export function getErc20BridgeResourceId(tokenType: TokenType) {
+export function getBridgeResourceId(tokenType: TokenType) {
   if (tokenType == "fis") {
     return "0x000000000000000000000000000000a9e0095b8965c01e6a09c97938f3860901";
   } else if (tokenType == "rfis") {

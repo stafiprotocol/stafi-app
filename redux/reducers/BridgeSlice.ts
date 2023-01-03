@@ -2,12 +2,16 @@ import { u8aToHex } from "@polkadot/util";
 import { decodeAddress } from "@polkadot/util-crypto";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  getBep20BridgeAbi,
   getBep20FisTokenAbi,
   getBep20RDotTokenAbi,
   getBep20REthTokenAbi,
   getBep20RKsmTokenAbi,
 } from "config/bep20Abi";
-import { getBep20TokenContractConfig } from "config/bep20Contract";
+import {
+  getBep20BridgeContractConfig,
+  getBep20TokenContractConfig,
+} from "config/bep20Contract";
 import { isDev } from "config/env";
 import {
   getErc20BridgeAbi,
@@ -48,13 +52,11 @@ import {
   getNativeFisBalance,
   getNativeRTokenBalance,
 } from "utils/polkadotUtils";
-import {
-  getErc20BridgeResourceId,
-  getTokenSymbolFromTokenType,
-} from "utils/rToken";
+import { getBridgeResourceId, getTokenSymbolFromTokenType } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
 import {
   createWeb3,
+  getBep20Allowance,
   getBep20AssetBalance,
   getErc20Allowance,
   getErc20AssetBalance,
@@ -160,6 +162,22 @@ export const {
 } = bridgeSlice.actions;
 
 export default bridgeSlice.reducer;
+
+export const getBridgeEstimateEthFee = () => {
+  if (isDev()) {
+    return "0.001000";
+  } else {
+    return "0.000020";
+  }
+};
+
+export const getBridgeEstimateBscFee = () => {
+  if (isDev()) {
+    return "0.001000";
+  } else {
+    return "0.000020";
+  }
+};
 
 /**
  * query estimate bridge fees
@@ -491,7 +509,7 @@ export const erc20ToOtherSwap =
     dispatch(setIsLoading(true));
     // dispatch(setSwapLoadingStatus(1));
     // dispatch(setSwapWaitingTime(600));
-    const memtaMaskAddress = getState().wallet.metaMaskAccount;
+    const metaMaskAddress = getState().wallet.metaMaskAccount;
     const noticeUuid = stafiUuid();
 
     // if (dstTokenStandard === BSC_CHAIN_ID) {
@@ -507,7 +525,7 @@ export const erc20ToOtherSwap =
     let tokenContract: any = "";
     let allowance: any = 0;
 
-    if (!memtaMaskAddress) {
+    if (!metaMaskAddress) {
       dispatch(setIsLoading(false));
       // dispatch(setSwapLoadingStatus(0));
       return;
@@ -550,11 +568,11 @@ export const erc20ToOtherSwap =
     }
 
     tokenContract = new web3.eth.Contract(tokenAbi, tokenAddress, {
-      from: memtaMaskAddress,
+      from: metaMaskAddress,
     });
 
     allowance = await getErc20Allowance(
-      memtaMaskAddress,
+      metaMaskAddress,
       tokenAbi,
       tokenAddress
     );
@@ -573,7 +591,7 @@ export const erc20ToOtherSwap =
             getErc20BridgeAbi(),
             getErc20BridgeContractConfig().bridge,
             {
-              from: memtaMaskAddress,
+              from: metaMaskAddress,
             }
           );
           const sendAmount = web3.utils.toWei(getBridgeEstimateEthFee());
@@ -593,7 +611,7 @@ export const erc20ToOtherSwap =
           let data = amountHex + lenHex.slice(2) + rAddressHex.slice(2);
 
           const result = await bridgeContract.methods
-            .deposit(chainId, getErc20BridgeResourceId(tokenType), data)
+            .deposit(chainId, getBridgeResourceId(tokenType), data)
             .send({ value: sendAmount });
 
           if (result && result.status) {
@@ -619,7 +637,7 @@ export const erc20ToOtherSwap =
               type: "rBridge Swap",
               txDetail: {
                 transactionHash: result.transactionHash,
-                sender: memtaMaskAddress,
+                sender: metaMaskAddress,
               },
               data: {
                 tokenName: tokenStr,
@@ -685,7 +703,7 @@ export const erc20ToOtherSwap =
           getErc20BridgeAbi(),
           getErc20BridgeContractConfig().bridge,
           {
-            from: memtaMaskAddress,
+            from: metaMaskAddress,
           }
         );
         const sendAmount = web3.utils.toWei(getBridgeEstimateEthFee());
@@ -705,7 +723,7 @@ export const erc20ToOtherSwap =
         let data = amountHex + lenHex.slice(2) + rAddressHex.slice(2);
 
         const result = await bridgeContract.methods
-          .deposit(chainId, getErc20BridgeResourceId(tokenType), data)
+          .deposit(chainId, getBridgeResourceId(tokenType), data)
           .send({ value: sendAmount });
 
         if (result && result.status && result.transactionHash) {
@@ -731,7 +749,7 @@ export const erc20ToOtherSwap =
             type: "rBridge Swap",
             txDetail: {
               transactionHash: result.transactionHash,
-              sender: memtaMaskAddress,
+              sender: metaMaskAddress,
             },
             data: {
               tokenName: tokenStr,
@@ -797,13 +815,315 @@ export const erc20ToOtherSwap =
     }
   };
 
-const getBridgeEstimateEthFee = () => {
-  if (isDev()) {
-    return "0.001000";
-  } else {
-    return "0.000020";
-  }
-};
+export const bep20ToOtherSwap =
+  (
+    dstTokenStandard: TokenStandard,
+    tokenStr: TokenName | RTokenName,
+    tokenType: TokenType,
+    tokenAmount: any,
+    targetAddress: string,
+    cb?: Function
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    const chainId =
+      dstTokenStandard === TokenStandard.Native
+        ? ChainId.STAFI
+        : dstTokenStandard === TokenStandard.ERC20
+        ? ChainId.ETH
+        : dstTokenStandard === TokenStandard.BEP20
+        ? ChainId.BSC
+        : dstTokenStandard === TokenStandard.SPL
+        ? ChainId.SOL
+        : -1;
+    dispatch(setIsLoading(true));
+    // dispatch(setSwapLoadingStatus(1));
+    // dispatch(setSwapWaitingTime(600));
+    const metaMaskAddress = getState().wallet.metaMaskAccount;
+    const noticeUuid = stafiUuid();
+
+    // if (dstTokenStandard === BSC_CHAIN_ID) {
+    //   updateSwapParamsOfBep(dispatch, notice_uuid, tokenType, tokenAmount, targetAddress);
+    // } else {
+    //   updateSwapParamsOfNative(dispatch, notice_uuid, tokenType, tokenAmount, targetAddress);
+    // }
+
+    let web3 = createWeb3();
+
+    let tokenAbi: any = "";
+    let tokenAddress = "";
+    let tokenContract: any = "";
+    let allowance: any = 0;
+
+    if (!metaMaskAddress) {
+      dispatch(setIsLoading(false));
+      // dispatch(setSwapLoadingStatus(0));
+      return;
+    }
+
+    const bep20TokenContractConfig = getBep20TokenContractConfig();
+    if (tokenType === "rfis") {
+      tokenAbi = getErc20RFisTokenAbi();
+      tokenAddress = bep20TokenContractConfig.rFIS;
+      // allowance = getState().ETHModule.RFISErc20Allowance;
+    } else if (tokenType === "rksm") {
+      tokenAbi = getErc20RKsmTokenAbi();
+      tokenAddress = bep20TokenContractConfig.rKSM;
+      // allowance = getState().ETHModule.RKSMErc20Allowance;
+    } else if (tokenType === "rdot") {
+      tokenAbi = getErc20RDotTokenAbi();
+      tokenAddress = bep20TokenContractConfig.rDOT;
+      // allowance = getState().ETHModule.RDOTErc20Allowance;
+    } else if (tokenType === "rsol") {
+      // tokenContract = new web3.eth.Contract(solServer.getTokenAbi(), solServer.getRSOLTokenAddress(), {
+      //   from: memtaMaskAddress,
+      // });
+      // allowance = getState().ETHModule.RSOLErc20Allowance;
+    } else if (tokenType === "rmatic") {
+      tokenAbi = getErc20RMaticTokenAbi();
+      tokenAddress = bep20TokenContractConfig.rMATIC;
+      // allowance = getState().ETHModule.RMaticErc20Allowance;
+    } else if (tokenType === "reth") {
+      tokenAbi = getErc20REthTokenAbi();
+      tokenAddress = bep20TokenContractConfig.rETH;
+      // allowance = getState().ETHModule.RETHErc20Allowance;
+    }
+    if (!tokenAbi || !tokenAddress) {
+      dispatch(setIsLoading(false));
+      return;
+    }
+
+    tokenContract = new web3.eth.Contract(tokenAbi, tokenAddress, {
+      from: metaMaskAddress,
+    });
+
+    allowance = await getBep20Allowance(
+      metaMaskAddress,
+      tokenAbi,
+      tokenAddress
+    );
+
+    const amount = web3.utils.toWei(tokenAmount.toString());
+    try {
+      if (Number(allowance) < Number(amount)) {
+        const approveResult = await tokenContract.methods
+          .approve(
+            getBep20BridgeContractConfig().bridgeHandler,
+            web3.utils.toWei("10000000")
+          )
+          .send();
+        if (approveResult && approveResult.status) {
+          let bridgeContract = new web3.eth.Contract(
+            getBep20BridgeAbi(),
+            getBep20BridgeContractConfig().bridge,
+            {
+              from: metaMaskAddress,
+            }
+          );
+          const sendAmount = web3.utils.toWei(getBridgeEstimateBscFee());
+
+          let amountHex = web3.eth.abi.encodeParameter("uint256", amount);
+          let len;
+          let rAddressHex;
+          if (chainId === ChainId.STAFI) {
+            len = "32";
+            rAddressHex = u8aToHex(decodeAddress(targetAddress));
+          } else {
+            len = "20";
+            rAddressHex = targetAddress;
+          }
+          let lenHex = web3.eth.abi.encodeParameter("uint256", len);
+
+          let data = amountHex + lenHex.slice(2) + rAddressHex.slice(2);
+
+          const result = await bridgeContract.methods
+            .deposit(chainId, getBridgeResourceId(tokenType), data)
+            .send({ value: sendAmount });
+
+          if (result && result.status) {
+            cb && cb({ txHash: result.transactionHash });
+
+            const newNotice: LocalNotice = {
+              id: noticeUuid,
+              type: "rBridge Swap",
+              txDetail: {
+                transactionHash: result.transactionHash,
+                sender: metaMaskAddress,
+              },
+              data: {
+                tokenName: tokenStr,
+                amount: Number(tokenAmount) + "",
+                srcTokenStandard: TokenStandard.BEP20,
+                dstTokenStandard,
+                targetAddress: targetAddress,
+              },
+              scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+              status: "Pending",
+            };
+            dispatch(addNotice(newNotice));
+
+            dispatch(
+              setBridgeSwapLoadingParams({
+                modalVisible: true,
+                tokenName: tokenStr,
+                swapAmount: tokenAmount,
+                srcTokenStandard: TokenStandard.BEP20,
+                dstTokenStandard: dstTokenStandard,
+                status: "loading",
+                scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+              })
+            );
+
+            dispatch(
+              checkSwapStatus(
+                dstTokenStandard,
+                tokenStr,
+                tokenType,
+                tokenAmount,
+                targetAddress,
+                (status) => {
+                  if (status === "success") {
+                    dispatch(
+                      setBridgeSwapLoadingParams({
+                        status: "success",
+                      })
+                    );
+
+                    dispatch(updateNotice(noticeUuid, { status: "Confirmed" }));
+                  } else if (status === "pending") {
+                  }
+                }
+              )
+            );
+          } else {
+            // dispatch(setSwapLoadingStatus(0));
+            // message.error("Error! Please try again");
+          }
+        } else {
+          dispatch(setIsLoading(false));
+          if (approveResult.code === 4001) {
+            snackbarUtil.error(CANCELLED_MESSAGE);
+          } else {
+            snackbarUtil.error(approveResult.message);
+          }
+          // dispatch(setSwapLoadingStatus(0));
+          // message.error("Error! Please try again");
+        }
+      } else {
+        let bridgeContract = new web3.eth.Contract(
+          getBep20BridgeAbi(),
+          getBep20BridgeContractConfig().bridge,
+          {
+            from: metaMaskAddress,
+          }
+        );
+        const sendAmount = web3.utils.toWei(getBridgeEstimateBscFee());
+
+        let amountHex = web3.eth.abi.encodeParameter("uint256", amount);
+        let len;
+        let rAddressHex;
+        if (chainId === ChainId.STAFI) {
+          len = "32";
+          rAddressHex = u8aToHex(decodeAddress(targetAddress));
+        } else {
+          len = "20";
+          rAddressHex = targetAddress;
+        }
+        let lenHex = web3.eth.abi.encodeParameter("uint256", len);
+
+        let data = amountHex + lenHex.slice(2) + rAddressHex.slice(2);
+
+        const result = await bridgeContract.methods
+          .deposit(chainId, getBridgeResourceId(tokenType), data)
+          .send({ value: sendAmount });
+
+        if (result && result.status && result.transactionHash) {
+          // dispatch(
+          //   add_Swap_Notice(
+          //     notice_uuid,
+          //     tokenStr,
+          //     tokenAmount,
+          //     noticeStatus.Pending,
+          //     {
+          //       swapType: "erc20",
+          //       destSwapType:
+          //         dstTokenStandard === STAFI_CHAIN_ID ? "native" : "bep20",
+          //       address: targetAddress,
+          //     }
+          //   )
+          // );
+          // dispatch(setSwapLoadingStatus(2));
+          cb && cb({ txHash: result.transactionHash });
+
+          const newNotice: LocalNotice = {
+            id: noticeUuid,
+            type: "rBridge Swap",
+            txDetail: {
+              transactionHash: result.transactionHash,
+              sender: metaMaskAddress,
+            },
+            data: {
+              tokenName: tokenStr,
+              amount: Number(tokenAmount) + "",
+              srcTokenStandard: TokenStandard.BEP20,
+              dstTokenStandard,
+              targetAddress: targetAddress,
+            },
+            scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+            status: "Pending",
+          };
+          dispatch(addNotice(newNotice));
+
+          dispatch(
+            setBridgeSwapLoadingParams({
+              modalVisible: true,
+              tokenName: tokenStr,
+              swapAmount: tokenAmount,
+              srcTokenStandard: TokenStandard.BEP20,
+              dstTokenStandard: dstTokenStandard,
+              status: "loading",
+              scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+            })
+          );
+
+          dispatch(
+            checkSwapStatus(
+              dstTokenStandard,
+              tokenStr,
+              tokenType,
+              tokenAmount,
+              targetAddress,
+              (status) => {
+                if (status === "success") {
+                  dispatch(
+                    setBridgeSwapLoadingParams({
+                      status: "success",
+                    })
+                  );
+
+                  dispatch(updateNotice(noticeUuid, { status: "Confirmed" }));
+                } else if (status === "pending") {
+                }
+              }
+            )
+          );
+        } else {
+          // dispatch(setSwapLoadingStatus(0));
+          // message.error("Error! Please try again");
+        }
+      }
+    } catch (error: unknown) {
+      // dispatch(setSwapLoadingStatus(0));
+      dispatch(setIsLoading(false));
+      console.error((error as any).message);
+      if ((error as any).code === 4001) {
+        snackbarUtil.error(CANCELLED_MESSAGE);
+      } else {
+        snackbarUtil.error((error as any).message);
+      }
+    } finally {
+      // dispatch(setLoading(false));
+    }
+  };
 
 export const checkSwapStatus =
   (
@@ -830,7 +1150,7 @@ export const checkSwapStatus =
       chainId,
       tokenType
     );
-    let oldBalance: string = "0";
+    let oldBalance: string | undefined = "0";
     if (chainId === ChainId.BSC) {
       oldBalance = await getBep20AssetBalance(
         targetAddress,
@@ -889,7 +1209,7 @@ export const checkSwapStatus =
 
     let count = 0;
     while (true) {
-      let newBalance: string = "0";
+      let newBalance: string | undefined = "0";
       if (chainId === ChainId.BSC) {
         newBalance = await getBep20AssetBalance(
           targetAddress,

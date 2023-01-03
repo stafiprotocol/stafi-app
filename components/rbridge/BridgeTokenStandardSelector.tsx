@@ -14,6 +14,7 @@ import { getTokenStandardIcon } from "utils/icon";
 
 interface BridgeTokenStandardSelectorProps {
   isFrom: boolean;
+  selectionList: TokenStandard[];
   selectedStandard: TokenStandard | undefined;
   onChange: (tokenStandard: TokenStandard) => void;
 }
@@ -21,15 +22,12 @@ interface BridgeTokenStandardSelectorProps {
 export const BridgeTokenStandardSelector = (
   props: BridgeTokenStandardSelectorProps
 ) => {
+  const { selectionList } = props;
   const router = useRouter();
   const selectionPopupState = usePopupState({
     variant: "popover",
     popupId: "selection",
   });
-
-  const selectionList = useMemo(() => {
-    return [TokenStandard.Native, TokenStandard.ERC20];
-  }, []);
 
   return (
     <>
@@ -134,13 +132,21 @@ export const BridgeTokenStandardSelector = (
                     />
                   </div>
                   <div className="ml-[.12rem] text-text1 text-[.24rem]">
-                    {item === TokenStandard.Native ? "StaFi Chain" : "Ethereum"}
+                    {item === TokenStandard.Native
+                      ? "StaFi Chain"
+                      : item === TokenStandard.BEP20
+                      ? "BSC"
+                      : "Ethereum"}
                   </div>
                 </div>
 
                 <div className="flex items-center">
                   <div className="text-text1 text-[.24rem]">
-                    {item === TokenStandard.Native ? "Native" : "ERC20"}
+                    {item === TokenStandard.Native
+                      ? "Native"
+                      : item === TokenStandard.BEP20
+                      ? "BEP20"
+                      : "ERC20"}
                   </div>
 
                   <div className="ml-[.24rem]">

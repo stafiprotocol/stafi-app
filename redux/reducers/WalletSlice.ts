@@ -161,7 +161,7 @@ export const connectMetaMask =
       } else if (targetChainId === getMetamaskValidatorChainId()) {
         metaMask.activate(getMetaMaskValidatorConnectConfig());
       } else if (targetChainId === getMetamaskEthChainId()) {
-        metaMask.activate(getMetaMaskEthConnectConfig());
+        metaMask.activate(getMetamaskEthChainId());
       } else if (targetChainId === getMetamaskMaticChainId()) {
         metaMask.activate(getMetamaskMaticChainId());
       } else if (targetChainId === getMetamaskBscChainId()) {

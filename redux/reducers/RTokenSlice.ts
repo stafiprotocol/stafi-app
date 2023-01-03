@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   getBep20RDotTokenAbi,
   getBep20REthTokenAbi,
+  getBep20RFisTokenAbi,
   getBep20RKsmTokenAbi,
 } from "config/bep20Abi";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
@@ -250,6 +251,9 @@ export const updateRTokenBalance =
         if (tokenName === TokenName.ETH) {
           tokenAbi = getBep20REthTokenAbi();
           tokenAddress = bep20TokenContractConfig.rETH;
+        } else if (tokenName === TokenName.FIS) {
+          tokenAbi = getBep20RFisTokenAbi();
+          tokenAddress = bep20TokenContractConfig.rFIS;
         } else if (tokenName === TokenName.MATIC) {
           tokenAbi = getBSCRMaticAbi();
           tokenAddress = bep20TokenContractConfig.rMATIC;

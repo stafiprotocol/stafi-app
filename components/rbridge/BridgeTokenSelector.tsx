@@ -22,28 +22,19 @@ import { rTokenNameToTokenName } from "utils/rToken";
 import { BridgeRTokenBalance } from "./BridgeRTokenBalance";
 
 interface BridgeTokenSelectorProps {
+  selectionList: (TokenName.FIS | RTokenName)[];
   srcTokenStandard: TokenStandard | undefined;
   selectedTokenName: TokenName.FIS | RTokenName | undefined;
   onChange: (tokenStandard: TokenName.FIS | RTokenName) => void;
 }
 
 export const BridgeTokenSelector = (props: BridgeTokenSelectorProps) => {
+  const { selectionList } = props;
   const router = useRouter();
   const selectionPopupState = usePopupState({
     variant: "popover",
     popupId: "selection",
   });
-
-  const selectionList: (TokenName.FIS | RTokenName)[] = useMemo(() => {
-    return [
-      TokenName.FIS,
-      RTokenName.rFIS,
-      RTokenName.rETH,
-      RTokenName.rMATIC,
-      RTokenName.rKSM,
-      RTokenName.rDOT,
-    ];
-  }, []);
 
   return (
     <>
