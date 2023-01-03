@@ -19,8 +19,10 @@ import {
 } from "material-ui-popup-state/hooks";
 import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { MyTooltip } from "components/common/MyTooltip";
-import { CustomInput } from "components/common/CustomInput";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
+import downIcon from "public/icon_down.png";
+import ethLogo from "public/eth_type_green.svg";
+import { TokenName } from "interfaces/common";
 
 const FisStationModal = () => {
   const dispatch = useAppDispatch();
@@ -34,6 +36,8 @@ const FisStationModal = () => {
   const { swapLimit } = useFisStationPoolInfo();
 
   const [slippage, setSlippage] = useState<number>(0.5);
+  const [swapTokenAmount, setSwapTokenAmount] = useState<string>("");
+  const [swapFisAmount, setSwapFisAmount] = useState<string>("");
 
   const onClose = () => {
     dispatch(setFisStationModalVisible(false));
@@ -43,9 +47,21 @@ const FisStationModal = () => {
     return [false, "Swap"];
   }, []);
 
-	const onClickSlippageAuto = () => {
-		setSlippage(1);
-	}
+  const onClickSlippageAuto = () => {
+    setSlippage(1);
+  };
+
+  const onChangeSwapTokenAmount = (value: string) => {
+    setSwapTokenAmount(value);
+  };
+
+  const onChangeSwapFisAmount = (value: string) => {
+    setSwapFisAmount(value);
+  };
+
+  const getTokenLogo = (tokenName: TokenName) => {
+    return ethLogo;
+  };
 
   const settingsPopUpState = usePopupState({
     variant: "popover",
@@ -127,9 +143,10 @@ const FisStationModal = () => {
                 <MyTooltip text="Slippage" title="" color="#9DAFBE" />
               </div>
               <div className="flex mt-[.22rem] items-center">
-                <div className="w-[1.35rem] h-[.57rem] bg-[#1A2835] px-[.4rem] py-[.15rem] rounded-[.17rem] text-white cursor-pointer"
-								onClick={onClickSlippageAuto}
-								>
+                <div
+                  className="w-[1.35rem] h-[.57rem] bg-[#1A2835] px-[.4rem] py-[.15rem] rounded-[.17rem] text-white cursor-pointer"
+                  onClick={onClickSlippageAuto}
+                >
                   Auto
                 </div>
                 <div
@@ -142,20 +159,116 @@ const FisStationModal = () => {
                     placeholder="Slippage"
                     value={slippage + ""}
                     handleValueChange={(value) => setSlippage(Number(value))}
-										fontSize=".24rem"
+                    fontSize=".24rem"
                   />
-								<div className="text-white text-[.24rem]">%</div>
+                  <div className="text-white text-[.24rem]">%</div>
                 </div>
               </div>
             </Popover>
 
-            <div className="mt-[3.22rem]">
-              <div></div>
-              <div></div>
-              <div></div>
+            <div className="mt-[3.22rem] relative">
+              <div
+                className="h-[1.5rem] rounded-[.32rem] flex relative"
+                style={{
+                  background: "rgba(25, 38, 52, 0.35)",
+                }}
+              >
+                <div
+                  className="rounded-[.16rem] w-[2.13rem] h-[.86rem] my-[.32rem] ml-[.36rem] flex items-center relative cursor-pointer"
+                  style={{
+                    background: "rgba(25, 38, 52, 0.35)",
+                    border: "1px solid #1A2835",
+                  }}
+                >
+                  <div className="relative w-[.36rem] h-[.36rem] ml-[.24rem]">
+                    <Image src={getTokenLogo(TokenName.ETH)} alt="logo" />
+                  </div>
+                  <div className="text-white text-[.24rem] ml-[.12rem]">
+                    ETH
+                  </div>
+                  <div className="w-[.2rem] h-[.1rem] absolute right-[.28rem]">
+                    <Image src={downIcon} layout="fill" alt="down" />
+                  </div>
+                </div>
+                <div className="flex flex-col ml-[.55rem] h-full justify-center pt-[.21rem] min-w-[60%]">
+                  <div className="font-[700]">
+                    <CustomNumberInput
+                      placeholder="Swap Amount"
+                      value={swapTokenAmount}
+                      handleValueChange={onChangeSwapTokenAmount}
+                      fontSize=".36rem"
+                    />
+                  </div>
+                  <div className="text-[.2rem] text-text2 mt-[.12rem]">
+                    ~$923.2
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center items-end h-full absolute right-[.36rem]">
+                  <div className="rounded-[.17rem] bg-[#1A2835] text-[.24rem] text-white w-[1.35rem] h-[.57rem] text-center pt-[.15rem] cursor-pointer">
+                    Max
+                  </div>
+                  <div className="text-[.2rem] text-text2 mt-[.15rem]">
+                    Balance: 282 ETH
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="w-[.92rem] h-[.72rem] rounded-[.32rem] absolute top-[1.26rem] flex justify-center items-center"
+                style={{
+                  border: "1px solid #1A2835",
+                  background: "rgba(9, 15, 23, 0.35)",
+                  left: "calc(50% - .46rem)",
+                  backdropFilter: "blur(.4rem)",
+                }}
+              >
+                <div className="w-[.2rem] h-[.1rem] relative">
+                  <Image src={downIcon} layout="fill" alt="down" />
+                </div>
+              </div>
+
+              <div
+                className="h-[1.5rem] rounded-[.32rem] mt-[.24rem] flex relative"
+                style={{
+                  background: "rgba(25, 38, 52, 0.35)",
+                }}
+              >
+                <div
+                  className="rounded-[.16rem] w-[2.13rem] h-[.86rem] my-[.32rem] ml-[.36rem] flex items-center"
+                  style={{
+                    background: "rgba(25, 38, 52, 0.35)",
+                    border: "1px solid #1A2835",
+                  }}
+                >
+                  <div className="relative w-[.36rem] h-[.36rem] ml-[.24rem]">
+                    <Image src={getTokenLogo(TokenName.ETH)} alt="logo" />
+                  </div>
+                  <div className="text-white text-[.24rem] ml-[.12rem]">
+                    FIS
+                  </div>
+                </div>
+                <div className="flex flex-col ml-[.55rem] h-full justify-center pt-[.21rem] min-w-[60%]">
+                  <div className="font-[700]">
+                    <CustomNumberInput
+                      placeholder="Swap Amount"
+                      value={swapTokenAmount}
+                      handleValueChange={onChangeSwapTokenAmount}
+                      fontSize=".36rem"
+                    />
+                  </div>
+                  <div className="text-[.2rem] text-text2 mt-[.12rem]">
+                    ~$923.2
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center items-end h-full absolute right-[.36rem]">
+                  <div className="text-[.2rem] text-text2 mt-[.15rem]">
+                    Balance: 282 FIS
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div>
+            <div className="mt-[.56rem]">
               <Button radius=".32rem">{buttonText}</Button>
             </div>
 
