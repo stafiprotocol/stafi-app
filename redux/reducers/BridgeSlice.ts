@@ -631,6 +631,7 @@ export const erc20ToOtherSwap =
             // );
             // dispatch(setSwapLoadingStatus(2));
             cb && cb({ txHash: result.transactionHash });
+            dispatch(setIsLoading(false));
 
             const newNotice: LocalNotice = {
               id: noticeUuid,
@@ -743,6 +744,7 @@ export const erc20ToOtherSwap =
           // );
           // dispatch(setSwapLoadingStatus(2));
           cb && cb({ txHash: result.transactionHash });
+          dispatch(setIsLoading(false));
 
           const newNotice: LocalNotice = {
             id: noticeUuid,
@@ -941,6 +943,7 @@ export const bep20ToOtherSwap =
 
           if (result && result.status) {
             cb && cb({ txHash: result.transactionHash });
+            dispatch(setIsLoading(false));
 
             const newNotice: LocalNotice = {
               id: noticeUuid,
@@ -1053,6 +1056,7 @@ export const bep20ToOtherSwap =
           // );
           // dispatch(setSwapLoadingStatus(2));
           cb && cb({ txHash: result.transactionHash });
+          dispatch(setIsLoading(false));
 
           const newNotice: LocalNotice = {
             id: noticeUuid,
