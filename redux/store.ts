@@ -11,6 +11,7 @@ import fisReducer from "./reducers/FisSlice";
 import bridgeReducer from "./reducers/BridgeSlice";
 import bnbReducer from "./reducers/BnbSlice";
 import mintProgramReducer from "./reducers/MintProgramSlice";
+import fisStationReducer from "./reducers/FisStationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     bridge: bridgeReducer,
     bnb: bnbReducer,
     mintProgram: mintProgramReducer,
+    fisStation: fisStationReducer,
   },
 });
 

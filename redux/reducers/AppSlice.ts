@@ -124,6 +124,7 @@ export interface AppState {
   redeemLoadingParams: RedeemLoadingParams | undefined;
   refreshDataFlag: number;
   collapseOpenId: string | undefined;
+  fisStationModalVisible: boolean;
 }
 
 const initialState: AppState = {
@@ -135,6 +136,7 @@ const initialState: AppState = {
   redeemLoadingParams: undefined,
   refreshDataFlag: 0,
   collapseOpenId: undefined,
+  fisStationModalVisible: false,
 };
 
 export const appSlice = createSlice({
@@ -189,6 +191,12 @@ export const appSlice = createSlice({
     ) => {
       state.collapseOpenId = action.payload;
     },
+    setFisStationModalVisible: (
+      state: AppState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.fisStationModalVisible = action.payload;
+    },
   },
 });
 
@@ -202,6 +210,7 @@ export const {
   setRedeemLoadingParams,
   setRefreshDataFlag,
   setCollapseOpenId,
+  setFisStationModalVisible,
 } = appSlice.actions;
 
 export default appSlice.reducer;

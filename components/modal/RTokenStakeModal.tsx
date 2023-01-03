@@ -63,7 +63,7 @@ import {
   transformSs58Address,
 } from "utils/polkadotUtils";
 import { handleDotStake } from "redux/reducers/DotSlice";
-import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
+import { setFisStationModalVisible, updateRefreshDataFlag } from "redux/reducers/AppSlice";
 import { useStakeFees } from "hooks/useStakeFees";
 import { StakeFee } from "components/rtoken/StakeFee";
 
@@ -990,7 +990,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                 <div
                   className="ml-[.22rem] flex items-center text-primary cursor-pointer"
                   onClick={() => {
-                    openLink("https://app.stafi.io/feeStation");
+										dispatch(setFisStationModalVisible(true));
                   }}
                 >
                   <div className="mr-[.16rem]">Go FIS Station</div>

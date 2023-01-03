@@ -30,7 +30,7 @@ import dotBlackIcon from "public/dot_type_black.png";
 import rectangle from "public/rectangle_h.svg";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
+import { setFisStationModalVisible, updateRefreshDataFlag } from "redux/reducers/AppSlice";
 import { getDotUnbondTxFees, unstakeRDot } from "redux/reducers/DotSlice";
 import { getKsmUnbondTxFees, unstakeRKsm } from "redux/reducers/KsmSlice";
 import { getMaticUnbondTxFees, unbondRMatic } from "redux/reducers/MaticSlice";
@@ -703,7 +703,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               <div
                 className="ml-[.22rem] flex items-center text-primary cursor-pointer"
                 onClick={() => {
-                  openLink("https://app.stafi.io/feeStation");
+									dispatch(setFisStationModalVisible(true));
                 }}
               >
                 <div className="mr-[.16rem]">Go FIS Station</div>
