@@ -22,7 +22,12 @@ import { MyTooltip } from "components/common/MyTooltip";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import downIcon from "public/icon_down.png";
 import ethLogo from "public/eth_type_green.svg";
+import dotLogo from "public/dot_type_green.png";
+import maticLogo from "public/matic_type_green.svg";
+import ksmLogo from "public/ksm_type_green.png";
+import atomLogo from "public/atom_type_green.svg";
 import { TokenName } from "interfaces/common";
+import { PoolInfoItem } from "redux/reducers/FisStationSlice";
 
 const FisStationModal = () => {
   const dispatch = useAppDispatch();
@@ -33,11 +38,14 @@ const FisStationModal = () => {
     };
   });
 
-  const { swapLimit } = useFisStationPoolInfo();
+  const { swapLimit, poolInfoList } = useFisStationPoolInfo();
 
   const [slippage, setSlippage] = useState<number>(0.5);
   const [swapTokenAmount, setSwapTokenAmount] = useState<string>("");
   const [swapFisAmount, setSwapFisAmount] = useState<string>("");
+  const [selectedToken, setSelectedToken] = useState<TokenName | undefined>(
+    poolInfoList.length > 0 ? poolInfoList[0].symbol : undefined
+  );
 
   const onClose = () => {
     dispatch(setFisStationModalVisible(false));
@@ -60,12 +68,22 @@ const FisStationModal = () => {
   };
 
   const getTokenLogo = (tokenName: TokenName) => {
+    if (tokenName === TokenName.DOT) return dotLogo;
+    if (tokenName === TokenName.KSM) return ksmLogo;
+    if (tokenName === TokenName.MATIC) return maticLogo;
+    if (tokenName === TokenName.ETH) return ethLogo;
+    if (tokenName === TokenName.ATOM) return atomLogo;
     return ethLogo;
   };
 
   const settingsPopUpState = usePopupState({
     variant: "popover",
     popupId: "settings",
+  });
+
+  const tokenTypePopUpState = usePopupState({
+    variant: "popover",
+    popupId: "tokenType",
   });
 
   return (
@@ -130,6 +148,7 @@ const FisStationModal = () => {
                   backdropFilter: "blur(.4rem)",
                   borderRadius: ".16rem",
                   padding: ".2rem",
+                  paddingBottom: ".56rem",
                 },
                 "& .MuiTypography-root": {
                   padding: "0px",
@@ -166,7 +185,7 @@ const FisStationModal = () => {
               </div>
             </Popover>
 
-            <div className="mt-[3.22rem] relative">
+            <div className="mt-[2rem] relative">
               <div
                 className="h-[1.5rem] rounded-[.32rem] flex relative"
                 style={{
@@ -179,13 +198,18 @@ const FisStationModal = () => {
                     background: "rgba(25, 38, 52, 0.35)",
                     border: "1px solid #1A2835",
                   }}
+                  {...bindTrigger(tokenTypePopUpState)}
                 >
-                  <div className="relative w-[.36rem] h-[.36rem] ml-[.24rem]">
-                    <Image src={getTokenLogo(TokenName.ETH)} alt="logo" />
-                  </div>
-                  <div className="text-white text-[.24rem] ml-[.12rem]">
-                    ETH
-                  </div>
+                  {selectedToken && (
+                    <>
+                      <div className="relative w-[.36rem] h-[.36rem] ml-[.24rem]">
+                        <Image src={getTokenLogo(selectedToken)} alt="logo" />
+                      </div>
+                      <div className="text-white text-[.24rem] ml-[.12rem]">
+                        {selectedToken}
+                      </div>
+                    </>
+                  )}
                   <div className="w-[.2rem] h-[.1rem] absolute right-[.28rem]">
                     <Image src={downIcon} layout="fill" alt="down" />
                   </div>
@@ -286,6 +310,86 @@ const FisStationModal = () => {
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">11</div>
               </div>
             </div>
+
+            <Popover
+              {...bindPopover(tokenTypePopUpState)}
+              transformOrigin={{
+                horizontal: "center",
+                vertical: "top",
+              }}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              sx={{
+                marginTop: ".1rem",
+                "& .MuiPopover-paper": {
+                  background: "rgba(9, 15, 23, 0.25)",
+                  border: "1px solid #26494E",
+                  backdropFilter: "blur(.4rem)",
+                  borderRadius: ".16rem",
+                  padding: ".32rem .24rem",
+                },
+                "& .MuiTypography-root": {
+                  padding: "0px",
+                },
+              }}
+            >
+              <div className="text-[.2rem] text-text1 mb-[.24rem]">
+                Choose Token Type
+              </div>
+              {poolInfoList.map((info: PoolInfoItem, index: number) => (
+                <div
+                  className="flex justify-between h-[.76rem] items-center min-w-[4rem]"
+                  style={{
+                    borderBottom:
+                      index === poolInfoList.length - 1
+                        ? "none"
+                        : "1px solid #26494E",
+                  }}
+                  onClick={() => setSelectedToken(info.symbol)}
+                >
+                  <div className="flex items-center">
+                    <div className="w-[.36rem] h-[.36rem] relative">
+                      <Image
+                        src={getTokenLogo(info.symbol)}
+                        alt="tokenLogo"
+                        layout="fill"
+                      />
+                    </div>
+                    <div
+                      className="text-[.24rem] ml-[.12rem]"
+                      style={{
+                        fontWeight:
+                          info.symbol === selectedToken ? "700" : "400",
+                        color:
+                          info.symbol === selectedToken ? "#00F3AB" : "#9DAFBE",
+                      }}
+                    >
+                      {info.symbol}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end">
+                    <div
+                      className="text-[.18rem] mr-[.24rem]"
+                      style={{
+                        color:
+                          info.symbol === selectedToken ? "#00F3AB" : "#9DAFBE",
+                      }}
+                    >
+                      20
+                    </div>
+                    <div>
+                      {info.symbol === selectedToken ? (
+                        <Icomoon icon="active" size=".24rem" />
+                      ) : (
+                        <div className="border-[1px] border-solid rounded-full border-white/50 w-[.24rem] h-[.24rem]" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </Popover>
           </div>
         </Card>
       </DialogContent>
