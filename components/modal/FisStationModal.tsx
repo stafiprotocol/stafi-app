@@ -27,25 +27,71 @@ import maticLogo from "public/matic_type_green.svg";
 import ksmLogo from "public/ksm_type_green.png";
 import atomLogo from "public/atom_type_green.svg";
 import { TokenName } from "interfaces/common";
-import { PoolInfoItem } from "redux/reducers/FisStationSlice";
+import { handleSwap, PoolInfoItem } from "redux/reducers/FisStationSlice";
+import { useWalletAccount } from "hooks/useWalletAccount";
+import { useKsmBalance } from "hooks/useKsmBalance";
+import { useDotBalance } from "hooks/useDotBalance";
+import { formatNumber } from "utils/number";
+import numberUtil from "utils/numberUtil";
+import { PriceItem } from "redux/reducers/RTokenSlice";
 
 const FisStationModal = () => {
   const dispatch = useAppDispatch();
 
-  const { fisStationModalVisible } = useAppSelector((state: RootState) => {
-    return {
-      fisStationModalVisible: state.app.fisStationModalVisible,
-    };
-  });
+  const { fisStationModalVisible, priceList } = useAppSelector(
+    (state: RootState) => {
+      return {
+        fisStationModalVisible: state.app.fisStationModalVisible,
+        priceList: state.rToken.priceList,
+      };
+    }
+  );
 
   const { swapLimit, poolInfoList } = useFisStationPoolInfo();
+
+  const { polkadotBalance } = useWalletAccount();
+  const ksmBalance = useKsmBalance();
+  const dotBalance = useDotBalance();
+  const { ethBalance, maticBalance } = useAppSelector((state: RootState) => {
+    return {
+      ethBalance: state.eth.balance,
+      maticBalance: state.matic.balance,
+    };
+  });
 
   const [slippage, setSlippage] = useState<number>(0.5);
   const [swapTokenAmount, setSwapTokenAmount] = useState<string>("");
   const [swapFisAmount, setSwapFisAmount] = useState<string>("");
   const [selectedToken, setSelectedToken] = useState<TokenName | undefined>(
-    poolInfoList.length > 0 ? poolInfoList[0].symbol : undefined
+    undefined
   );
+
+  const selectedTokenBalance = useMemo(() => {
+    if (selectedToken === TokenName.DOT) return dotBalance;
+    if (selectedToken === TokenName.KSM) return ksmBalance;
+    if (selectedToken === TokenName.ETH) return ethBalance;
+    if (selectedToken === TokenName.MATIC) return maticBalance;
+  }, [selectedToken]);
+
+  const swapTokenAmountValue = useMemo(() => {
+    const tokenPrice = priceList.find(
+      (priceItem: PriceItem) => priceItem.symbol === selectedToken
+    );
+    if (!selectedToken || swapTokenAmount === "" || !tokenPrice) {
+      return "--";
+    }
+    return Number(tokenPrice.price) * Number(swapTokenAmount);
+  }, [swapTokenAmount, priceList, selectedToken]);
+
+  const swapFisAmountValue = useMemo(() => {
+    const fisPrice = priceList.find(
+      (priceItem: PriceItem) => priceItem.symbol === TokenName.FIS
+    );
+    if (swapFisAmount === "" || !fisPrice) {
+      return "--";
+    }
+    return Number(fisPrice.price) * Number(swapFisAmount);
+  }, [swapFisAmount, priceList]);
 
   const onClose = () => {
     dispatch(setFisStationModalVisible(false));
@@ -61,10 +107,49 @@ const FisStationModal = () => {
 
   const onChangeSwapTokenAmount = (value: string) => {
     setSwapTokenAmount(value);
+    const currentPoolInfo = poolInfoList.find(
+      (info: PoolInfoItem) => info.symbol === selectedToken
+    );
+    if (!currentPoolInfo || value === "") {
+      setSwapFisAmount("");
+      return;
+    }
+    const fisAmount =
+      (Number(value) * Number(currentPoolInfo.swapRate)) / 1000000;
+    setSwapFisAmount(numberUtil.handleFisRoundToFixed(fisAmount));
   };
 
   const onChangeSwapFisAmount = (value: string) => {
     setSwapFisAmount(value);
+    const currentPoolInfo = poolInfoList.find(
+      (info: PoolInfoItem) => info.symbol === selectedToken
+    );
+    if (!currentPoolInfo || value === "") {
+      setSwapTokenAmount("");
+      return;
+    }
+    const tokenAmount =
+      (Number(value) * 1000000) / Number(currentPoolInfo.swapRate);
+    setSwapTokenAmount(numberUtil.handleFisRoundToFixed(tokenAmount));
+  };
+
+  const onSelectTokenType = (tokenName: TokenName) => {
+    setSelectedToken(tokenName);
+    setSwapFisAmount("");
+    setSwapTokenAmount("");
+  };
+
+  const onClickMaxTokenAmount = () => {
+    const tokenBalance = selectedTokenBalance;
+    if (tokenBalance) {
+      onChangeSwapTokenAmount(
+        formatNumber(tokenBalance, { toReadable: false })
+      );
+    }
+  };
+
+  const onClickSwap = () => {
+    // dispatch(handleSwap(selectedToken, ))
   };
 
   const getTokenLogo = (tokenName: TokenName) => {
@@ -85,6 +170,12 @@ const FisStationModal = () => {
     variant: "popover",
     popupId: "tokenType",
   });
+
+  useEffect(() => {
+    if (!selectedToken && poolInfoList.length > 0) {
+      setSelectedToken(poolInfoList[0].symbol);
+    }
+  }, [poolInfoList]);
 
   return (
     <Dialog
@@ -224,15 +315,19 @@ const FisStationModal = () => {
                     />
                   </div>
                   <div className="text-[.2rem] text-text2 mt-[.12rem]">
-                    ~$923.2
+                    ~${formatNumber(swapTokenAmountValue)}
                   </div>
                 </div>
                 <div className="flex flex-col justify-center items-end h-full absolute right-[.36rem]">
-                  <div className="rounded-[.17rem] bg-[#1A2835] text-[.24rem] text-white w-[1.35rem] h-[.57rem] text-center pt-[.15rem] cursor-pointer">
+                  <div
+                    className="rounded-[.17rem] bg-[#1A2835] text-[.24rem] text-white w-[1.35rem] h-[.57rem] text-center pt-[.15rem] cursor-pointer"
+                    onClick={onClickMaxTokenAmount}
+                  >
                     Max
                   </div>
                   <div className="text-[.2rem] text-text2 mt-[.15rem]">
-                    Balance: 282 ETH
+                    Balance:{" "}
+                    {`${formatNumber(selectedTokenBalance)} ${selectedToken}`}
                   </div>
                 </div>
               </div>
@@ -275,25 +370,27 @@ const FisStationModal = () => {
                   <div className="font-[700]">
                     <CustomNumberInput
                       placeholder="Swap Amount"
-                      value={swapTokenAmount}
-                      handleValueChange={onChangeSwapTokenAmount}
+                      value={swapFisAmount}
+                      handleValueChange={onChangeSwapFisAmount}
                       fontSize=".36rem"
                     />
                   </div>
                   <div className="text-[.2rem] text-text2 mt-[.12rem]">
-                    ~$923.2
+                    ~${formatNumber(swapFisAmountValue)}
                   </div>
                 </div>
                 <div className="flex flex-col justify-center items-end h-full absolute right-[.36rem]">
                   <div className="text-[.2rem] text-text2 mt-[.15rem]">
-                    Balance: 282 FIS
+                    Balance: {formatNumber(polkadotBalance)} FIS
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="mt-[.56rem]">
-              <Button radius=".32rem">{buttonText}</Button>
+              <Button radius=".32rem" disabled={buttonDisabled}>
+                {buttonText}
+              </Button>
             </div>
 
             <div className="mt-[.8rem] flex items-center justify-around">
@@ -347,7 +444,7 @@ const FisStationModal = () => {
                         ? "none"
                         : "1px solid #26494E",
                   }}
-                  onClick={() => setSelectedToken(info.symbol)}
+                  onClick={() => onSelectTokenType(info.symbol)}
                 >
                   <div className="flex items-center">
                     <div className="w-[.36rem] h-[.36rem] relative">

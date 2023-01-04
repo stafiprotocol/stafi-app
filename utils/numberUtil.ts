@@ -152,6 +152,15 @@ const numberUtil = {
 		}
 		
 		return divide(Number(amount), Number(factor));
+	},
+	handleFisRoundToFixed(amount: string | number) {
+		if (amount === "--") {
+			return "--";
+		}
+		if (isNaN(Number(amount))) {
+			return "0";
+		}
+		return (Math.round(Number(amount) * 100000000) / 100000000).toFixed(6);
 	}
 }
 

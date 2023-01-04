@@ -73,3 +73,10 @@ export const updatePoolInfoList =
       }
     } catch (err: any) {}
   };
+
+export const handleSwap = (tokenName: TokenName, amount: string, cb?: Function): AppThunk =>
+async (dispatch, getState) => {
+	const poolInfoList = getState().fisStation.poolInfoList;
+	const selectedPoolInfo = poolInfoList.find((info: PoolInfoItem) => info.symbol === tokenName);
+	if (!selectedPoolInfo) return;
+}
