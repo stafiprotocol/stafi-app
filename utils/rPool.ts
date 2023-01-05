@@ -15,6 +15,7 @@ export default class RPoolServer {
     if (actLatestCycle === 0) {
       // console.log(`empty ${tokenSymbol} mint info`);
     } else {
+			// @ts-ignore
       const lastHeader = await api.rpc.chain.getHeader();
       if (!lastHeader || !lastHeader.toJSON()) {
         return acts;
@@ -59,6 +60,7 @@ export default class RPoolServer {
     if (rEthActLatestCycle === 0) {
       // console.log("empty rEth mint info");
     } else {
+			// @ts-ignore
       const lastHeader = await api.rpc.chain.getHeader();
       if (!lastHeader || !lastHeader.toJSON()) {
         return acts;
@@ -186,6 +188,7 @@ export default class RPoolServer {
           totalReward += BigInt(claimInfoJson.total_reward);
 
           const finalBlock = claimInfoJson.mint_block + actJson.locked_blocks;
+					// @ts-ignore
           const lastHeader = await api.rpc.chain.getHeader();
           if (!lastHeader.toJSON()) continue;
           const nowBlock: number = Number(lastHeader.toJSON().number);

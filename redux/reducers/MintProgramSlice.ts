@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RTokenName, TokenName, TokenSymbol } from "interfaces/common";
 import { AppThunk } from "redux/store";
-import RPoolServer from "servers/rpool";
+import RPoolServer from "utils/rPool";
 import { stafiServer } from "servers/stafi";
 import { rTokenNameToTokenSymbol } from "utils/rToken";
 import keyring from "servers/keyring";
