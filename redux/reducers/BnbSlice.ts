@@ -9,7 +9,7 @@ import {
   CANCELLED_MESSAGE,
 } from "utils/constants";
 import snackbarUtil from "utils/snackbarUtils";
-import { createWeb3 } from "utils/web3Utils";
+import { createWeb3, getMetaMaskTxErrorMsg } from "utils/web3Utils";
 import Web3 from "web3";
 import {
   addNotice,
@@ -20,10 +20,13 @@ import {
   updateStakeLoadingParams,
 } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
-import { bond, fisUnbond } from "./FisSlice";
+import { bond, fisUnbond, getMinting } from "./FisSlice";
 import keyring from "servers/keyring";
 import { u8aToHex } from "@polkadot/util";
 import numberUtil from "utils/numberUtil";
+import { getBnbStakePortalAbi, getBnbStakePortalAddress } from "config/bnb";
+import { getEtherScanTxUrl } from "config/explorer";
+import { LocalNotice } from "utils/notice";
 
 const commonSlice = new CommonSlice();
 
@@ -89,7 +92,7 @@ export const {
   setUnbondCommision,
 } = bnbSlice.actions;
 
-declare const window: any;
+declare const ethereum: any;
 
 export default bnbSlice.reducer;
 
@@ -98,10 +101,11 @@ export const updateBnbBalance = (): AppThunk => async (dispatch, getState) => {
   if (!account) return;
 
   try {
-    const balance = await window.ethereum.request({
+    const balance = await ethereum.request({
       method: "eth_getBalance",
       params: [account, "latest"],
     });
+		console.log({balance})
     dispatch(setBalance(Web3.utils.fromWei(balance.toString())));
   } catch (err) {
     console.error(err);
@@ -115,6 +119,7 @@ export const handleBnbStake =
     tokenStandard: TokenStandard | undefined,
     targetAddress: string,
     newTotalStakedAmount: string,
+    txFee: string,
     isReTry: boolean,
     cb?: (success: boolean) => void
   ): AppThunk =>
@@ -141,74 +146,29 @@ export const handleBnbStake =
 
     dispatch(setIsLoading(true));
 
-    let steps = ["sending", "staking", "minting"];
-    if (tokenStandard !== TokenStandard.Native) {
-      steps.push("swapping");
-    }
-
-    dispatch(
-      resetStakeLoadingParams({
-        modalVisible: true,
-        noticeUuid,
-        status: "loading",
-        tokenName: TokenName.BNB,
-        amount: stakeAmount,
-        willReceiveAmount: willReceiveAmount,
-        newTotalStakedAmount,
-        targetAddress,
-        tokenStandard,
-        steps,
-        userAction: undefined,
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-          sendingParams,
-          staking: {},
-          minting: {},
-          swapping: {},
-        },
-      })
-    );
-
-    const web3 = createWeb3();
-    const amount = web3.utils.toWei(stakeAmount, "ether");
-    const amountInBnb = numberUtil.tokenAmountToChain(stakeAmount, rSymbol.Bnb);
-
-    const validPools = getState().bnb.validPools;
-    const poolLimit = getState().bnb.poolLimit;
-
-    const metaMaskAccount = getState().wallet.metaMaskAccount;
-
-    const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
-    if (!selectedPool || !metaMaskAccount) return null;
-
     try {
-      const amountHex = web3.utils.toHex(amount);
-      const txParams = {
-        value: amountHex,
-        gas: "0x54647",
-        to: selectedPool.address,
-        from: metaMaskAccount,
-        chainId: getEthChainId(),
-      };
-
-      const txHash = await window.ethereum
-        .request({
-          method: "eth_sendTransaction",
-          params: [txParams],
-        })
-        .catch((err: any) => {
-          throw err;
-        });
+      let steps = ["sending", "staking", "minting"];
+      if (tokenStandard !== TokenStandard.Native) {
+        steps.push("swapping");
+      }
 
       dispatch(
-        updateStakeLoadingParams({
+        resetStakeLoadingParams({
+          modalVisible: true,
+          noticeUuid,
+          status: "loading",
+          tokenName: TokenName.BNB,
+          amount: stakeAmount,
+          willReceiveAmount: willReceiveAmount,
+          newTotalStakedAmount,
+          targetAddress,
+          tokenStandard,
+          steps,
           progressDetail: {
             sending: {
               totalStatus: "loading",
-              broadcastStatus: "loading",
             },
+            sendingParams,
             staking: {},
             minting: {},
             swapping: {},
@@ -216,46 +176,139 @@ export const handleBnbStake =
         })
       );
 
-      if (!txHash) {
-        throw new Error("tx error");
+      const web3 = createWeb3();
+      const amount = web3.utils.toWei(stakeAmount, "ether");
+      const amountInBnb = numberUtil.tokenAmountToChain(
+        stakeAmount,
+        rSymbol.Bnb
+      );
+
+      const validPools = getState().bnb.validPools;
+      const poolLimit = getState().bnb.poolLimit;
+
+      const metaMaskAccount = getState().wallet.metaMaskAccount;
+      if (!metaMaskAccount) {
+        throw new Error("Please connect MetaMask");
       }
 
+      const selectedPool = commonSlice.getPool(amount, validPools, poolLimit);
+      if (!selectedPool) {
+        throw new Error("Invalid pool");
+      }
+
+      const polkadotAccount = getState().wallet.polkadotAccount;
+      const stakePortalAddress = getBnbStakePortalAddress();
+      const contractStakePortal = new web3.eth.Contract(
+        getBnbStakePortalAbi(),
+        stakePortalAddress,
+        { from: metaMaskAccount }
+      );
+      const keyringInstance = keyring.init(Symbol.Fis);
+      const polkadotPubKey = u8aToHex(
+        keyringInstance.decodeAddress(polkadotAccount as string)
+      );
+
+      dispatch(
+        updateStakeLoadingParams({
+          progressDetail: {
+            staking: {
+              totalStatus: "loading",
+              broadcastStatus: "loading",
+            },
+          },
+          customMsg: `Please confirm the ${stakeAmount} BNB staking transaction in your MetaMask wallet`,
+        })
+      );
+
+      const stakeResult = await contractStakePortal.methods
+        .stake(
+          selectedPool.poolPubKey,
+          amount,
+          chainId.toString(),
+          polkadotPubKey,
+          metaMaskAccount
+        )
+        .send({ value: web3.utils.toWei(txFee) });
+      if (!stakeResult || !stakeResult.status) {
+        throw new Error(getMetaMaskTxErrorMsg(stakeResult));
+      }
+
+      dispatch(
+        updateStakeLoadingParams({
+          customMsg: "Staking processing, please wait for a moment",
+        })
+      );
+
+      const txHash = stakeResult.transactionHash;
       let txDetail;
       while (true) {
-        sleep(1000);
-        txDetail = await window.ethereum
+        await sleep(5000);
+        txDetail = await ethereum
           .request({
             method: "eth_getTransactionByHash",
             params: [txHash],
           })
           .catch((err: any) => {
-            console.error(err);
+            throw new Error(BLOCK_HASH_NOT_FOUND_MESSAGE);
           });
 
-        if (!txDetail || txDetail.blockHash) {
+        if (txDetail.blockHash || !txDetail) {
           break;
         }
       }
-
       const blockHash = txDetail && txDetail.blockHash;
       if (!blockHash) {
         throw new Error(BLOCK_HASH_NOT_FOUND_MESSAGE);
       }
 
       dispatch(
-        bond(
-          metaMaskAccount,
+        updateStakeLoadingParams(
+          {
+            progressDetail: {
+              staking: {
+                totalStatus: "success",
+                broadcastStatus: "success",
+                packStatus: "success",
+                txHash: txHash,
+              },
+            },
+            customMsg: "Minting processing, please wait for a moment",
+            scanUrl: getEtherScanTxUrl(txHash),
+            txHash: txHash,
+          },
+          (newParams) => {
+            const newNotice: LocalNotice = {
+              id: noticeUuid || stafiUuid(),
+              type: "rToken Stake",
+              txDetail: { transactionHash: txHash, sender: metaMaskAccount },
+              data: {
+                tokenName: TokenName.BNB,
+                amount: Number(stakeAmount) + "",
+                willReceiveAmount: Number(willReceiveAmount) + "",
+              },
+              scanUrl: getEtherScanTxUrl(stakeResult.transactionHash),
+              status: "Pending",
+              stakeLoadingParams: newParams,
+            };
+            dispatch(addNotice(newNotice));
+          }
+        )
+      );
+
+      dispatch(setIsLoading(false));
+      dispatch(
+        getMinting(
+          rSymbol.Bnb,
           txHash,
           blockHash,
-          amountInBnb,
-          selectedPool.poolPubKey,
-          rSymbol.Bnb,
           chainId,
-          targetAddress,
+          willReceiveAmount,
           cb
         )
       );
     } catch (err: any) {
+      cb && cb(false);
+      console.error(err);
       dispatch(setIsLoading(false));
       if (err.code === 4001) {
         snackbarUtil.error(CANCELLED_MESSAGE);
@@ -276,7 +329,7 @@ export const handleBnbStake =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {

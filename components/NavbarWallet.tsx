@@ -70,12 +70,15 @@ export const NavbarWallet = () => {
   } = useWalletAccount();
   const ksmBalance = useKsmBalance();
   const dotBalance = useDotBalance();
-  const { ethBalance, maticBalance } = useAppSelector((state: RootState) => {
-    return {
-      ethBalance: state.eth.balance,
-      maticBalance: state.matic.balance,
-    };
-  });
+  const { ethBalance, maticBalance, bnbBalance } = useAppSelector(
+    (state: RootState) => {
+      return {
+        ethBalance: state.eth.balance,
+        maticBalance: state.matic.balance,
+        bnbBalance: state.bnb.balance,
+      };
+    }
+  );
 
   const router = useRouter();
 
@@ -139,12 +142,19 @@ export const NavbarWallet = () => {
     ) {
       return maticBalance;
     }
+    if (
+      targetMetaMaskChainId === getMetamaskBscChainId() &&
+      router.pathname === "/rtoken/stake/BNB"
+    ) {
+      return bnbBalance;
+    }
     return ethBalance;
   }, [
     targetMetaMaskChainId,
     isWrongMetaMaskNetwork,
     ethBalance,
     maticBalance,
+    bnbBalance,
     router.pathname,
   ]);
 
@@ -247,6 +257,22 @@ export const NavbarWallet = () => {
   const showConnectWallet = useMemo(() => {
     return !displayAddress;
   }, [displayAddress]);
+
+  const getWalletAccountBalance = () => {
+    if (
+      targetMetaMaskChainId === getMetamaskMaticChainId() &&
+      router.pathname === "/rtoken/stake/MATIC"
+    ) {
+      return { balance: maticBalance, tokenName: "MATIC" };
+    }
+    if (
+      targetMetaMaskChainId === getMetamaskBscChainId() &&
+      router.pathname === "/rtoken/stake/BNB"
+    ) {
+      return { balance: bnbBalance, tokenName: "BNB" };
+    }
+    return { balance: ethBalance, tokenName: "ETH" };
+  };
 
   return (
     <div>
@@ -405,21 +431,8 @@ export const NavbarWallet = () => {
             walletType={WalletType.MetaMask}
             connected={metaMaskConnected}
             address={metaMaskAccount || ""}
-            balance={
-              targetMetaMaskChainId === getMetamaskMaticChainId() &&
-              router.pathname === "/rtoken/stake/MATIC"
-                ? maticBalance
-                : ethBalance
-            }
-            tokenName={
-              targetMetaMaskChainId === getMetamaskMaticChainId() &&
-              router.pathname === "/rtoken/stake/MATIC"
-                ? "MATIC"
-                : targetMetaMaskChainId === getMetamaskBscChainId() &&
-                  router.pathname === "/rtoken/stake/BNB"
-                ? "BNB"
-                : "ETH"
-            }
+            balance={getWalletAccountBalance().balance}
+            tokenName={getWalletAccountBalance().tokenName}
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
 
