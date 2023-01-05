@@ -42,7 +42,7 @@ export function useRTokenReward(
   tokenName: TokenName,
   page: number,
   chartDuSeconds: number,
-	isChart?: boolean,
+  isChart?: boolean
 ) {
   const dispatch = useDispatch();
   const tokenStandard = useTokenStandard(tokenName);
@@ -54,9 +54,11 @@ export function useRTokenReward(
   const [lastEraReward, setLastEraReward] = useState("--");
   const [chartXData, setChartXData] = useState<string[]>([]);
   const [chartYData, setChartYData] = useState<string[]>([]);
-  const [rewardList, setRewardList] = useState<EraRewardModel[]>([]);
+  const [rewardList, setRewardList] = useState<EraRewardModel[] | undefined>(
+    undefined
+  );
 
-  const { updateFlag15s } = useAppSlice();
+  const { updateFlag15s, refreshDataFlag } = useAppSlice();
   const { metaMaskAccount, polkadotAccount } = useWalletAccount();
 
   const userAddress = useMemo(() => {
@@ -85,22 +87,22 @@ export function useRTokenReward(
         : -1;
 
     if (!userAddress || chainType === -1 || !updateFlag15s) {
-      setRequestStatus(RequestStatus.success);
-      setTotalCount(0);
-      setTotalReward("--");
-      setLastEraReward("--");
-      setChartXData([]);
-      setChartYData([]);
-      setRewardList([]);
+      // setRequestStatus(RequestStatus.success);
+      // setTotalCount(0);
+      // setTotalReward("--");
+      // setLastEraReward("--");
+      // setChartXData([]);
+      // setChartYData([]);
+      // setRewardList([]);
       return;
     }
 
     setRequestStatus(RequestStatus.loading);
     try {
       let url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/reward`;
-			if (isChart) {
-				url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/rewardChart`;
-			}
+      if (isChart) {
+        url = `${getRTokenApi2Host()}/stafi/webapi/rtoken/rewardChart`;
+      }
 
       let params: any = {
         userAddress,
@@ -108,14 +110,14 @@ export function useRTokenReward(
         rTokenType:
           tokenName === TokenName.ETH ? -1 : getTokenSymbol(tokenName),
       };
-			if (isChart) {
-				params['withinSeconds'] = chartDuSeconds;
-				params['countLimit'] = PAGE_SIZE;
-			} else {
-				params['chartDuSeconds'] = chartDuSeconds;
-				params['pageIndex'] = page;
-				params['pageCount'] = PAGE_SIZE;
-			}
+      if (isChart) {
+        params["withinSeconds"] = chartDuSeconds;
+        params["countLimit"] = PAGE_SIZE;
+      } else {
+        params["chartDuSeconds"] = chartDuSeconds;
+        params["pageIndex"] = page;
+        params["pageCount"] = PAGE_SIZE;
+      }
 
       const res = await fetch(url, {
         method: "POST",
@@ -277,7 +279,7 @@ export function useRTokenReward(
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, updateFlag15s]);
+  }, [fetchData, updateFlag15s, refreshDataFlag]);
 
   return {
     requestStatus,

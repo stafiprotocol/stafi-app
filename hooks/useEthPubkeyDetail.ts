@@ -38,6 +38,8 @@ export function useEthPubkeyDetail(pubkey: string, chartDuSeconds: number) {
       const params = {
         pubkey,
         chartDuSeconds,
+        pageIndex: 0,
+        pageCount: 1,
       };
       const response = await fetch(`${getApiHost()}/reth/v1/pubkeyDetail`, {
         method: "POST",

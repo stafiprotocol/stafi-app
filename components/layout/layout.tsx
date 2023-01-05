@@ -28,6 +28,7 @@ import {
 } from "config/metaMask";
 import { RTokenStakeLoadingSidebar } from "components/modal/RTokenStakeLoadingSidebar";
 import { RTokenRedeemLoadingModal } from "components/modal/RTokenRedeemLoadingModal";
+import { RTokenRedeemLoadingSidebar } from "components/modal/RTokenRedeemLoadingSidebar";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
@@ -124,6 +125,12 @@ export const Layout = (props: LayoutProps) => {
     } else if (router.pathname === "/rtoken/stake/KSM") {
       setTargetMetaMaskChainId(undefined);
       setWalletType(WalletType.Polkadot_KSM);
+    } else if (router.pathname === "/rtoken/stake/DOT") {
+      setTargetMetaMaskChainId(undefined);
+      setWalletType(WalletType.Polkadot_DOT);
+    } else if (router.pathname.startsWith("/rpool")) {
+      setTargetMetaMaskChainId(undefined);
+      setWalletType(WalletType.MetaMask);
     } else {
       setTargetMetaMaskChainId(getMetamaskMaticChainId());
       setWalletType(WalletType.Polkadot);
@@ -270,7 +277,7 @@ export const Layout = (props: LayoutProps) => {
         </Head>
 
         <HideOnScroll>
-          <AppBar position="fixed" color="transparent">
+          <AppBar position="fixed" color="transparent" elevation={0}>
             <Navbar />
           </AppBar>
         </HideOnScroll>
@@ -280,7 +287,7 @@ export const Layout = (props: LayoutProps) => {
             className={classNames(
               "w-[14.88rem] flex items-center py-[.56rem] relative z-10",
               {
-                invisible: !navigation || navigation.length <= 1,
+                hidden: !navigation || navigation.length <= 1,
               }
             )}
           >
@@ -307,7 +314,13 @@ export const Layout = (props: LayoutProps) => {
             ))}
           </div>
 
-          <div className="w-[14.88rem] mb-[1rem]">{props.children}</div>
+          <div
+            className={classNames("w-[14.88rem] mb-[1rem]", {
+              "mt-[.56rem]": !navigation || navigation.length <= 1,
+            })}
+          >
+            {props.children}
+          </div>
         </main>
 
         <EthValidatorStakeLoadingModal />
@@ -318,7 +331,9 @@ export const Layout = (props: LayoutProps) => {
 
         <RTokenStakeLoadingSidebar />
 
-				<RTokenRedeemLoadingModal />
+        <RTokenRedeemLoadingSidebar />
+
+        <RTokenRedeemLoadingModal />
 
         <ConnectWalletModal />
 

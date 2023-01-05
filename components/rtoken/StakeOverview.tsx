@@ -10,23 +10,25 @@ import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 import { TradeModal } from "components/modal/TradeModal";
 import { WarningModal } from "components/modal/WarningModal";
 import { getValidatorSiteHost } from "config/env";
+import { useAppDispatch } from "hooks/common";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useRTokenReward } from "hooks/useRTokenReward";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import rectangle from "public/rectangle_v.svg";
 import rectangleError from "public/rectangle_v_error.svg";
 import { useContext, useMemo, useState } from "react";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { isEmptyValue, isInvalidValue, openLink } from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
-import { formatNumber } from "utils/number";
-import { getExchangeRateUpdateTime } from "utils/rToken";
-import { connectMetaMask } from "utils/web3Utils";
+import { formatNumber, getDecimals } from "utils/number";
+import { transformSs58Address } from "utils/polkadotUtils";
+import { getExchangeRateUpdateTime, getTokenSymbol } from "utils/rToken";
 import { TokenStandardSelector } from "./TokenStandardSelector";
 
 interface StakeOverviewProps {
@@ -36,6 +38,7 @@ interface StakeOverviewProps {
 }
 
 export const StakeOverview = (props: StakeOverviewProps) => {
+  const dispatch = useAppDispatch();
   const {
     walletType,
     isWrongNetwork,
@@ -44,6 +47,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
     targetMetaMaskChainId,
   } = useContext(MyLayoutContext);
 
+  const tokenStandard = useTokenStandard(props.tokenName);
   const router = useRouter();
   const [tradeModalVisible, setTradeModalVisible] = useState(false);
   const [ethRedeemWarningModalVisible, setEthRedeemWarningModalVisible] =
@@ -51,7 +55,16 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   const [rTokenRedeemModalVisible, setRTokenRedeemModalVisible] =
     useState(false);
 
-  const { metaMaskAccount } = useWalletAccount();
+  const { metaMaskAccount, ksmAccount, dotAccount } = useWalletAccount();
+
+  const defaultReceivingAddress = useMemo(() => {
+    if (props.tokenName === TokenName.KSM) {
+      return transformSs58Address(ksmAccount, WalletType.Polkadot_KSM);
+    } else if (props.tokenName === TokenName.DOT) {
+      return transformSs58Address(dotAccount, WalletType.Polkadot_DOT);
+    }
+    return metaMaskAccount;
+  }, [props.tokenName, metaMaskAccount, ksmAccount, dotAccount]);
 
   const selectedStandard = useTokenStandard(props.tokenName);
   const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
@@ -78,8 +91,15 @@ export const StakeOverview = (props: StakeOverviewProps) => {
     if (isInvalidValue(rTokenBalance) || isInvalidValue(rTokenRatio)) {
       return "--";
     }
-    return Number(rTokenBalance) * Number(rTokenRatio) + "";
-  }, [rTokenBalance, rTokenRatio]);
+
+    const stakedAmount = Number(rTokenBalance) * Number(rTokenRatio);
+    const decimals = getDecimals(getTokenSymbol(props.tokenName));
+
+    return (
+      Math.ceil((((stakedAmount * 1000000) / decimals) * decimals) / 1000000) +
+      ""
+    );
+  }, [rTokenBalance, rTokenRatio, props.tokenName]);
 
   // User staked token value.
   const stakedValue = useMemo(() => {
@@ -154,7 +174,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 }}
                 onClick={() => {
                   if (isWrongMetaMaskNetwork) {
-                    connectMetaMask(targetMetaMaskChainId);
+                    dispatch(connectMetaMask(targetMetaMaskChainId));
                   }
                 }}
               >
@@ -202,11 +222,11 @@ export const StakeOverview = (props: StakeOverviewProps) => {
               r{props.tokenName} Balance
             </div>
           </div>
-          <div className="w-[.8rem] h-[1.3rem] relative">
+          <div className="w-[.8rem] relative">
             <Image
               src={getChainIcon(props.tokenName)}
               alt="chain"
-              layout="fill"
+              layout="responsive"
             />
           </div>
         </div>
@@ -258,7 +278,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   ) : isEmptyValue(stakedValue) ? (
                     <BubblesLoading color="white" />
                   ) : (
-                    <>$ {formatNumber(stakedValue, { decimals: 2 })}</>
+                    <>$ {formatNumber(stakedValue)}</>
                   )}
                 </div>
 
@@ -284,11 +304,11 @@ export const StakeOverview = (props: StakeOverviewProps) => {
 
                 <div className="mt-[.23rem] text-white text-[.32rem]">
                   {isWrongMetaMaskNetwork ? (
-                    <>$ --</>
+                    <>--</>
                   ) : isEmptyValue(totalRewardValue) ? (
                     <BubblesLoading color="white" />
                   ) : (
-                    <>$ {formatNumber(totalRewardValue, { decimals: 2 })}</>
+                    <>$ {formatNumber(totalRewardValue)}</>
                   )}
                 </div>
 
@@ -326,7 +346,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   ) : !rTokenRatio ? (
                     <BubblesLoading color="white" />
                   ) : (
-                    <>{formatNumber(rTokenRatio, { decimals: 4 })}</>
+                    <>{formatNumber(rTokenRatio)}</>
                   )}
                 </div>
 
@@ -361,13 +381,19 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 className={classNames(
                   "h-[.86rem] rounded-[.45rem] w-[4rem] border-solid border-[1px] border-[] text-[.24rem]",
                   "flex items-center justify-center",
-                  isWrongNetwork ? "cursor-default" : "cursor-pointer"
+                  isWrongNetwork || tokenStandard !== TokenStandard.Native
+                    ? "cursor-default"
+                    : "cursor-pointer",
+                  { "opacity-50": tokenStandard !== TokenStandard.Native }
                 )}
                 style={{
                   border: "1px solid rgba(91, 104, 114, 0.5)",
                 }}
                 onClick={() => {
-                  if (isWrongNetwork) {
+                  if (
+                    isWrongNetwork ||
+                    tokenStandard !== TokenStandard.Native
+                  ) {
                     return;
                   }
                   if (props.tokenName === TokenName.ETH) {
@@ -404,8 +430,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
         visible={rTokenRedeemModalVisible}
         onClose={() => setRTokenRedeemModalVisible(false)}
         tokenName={props.tokenName}
-        balance={rTokenBalance || "--"}
-        defaultReceivingAddress={metaMaskAccount}
+        balance={rTokenBalance}
+        defaultReceivingAddress={defaultReceivingAddress}
+        onClickConnectWallet={props.onClickConnectWallet}
       />
     </div>
   );

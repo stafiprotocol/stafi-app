@@ -1,12 +1,14 @@
 import { Box, Stack } from "@mui/material";
 import classNames from "classnames";
 import { EmptyContent } from "components/common/EmptyContent";
+import dayjs from "dayjs";
 import { useAppDispatch, useAppSelector } from "hooks/common";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import { useEffect, useState } from "react";
 import {
   resetStakeLoadingParams,
   setUnreadNoticeFlag,
+  updateNotice,
   updateStakeLoadingParams,
 } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
@@ -33,12 +35,78 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
 
   useEffect(() => {
     if (props.isOpen) {
-      setNoticeList(getNoticeList());
+      const noticeList = getNoticeList();
+      setNoticeList(noticeList);
 
       dispatch(setUnreadNoticeFlag(false));
       removeStorage(STORAGE_KEY_UNREAD_NOTICE);
+
+      noticeList?.forEach((notice) => {
+        if (notice.type === "rToken Stake" && notice.status === "Pending") {
+          if (dayjs().valueOf() - Number(notice.timestamp) > 3600000) {
+            const noticeStakeLoadingParams = notice.stakeLoadingParams;
+            if (!noticeStakeLoadingParams) {
+              return;
+            }
+            if (
+              noticeStakeLoadingParams.tokenStandard !== TokenStandard.Native
+            ) {
+              if (
+                noticeStakeLoadingParams.progressDetail?.sending
+                  ?.totalStatus === "success" &&
+                noticeStakeLoadingParams.progressDetail?.staking
+                  ?.totalStatus === "success" &&
+                noticeStakeLoadingParams.progressDetail?.minting
+                  ?.totalStatus === "success" &&
+                noticeStakeLoadingParams.progressDetail?.swapping
+                  ?.totalStatus === "loading"
+              ) {
+                dispatch(
+                  updateNotice(notice.id, {
+                    status: "Confirmed",
+                    stakeLoadingParams: {
+                      ...noticeStakeLoadingParams,
+                      status: "success",
+                      progressDetail: {
+                        ...noticeStakeLoadingParams.progressDetail,
+                        swapping: {
+                          totalStatus: "success",
+                        },
+                      },
+                    },
+                  })
+                );
+
+                if (
+                  stakeLoadingParams &&
+                  stakeLoadingParams.noticeUuid === notice.id
+                ) {
+                  dispatch(
+                    updateStakeLoadingParams({
+                      status: "success",
+                      progressDetail: {
+                        swapping: {
+                          totalStatus: "success",
+                        },
+                      },
+                    })
+                  );
+                }
+                setTimeout(() => {
+                  updateNoticeList();
+                }, 500);
+              }
+            }
+          }
+        }
+      });
     }
-  }, [dispatch, props.isOpen]);
+  }, [dispatch, props.isOpen, stakeLoadingParams]);
+
+  const updateNoticeList = () => {
+    const noticeList = getNoticeList();
+    setNoticeList(noticeList);
+  };
 
   const getNoticeTitle = (notice: LocalNotice): string => {
     return notice.type;
@@ -66,6 +134,14 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
         return `Stake ${data.amount} ETH as ${data.type} validator, with ${
           data.pubkeys.length
         } ${data.pubkeys.length === 1 ? "public key" : "public keys"}.`;
+      }
+      if (notice.type === "rToken Unstake") {
+        data = notice.data as NoticeRTokenStakeData;
+        return `Unstake ${data.amount} r${
+          data.tokenName
+        } from StaFi Pool Contract to your wallet, and receive ${formatNumber(
+          data.willReceiveAmount
+        )} ${data.tokenName}.`;
       }
     } catch (err: unknown) {}
 
@@ -121,19 +197,19 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
 
   const clickStatus = (notice: LocalNotice) => {
     props.onClose();
-    if (notice.status !== "Confirmed") {
-      openStakeLoadingModal(notice);
-    } else {
-      if (notice.type === "rToken Stake") {
+    if (notice.type === "rToken Stake") {
+      if (notice.status !== "Confirmed") {
+        openStakeLoadingModal(notice);
+      } else {
         const noticeData = notice.data as NoticeRTokenStakeData;
         if (noticeData.tokenName === TokenName.ETH) {
           openLink(getNoticeUrl(notice));
         } else {
           openStakeLoadingModal(notice);
         }
-      } else {
-        openLink(getNoticeUrl(notice));
       }
+    } else {
+      openLink(getNoticeUrl(notice));
     }
   };
 
@@ -155,7 +231,7 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
             </div>
 
             <div className="mt-[.11rem]">
-              <div className="text-text2 text-[.16rem]">
+              <div className="text-text2 text-[.16rem] leading-normal">
                 {getNoticeContent(notice)}
               </div>
             </div>
@@ -168,12 +244,21 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
               <div
                 className={classNames(
                   "text-[.16rem] cursor-pointer underline",
+
                   notice.status === "Confirmed"
                     ? "text-primary"
                     : notice.status === "Pending"
                     ? "text-text1"
                     : "text-error"
                 )}
+                style={{
+                  textDecorationColor:
+                    notice.status === "Confirmed"
+                      ? "#00F3AB60"
+                      : notice.status === "Pending"
+                      ? "#9DAFBE60"
+                      : "#FF52C460",
+                }}
                 onClick={() => clickStatus(notice)}
               >
                 {notice.status}

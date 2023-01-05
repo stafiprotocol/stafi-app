@@ -1,7 +1,7 @@
-import { TokenSymbol } from "interfaces/common";
-import { rSymbol } from "keyring/defaults";
-import { create, floorDependencies, divideDependencies } from "mathjs";
-import Web3Utils from "web3-utils";
+import { RTokenName, TokenSymbol } from 'interfaces/common';
+import { rSymbol } from 'keyring/defaults';
+import { create, floorDependencies, divideDependencies } from 'mathjs';
+import Web3Utils from 'web3-utils';
 
 const { floor, divide } = create({
   floorDependencies,
@@ -58,9 +58,9 @@ const numberUtil = {
   rTokenRateToHuman(amount: any) {
     return amount / 1000000000000;
   },
-  amount_format(amount: any, decimals: number) {
+  amount_format(amount: any, decimals: number, thousands_sep: string = ",") {
     if (amount === "--") return "--";
-    return this.number_format(amount, decimals || 2, ".", ",");
+    return this.number_format(amount, decimals || 2, ".", thousands_sep);
   },
   number_format(
     num: any,
@@ -95,22 +95,6 @@ const numberUtil = {
     switch (symbol) {
       case rSymbol.Matic:
         return Web3Utils.toWei(amount.toString()).toString();
-      case rSymbol.Bnb:
-        return Math.round(Number(amount) * 100000000).toString();
-      case rSymbol.Dot:
-        return Math.round(Number(amount) * 10000000000).toString();
-      case rSymbol.Atom:
-        return Math.round(Number(amount) * 1000000).toString();
-      case rSymbol.Fis:
-        return Math.round(Number(amount) * 1000000000000).toString();
-      case rSymbol.Ksm:
-        return Math.round(Number(amount) * 1000000000000).toString();
-      case rSymbol.Sol:
-        return Math.round(Number(amount) * 1000000000).toString();
-      case rSymbol.Eth:
-        return Web3Utils.toWei(amount.toString()).toString();
-      case rSymbol.StafiHub:
-        return Math.round(Number(amount) * 1000000).toString();
       default:
         return Math.round(Number(amount) * 1000000000000).toString();
     }
@@ -130,6 +114,44 @@ const numberUtil = {
     if (isNaN(Number(amount))) return "--";
     const factor = Math.pow(10, powNumber);
     return (Math.floor(Number(amount) * factor) / factor).toFixed(powNumber);
+  },
+	divide(x: number, y: number) {
+		return divide(x, y);
+	},
+	tokenMintRewardRateToHuman(amount: number | string, rTokenName: RTokenName) {
+		if (isNaN(Number(amount))) return '--';
+		let factor: BigInt;
+		switch (rTokenName) {
+			case RTokenName.rDOT:
+        factor = BigInt('100000000000000');
+        break;
+      case RTokenName.rATOM:
+        factor = BigInt('1000000000000000000');
+        break;
+      case RTokenName.rFIS:
+        factor = BigInt('1000000000000');
+        break;
+      case RTokenName.rKSM:
+        factor = BigInt('1000000000000');
+        break;
+      case RTokenName.rSOL:
+        factor = BigInt('1000000000000000');
+        break;
+      case RTokenName.rETH:
+        factor = BigInt('1000000');
+        break;
+      case RTokenName.rMATIC:
+        factor = BigInt('1000000');
+        break;
+      case RTokenName.rBNB:
+        factor = BigInt('10000000000000000');
+        break;
+      default:
+        factor = BigInt("1000000000000");
+        break;
+    }
+
+    return divide(Number(amount), Number(factor));
   },
 };
 

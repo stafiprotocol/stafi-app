@@ -18,7 +18,7 @@ import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
 import numberUtil from "utils/numberUtil";
 import snackbarUtil from "utils/snackbarUtils";
-import { createWeb3 } from "utils/web3Utils";
+import { createWeb3, getMetaMaskTxErrorMsg } from "utils/web3Utils";
 import Web3 from "web3";
 import {
   addNotice,
@@ -26,6 +26,7 @@ import {
   setIsLoading,
   setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
+  updateNotice,
   updateStakeLoadingParams,
 } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
@@ -59,34 +60,34 @@ const stafiServer = new StafiServer();
 
 export interface MaticState {
   txLoading: boolean;
-  balance: string;
-  stakedAmount: string;
+  balance: string | undefined;
+  stakedAmount: string | undefined;
   validPools: any[];
   poolLimit: any;
-  unbondFees: string; // unbond relay fee
-  unbondCommision: string; // unbond commision fee
-  bondTxFees: string; // bond transaction fee
-  unbondTxFees: string; // unbond transaction fee
-  bondFees: string; // bond relay fee, todo: deprecated
-  relayFee: string;
+  unbondFees: string | undefined; // unbond relay fee
+  unbondCommision: string | undefined; // unbond commision fee
+  bondTxFees: string | undefined; // bond transaction fee
+  unbondTxFees: string | undefined; // unbond transaction fee
+  bondFees: string | undefined; // bond relay fee, todo: deprecated
+  relayFee: string | undefined;
   isApproved: boolean;
-  bridgeFee: string;
+  bridgeFee: string | undefined;
 }
 
 const initialState: MaticState = {
   txLoading: false,
-  balance: "--",
-  stakedAmount: "--",
+  balance: undefined,
+  stakedAmount: undefined,
   validPools: [],
   poolLimit: 0,
-  unbondCommision: "--",
-  unbondFees: "--",
-  bondTxFees: "--",
-  unbondTxFees: "--",
-  bondFees: "--",
-  relayFee: "--",
+  unbondCommision: undefined,
+  unbondFees: undefined,
+  bondTxFees: undefined,
+  unbondTxFees: undefined,
+  bondFees: undefined,
+  relayFee: undefined,
   isApproved: false,
-  bridgeFee: "--",
+  bridgeFee: undefined,
 };
 
 export const maticSlice = createSlice({
@@ -390,6 +391,7 @@ export const handleMaticStake =
               txHash,
               blockHash,
               amount,
+              willReceiveAmount,
               selectedPool.poolPubKey,
               rSymbol.Matic,
               chainId,
@@ -422,7 +424,7 @@ export const handleMaticStake =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {
@@ -502,10 +504,14 @@ export const unbondRMatic =
       setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.MATIC,
         amount,
         willReceiveAmount,
         newTotalStakedAmount,
+        customMsg: `Please confirm the ${Number(
+          amount
+        )} rMATIC unstaking transaction in your MetaMask wallet`,
       })
     );
 
@@ -518,7 +524,7 @@ export const unbondRMatic =
       );
       if (!selectedPool) {
         cb && cb();
-        return;
+        throw new Error("No selected pool");
       }
 
       const keyringInstance = keyring.init(Symbol.Matic);
@@ -534,8 +540,8 @@ export const unbondRMatic =
             TokenName.MATIC
           )} days`,
           (r?: string, txHash?: string) => {
+            const uuid = stafiUuid();
             if (r === "Success") {
-              const uuid = stafiUuid();
               addRTokenUnbondRecords(TokenName.MATIC, {
                 id: uuid,
                 txHash,
@@ -543,8 +549,41 @@ export const unbondRMatic =
                   .add(estimateUnbondDays(TokenName.MATIC), "d")
                   .valueOf(),
                 amount: willReceiveAmount,
+                rTokenAmount: amount,
                 recipient,
+                txTimestamp: dayjs().unix(),
               });
+              const metaMaskAccount = getState().wallet.metaMaskAccount;
+              if (txHash && metaMaskAccount) {
+                dispatch(
+                  addNotice({
+                    id: uuid,
+                    type: "rToken Unstake",
+                    data: {
+                      tokenName: TokenName.MATIC,
+                      amount: amount,
+                      willReceiveAmount: willReceiveAmount,
+                    },
+                    scanUrl: getEtherScanTxUrl(txHash),
+                    status: "Confirmed",
+                  })
+                );
+              }
+              cb && cb();
+            } else if (r === "Failed") {
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.MATIC,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  status: "Error",
+                })
+              );
+              cb && cb();
             }
           }
         )
@@ -555,6 +594,7 @@ export const unbondRMatic =
     } finally {
       // dispatch(setIsLoading(false));
       dispatch(updateMaticBalance());
+      cb && cb();
     }
   };
 
@@ -825,7 +865,8 @@ export const stakeMatic =
               minting: {},
               swapping: {},
             },
-            customMsg: "Approving MATIC to StaFi Portal",
+            customMsg:
+              "Please Approve MATIC to StaFi Portal in your MetaMask wallet",
           })
         );
         allowance = web3.utils.toWei("10000000");
@@ -854,6 +895,7 @@ export const stakeMatic =
                   totalStatus: "success",
                   broadcastStatus: "success",
                   packStatus: "success",
+                  txHash: approveResult.transactionHash,
                 },
               },
             })
@@ -916,6 +958,7 @@ export const stakeMatic =
               broadcastStatus: "loading",
             },
           },
+          customMsg: `Please confirm the ${stakeAmount} MATIC staking transaction in your MetaMask wallet`,
         })
       );
 
@@ -928,9 +971,16 @@ export const stakeMatic =
           metaMaskAccount
         )
         .send({ value: web3.utils.toWei(txFee) });
+      // console.log("stakeResult", stakeResult);
       if (!stakeResult || !stakeResult.status) {
-        throw new Error(TRANSACTION_FAILED_MESSAGE);
+        throw new Error(getMetaMaskTxErrorMsg(stakeResult));
       }
+
+      dispatch(
+        updateStakeLoadingParams({
+          customMsg: "Staking processing, please wait for a moment",
+        })
+      );
 
       const txHash = stakeResult.transactionHash;
       let txDetail;
@@ -955,22 +1005,55 @@ export const stakeMatic =
       }
 
       dispatch(
-        updateStakeLoadingParams({
-          progressDetail: {
-            staking: {
-              totalStatus: "success",
-              broadcastStatus: "success",
-              packStatus: "success",
+        updateStakeLoadingParams(
+          {
+            progressDetail: {
+              staking: {
+                totalStatus: "success",
+                broadcastStatus: "success",
+                packStatus: "success",
+                txHash: txHash,
+              },
             },
+            customMsg: "Minting processing, please wait for a moment",
+            scanUrl: getEtherScanTxUrl(txHash),
+            txHash: txHash,
           },
-          customMsg: "Staking succeeded, now minting...",
-        })
+          (newParams) => {
+            const newNotice: LocalNotice = {
+              id: noticeUuid || stafiUuid(),
+              type: "rToken Stake",
+              txDetail: { transactionHash: txHash, sender: metaMaskAccount },
+              data: {
+                tokenName: TokenName.MATIC,
+                amount: Number(stakeAmount) + "",
+                willReceiveAmount: Number(willReceiveAmount) + "",
+              },
+              scanUrl: getEtherScanTxUrl(stakeResult.transactionHash),
+              status: "Pending",
+              stakeLoadingParams: newParams,
+            };
+            dispatch(addNotice(newNotice));
+          }
+        )
       );
+
+      dispatch(setIsLoading(false));
 
       // query bond state
       console.log({ txHash, blockHash });
-      dispatch(getMinting(rSymbol.Matic, txHash, blockHash, chainId, cb));
+      dispatch(
+        getMinting(
+          rSymbol.Matic,
+          txHash,
+          blockHash,
+          chainId,
+          willReceiveAmount,
+          cb
+        )
+      );
     } catch (err: any) {
+      cb && cb(false);
       console.error(err);
       dispatch(setIsLoading(false));
       if (err.code === 4001) {
@@ -992,7 +1075,7 @@ export const stakeMatic =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {

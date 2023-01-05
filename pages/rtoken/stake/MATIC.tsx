@@ -1,6 +1,5 @@
 import { CollapseCard } from "components/common/CollapseCard";
 import { MyLayoutContext } from "components/layout/layout";
-import { RTokenRedeemModal } from "components/modal/RTokenRedeemModal";
 import { RTokenStakeModal } from "components/modal/RTokenStakeModal";
 import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
@@ -15,8 +14,8 @@ import { useWalletAccount } from "hooks/useWalletAccount";
 import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
 import React, { useEffect, useState } from "react";
 import { getPools, updateMaticBalance } from "redux/reducers/MaticSlice";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
-import { connectMetaMask } from "utils/web3Utils";
 
 const RMaticStakePage = () => {
   const { useChainId: useMetaMaskChainId } = hooks;
@@ -26,6 +25,8 @@ const RMaticStakePage = () => {
   const dispatch = useAppDispatch();
 
   const tokenStandard = useTokenStandard(TokenName.MATIC);
+
+  const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.MATIC);
 
   const { metaMaskAccount } = useWalletAccount();
 
@@ -75,7 +76,9 @@ const RMaticStakePage = () => {
       <StakeOverview
         tokenName={TokenName.MATIC}
         onClickStake={onClickStake}
-        onClickConnectWallet={() => connectMetaMask(getMetamaskMaticChainId())}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskMaticChainId()))
+        }
       />
 
       <CollapseCard
@@ -94,11 +97,15 @@ const RMaticStakePage = () => {
       <RTokenIntegrations tokenName={TokenName.MATIC} />
 
       <RTokenStakeModal
+        rTokenBalance={rTokenBalance}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         tokenName={TokenName.MATIC}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         balance={balance || "--"}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskMaticChainId()))
+        }
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>

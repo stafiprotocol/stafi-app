@@ -20,10 +20,6 @@ import {
 } from "utils/constants";
 import { LocalNotice } from "utils/notice";
 import snackbarUtil from "utils/snackbarUtils";
-import {
-  removeStorage,
-  STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP,
-} from "utils/storage";
 import { getShortAddress } from "utils/string";
 import { createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
@@ -31,7 +27,6 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
-  updateNotice,
   updateStakeLoadingParams,
 } from "./AppSlice";
 
@@ -128,20 +123,22 @@ export const updateEthBalance = (): AppThunk => async (dispatch, getState) => {
 };
 
 export const updateEthGasPrice = (): AppThunk => async (dispatch, getState) => {
-  const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const resJson = await response.json();
-  if (resJson && resJson.status === "80000") {
-    dispatch(
-      setGasPrice(
-        Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
-      )
-    );
-  }
+  try {
+    const response = await fetch(`${getApiHost()}/reth/v1/gasPrice`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const resJson = await response.json();
+    if (resJson && resJson.status === "80000") {
+      dispatch(
+        setGasPrice(
+          Number(resJson.data?.baseFee) + Number(resJson.data?.priorityFee) + ""
+        )
+      );
+    }
+  } catch (err: unknown) {}
 };
 
 export const handleEthValidatorDeposit =
@@ -357,7 +354,6 @@ export const handleEthValidatorStake =
       callback && callback(result?.status, result);
 
       if (result?.status) {
-        removeStorage(STORAGE_KEY_HIDE_ETH_VALIDATOR_FEE_TIP);
         dispatch(
           setEthValidatorStakeParams({
             pubkeys,
@@ -479,7 +475,7 @@ export const handleEthTokenStake =
       const result = await contract.methods
         .deposit()
         .send({ value: stakeAmountInWei });
-      console.log("stake result", result);
+      // console.log("stake result", result);
 
       callback && callback(result.status, result);
       if (result && result.status) {
@@ -530,7 +526,7 @@ export const handleEthTokenStake =
           updateStakeLoadingParams(
             {
               status: "error",
-              errorMsg: TRANSACTION_FAILED_MESSAGE,
+              displayMsg: TRANSACTION_FAILED_MESSAGE,
               errorStep: "sending",
               progressDetail: {
                 sending: {

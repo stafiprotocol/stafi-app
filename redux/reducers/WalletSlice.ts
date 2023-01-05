@@ -29,6 +29,16 @@ import { stafi_types } from "config/stafi_types";
 import { stafiServer } from "servers/stafi";
 import { ksmServer } from "servers/ksm";
 import { dotServer } from "servers/dot";
+import { metaMask } from "connectors/metaMask";
+import {
+  getMetamaskBscChainId,
+  getMetaMaskBscConfig,
+  getMetamaskEthChainId,
+  getMetaMaskEthConnectConfig,
+  getMetamaskMaticChainId,
+  getMetamaskValidatorChainId,
+  getMetaMaskValidatorConnectConfig,
+} from "config/metaMask";
 
 export interface InjectedPolkadotAccountWithMeta
   extends ExtType.InjectedAccountWithMeta {
@@ -140,7 +150,30 @@ export const {
 export default walletSlice.reducer;
 
 /**
- * Reload stafi balance.
+ * Connect MetaMask.
+ */
+export const connectMetaMask =
+  (targetChainId: number | undefined): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      if (targetChainId === undefined) {
+        metaMask.activate(1);
+      } else if (targetChainId === getMetamaskValidatorChainId()) {
+        metaMask.activate(getMetaMaskValidatorConnectConfig());
+      } else if (targetChainId === getMetamaskEthChainId()) {
+        metaMask.activate(getMetaMaskEthConnectConfig());
+      } else if (targetChainId === getMetamaskMaticChainId()) {
+        metaMask.activate(getMetamaskMaticChainId());
+      } else if (targetChainId === getMetamaskBscChainId()) {
+        metaMask.activate(getMetaMaskBscConfig());
+      }
+
+      dispatch(setMetaMaskDisconnected(false));
+    } catch (err: unknown) {}
+  };
+
+/**
+ * Connect Polkadot.js
  */
 export const connectPolkadotJs =
   (
@@ -258,7 +291,7 @@ export const connectPolkadotJs =
   };
 
 /**
- * Reload stafi balance.
+ * Reload stafi/ksm/dot balance.
  */
 export const updatePolkadotExtensionAccountsBalances =
   (): AppThunk => async (dispatch, getState) => {
@@ -298,12 +331,12 @@ export const updatePolkadotExtensionAccountsBalances =
           let ksmBalance = chainAmountToHuman(
             // @ts-ignore
             ksmBalanceResult.data.free.toString(),
-            TokenSymbol.FIS
+            TokenSymbol.KSM
           );
           let dotBalance = chainAmountToHuman(
             // @ts-ignore
             dotBalanceResult.data.free.toString(),
-            TokenSymbol.FIS
+            TokenSymbol.DOT
           );
 
           return { fisBalance, ksmBalance, dotBalance };

@@ -1,5 +1,6 @@
 import {
   DexType,
+  RTokenName,
   TokenName,
   TokenStandard,
   TokenSymbol,
@@ -18,6 +19,7 @@ import polkadot from "public/wallet/polkadot.svg";
 import { EraRewardModel } from "hooks/useRTokenReward";
 import dayjs from "dayjs";
 import { isPolkadotWallet } from "./common";
+import { rSymbol } from "keyring/defaults";
 
 export interface DexItem {
   type: DexType;
@@ -53,6 +55,72 @@ export function getTokenSymbol(tokenName: TokenName): TokenSymbol | undefined {
     return TokenSymbol.SOL;
   } else if (tokenName === TokenName.ATOM) {
     return TokenSymbol.ATOM;
+  }
+  return undefined;
+}
+
+export const rTokenNameToTokenSymbol = (
+  rTokenName: RTokenName
+): TokenSymbol => {
+  switch (rTokenName) {
+    case RTokenName.rATOM:
+      return TokenSymbol.ATOM;
+    case RTokenName.rBNB:
+      return TokenSymbol.BNB;
+    case RTokenName.rDOT:
+      return TokenSymbol.DOT;
+    case RTokenName.rETH:
+      return TokenSymbol.ETH;
+    case RTokenName.rFIS:
+      return TokenSymbol.FIS;
+    case RTokenName.rKSM:
+      return TokenSymbol.KSM;
+    case RTokenName.rMATIC:
+      return TokenSymbol.MATIC;
+    default:
+      return TokenSymbol.SOL;
+  }
+};
+
+export const rTokenNameToTokenName = (rTokenName: RTokenName): TokenName => {
+  switch (rTokenName) {
+    case RTokenName.rATOM:
+      return TokenName.ATOM;
+    case RTokenName.rBNB:
+      return TokenName.BNB;
+    case RTokenName.rDOT:
+      return TokenName.DOT;
+    case RTokenName.rETH:
+      return TokenName.ETH;
+    case RTokenName.rFIS:
+      return TokenName.FIS;
+    case RTokenName.rKSM:
+      return TokenName.KSM;
+    case RTokenName.rMATIC:
+      return TokenName.MATIC;
+    default:
+      return TokenName.SOL;
+  }
+};
+export function getTokenNameFromrSymbol(
+  symbol: rSymbol
+): TokenName | undefined {
+  if (symbol === rSymbol.Fis) {
+    return TokenName.FIS;
+  } else if (symbol === rSymbol.Eth) {
+    return TokenName.ETH;
+  } else if (symbol === rSymbol.Dot) {
+    return TokenName.DOT;
+  } else if (symbol === rSymbol.Ksm) {
+    return TokenName.KSM;
+  } else if (symbol === rSymbol.Matic) {
+    return TokenName.MATIC;
+  } else if (symbol === rSymbol.Bnb) {
+    return TokenName.BNB;
+  } else if (symbol === rSymbol.Sol) {
+    return TokenName.SOL;
+  } else if (symbol === rSymbol.Atom) {
+    return TokenName.ATOM;
   }
   return undefined;
 }
@@ -206,4 +274,27 @@ export function getWalletIcon(walletType: WalletType | undefined) {
     return polkadot;
   }
   return undefined;
+}
+
+export function getRedeemDaysLeft(tokenName: TokenName | undefined) {
+  if (tokenName === TokenName.MATIC) {
+    return "9";
+  }
+  if (tokenName === TokenName.DOT) {
+    return "29";
+  }
+  if (tokenName === TokenName.KSM) {
+    return "8";
+  }
+  return "9";
+}
+
+export function getStakeTransactionCount(tokenName: TokenName | undefined) {
+  if (tokenName === TokenName.MATIC || tokenName === TokenName.ETH) {
+    return 1;
+  }
+  if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
+    return 3;
+  }
+  return 1;
 }

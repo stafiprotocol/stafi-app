@@ -50,6 +50,8 @@ export const TradeModal = (props: TradeModalProps) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
+          overflow: "auto",
+          maxHeight: "90vh",
         }}
       >
         <div className="flex flex-col items-stretch px-[.56rem] pb-[.6rem] relative">

@@ -29,6 +29,7 @@ import {
   setChooseAccountWalletType,
 } from "redux/reducers/FisSlice";
 import {
+  connectMetaMask,
   connectPolkadotJs,
   disconnectWallet,
   setMetaMaskDisconnected,
@@ -37,12 +38,12 @@ import {
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
-import { isPolkadotWallet, openLink } from "utils/common";
+import { isEmptyValue, isPolkadotWallet, openLink } from "utils/common";
 import { formatNumber } from "utils/number";
+import { transformSs58Address } from "utils/polkadotUtils";
 import { getWalletIcon } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import { connectMetaMask } from "utils/web3Utils";
 import { BubblesLoading } from "./common/BubblesLoading";
 import { Icomoon } from "./icon/Icomoon";
 import { MyLayoutContext } from "./layout/layout";
@@ -55,6 +56,7 @@ export const NavbarWallet = () => {
     isWrongNetwork,
     isWrongMetaMaskNetwork,
     targetMetaMaskChainId,
+    walletNotConnected,
   } = useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const { api } = usePolkadotApi();
@@ -113,14 +115,14 @@ export const NavbarWallet = () => {
 
   const clickAccountLeftArea = () => {
     if (isWrongMetaMaskNetwork) {
-      connectMetaMask(targetMetaMaskChainId);
+      dispatch(connectMetaMask(targetMetaMaskChainId));
     }
   };
 
   const clickConnectWallet = (walletType: WalletType) => {
     if (walletType === WalletType.MetaMask) {
       dispatch(setMetaMaskDisconnected(false));
-      connectMetaMask(targetMetaMaskChainId);
+      dispatch(connectMetaMask(targetMetaMaskChainId));
     }
     if (isPolkadotWallet(walletType)) {
       dispatch(connectPolkadotJs(true, walletType));
@@ -147,12 +149,12 @@ export const NavbarWallet = () => {
   ]);
 
   const displayMetaMaskChainName = useMemo(() => {
-    if (
-      targetMetaMaskChainId === getMetamaskMaticChainId() &&
-      router.pathname === "/rtoken/stake/MATIC"
-    ) {
-      return "Polygon";
-    }
+    // if (
+    //   targetMetaMaskChainId === getMetamaskMaticChainId() &&
+    //   router.pathname === "/rtoken/stake/MATIC"
+    // ) {
+    //   return "Polygon";
+    // }
     return "Ethereum";
   }, [targetMetaMaskChainId, router.pathname]);
 
@@ -181,10 +183,17 @@ export const NavbarWallet = () => {
       });
     }
     if (walletType === WalletType.Polkadot_KSM) {
-      if (metaMaskConnected) {
+      if (ksmConnected) {
         res.push({
           balance: ksmBalance,
           tokenName: "KSM",
+        });
+      }
+    } else if (walletType === WalletType.Polkadot_DOT) {
+      if (dotConnected) {
+        res.push({
+          balance: dotBalance,
+          tokenName: "DOT",
         });
       }
     } else if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
@@ -205,6 +214,9 @@ export const NavbarWallet = () => {
     displayMetaMaskBalance,
     isWrongMetaMaskNetwork,
     ksmBalance,
+    dotConnected,
+    dotBalance,
+    ksmConnected,
   ]);
 
   const [displayAddress, displayWalletType] = useMemo(() => {
@@ -271,7 +283,7 @@ export const NavbarWallet = () => {
                 >
                   <div className="bg-error w-[.12rem] h-[.12rem] rounded-full" />
                   <div className="ml-[.12rem] text-error text-[.24rem]">
-                    Wrong Net
+                    {walletNotConnected ? "Unconnected" : "Wrong Net"}
                   </div>
                   <div className="mx-[.12rem] w-[1px] h-[.25rem] bg-divider1" />
                 </div>
@@ -411,7 +423,7 @@ export const NavbarWallet = () => {
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
 
-          {/* <WalletAccountItem
+          <WalletAccountItem
             name="Kusama"
             walletType={WalletType.Polkadot_KSM}
             connected={ksmConnected}
@@ -429,7 +441,7 @@ export const NavbarWallet = () => {
             balance={dotBalance}
             tokenName={"DOT"}
             onClickConnect={() => clickConnectWallet(WalletType.Polkadot_DOT)}
-          /> */}
+          />
         </div>
       </Popover>
     </div>
@@ -514,7 +526,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
             </div>
           ) : (
             <div className="text-primary text-[.24rem] mr-[.2rem] flex items-center">
-              {!props.balance ? (
+              {isEmptyValue(props.balance) ? (
                 <BubblesLoading color="#00F3AB" />
               ) : (
                 formatNumber(props.balance)
@@ -564,7 +576,7 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
                 <div
                   className="text-center py-[.24rem] cursor-pointer active:text-primary"
                   onClick={() => {
-                    connectMetaMask(targetMetaMaskChainId);
+                    dispatch(connectMetaMask(targetMetaMaskChainId));
                     menuPopupState.close();
                   }}
                 >
@@ -576,10 +588,15 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
           <div
             className="text-center py-[.24rem] cursor-pointer active:text-primary"
             onClick={() => {
-              navigator.clipboard.writeText(props.address).then(() => {
-                snackbarUtil.success("Copied");
-                menuPopupState.close();
-              });
+              try {
+                const address = isPolkadotWallet(props.walletType)
+                  ? transformSs58Address(props.address, props.walletType)
+                  : props.address;
+                navigator.clipboard.writeText(address).then(() => {
+                  snackbarUtil.success("Copied");
+                  menuPopupState.close();
+                });
+              } catch (err: unknown) {}
             }}
           >
             Copy Address

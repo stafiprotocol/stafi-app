@@ -2,15 +2,20 @@ import { TokenSymbol, WalletType } from "interfaces/common";
 import { InjectedPolkadotAccountWithMeta } from "redux/reducers/WalletSlice";
 import StafiServer from "servers/stafi";
 import { chainAmountToHuman } from "./number";
-import { decodeAddress } from "@polkadot/util-crypto";
+import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
 import { u8aToHex } from "@polkadot/util";
+import {
+  DOT_SS58_FORMAT,
+  KSM_SS58_FORMAT,
+  STAFI_SS58_FORMAT,
+} from "./constants";
 
 export async function getNativeRTokenBalance(
   userAddress: string | undefined,
   tokenSymbol: TokenSymbol | undefined
 ) {
   if (!userAddress || tokenSymbol === undefined) {
-    return "--";
+    return undefined;
   }
   try {
     const api = await new StafiServer().createStafiApi();
@@ -23,7 +28,7 @@ export async function getNativeRTokenBalance(
     return data;
   } catch (err: unknown) {
     // console.log(err);
-    return "--";
+    return undefined;
   }
 }
 
@@ -72,4 +77,21 @@ export const getPolkadotStakingSignature = async (address: any, data: any) => {
 
 export function polkadotAddressToHex(address: string) {
   return u8aToHex(decodeAddress(address));
+}
+
+export function transformSs58Address(
+  address: string | undefined,
+  walletType: WalletType
+) {
+  if (!address) {
+    return "";
+  }
+  return encodeAddress(
+    decodeAddress(address),
+    walletType === WalletType.Polkadot_KSM
+      ? KSM_SS58_FORMAT
+      : walletType === WalletType.Polkadot_DOT
+      ? DOT_SS58_FORMAT
+      : STAFI_SS58_FORMAT
+  );
 }

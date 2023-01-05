@@ -71,6 +71,7 @@ export enum EthPubkeyStatus {
   active = 9,
   exited = 10,
   pending = 20,
+  slashed = 30,
 }
 
 export interface EthPubkey {
@@ -99,4 +100,9 @@ export enum DexType {
   Curve = "Curve",
   Sifchain = "Sifchain",
   Quickswap = "Quickswap",
+}
+
+export interface Fee {
+  amount: string;
+  tokenName: string;
 }

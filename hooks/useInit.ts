@@ -10,6 +10,7 @@ import {
   connectPolkadotJs,
   setMetaMaskAccount,
   setMetaMaskDisconnected,
+  updatePolkadotExtensionAccountsBalances,
 } from "redux/reducers/WalletSlice";
 import {
   getStorage,
@@ -44,11 +45,13 @@ export function useInit() {
     dispatch(updateRTokenPriceList());
     // Query pool data
     dispatch(updateTokenPoolData());
+    // Update stafi/ksm/dot balances.
+    dispatch(updatePolkadotExtensionAccountsBalances());
   }, [updateFlag15s, dispatch]);
 
   useInterval(() => {
     dispatch(setUpdateFlag15s(dayjs().unix()));
-  }, 15000);
+  }, 6000); // 6s
 
   useEffect(() => {
     if (!metaMaskAccount) {

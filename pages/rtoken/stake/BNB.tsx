@@ -5,20 +5,17 @@ import { RTokenIntegrations } from "components/rtoken/RTokenIntegrations";
 import { RewardChartPanel } from "components/rtoken/RTokenRewardChartPanel";
 import { StakeMyHistory } from "components/rtoken/StakeMyHistory";
 import { StakeOverview } from "components/rtoken/StakeOverview";
-import {
-  getMetamaskBscChainId,
-  getMetamaskMaticChainId,
-} from "config/metaMask";
+import { getMetamaskBscChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { ChartDu, TokenName, TokenStandard } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import React, { useEffect, useState } from "react";
 import { getPools, updateBnbBalance } from "redux/reducers/BnbSlice";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
-import { connectMetaMask } from "utils/web3Utils";
 
 const RBnbStakePage = () => {
   const { useChainId: useMetaMaskChainId } = hooks;
@@ -28,6 +25,8 @@ const RBnbStakePage = () => {
   const dispatch = useAppDispatch();
 
   const tokenStandard = useTokenStandard(TokenName.MATIC);
+
+  const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.BNB);
 
   const { metaMaskAccount } = useWalletAccount();
 
@@ -81,7 +80,9 @@ const RBnbStakePage = () => {
       <StakeOverview
         tokenName={TokenName.BNB}
         onClickStake={onClickStake}
-        onClickConnectWallet={() => connectMetaMask(getMetamaskBscChainId())}
+        onClickConnectWallet={() => {
+          dispatch(connectMetaMask(getMetamaskBscChainId()));
+        }}
       />
 
       <CollapseCard
@@ -100,11 +101,15 @@ const RBnbStakePage = () => {
       <RTokenIntegrations tokenName={TokenName.BNB} />
 
       <RTokenStakeModal
+				rTokenBalance={rTokenBalance}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         tokenName={TokenName.BNB}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         balance={balance || "--"}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskBscChainId()))
+        }
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>

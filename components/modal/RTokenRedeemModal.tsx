@@ -1,51 +1,49 @@
-import { Dialog, DialogContent, Divider, Popover } from "@mui/material";
+import { Dialog, DialogContent } from "@mui/material";
+import { BubblesLoading } from "components/common/BubblesLoading";
+import { Button } from "components/common/button";
 import { Card } from "components/common/card";
 import { CustomInput } from "components/common/CustomInput";
+import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
-import { TokenStandardSelector } from "components/rtoken/TokenStandardSelector";
-import { TokenName, TokenStandard, WalletType } from "interfaces/common";
-import Image from "next/image";
-import rectangle from "public/rectangle_h.svg";
-import ethIcon from "public/eth_type_green.svg";
-import maticIcon from "public/matic_type_green.svg";
-import userAvatar from "public/userAvatar.svg";
-import maticBlackIcon from "public/matic_type_black.svg";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { CustomNumberInput } from "components/common/CustomNumberInput";
-import { Button } from "components/common/button";
-import { useAppDispatch, useAppSelector } from "hooks/common";
-import { handleEthTokenStake } from "redux/reducers/EthSlice";
-import { formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
-import { getShortAddress } from "utils/string";
-import { checkMetaMaskAddress, openLink } from "utils/common";
+import { useAppDispatch } from "hooks/common";
 import { useAppSlice } from "hooks/selector";
-import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
-import { useTokenStandard } from "hooks/useTokenStandard";
-import { useRTokenRatio } from "hooks/useRTokenRatio";
-import { useRTokenStakerApr } from "hooks/useRTokenStakerApr";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
-import Web3 from "web3";
-import { getMaticUnbondTxFees, unbondRMatic } from "redux/reducers/MaticSlice";
-import { useWalletAccount } from "hooks/useWalletAccount";
-import { RootState } from "redux/store";
-import numberUtil from "utils/numberUtil";
-import { useTransactionCost } from "hooks/useTransactionCost";
-import downIcon from "public/icon_down.png";
-import { bindPopover } from "material-ui-popup-state";
-import {
-  bindHover,
-  bindTrigger,
-  usePopupState,
-} from "material-ui-popup-state/hooks";
-import HoverPopover from "material-ui-popup-state/HoverPopover";
-import { useTokenPrice } from "hooks/useTokenPrice";
-import { rSymbol, Symbol } from "keyring/defaults";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
-import { validateETHAddress } from "utils/validator";
 import { unbondRBnb } from "redux/reducers/BnbSlice";
-import { unstakeRKsm } from "redux/reducers/KsmSlice";
+import { useRTokenRatio } from "hooks/useRTokenRatio";
+import { useTokenPrice } from "hooks/useTokenPrice";
+import { useTokenStandard } from "hooks/useTokenStandard";
+import { useTransactionCost } from "hooks/useTransactionCost";
+import { useWalletAccount } from "hooks/useWalletAccount";
+import { TokenName, TokenStandard } from "interfaces/common";
+import { bindPopover } from "material-ui-popup-state";
+import { bindHover, usePopupState } from "material-ui-popup-state/hooks";
+import HoverPopover from "material-ui-popup-state/HoverPopover";
+import Image from "next/image";
+import bulb from "public/bulb.svg";
+import ethIcon from "public/eth_type_green.svg";
+import downIcon from "public/icon_down.png";
+import maticBlackIcon from "public/matic_type_black.png";
+import ksmBlackIcon from "public/ksm_type_black.png";
+import dotBlackIcon from "public/dot_type_black.png";
+import rectangle from "public/rectangle_h.svg";
+import userAvatar from "public/userAvatar.svg";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
+import { getDotUnbondTxFees, unstakeRDot } from "redux/reducers/DotSlice";
+import { getKsmUnbondTxFees, unstakeRKsm } from "redux/reducers/KsmSlice";
+import { getMaticUnbondTxFees, unbondRMatic } from "redux/reducers/MaticSlice";
+import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
+import { isEmptyValue, openLink } from "utils/common";
+import { formatLargeAmount, formatNumber } from "utils/number";
+import numberUtil from "utils/numberUtil";
+import { getRedeemDaysLeft } from "utils/rToken";
+import { getShortAddress } from "utils/string";
+import { validateETHAddress, validateSS58Address } from "utils/validator";
+import Web3 from "web3";
+import { RTokenRedeemLoadingSidebar } from "./RTokenRedeemLoadingSidebar";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -53,11 +51,13 @@ interface RTokenRedeemModalProps {
   defaultReceivingAddress: string | undefined;
   editAddressDisabled?: boolean;
   onClose: () => void;
-  balance: string;
+  balance: string | undefined;
+  onClickConnectWallet: () => void;
 }
 
 export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
-  const { walletType, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
+  const { walletType, isWrongMetaMaskNetwork, walletNotConnected } =
+    useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const {
     visible,
@@ -81,12 +81,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   );
   const defaultTransactionFee = 0.0129;
 
-  const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
+  // const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
-  const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
 
-  const { polkadotAccount } = useWalletAccount();
+  const { polkadotAccount, metaMaskAccount, polkadotBalance } =
+    useWalletAccount();
 
   const commisionFee = useMemo(() => {
     if (
@@ -100,8 +100,16 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   }, [redeemAmount, unbondCommision]);
 
   const userAddress = useMemo(() => {
-    return polkadotAccount;
-  }, [polkadotAccount]);
+    if (tokenStandard === TokenStandard.Native) {
+      return polkadotAccount;
+    } else if (
+      tokenStandard === TokenStandard.BEP20 ||
+      tokenStandard === TokenStandard.ERC20
+    ) {
+      return metaMaskAccount;
+    }
+    return metaMaskAccount;
+  }, [polkadotAccount, tokenStandard, metaMaskAccount]);
 
   const willReceiveAmount = useMemo(() => {
     if (
@@ -141,22 +149,25 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const newTotalStakedAmount = useMemo(() => {
     // console.log(rTokenBalance, redeemAmount, rTokenRatio)
     if (
-      isNaN(Number(rTokenBalance)) ||
+      isNaN(Number(balance)) ||
       isNaN(Number(redeemAmount)) ||
       isNaN(Number(rTokenRatio))
     ) {
       return "--";
     }
     return (
-      (Number(rTokenBalance) - Number(redeemAmount)) * Number(rTokenRatio) + ""
+      (Number(balance) - Number(redeemAmount)) * Number(rTokenRatio) + ""
     );
-  }, [rTokenBalance, rTokenRatio, redeemAmount]);
+  }, [balance, rTokenRatio, redeemAmount]);
 
   const { isLoading } = useAppSlice();
 
   const addressCorrect = useMemo(() => {
+    if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
+      return validateSS58Address(targetAddress);
+    }
     return validateETHAddress(targetAddress);
-  }, [targetAddress]);
+  }, [targetAddress, tokenName]);
 
   useEffect(() => {
     if (visible) {
@@ -169,20 +180,33 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   }, [visible]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
+    if (walletNotConnected) {
+      return [false, "Connect Wallet"];
+    }
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
-      return [true, "Unstake"];
+      return [true, "Input Unstake Amount"];
     }
     if (isNaN(Number(balance))) {
       return [true, "Insufficient Balance"];
     }
-    if (!redeemAmount || Number(redeemAmount) === 0 || isNaN(Number(balance))) {
-      return [true, "Unstake"];
+    if (
+      !redeemAmount ||
+      isNaN(Number(redeemAmount)) ||
+      Number(redeemAmount) === 0
+    ) {
+      return [true, "Input Unstake Amount"];
     }
     if (Number(redeemAmount) > Number(balance)) {
-      return [true, "Insufficient Balance"];
+      return [true, `Not Enough r${tokenName} to Unstake`];
     }
     if (!addressCorrect) {
       return [true, "Invalid Receiving Address"];
+    }
+    if (
+      (tokenName === TokenName.KSM || tokenName === TokenName.DOT) &&
+      Number(polkadotBalance) < Number(transactionCost)
+    ) {
+      return [true, "Not Enough FIS for Fee"];
     }
     return [false, "Unstake"];
   }, [
@@ -191,6 +215,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     balance,
     redeemAmount,
     addressCorrect,
+    walletNotConnected,
+    tokenName,
+    polkadotBalance,
+    transactionCost,
   ]);
 
   const estimateFee = useMemo(() => {
@@ -209,6 +237,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
       );
     }
 
+    if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
+      return "0.005";
+    }
+
     return "--";
   }, [ethGasPrice, tokenName]);
 
@@ -218,6 +250,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   };
 
   const clickRedeem = () => {
+    if (walletNotConnected) {
+      props.onClickConnectWallet();
+      return;
+    }
     if (tokenName === TokenName.MATIC) {
       dispatch(
         unbondRMatic(
@@ -227,6 +263,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+            dispatch(updateRefreshDataFlag());
           }
         )
       );
@@ -251,6 +288,20 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+            dispatch(updateRefreshDataFlag());
+          }
+        )
+      );
+    } else if (tokenName === TokenName.DOT) {
+      dispatch(
+        unstakeRDot(
+          redeemAmount,
+          targetAddress,
+          willReceiveAmount,
+          newTotalStakedAmount,
+          () => {
+            dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+            dispatch(updateRefreshDataFlag());
           }
         )
       );
@@ -259,20 +310,46 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
 
   useEffect(() => {
     if (addressCorrect) {
-      dispatch(getMaticUnbondTxFees(redeemAmount || "1", targetAddress));
+      if (tokenName === TokenName.MATIC) {
+        dispatch(getMaticUnbondTxFees(redeemAmount || "1", targetAddress));
+      } else if (tokenName === TokenName.KSM) {
+        dispatch(getKsmUnbondTxFees(redeemAmount || "1", targetAddress));
+      } else if (tokenName === TokenName.DOT) {
+        dispatch(getDotUnbondTxFees(redeemAmount || "1", targetAddress));
+      }
     }
-  }, [dispatch, targetAddress, addressCorrect, redeemAmount]);
+  }, [dispatch, targetAddress, addressCorrect, redeemAmount, tokenName]);
 
   const txCostPopupState = usePopupState({
     variant: "popover",
     popupId: "txCost",
   });
 
+  const getRedeemDaysTipLink = () => {
+    if (tokenName === TokenName.MATIC) {
+      return "https://docs.stafi.io/rtoken-app/rmatic-solution/rmatic-faq#4.what-should-be-noted-in-rmatic-redemption";
+    }
+    return "";
+  };
+
+  const getLogo = () => {
+    if (tokenName === TokenName.MATIC) {
+      return maticBlackIcon;
+    }
+    if (tokenName === TokenName.KSM) {
+      return ksmBlackIcon;
+    }
+    if (tokenName === TokenName.DOT) {
+      return dotBlackIcon;
+    }
+    return ethIcon;
+  };
+
   return (
     <Dialog
       open={props.visible}
       onClose={props.onClose}
-      scroll="paper"
+      scroll="body"
       sx={{
         borderRadius: "0.16rem",
         background: "transparent",
@@ -280,12 +357,13 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           padding: "0",
           "& .MuiPaper-root": {
             width: "100%",
-            maxWidth: "14.88rem", // Set your width here
+            maxWidth: "16.88rem", // Set your width here
             backgroundColor: "transparent",
             padding: "0",
           },
           "& .MuiDialogContent-root": {
             padding: "0",
+            width: "16.88rem",
           },
         },
       }}
@@ -413,25 +491,52 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance, { decimals: 6, toReadable: false })}{" "}
+                    {isEmptyValue(balance) ? (
+                      <BubblesLoading />
+                    ) : (
+                      <>
+                        {formatNumber(balance, {
+                          decimals: 6,
+                          toReadable: false,
+                        })}{" "}
+                      </>
+                    )}
                     r{tokenName}
                   </div>
                 </div>
               </div>
             </div>
 
+            <div className="relative z-10 mt-[.56rem] rounded-[.3rem] h-[.6rem] flex items-center justify-between px-[.3rem] border-solid border-[1px] border-warning/50">
+              <div className="flex items-center">
+                <div className="w-[.3rem] h-[.3rem] relative">
+                  <Image src={bulb} alt="bulb" layout="fill" />
+                </div>
+
+                <div className="ml-[.16rem] text-[.2rem] text-warning">
+                  Your unstake operation will take around{" "}
+                  {getRedeemDaysLeft(tokenName)} days to completely finish.
+                </div>
+              </div>
+
+              <div
+                className="text-[.2rem] text-warning underline font-bold cursor-pointer"
+                onClick={() => {
+                  openLink(getRedeemDaysTipLink());
+                }}
+              >
+                Learn More
+              </div>
+            </div>
+
             <Card
-              mt=".76rem"
+              mt=".38rem"
               background="rgba(25, 38, 52, 0.35)"
               borderColor="#1A2835"
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image
-                  src={tokenName === TokenName.MATIC ? maticBlackIcon : ethIcon}
-                  alt="icon"
-                  layout="fill"
-                />
+                <Image src={getLogo()} alt="icon" layout="fill" />
               </div>
 
               <div className="ml-[.35rem] text-text2 text-[.32rem]">
@@ -457,7 +562,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   ) {
                     return;
                   }
-                  setRedeemAmount(balance);
+                  setRedeemAmount(formatNumber(balance, { toReadable: false }));
                 }}
               >
                 Max
@@ -475,18 +580,22 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               {buttonText}
             </Button>
 
-            <div className="mt-[.8rem] flex items-center justify-center">
-              <div className="mx-[.28rem] flex flex-col items-center">
+            <div className="mt-[.8rem] flex items-center justify-around">
+              <div className="mx-[.28rem] flex flex-col items-center min-w-[2.2rem]">
                 <div className="text-text2 text-[.24rem]">You Will Receive</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(willReceiveAmount)} {tokenName}
+                  {formatLargeAmount(willReceiveAmount)} {tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">Exchange Rate</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(rTokenRatio, { decimals: 4 })} {tokenName} = 1 r
-                  {tokenName}
+                  {isEmptyValue(rTokenRatio) ? (
+                    <BubblesLoading />
+                  ) : (
+                    <>{formatNumber(rTokenRatio, { decimals: 4 })}</>
+                  )}{" "}
+                  {tokenName} = 1 r{tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
@@ -496,7 +605,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   {...bindHover(txCostPopupState)}
                   // onMouseEnter={}
                 >
-                  {formatNumber(transactionCost, { decimals: 2 })} FIS
+                  {isEmptyValue(transactionCost) ? (
+                    <BubblesLoading />
+                  ) : (
+                    <>{formatNumber(transactionCost, { decimals: 4 })}</>
+                  )}{" "}
+                  FIS
                   <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
                     <Image src={downIcon} layout="fill" alt="down" />
                   </div>
@@ -529,26 +643,55 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   <div className="text-text2">
                     <div className="flex justify-between">
                       <div>Relay Fee</div>
-                      <div>{numberUtil.fisAmountToHuman(unbondFees)} FIS</div>
+                      <div>
+                        {isEmptyValue(unbondFees) ? (
+                          <BubblesLoading />
+                        ) : (
+                          <>
+                            {formatNumber(
+                              numberUtil.fisAmountToHuman(unbondFees),
+                              { decimals: 4 }
+                            )}
+                          </>
+                        )}{" "}
+                        FIS
+                      </div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>Transaction Fee</div>
                       <div>
-                        {formatNumber(unbondTxFees, { decimals: 2 })} FIS
+                        {isEmptyValue(unbondTxFees) ? (
+                          <BubblesLoading />
+                        ) : (
+                          <>{formatNumber(unbondTxFees, { decimals: 4 })}</>
+                        )}{" "}
+                        FIS
                       </div>
                     </div>
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
                     <div className="text-text1">
                       Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
-                      {formatNumber(transactionCost, { decimals: 2 })} FIS
+                      {isEmptyValue(transactionCost) ? (
+                        <BubblesLoading />
+                      ) : (
+                        <>{formatNumber(transactionCost, { decimals: 4 })}</>
+                      )}{" "}
+                      FIS
                     </div>
                     <div className="mt-[.18rem] text-right">
-                      ~${formatNumber(transactionCostValue, { decimals: 2 })}
+                      ~$
+                      {isEmptyValue(transactionCostValue) ? (
+                        <BubblesLoading />
+                      ) : (
+                        <>
+                          {formatNumber(transactionCostValue, { decimals: 4 })}
+                        </>
+                      )}
                     </div>
                   </div>
                 </HoverPopover>
               </div>
-              <div className="mx-[.28rem] flex flex-col items-center">
+              <div className="mx-[.28rem] flex flex-col items-center min-w-[4.4rem]">
                 <div className="text-text2 text-[.24rem]">
                   <MyTooltip
                     text="Unstake Fee"
@@ -556,11 +699,14 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                   />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {commisionFee === "--"
-                    ? "--"
-                    : formatNumber(commisionFee, { decimals: 4 })}{" "}
-                  r{tokenName} (~{formatNumber(redeemFee, { decimals: 4 })}{" "}
-                  {tokenName})
+                  {isEmptyValue(commisionFee) ? (
+                    <BubblesLoading />
+                  ) : (
+                    <>
+                      {formatLargeAmount(commisionFee)} r{tokenName} (~
+                      {formatLargeAmount(redeemFee)} {tokenName})
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -579,6 +725,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             </div>
           </div>
         </Card>
+
+        <RTokenRedeemLoadingSidebar />
       </DialogContent>
     </Dialog>
   );

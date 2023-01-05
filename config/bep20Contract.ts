@@ -13,9 +13,9 @@ export function getBep20TokenContractConfig(): Bep20TokenContractConfig {
     return {
       rETH: "0x3b507040b02c55aa3363baf7ed4f4a6439b98771",
       rMATIC: "0x4204deeb6c923a57dc270c0b09e8a2615be08593",
-      rBNB: "0x03c73f69282e3a1b2a22948bd5a23ce7414490f2",
-      rKSM: "0xfc42de640aa9759d460e1a11416eca95d25c5908",
-      rDOT: "0x2ac784f009704a0e69a41abd43a6ec8e0e951979",
+      rKSM: "0x7a8d8b0c6e869ee331d8a1855150bbca0c00aa22",
+      rDOT: "0x79df548d4a8019bea6aef47401152f053c806ef6",
+			rBNB: "0x03c73f69282e3a1b2a22948bd5a23ce7414490f2",
     };
   }
 

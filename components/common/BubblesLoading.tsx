@@ -10,6 +10,7 @@ export const BubblesLoading = (props: CustomLoadingProps) => {
     <PulseLoader
       color={props.color || "#5B6872"}
       size={props.size || ".1rem"}
+			speedMultiplier={0.5}
     />
   );
 };

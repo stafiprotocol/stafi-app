@@ -3,6 +3,7 @@ import { Button } from "components/common/button";
 import { MyLayoutContext } from "components/layout/layout";
 import { getMetamaskValidatorChainId } from "config/metaMask";
 import { hooks, metaMask } from "connectors/metaMask";
+import { useAppDispatch } from "hooks/common";
 import { useEthValidatorType } from "hooks/useEthValidatorType";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -14,11 +15,12 @@ import trustValidatorText from "public/trustValidator_text.svg";
 import validatorSelected from "public/validator_selected.svg";
 import validatorUnselected from "public/validator_unselected.svg";
 import { useContext, useState } from "react";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { openLink } from "utils/common";
-import { connectMetaMask } from "utils/web3Utils";
 import styles from "../../../styles/reth/ChooseValidator.module.scss";
 
 export const ChooseValidatorType = () => {
+  const dispatch = useAppDispatch();
   const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
   const router = useRouter();
   const [selectedType, setSelectedType] = useState<
@@ -135,7 +137,7 @@ export const ChooseValidatorType = () => {
         mt=".76rem"
         onClick={() => {
           if (!account || isWrongMetaMaskNetwork) {
-            connectMetaMask(getMetamaskValidatorChainId());
+            dispatch(connectMetaMask(getMetamaskValidatorChainId()));
             return;
           }
           if (selectedType === "trusted" && !isTrust) {

@@ -20,7 +20,7 @@ export function getKsmRpc() {
 }
 
 export function getPolkadotRpc() {
-  if (!isDev()) {
+  if (isDev()) {
     return "wss://polkadot-test-rpc.stafi.io";
   } else {
     return "wss://rpc.polkadot.io";

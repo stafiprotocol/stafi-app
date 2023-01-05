@@ -8,18 +8,20 @@ import { StakeOverview } from "components/rtoken/StakeOverview";
 import { getValidatorSiteHost } from "config/env";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
-import { useAppSelector } from "hooks/common";
+import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName, WalletType } from "interfaces/common";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import bulb from "public/bulb.svg";
 import React, { useEffect, useState } from "react";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import { openLink } from "utils/common";
-import { connectMetaMask } from "utils/web3Utils";
 
 const RTokenStakePage = () => {
+  const dispatch = useAppDispatch();
   const { useChainId: useMetaMaskChainId } = hooks;
   const chainId = useMetaMaskChainId();
   const { setNavigation } = React.useContext(MyLayoutContext);
@@ -30,6 +32,7 @@ const RTokenStakePage = () => {
   const { balance } = useAppSelector((state: RootState) => {
     return { balance: state.eth.balance };
   });
+  const rTokenBalance = useRTokenBalance(TokenStandard.ERC20, TokenName.ETH);
 
   useEffect(() => {
     setNavigation([
@@ -43,7 +46,9 @@ const RTokenStakePage = () => {
       <StakeOverview
         tokenName={TokenName.ETH}
         onClickStake={() => setStakeModalVisible(true)}
-        onClickConnectWallet={() => connectMetaMask(getMetamaskEthChainId())}
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskEthChainId()))
+        }
       />
 
       <CollapseCard
@@ -212,12 +217,16 @@ const RTokenStakePage = () => {
       </CollapseCard> */}
 
       <RTokenStakeModal
+				rTokenBalance={rTokenBalance}
         tokenName={TokenName.ETH}
         defaultReceivingAddress={metaMaskAccount}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         balance={balance}
         editAddressDisabled
+        onClickConnectWallet={() =>
+          dispatch(connectMetaMask(getMetamaskEthChainId()))
+        }
       />
     </div>
   );

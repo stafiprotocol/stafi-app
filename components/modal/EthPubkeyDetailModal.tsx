@@ -18,6 +18,7 @@ import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
 import styles from "../../styles/reth/PubkeyDetail.module.scss";
 import { getChartDuSeconds } from "utils/common";
+import { SlashDetails } from "components/reth/SlashDetails";
 
 interface EthPubkeyDetailModalProps {
   pubkey: string;
@@ -54,7 +55,7 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
     <Dialog
       open={props.visible}
       onClose={props.onClose}
-      scroll="paper"
+      scroll="body"
       sx={{
         borderRadius: "0.16rem",
         background: "#0A131Bba",
@@ -455,7 +456,9 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
             <CollapseCard
               background="rgba(26, 40, 53, 0.2)"
               mt=".36rem"
-              title={<div className="text-white text-[.32rem]">History</div>}
+              title={
+                <div className="text-white text-[.32rem]">Pool History</div>
+              }
             >
               <div className="mt-[.4rem] mb-[.23rem] flex">
                 <div className="flex-1 flex flex-col items-center">
@@ -487,6 +490,8 @@ export const EthPubkeyDetailModal = (props: EthPubkeyDetailModalProps) => {
                 </div>
               </div>
             </CollapseCard>
+
+            <SlashDetails pubkey={props.pubkey} />
           </div>
         </Card>
       </DialogContent>

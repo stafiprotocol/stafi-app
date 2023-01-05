@@ -25,9 +25,23 @@ export function getStafiScanUrl() {
   return "https://stafi.subscan.io/";
 }
 
-export function getStafiScanTxUrl(txHash: string) {
+export function getStafiScanTxUrl(txHash: string | undefined) {
   if (isDev()) {
     return `https://stafi.subscan.io/extrinsic/${txHash}`;
   }
   return `https://stafi.subscan.io/extrinsic/${txHash}`;
+}
+
+export function getKsmScanTxUrl(txHash: string | undefined) {
+  if (isDev()) {
+    return `https://kusama.subscan.io/extrinsic/${txHash}`;
+  }
+  return `https://kusama.subscan.io/extrinsic/${txHash}`;
+}
+
+export function getDotScanTxUrl(txHash: string | undefined) {
+  if (isDev()) {
+    return `https://polkadot.subscan.io/extrinsic/${txHash}`;
+  }
+  return `https://polkadot.subscan.io/extrinsic/${txHash}`;
 }

@@ -1,6 +1,10 @@
 import { u8aToHex } from "@polkadot/util";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import {
+  getEtherScanTxUrl,
+  getKsmScanTxUrl,
+  getStafiScanTxUrl,
+} from "config/explorer";
 import { estimateUnbondDays } from "config/unbond";
 import dayjs from "dayjs";
 import {
@@ -34,6 +38,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -162,7 +167,7 @@ export const handleKsmStake =
     }
 
     const chainAmount = numberToChain(stakeAmount, rSymbol.Ksm);
-    console.log("chainAmount", chainAmount);
+    // console.log("chainAmount", chainAmount);
     const noticeUuid = isReTry
       ? getState().app.stakeLoadingParams?.noticeUuid
       : stafiUuid();
@@ -195,7 +200,7 @@ export const handleKsmStake =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {
@@ -235,6 +240,9 @@ export const handleKsmStake =
         resetStakeLoadingParams({
           modalVisible: true,
           noticeUuid,
+          displayMsg: `Please approve the ${Number(
+            stakeAmount
+          )} KSM fund sending request in your Polkadot.js wallet`,
           status: "loading",
           tokenName: TokenName.KSM,
           amount: stakeAmount,
@@ -288,6 +296,13 @@ export const handleKsmStake =
       dispatch(
         sendPolkadotTx(ksmApi, ksmAccount, ksmBalance, {
           extrinsic,
+          txStartCb: () => {
+            dispatch(
+              updateStakeLoadingParams({
+                displayMsg: "Staking processing, please wait for a moment",
+              })
+            );
+          },
           txCancelCb: () => {
             handleError(new Error(CANCELLED_MESSAGE));
           },
@@ -302,7 +317,7 @@ export const handleKsmStake =
               updateStakeLoadingParams(
                 {
                   txHash: txHash,
-                  scanUrl: getEtherScanTxUrl(txHash),
+                  scanUrl: getKsmScanTxUrl(txHash),
                   blockHash: blockHash,
                   poolPubKey: selectedPool.poolPubKey,
                   progressDetail: {
@@ -333,7 +348,7 @@ export const handleKsmStake =
                       amount: Number(stakeAmount) + "",
                       willReceiveAmount: Number(willReceiveAmount) + "",
                     },
-                    scanUrl: getStafiScanTxUrl(txHash),
+                    scanUrl: getKsmScanTxUrl(txHash),
                     status: "Pending",
                     stakeLoadingParams: newParams,
                   };
@@ -351,6 +366,7 @@ export const handleKsmStake =
                   txHash,
                   blockHash,
                   chainAmount,
+                  willReceiveAmount,
                   selectedPool.poolPubKey,
                   rSymbol.Ksm,
                   chainId,
@@ -358,6 +374,7 @@ export const handleKsmStake =
                   cb
                 )
               );
+            cb && cb(true);
           },
         })
       );
@@ -383,6 +400,7 @@ export const retryStake =
       poolPubKey,
       targetAddress,
       tokenStandard,
+      willReceiveAmount,
     } = stakeLoadingParams;
 
     let chainId = ChainId.STAFI;
@@ -397,7 +415,7 @@ export const retryStake =
     dispatch(
       updateStakeLoadingParams({
         txHash: txHash,
-        scanUrl: getEtherScanTxUrl(txHash as string),
+        scanUrl: getKsmScanTxUrl(txHash as string),
         blockHash: blockHash,
         poolPubKey: poolPubKey as string,
         progressDetail: {
@@ -421,6 +439,7 @@ export const retryStake =
         txHash as string,
         blockHash as string,
         amount as string,
+        willReceiveAmount as string,
         poolPubKey as string,
         rSymbol.Ksm,
         chainId,
@@ -457,19 +476,17 @@ export const unstakeRKsm =
     // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
-      resetStakeLoadingParams({
+      setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.KSM,
         amount: amount,
         willReceiveAmount,
         newTotalStakedAmount,
-        steps: ["sending"],
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-        },
+        customMsg: `Please confirm the ${Number(
+          amount
+        ).toString()} rKSM unstaking transaction in your Polkadot.js wallet`,
       })
     );
     try {
@@ -495,8 +512,8 @@ export const unstakeRKsm =
             TokenName.KSM
           )} days`,
           (r?: string, txHash?: string) => {
+            const uuid = stafiUuid();
             if (r === "Success") {
-              const uuid = stafiUuid();
               addRTokenUnbondRecords(TokenName.KSM, {
                 id: uuid,
                 txHash,
@@ -506,6 +523,34 @@ export const unstakeRKsm =
                 amount: willReceiveAmount,
                 recipient,
               });
+
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.KSM,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  scanUrl: getStafiScanTxUrl(txHash),
+                  status: "Confirmed",
+                })
+              );
+            } else if (r === "Failed") {
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.KSM,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  scanUrl: getStafiScanTxUrl(txHash),
+                  status: "Error",
+                })
+              );
             }
           }
         )
@@ -518,19 +563,19 @@ export const unstakeRKsm =
     }
   };
 
-export const getUnbondCommision =
+export const getKsmUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
     dispatch(setUnbondCommision(unbondCommision?.toString() || "--"));
     // dispatch(updateMaticBalance());
   };
 
-export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
+export const getKsmUnbondFees = (): AppThunk => async (dispatch, getState) => {
   const unbondFees = await commonSlice.getUnbondFees(rSymbol.Ksm);
   dispatch(setUnbondFees(Number(unbondFees).toString()));
 };
 
-export const getBondFees = (): AppThunk => async (dispatch, getState) => {
+export const getKsmBondFees = (): AppThunk => async (dispatch, getState) => {
   const bondFees = await commonSlice.getBondFees(rSymbol.Ksm);
   dispatch(setBondFees(Number(bondFees).toString()));
 };

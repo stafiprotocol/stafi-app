@@ -48,9 +48,10 @@ import { openLink } from "utils/common";
 import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import { connectMetaMask, createWeb3 } from "utils/web3Utils";
+import { createWeb3 } from "utils/web3Utils";
 import Web3 from "web3";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 
 const SoloValidatorDeposit = () => {
   const { setNavigation, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
@@ -400,7 +401,7 @@ const SoloValidatorDeposit = () => {
             height="1.3rem"
             onClick={() => {
               if (!metaMaskAccount || isWrongMetaMaskNetwork) {
-                connectMetaMask(getMetamaskValidatorChainId());
+                dispatch(connectMetaMask(getMetamaskValidatorChainId()));
                 return;
               }
 

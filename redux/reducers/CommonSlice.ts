@@ -90,7 +90,7 @@ export default class CommonSlice {
     if (data) {
       return data;
     } else {
-      console.error(errMsg || "No Matching pool");
+      // console.error(errMsg || "No Matching pool");
       return null;
     }
   }
@@ -106,7 +106,7 @@ export default class CommonSlice {
       if (Number(item.active) >= Number(amount)) return true;
     });
     if (!data) {
-      console.error(msgStr || "No matching pool");
+      // console.error(msgStr || "No matching pool");
       return null;
     }
     return data;

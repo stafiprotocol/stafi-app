@@ -4,21 +4,28 @@ import { CustomInput } from "components/common/CustomInput";
 import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { TokenStandardSelector } from "components/rtoken/TokenStandardSelector";
-import { TokenName, TokenStandard, WalletType } from "interfaces/common";
+import { Fee, TokenName, TokenStandard, WalletType } from "interfaces/common";
 import Image from "next/image";
 import rectangle from "public/rectangle_h.svg";
 import ethIcon from "public/eth_type_green.svg";
 import maticIcon from "public/matic_type_green.svg";
+import ksmIcon from "public/ksm_type_green.png";
+import dotIcon from "public/dot_type_green.png";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
 import { Button } from "components/common/button";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { handleEthTokenStake } from "redux/reducers/EthSlice";
-import { formatNumber } from "utils/number";
+import { formatLargeAmount, formatNumber } from "utils/number";
 import { MyLayoutContext } from "components/layout/layout";
 import { getShortAddress } from "utils/string";
-import { checkMetaMaskAddress, isPolkadotWallet, openLink } from "utils/common";
+import {
+  checkMetaMaskAddress,
+  isEmptyValue,
+  isPolkadotWallet,
+  openLink,
+} from "utils/common";
 import { useAppSlice } from "hooks/selector";
 import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
 import { useTokenStandard } from "hooks/useTokenStandard";
@@ -52,7 +59,14 @@ import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 import { BubblesLoading } from "components/common/BubblesLoading";
 import { handleBnbStake } from "redux/reducers/BnbSlice";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
-import { getPolkadotAccountBalance } from "utils/polkadotUtils";
+import {
+  getPolkadotAccountBalance,
+  transformSs58Address,
+} from "utils/polkadotUtils";
+import { handleDotStake } from "redux/reducers/DotSlice";
+import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
+import { useStakeFees } from "hooks/useStakeFees";
+import { StakeFee } from "components/rtoken/StakeFee";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -61,10 +75,13 @@ interface RTokenStakeModalProps {
   editAddressDisabled?: boolean;
   onClose: () => void;
   balance: string;
+  onClickConnectWallet: () => void;
+	rTokenBalance: string | undefined;
 }
 
 export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
-  const { walletType, isWrongMetaMaskNetwork } = useContext(MyLayoutContext);
+  const { walletType, isWrongMetaMaskNetwork, walletNotConnected } =
+    useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
   const {
     visible,
@@ -72,6 +89,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     balance,
     defaultReceivingAddress,
     editAddressDisabled,
+		rTokenBalance,
   } = props;
   const tokenStandard = useTokenStandard(tokenName);
   const [expandUserAddress, setExpandUserAddress] = useState(false);
@@ -79,7 +97,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   const [targetAddress, setTargetAddress] = useState("");
   const [stakeAmount, setStakeAmount] = useState("");
 
-  const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
+  // const rTokenBalance = useRTokenBalance(tokenStandard, tokenName);
   const rTokenRatio = useRTokenRatio(tokenName);
   const rTokenStakerApr = useRTokenStakerApr(tokenName);
   const ethGasPrice = useEthGasPrice();
@@ -103,23 +121,27 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     tokenName,
     tokenStandard || TokenStandard.Native
   );
-
-  const { erc20BridgeFee, bep20BridgeFee, solBridgeFee } = useBridgeFees();
+  const { maticErc20BridgeFee, maticBep20BridgeFee, maticSolBridgeFee } =
+    useBridgeFees();
 
   const ethPrice = useTokenPrice("ETH");
+  const fisPrice = useTokenPrice("FIS");
+  const stakeTokenPrice = useTokenPrice(tokenName);
 
   const userAddress = useMemo(() => {
     if (walletType === WalletType.MetaMask) {
       return metaMaskAccount;
     } else if (walletType === WalletType.Polkadot) {
-      return polkadotAccount;
+      return transformSs58Address(polkadotAccount, walletType);
     } else if (walletType === WalletType.Polkadot_KSM) {
-      return ksmAccount;
+      return transformSs58Address(ksmAccount, walletType);
     } else if (walletType === WalletType.Polkadot_DOT) {
-      return dotAccount;
+      return transformSs58Address(dotAccount, walletType);
     }
     return "";
   }, [walletType, metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);
+
+  const { txFee, bridgeFee } = useStakeFees(props.tokenName, tokenStandard);
 
   const willReceiveAmount = useMemo(() => {
     if (
@@ -143,6 +165,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       } else {
         return validateETHAddress(targetAddress);
       }
+    } else if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
+      if (tokenStandard === TokenStandard.Native) {
+        return validateSS58Address(targetAddress);
+      } else {
+        return validateETHAddress(targetAddress);
+      }
     }
     return true;
   }, [targetAddress, tokenName, tokenStandard]);
@@ -158,6 +186,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   }, [visible]);
 
   const estimateFee = useMemo(() => {
+    if (tokenName === TokenName.KSM) {
+      return "0.0005";
+    }
+    if (tokenName === TokenName.DOT) {
+      return "0.015";
+    }
     let gasLimit = 146316;
     if (tokenName === TokenName.MATIC) {
       gasLimit = 79724;
@@ -183,27 +217,33 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     return "--";
   }, [ethGasPrice, tokenName, isApproved]);
 
-	const totalBridgeFee = useMemo(() => {
-		if (tokenStandard === TokenStandard.Native) {
-			if (isNaN(Number(relayFee))) {
-				return '--';
-			}
-			return relayFee + '';
-		} else {
-			let bridgeFee: string = '--';
-			if (tokenStandard === TokenStandard.ERC20) {
-				bridgeFee = erc20BridgeFee;
-			} else if (tokenStandard === TokenStandard.BEP20) {
-				bridgeFee = bep20BridgeFee;
-			} else {
-				bridgeFee = solBridgeFee;
-			}
-			if (isNaN(Number(relayFee)) || isNaN(Number(bridgeFee))) {
-				return '--';
-			}
-			return Number(relayFee) + Number(bridgeFee) + '';
-		}
-	}, [relayFee, erc20BridgeFee, bep20BridgeFee, solBridgeFee, tokenStandard]);
+  const totalBridgeFee = useMemo(() => {
+    if (tokenStandard === TokenStandard.Native) {
+      if (isNaN(Number(relayFee))) {
+        return "--";
+      }
+      return relayFee + "";
+    } else {
+      let bridgeFee: string = "--";
+      if (tokenStandard === TokenStandard.ERC20) {
+        bridgeFee = maticErc20BridgeFee;
+      } else if (tokenStandard === TokenStandard.BEP20) {
+        bridgeFee = maticBep20BridgeFee;
+      } else {
+        bridgeFee = maticSolBridgeFee;
+      }
+      if (isNaN(Number(relayFee)) || isNaN(Number(bridgeFee))) {
+        return "--";
+      }
+      return Number(relayFee) + Number(bridgeFee) + "";
+    }
+  }, [
+    relayFee,
+    maticErc20BridgeFee,
+    maticBep20BridgeFee,
+    maticSolBridgeFee,
+    tokenStandard,
+  ]);
 
   const transactionCost = useMemo(() => {
     if (tokenStandard === TokenStandard.Native) {
@@ -214,11 +254,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     } else {
       let bridgeFee: string = "--";
       if (tokenStandard === TokenStandard.ERC20) {
-        bridgeFee = erc20BridgeFee;
+        bridgeFee = maticErc20BridgeFee;
       } else if (tokenStandard === TokenStandard.BEP20) {
-        bridgeFee = bep20BridgeFee;
+        bridgeFee = maticBep20BridgeFee;
       } else if (tokenStandard === TokenStandard.SPL) {
-        bridgeFee = solBridgeFee;
+        bridgeFee = maticSolBridgeFee;
       }
 
       if (
@@ -231,9 +271,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       return Number(relayFee) + Number(estimateFee) + Number(bridgeFee) + "";
     }
   }, [
-    erc20BridgeFee,
-    bep20BridgeFee,
-    solBridgeFee,
+    maticErc20BridgeFee,
+    maticBep20BridgeFee,
+    maticSolBridgeFee,
     relayFee,
     estimateFee,
     tokenStandard,
@@ -245,16 +285,19 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   }, [transactionCost, ethPrice]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
+    if (walletNotConnected) {
+      return [false, "Connect Wallet"];
+    }
     if (walletType === "MetaMask" && isWrongMetaMaskNetwork) {
-      return [true, "Stake"];
+      return [true, "Input Stake Amount"];
     }
     if (
       !stakeAmount ||
-      Number(stakeAmount) === 0 ||
       isNaN(Number(stakeAmount)) ||
+      Number(stakeAmount) === 0 ||
       isNaN(Number(balance))
     ) {
-      return [true, "Stake"];
+      return [true, "Input Stake Amount"];
     }
     if (Number(stakeAmount) < 0.001) {
       return [true, `Minimal Stake Amount is 0.01 ${tokenName}`];
@@ -266,20 +309,34 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
         Number(balance)
       ) {
-        return [true, "Insufficient Balance"];
+        return [true, "Not Enough ETH to Stake"];
       }
-    } else {
+    } else if (tokenName === TokenName.MATIC) {
       if (Number(stakeAmount) > Number(balance)) {
-        return [true, "Insufficient Balance"];
+        return [true, "Not Enough MATIC to Stake"];
+      }
+      if (Number(ethBalance) <= Number(transactionCost)) {
+        return [true, "Not Enough Gas Fee"];
+      }
+    } else if (tokenName === TokenName.KSM) {
+      if (Number(stakeAmount) + Number(estimateFee) * 1.5 > Number(balance)) {
+        return [true, "Not Enough KSM to Stake"];
       }
       if (
-        !isNaN(Number(transactionCost)) &&
-        Number(polkadotBalance) <= Number(transactionCost)
+        Number(polkadotBalance) <
+        Number(txFee?.amount) + Number(bridgeFee?.amount)
       ) {
-        return [true, "Insufficient FIS Balance"];
+        return [true, "Not Enough FIS for Fee"];
       }
-      if (Number(ethBalance) <= Number(estimateFee)) {
-        return [true, "Insufficient ETH Balance"];
+    } else if (tokenName === TokenName.DOT) {
+      if (Number(stakeAmount) + Number(estimateFee) * 1.5 > Number(balance)) {
+        return [true, "Not Enough DOT to Stake"];
+      }
+      if (
+        Number(polkadotBalance) <
+        Number(txFee?.amount) + Number(bridgeFee?.amount)
+      ) {
+        return [true, "Not Enough FIS for Fee"];
       }
     }
 
@@ -296,8 +353,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     estimateFee,
     tokenName,
     ethBalance,
-    polkadotBalance,
     transactionCost,
+    walletNotConnected,
+    polkadotBalance,
+    txFee,
+    bridgeFee,
   ]);
 
   const newTotalStakedAmount = useMemo(() => {
@@ -319,6 +379,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
   };
 
   const clickStake = () => {
+    // Connect Wallet
+    if (walletNotConnected) {
+      props.onClickConnectWallet();
+      return;
+    }
     /*
     dispatch(mockProcess(stakeAmount, willReceiveAmount, tokenStandard, targetAddress, newTotalStakedAmount));
     return;
@@ -335,6 +400,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             if (success) {
               resetState();
               dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }
@@ -343,11 +409,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     } else if (tokenName === TokenName.MATIC) {
       let bridgeFee: string = "0";
       if (tokenStandard === TokenStandard.ERC20) {
-        bridgeFee = erc20BridgeFee;
+        bridgeFee = maticErc20BridgeFee;
       } else if (tokenStandard === TokenStandard.BEP20) {
-        bridgeFee = bep20BridgeFee;
+        bridgeFee = maticBep20BridgeFee;
       } else if (tokenStandard === TokenStandard.SPL) {
-        bridgeFee = solBridgeFee;
+        bridgeFee = maticSolBridgeFee;
       }
       let txFee = "--";
       if (!isNaN(Number(relayFee)) && !isNaN(Number(bridgeFee))) {
@@ -369,6 +435,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             if (success) {
               resetState();
               dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }
@@ -388,6 +455,27 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             if (success) {
               resetState();
               dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
+              props.onClose();
+            }
+          }
+        )
+        //mockProcess(stakeAmount, willReceiveAmount, tokenStandard, newTotalStakedAmount)
+      );
+    } else if (tokenName === TokenName.DOT) {
+      dispatch(
+        handleDotStake(
+          Number(stakeAmount) + "",
+          willReceiveAmount,
+          tokenStandard,
+          targetAddress,
+          newTotalStakedAmount,
+          false,
+          (success) => {
+            if (success) {
+              resetState();
+              dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }
@@ -415,23 +503,36 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     }
   };
 
+  const getLogo = () => {
+    if (tokenName === TokenName.MATIC) {
+      return maticIcon;
+    }
+    if (tokenName === TokenName.KSM) {
+      return ksmIcon;
+    }
+    if (tokenName === TokenName.DOT) {
+      return dotIcon;
+    }
+    return ethIcon;
+  };
+
   useEffect(() => {
     dispatch(getMaticBondTransactionFees(tokenStandard));
   }, [dispatch, targetAddress, tokenStandard]);
 
-  const txCostPopupState = usePopupState({
+  const maticTxCostPopupState = usePopupState({
     variant: "popover",
-    popupId: "txCost",
+    popupId: "maticTxCost",
   });
 
   const renderBridgeFee = () => {
     let bridgeFee: string = "--";
     if (tokenStandard === TokenStandard.ERC20) {
-      bridgeFee = erc20BridgeFee;
+      bridgeFee = maticErc20BridgeFee;
     } else if (tokenStandard === TokenStandard.BEP20) {
-      bridgeFee = bep20BridgeFee;
+      bridgeFee = maticBep20BridgeFee;
     } else if (tokenStandard === TokenStandard.SPL) {
-      bridgeFee = solBridgeFee;
+      bridgeFee = maticSolBridgeFee;
     }
 
     return (
@@ -446,27 +547,27 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     <Dialog
       open={props.visible}
       onClose={props.onClose}
-      scroll="paper"
+      scroll="body"
       sx={{
         borderRadius: "0.16rem",
-        background: "#0A131Bba",
         "& .MuiDialog-container": {
           padding: "0",
           "& .MuiPaper-root": {
             width: "100%",
-            maxWidth: "14.88rem", // Set your width here
+            maxWidth: "16.88rem", // Set your width here
             backgroundColor: "transparent",
             padding: "0",
           },
           "& .MuiDialogContent-root": {
             padding: "0",
+            width: "16.88rem",
           },
         },
       }}
     >
-      <DialogContent sx={{ width: "14.88rem" }}>
-        <Card mt=".56rem" mb=".56rem" background="#0A131B">
-          <div className="flex flex-col items-stretch px-[.56rem] pb-[1rem] overflow-auto relative">
+      <DialogContent>
+        <Card background="#0A131B" className="max-h-full">
+          <div className="flex flex-col items-stretch px-[.56rem] pb-[1rem] relative">
             <div className="self-center relative w-[2.4rem] h-[.9rem]">
               <Image src={rectangle} layout="fill" alt="rectangle" />
             </div>
@@ -614,7 +715,16 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   </Card>
 
                   <div className="text-white text-[.24rem] ml-[.24rem]">
-                    {formatNumber(balance, { decimals: 6, toReadable: false })}{" "}
+                    {isEmptyValue(balance) ? (
+                      <BubblesLoading />
+                    ) : (
+                      <>
+                        {formatNumber(balance, {
+                          decimals: 6,
+                          toReadable: false,
+                        })}
+                      </>
+                    )}{" "}
                     {tokenName}
                   </div>
                 </div>
@@ -628,11 +738,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               className="h-[1.3rem] flex items-center px-[.36rem]"
             >
               <div className="w-[.76rem] h-[.76rem] relative">
-                <Image
-                  src={tokenName === TokenName.MATIC ? maticIcon : ethIcon}
-                  alt="icon"
-                  layout="fill"
-                />
+                <Image src={getLogo()} alt="icon" layout="fill" />
               </div>
 
               <div className="ml-[.35rem] text-text2 text-[.32rem]">
@@ -659,10 +765,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     return;
                   }
                   let amount = Number(balance);
-                  if (
-                    tokenName === TokenName.ETH ||
-                    tokenName === TokenName.BNB
-                  ) {
+                  if (tokenName !== TokenName.MATIC) {
                     amount = Math.max(
                       Number(balance) - Number(estimateFee) * 1.5,
                       0
@@ -688,11 +791,11 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
               {buttonText}
             </Button>
 
-            <div className="mt-[.8rem] flex items-center justify-center">
+            <div className="mt-[.8rem] flex items-center justify-around">
               <div className="mx-[.28rem] flex flex-col items-center">
                 <div className="text-text2 text-[.24rem]">You Will Receive</div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {formatNumber(willReceiveAmount)} r{tokenName}
+                  {formatLargeAmount(willReceiveAmount)} r{tokenName}
                 </div>
               </div>
               <div className="mx-[.28rem] flex flex-col items-center">
@@ -712,21 +815,35 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                 <div className="text-text2 text-[.24rem]">Transaction Cost</div>
                 {tokenName === TokenName.ETH ? (
                   <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                    Est. {formatNumber(estimateFee)} ETH
+                    Est.{" "}
+                    {isEmptyValue(estimateFee) ? (
+                      <BubblesLoading />
+                    ) : (
+                      formatNumber(estimateFee)
+                    )}{" "}
+                    ETH
                   </div>
-                ) : (
+                ) : tokenName === TokenName.MATIC ? (
                   <div
                     className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
-                    {...bindHover(txCostPopupState)}
+                    {...bindHover(maticTxCostPopupState)}
                   >
-                    {formatNumber(transactionCost, { decimals: 4 })} ETH
+                    {isEmptyValue(transactionCost) ? (
+                      <BubblesLoading />
+                    ) : (
+                      formatNumber(transactionCost, { decimals: 4 })
+                    )}{" "}
+                    ETH
                     <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
                       <Image src={downIcon} layout="fill" alt="down" />
                     </div>
                   </div>
+                ) : (
+                  <StakeFee tokenName={tokenName} />
                 )}
+
                 <HoverPopover
-                  {...bindPopover(txCostPopupState)}
+                  {...bindPopover(maticTxCostPopupState)}
                   transformOrigin={{
                     horizontal: "center",
                     vertical: "top",
@@ -752,19 +869,111 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   <div className="text-text2">
                     <div className="flex justify-between">
                       <div>Bridge Fee</div>
-                      <div>{formatNumber(totalBridgeFee, { decimals: 4 })} ETH</div>
+                      <div>
+                        {isEmptyValue(totalBridgeFee) ? (
+                          <BubblesLoading />
+                        ) : (
+                          formatNumber(totalBridgeFee, { decimals: 4 })
+                        )}{" "}
+                        ETH
+                      </div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>ETH Tx Fee</div>
-                      <div>{formatNumber(estimateFee, { decimals: 4 })} ETH</div>
+                      <div>
+                        {isEmptyValue(estimateFee) ? (
+                          <BubblesLoading />
+                        ) : (
+                          formatNumber(estimateFee, { decimals: 4 })
+                        )}{" "}
+                        ETH
+                      </div>
                     </div>
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
                     <div className="text-text1">
                       Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
-                      {formatNumber(transactionCost, { decimals: 4 })} ETH
+                      {isEmptyValue(transactionCost) ? (
+                        <BubblesLoading />
+                      ) : (
+                        formatNumber(transactionCost, { decimals: 4 })
+                      )}{" "}
+                      ETH
                     </div>
                     <div className="mt-[.18rem] text-right">
-                      ~${formatNumber(transactionCostValue, { decimals: 4 })}
+                      ~$
+                      {isEmptyValue(transactionCostValue) ? (
+                        <BubblesLoading />
+                      ) : (
+                        formatNumber(transactionCostValue, { decimals: 4 })
+                      )}
+                    </div>
+                  </div>
+                </HoverPopover>
+
+                <HoverPopover
+                  {...bindPopover(maticTxCostPopupState)}
+                  transformOrigin={{
+                    horizontal: "center",
+                    vertical: "top",
+                  }}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                  sx={{
+                    marginTop: ".1rem",
+                    "& .MuiPopover-paper": {
+                      background: "rgba(9, 15, 23, 0.25)",
+                      border: "1px solid #26494E",
+                      backdropFilter: "blur(.4rem)",
+                      borderRadius: ".16rem",
+                      padding: ".2rem",
+                    },
+                    "& .MuiTypography-root": {
+                      padding: "0px",
+                    },
+                  }}
+                >
+                  <div className="text-text2">
+                    <div className="flex justify-between">
+                      <div>Bridge Fee</div>
+                      <div>
+                        {isEmptyValue(totalBridgeFee) ? (
+                          <BubblesLoading />
+                        ) : (
+                          formatNumber(totalBridgeFee, { decimals: 4 })
+                        )}{" "}
+                        ETH
+                      </div>
+                    </div>
+                    <div className="flex justify-between my-[.18rem]">
+                      <div>ETH Tx Fee</div>
+                      <div>
+                        {isEmptyValue(estimateFee) ? (
+                          <BubblesLoading />
+                        ) : (
+                          formatNumber(estimateFee, { decimals: 4 })
+                        )}{" "}
+                        ETH
+                      </div>
+                    </div>
+                    <div className="h-[1px] bg-text3 my-[.1rem]" />
+                    <div className="text-text1">
+                      Overall Transaction Cost: <span className="ml-[.1rem]" />{" "}
+                      {isEmptyValue(transactionCost) ? (
+                        <BubblesLoading />
+                      ) : (
+                        formatNumber(transactionCost, { decimals: 4 })
+                      )}{" "}
+                      ETH
+                    </div>
+                    <div className="mt-[.18rem] text-right">
+                      ~$
+                      {isEmptyValue(transactionCostValue) ? (
+                        <BubblesLoading />
+                      ) : (
+                        formatNumber(transactionCostValue, { decimals: 4 })
+                      )}
                     </div>
                   </div>
                 </HoverPopover>
@@ -777,32 +986,41 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                   />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">
-                  {!rTokenStakerApr ? (
+                  {isEmptyValue(rTokenStakerApr) ? (
                     <BubblesLoading color="#9DAFBE" />
                   ) : (
-                    <> {formatNumber(rTokenStakerApr, { decimals: 2 })}% APR</>
+                    <>
+                      {" "}
+                      {formatNumber(rTokenStakerApr, {
+                        decimals: 2,
+                        toReadable: false,
+                      })}
+                      % APR
+                    </>
                   )}
                 </div>
               </div>
             </div>
 
-            <div
-              className={classNames(
-                "self-center mt-[.8rem] text-[.24rem] flex items-center",
-                { hidden: tokenName === TokenName.ETH }
-              )}
-            >
-              <div className="text-text2">Need FIS for Transaction?</div>
+            {tokenName !== TokenName.MATIC && (
               <div
-                className="ml-[.22rem] flex items-center text-primary cursor-pointer"
-                onClick={() => {
-                  openLink("https://app.stafi.io/feeStation");
-                }}
+                className={classNames(
+                  "self-center mt-[.8rem] text-[.24rem] flex items-center",
+                  { hidden: tokenName === TokenName.ETH }
+                )}
               >
-                <div className="mr-[.16rem]">Go FIS Station</div>
-                <Icomoon icon="arrow-right" size=".26rem" color="#00F3AB" />
+                <div className="text-text2">Need FIS for Transaction?</div>
+                <div
+                  className="ml-[.22rem] flex items-center text-primary cursor-pointer"
+                  onClick={() => {
+                    openLink("https://app.stafi.io/feeStation");
+                  }}
+                >
+                  <div className="mr-[.16rem]">Go FIS Station</div>
+                  <Icomoon icon="arrow-right" size=".26rem" color="#00F3AB" />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </Card>
 

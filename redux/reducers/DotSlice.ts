@@ -1,5 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
+import {
+  getDotScanTxUrl,
+  getEtherScanTxUrl,
+  getStafiScanTxUrl,
+} from "config/explorer";
 import { estimateUnbondDays } from "config/unbond";
 import dayjs from "dayjs";
 import {
@@ -31,6 +35,7 @@ import {
   addNotice,
   resetStakeLoadingParams,
   setIsLoading,
+  setRedeemLoadingParams,
   StakeLoadingSendingDetailItem,
   updateStakeLoadingParams,
 } from "./AppSlice";
@@ -191,7 +196,7 @@ export const handleDotStake =
         dispatch(
           updateStakeLoadingParams(
             {
-              errorMsg: err.message,
+              displayMsg: err.message,
               errorStep: "sending",
               status: "error",
               progressDetail: {
@@ -231,6 +236,9 @@ export const handleDotStake =
         resetStakeLoadingParams({
           modalVisible: true,
           noticeUuid,
+          displayMsg: `Please approve the ${Number(
+            stakeAmount
+          )} DOT fund sending request in your Polkadot.js wallet`,
           status: "loading",
           tokenName: TokenName.DOT,
           amount: stakeAmount,
@@ -284,6 +292,13 @@ export const handleDotStake =
       dispatch(
         sendPolkadotTx(dotApi, dotAccount, dotBalance, {
           extrinsic,
+          txStartCb: () => {
+            dispatch(
+              updateStakeLoadingParams({
+                displayMsg: "Staking processing, please wait for a moment",
+              })
+            );
+          },
           txCancelCb: () => {
             handleError(new Error(CANCELLED_MESSAGE));
           },
@@ -298,7 +313,7 @@ export const handleDotStake =
               updateStakeLoadingParams(
                 {
                   txHash: txHash,
-                  scanUrl: getEtherScanTxUrl(txHash),
+                  scanUrl: getDotScanTxUrl(txHash),
                   blockHash: blockHash,
                   poolPubKey: selectedPool.poolPubKey,
                   progressDetail: {
@@ -329,7 +344,7 @@ export const handleDotStake =
                       amount: Number(stakeAmount) + "",
                       willReceiveAmount: Number(willReceiveAmount) + "",
                     },
-                    scanUrl: getStafiScanTxUrl(txHash),
+                    scanUrl: getDotScanTxUrl(txHash),
                     status: "Pending",
                     stakeLoadingParams: newParams,
                   };
@@ -347,6 +362,7 @@ export const handleDotStake =
                   txHash,
                   blockHash,
                   chainAmount,
+                  willReceiveAmount,
                   selectedPool.poolPubKey,
                   rSymbol.Dot,
                   chainId,
@@ -354,6 +370,8 @@ export const handleDotStake =
                   cb
                 )
               );
+
+            cb && cb(true);
           },
         })
       );
@@ -379,6 +397,7 @@ export const retryStake =
       poolPubKey,
       targetAddress,
       tokenStandard,
+      willReceiveAmount,
     } = stakeLoadingParams;
 
     let chainId = ChainId.STAFI;
@@ -393,7 +412,7 @@ export const retryStake =
     dispatch(
       updateStakeLoadingParams({
         txHash: txHash,
-        scanUrl: getEtherScanTxUrl(txHash as string),
+        scanUrl: getDotScanTxUrl(txHash as string),
         blockHash: blockHash,
         poolPubKey: poolPubKey as string,
         progressDetail: {
@@ -417,6 +436,7 @@ export const retryStake =
         txHash as string,
         blockHash as string,
         amount as string,
+        willReceiveAmount as string,
         poolPubKey as string,
         rSymbol.Dot,
         chainId,
@@ -453,19 +473,17 @@ export const unstakeRDot =
     // console.log(newTotalStakedAmount);
     dispatch(setIsLoading(true));
     dispatch(
-      resetStakeLoadingParams({
+      setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.DOT,
         amount: amount,
         willReceiveAmount,
         newTotalStakedAmount,
-        steps: ["sending"],
-        progressDetail: {
-          sending: {
-            totalStatus: "loading",
-          },
-        },
+        customMsg: `Please confirm the ${
+          Number(amount) + ""
+        } rDOT unstaking transaction in your Polkadot.js wallet`,
       })
     );
     try {
@@ -491,8 +509,8 @@ export const unstakeRDot =
             TokenName.DOT
           )} days`,
           (r?: string, txHash?: string) => {
+            const uuid = stafiUuid();
             if (r === "Success") {
-              const uuid = stafiUuid();
               addRTokenUnbondRecords(TokenName.DOT, {
                 id: uuid,
                 txHash,
@@ -502,6 +520,34 @@ export const unstakeRDot =
                 amount: willReceiveAmount,
                 recipient,
               });
+
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.DOT,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  scanUrl: getStafiScanTxUrl(txHash),
+                  status: "Confirmed",
+                })
+              );
+            } else if (r === "Failed") {
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.DOT,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  scanUrl: getStafiScanTxUrl(txHash),
+                  status: "Error",
+                })
+              );
             }
           }
         )
@@ -514,19 +560,19 @@ export const unstakeRDot =
     }
   };
 
-export const getUnbondCommision =
+export const getDotUnbondCommision =
   (): AppThunk => async (dispatch, getState) => {
     const unbondCommision = await commonSlice.getUnbondCommision();
     dispatch(setUnbondCommision(unbondCommision?.toString() || "--"));
     // dispatch(updateMaticBalance());
   };
 
-export const getUnbondFees = (): AppThunk => async (dispatch, getState) => {
+export const getDotUnbondFees = (): AppThunk => async (dispatch, getState) => {
   const unbondFees = await commonSlice.getUnbondFees(rSymbol.Dot);
   dispatch(setUnbondFees(Number(unbondFees).toString()));
 };
 
-export const getBondFees = (): AppThunk => async (dispatch, getState) => {
+export const getDotBondFees = (): AppThunk => async (dispatch, getState) => {
   const bondFees = await commonSlice.getBondFees(rSymbol.Dot);
   dispatch(setBondFees(Number(bondFees).toString()));
 };

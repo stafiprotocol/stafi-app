@@ -69,9 +69,7 @@ export const StakeLoadingProgressItem = (
           className={classNames(
             "flex items-center",
             {
-              hidden:
-                (props.name === "Minting" || props.name === "Swapping") &&
-                props.tokenName === TokenName.MATIC,
+              hidden: props.name === "Minting" || props.name === "Swapping",
             },
             data.broadcastStatus === "success"
               ? "text-active"
@@ -93,9 +91,7 @@ export const StakeLoadingProgressItem = (
           className={classNames(
             "mt-[.08rem] flex items-center",
             {
-              hidden:
-                (props.name === "Minting" || props.name === "Swapping") &&
-                props.tokenName === TokenName.MATIC,
+              hidden: props.name === "Minting" || props.name === "Swapping",
             },
             data.packStatus === "success"
               ? "text-active"
@@ -116,7 +112,12 @@ export const StakeLoadingProgressItem = (
         <div
           className={classNames(
             "mt-[.08rem] flex items-center",
-            { hidden: props.tokenName === TokenName.MATIC },
+            {
+              hidden:
+                props.tokenName === TokenName.MATIC ||
+                props.name === "Minting" ||
+                props.name === "Swapping",
+            },
             data.finalizeStatus === "success"
               ? "text-active"
               : data.finalizeStatus === "error"
@@ -133,17 +134,17 @@ export const StakeLoadingProgressItem = (
           )}
           */}
         </div>
-        {txHash && (
+        {data.txHash && (
           <div className="mt-[.12rem] text-text1">
             Check Tx{" "}
-            <Tooltip title={txHash}>
+            <Tooltip title={data.txHash}>
               <a
                 className="underline"
                 href={scanUrl || ""}
                 target="_blank"
                 rel="noreferrer"
               >
-                {getShortAddress(txHash, 3)}
+                {getShortAddress(data.txHash, 3)}
               </a>
             </Tooltip>
           </div>

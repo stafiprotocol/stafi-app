@@ -1,22 +1,13 @@
 import { isDev } from "config/env";
-import {
-  getMetamaskBscChainId,
-  getMetaMaskBscConfig,
-  getMetamaskEthChainId,
-  getMetaMaskEthConnectConfig,
-  getMetamaskMaticChainId,
-  getMetamaskValidatorChainId,
-  getMetaMaskValidatorConnectConfig,
-  getWeb3ProviderUrlConfig,
-} from "config/metaMask";
+import { getWeb3ProviderUrlConfig } from "config/metaMask";
 
-import { metaMask } from "connectors/metaMask";
 import { TokenName } from "interfaces/common";
 import { Symbol } from "keyring/defaults";
 import { FisAccount } from "redux/reducers/FisSlice";
 import { KeyringServer } from "servers/keyring";
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
+import { REJECTED_MESSAGE } from "./constants";
 
 export function createWeb3(provider?: any) {
   var web3 = new Web3(provider || Web3.givenProvider);
@@ -24,20 +15,6 @@ export function createWeb3(provider?: any) {
 }
 
 export type MetaMaskConnectType = "validator" | "eth" | "matic" | "bsc";
-
-export function connectMetaMask(targetChainId: number | undefined) {
-  if (targetChainId === undefined) {
-    metaMask.activate(1);
-  } else if (targetChainId === getMetamaskValidatorChainId()) {
-    metaMask.activate(getMetaMaskValidatorConnectConfig());
-  } else if (targetChainId === getMetamaskEthChainId()) {
-    metaMask.activate(getMetaMaskEthConnectConfig());
-  } else if (targetChainId === getMetamaskMaticChainId()) {
-    metaMask.activate(getMetamaskMaticChainId());
-  } else if (targetChainId === getMetamaskBscChainId()) {
-    metaMask.activate(getMetaMaskBscConfig());
-  }
-}
 
 export function connectPolkadot() {
   const conn = async () => {
@@ -132,4 +109,21 @@ export async function getBep20AssetBalance(
     // console.log(err);
     return "--";
   }
+}
+
+// https://blog.logrocket.com/understanding-resolving-metamask-error-codes/
+export function getMetaMaskTxErrorMsg(result: any) {
+  if (Number(result.code) === 4001) {
+    return REJECTED_MESSAGE;
+  } else if (Number(result.code) === 4100) {
+    return "The requested action has not been authorized by user";
+  } else if (Number(result.code) === 4200) {
+    return "The requested method is not supported by this Ethereum provider";
+  } else if (Number(result.code) === 4900) {
+    return "The provider is disconnected from all chains";
+  } else if (Number(result.code) === 32700 || Number(result.code) === 32600) {
+    return "Invalid JSON params";
+  }
+
+  return result.message || "Transaction failed";
 }

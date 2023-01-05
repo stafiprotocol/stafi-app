@@ -2,29 +2,22 @@ import { Box, Modal } from "@mui/material";
 import classNames from "classnames";
 import { PrimaryLoading } from "components/common/PrimaryLoading";
 import { Icomoon } from "components/icon/Icomoon";
-import { StakeLoadingProgressItem } from "components/rtoken/StakeLoadingProgressItem";
+import { RedeemLoadingProgressItem } from "components/rtoken/RedeemLoadingProgressItem";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import checkFileSuccess from "public/check_file_success.svg";
 import checkFileError from "public/transaction_error.svg";
-import { useEffect, useMemo, useState } from "react";
-import {
-  resetStakeLoadingParams,
-  setRedeemLoadingParams,
-  updateStakeLoadingParams,
-} from "redux/reducers/AppSlice";
-import { handleEthTokenStake } from "redux/reducers/EthSlice";
-import {
-  unbondRMatic,
-} from "redux/reducers/MaticSlice";
-import { updateRTokenBalance } from "redux/reducers/RTokenSlice";
-import { bond } from "redux/reducers/FisSlice";
+import { useEffect, useState } from "react";
+import { setRedeemLoadingParams } from "redux/reducers/AppSlice";
+import { unstakeRDot } from "redux/reducers/DotSlice";
+import { unstakeRKsm } from "redux/reducers/KsmSlice";
+import { unbondRMatic } from "redux/reducers/MaticSlice";
 import { RootState } from "redux/store";
 import { formatNumber } from "utils/number";
+import { getRedeemDaysLeft } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
-import { RedeemLoadingProgressItem } from "components/rtoken/RedeemLoadingProgressItem";
 
 export const RTokenRedeemLoadingModal = () => {
   const dispatch = useAppDispatch();
@@ -54,21 +47,42 @@ export const RTokenRedeemLoadingModal = () => {
       return;
     }
 
-    if (redeemLoadingParams.tokenName === TokenName.MATIC) {
-      const { amount, targetAddress, willReceiveAmount, newTotalStakedAmount } =
-        redeemLoadingParams;
+    const { amount, targetAddress, willReceiveAmount, newTotalStakedAmount } =
+      redeemLoadingParams;
 
-      if (
-        !amount ||
-        !targetAddress ||
-        !willReceiveAmount ||
-        !newTotalStakedAmount
-      ) {
-        snackbarUtil.error("Invalid params, please retry manually");
-        return;
-      }
+    if (
+      !amount ||
+      !targetAddress ||
+      !willReceiveAmount ||
+      !newTotalStakedAmount
+    ) {
+      snackbarUtil.error("Invalid params, please retry manually");
+      return;
+    }
+
+    if (redeemLoadingParams.tokenName === TokenName.MATIC) {
       dispatch(
         unbondRMatic(
+          amount as string,
+          targetAddress as string,
+          willReceiveAmount as string,
+          newTotalStakedAmount
+        )
+      );
+    }
+    if (redeemLoadingParams.tokenName === TokenName.KSM) {
+      dispatch(
+        unstakeRKsm(
+          amount as string,
+          targetAddress as string,
+          willReceiveAmount as string,
+          newTotalStakedAmount
+        )
+      );
+    }
+    if (redeemLoadingParams.tokenName === TokenName.DOT) {
+      dispatch(
+        unstakeRDot(
           amount as string,
           targetAddress as string,
           willReceiveAmount as string,
@@ -122,7 +136,9 @@ export const RTokenRedeemLoadingModal = () => {
                 )} ${redeemLoadingParams?.tokenName}`
               : redeemLoadingParams?.status === "error"
               ? "Transaction Failed"
-              : `You are now unstaking ${redeemLoadingParams?.amount} r${redeemLoadingParams?.tokenName}`}
+              : `You are now unstaking ${Number(
+                  redeemLoadingParams?.amount
+                )} r${redeemLoadingParams?.tokenName}`}
           </div>
 
           <div
@@ -130,8 +146,12 @@ export const RTokenRedeemLoadingModal = () => {
               "mt-[.24rem] text-[.2rem] text-text2 text-center leading-[.3rem]"
             )}
           >
-            {redeemLoadingParams?.status === "success"
-              ? `Unstake operation was successful`
+            {redeemLoadingParams?.customMsg
+              ? redeemLoadingParams.customMsg
+              : redeemLoadingParams?.status === "success"
+              ? `Unstaking operation was successful. It takes Est. ${getRedeemDaysLeft(
+                  redeemLoadingParams?.tokenName
+                )} days to complete the unstake operation`
               : redeemLoadingParams?.status === "error"
               ? redeemLoadingParams?.errorMsg ||
                 "Something went wrong, please try again"
@@ -187,7 +207,7 @@ export const RTokenRedeemLoadingModal = () => {
             )}
           </div>
 
-          <div
+          {/* <div
             className={classNames(
               "mt-[.24rem] flex items-center cursor-pointer",
               { hidden: redeemLoadingParams?.tokenName === TokenName.ETH }
@@ -214,7 +234,7 @@ export const RTokenRedeemLoadingModal = () => {
                 color={showDetail ? "#ffffff" : "#9DAFBE"}
               />
             </div>
-          </div>
+          </div> */}
 
           {showDetail && (
             <div
@@ -228,10 +248,38 @@ export const RTokenRedeemLoadingModal = () => {
             >
               {/* Sending progress */}
               <RedeemLoadingProgressItem
+                name="Sending"
+                stepIndex={1}
                 tokenName={redeemLoadingParams?.tokenName}
                 data={redeemLoadingParams}
                 txHash={redeemLoadingParams?.txHash}
                 scanUrl={redeemLoadingParams?.scanUrl}
+              />
+
+              {/* Unstaking progress */}
+              <RedeemLoadingProgressItem
+                stepIndex={2}
+                name="Unstaking"
+                tokenName={redeemLoadingParams?.tokenName}
+                data={{
+                  ...redeemLoadingParams,
+                  status:
+                    redeemLoadingParams?.status === "success"
+                      ? "success"
+                      : undefined,
+                  broadcastStatus:
+                    redeemLoadingParams?.status === "success"
+                      ? "success"
+                      : undefined,
+                  packStatus:
+                    redeemLoadingParams?.status === "success"
+                      ? "success"
+                      : undefined,
+                  finalizeStatus:
+                    redeemLoadingParams?.status === "success"
+                      ? "success"
+                      : undefined,
+                }}
               />
             </div>
           )}

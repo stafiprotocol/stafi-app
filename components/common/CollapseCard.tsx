@@ -1,9 +1,14 @@
+import { Collapse } from "@mui/material";
 import classNames from "classnames";
+import { useAppDispatch, useAppSelector } from "hooks/common";
 import Image from "next/image";
 import downIcon from "public/icon_down.png";
 import { ReactNode, useEffect, useState } from "react";
+import { setCollapseOpenId } from "redux/reducers/AppSlice";
+import { RootState } from "redux/store";
 
 type CollapseCardProps = React.PropsWithChildren<{
+  id?: string;
   defaultCollapsed?: boolean;
   title?: ReactNode | undefined;
   mt?: string;
@@ -12,7 +17,18 @@ type CollapseCardProps = React.PropsWithChildren<{
 }>;
 
 export const CollapseCard = (props: CollapseCardProps) => {
+  const dispatch = useAppDispatch();
   const [collapsed, setCollapsed] = useState(props.defaultCollapsed);
+  const collapseOpenId = useAppSelector((state: RootState) => {
+    return state.app.collapseOpenId;
+  });
+
+  useEffect(() => {
+    if (props.id && collapseOpenId === props.id) {
+      setCollapsed(false);
+      dispatch(setCollapseOpenId(undefined));
+    }
+  }, [collapseOpenId, props.id, dispatch]);
 
   return (
     <div
@@ -45,12 +61,18 @@ export const CollapseCard = (props: CollapseCardProps) => {
       </div>
 
       {
-        <div
-          className={classNames(collapsed ? "h-0 max-h-0 overflow-hidden" : "")}
-        >
-          {props.children}
-          <div className="h-[.56rem]" />
-        </div>
+        <Collapse in={!collapsed}>
+          <div>
+            {/* <div
+              className={classNames(
+                collapsed ? "h-0 max-h-0 overflow-hidden" : ""
+              )}
+            > */}
+            {props.children}
+            <div className="h-[.56rem]" />
+            {/* </div> */}
+          </div>
+        </Collapse>
       }
     </div>
   );

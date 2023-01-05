@@ -1,23 +1,23 @@
+import { Tooltip } from "@mui/material";
 import classNames from "classnames";
+import { Card } from "components/common/card";
 import { EmptyContent } from "components/common/EmptyContent";
 import { MyTooltip } from "components/common/MyTooltip";
-import { ChartDu, RequestStatus, TokenName } from "interfaces/common";
+import { MyLayoutContext } from "components/layout/layout";
+import { useRTokenRatio } from "hooks/useRTokenRatio";
+import { useRTokenReward } from "hooks/useRTokenReward";
+import { useTokenPrice } from "hooks/useTokenPrice";
+import { useTokenStandard } from "hooks/useTokenStandard";
+import { ChartDu, TokenName } from "interfaces/common";
 import Image from "next/image";
+import dotIcon from "public/dot_type_green.png";
+import ethIcon from "public/eth_type_green.svg";
+import ksmIcon from "public/ksm_type_green.png";
+import maticIcon from "public/matic_type_green.svg";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { getChartDuSeconds } from "utils/common";
 import { formatNumber } from "utils/number";
 import { CustomChart } from "../data/CustomChart";
-import ethIcon from "public/eth_type_green.svg";
-import maticIcon from "public/matic_type_green.svg";
-import { Card } from "components/common/card";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { useRTokenReward } from "hooks/useRTokenReward";
-import { getChartDuSeconds } from "utils/common";
-import { useTokenStandard } from "hooks/useTokenStandard";
-import { useRTokenBalance } from "hooks/useRTokenBalance";
-import { useRTokenRatio } from "hooks/useRTokenRatio";
-import { useTokenPrice } from "hooks/useTokenPrice";
-import { Icomoon } from "components/icon/Icomoon";
-import { MyLayoutContext } from "components/layout/layout";
-import { Tooltip } from "@mui/material";
 
 interface RewardChartPanelProps {
   tokenName: TokenName;
@@ -68,8 +68,8 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     // 1rem:100px
     let designSize = 2048;
     let html = document.documentElement;
-    // let clientW = html.clientWidth;
-    let clientW = 1440;
+    let clientW = html.clientWidth;
+    // let clientW = 1440;
     let htmlRem = (clientW * 100) / designSize;
     // html.style.fontSize = htmlRem + "px";
 
@@ -85,6 +85,19 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
       window.removeEventListener("resize", resizeListener);
     };
   }, []);
+
+  const getLogo = () => {
+    if (tokenName === TokenName.MATIC) {
+      return maticIcon;
+    }
+    if (tokenName === TokenName.KSM) {
+      return ksmIcon;
+    }
+    if (tokenName === TokenName.DOT) {
+      return dotIcon;
+    }
+    return ethIcon;
+  };
 
   if (isWrongMetaMaskNetwork || totalCount === 0) {
     return (
@@ -188,13 +201,9 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
         </div>
       </div>
 
-      <div className="ml-[1.3rem] mr-[.9rem] flex-1 h-[253px] flex flex-col">
+      <div className="ml-[1.3rem] mr-[.9rem] flex-1  flex flex-col">
         <div className="w-[.72rem] h-[.72rem] self-center relative z-10">
-          <Image
-            src={tokenName === TokenName.MATIC ? maticIcon : ethIcon}
-            alt="eth"
-            layout="fill"
-          />
+          <Image src={getLogo()} alt="eth" layout="fill" />
         </div>
 
         <Card
@@ -203,7 +212,10 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
           mt="-0.36rem"
           style={{ flex: 1 }}
         >
-          <div className={classNames("pt-[.78rem] pl-[.56rem]")} style={{}}>
+          <div
+            className={classNames("pt-[.78rem] pl-[.56rem] pb-[.4rem]")}
+            style={{}}
+          >
             <div className="text-text2 text-[.24rem] flex items-center">
               <MyTooltip
                 text="Total reward"
