@@ -122,10 +122,10 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     tokenName,
     tokenStandard || TokenStandard.Native
   );
-  const { maticErc20BridgeFee, maticBep20BridgeFee, maticSolBridgeFee } =
-    useBridgeFees();
+  const { bridgeFeeStore } = useBridgeFees(tokenName);
 
   const ethPrice = useTokenPrice("ETH");
+  const bnbPrice = useTokenPrice("BNB");
   const fisPrice = useTokenPrice("FIS");
   const stakeTokenPrice = useTokenPrice(tokenName);
 
@@ -225,26 +225,29 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       }
       return relayFee + "";
     } else {
-      let bridgeFee: string = "--";
-      if (tokenStandard === TokenStandard.ERC20) {
-        bridgeFee = maticErc20BridgeFee;
-      } else if (tokenStandard === TokenStandard.BEP20) {
-        bridgeFee = maticBep20BridgeFee;
-      } else {
-        bridgeFee = maticSolBridgeFee;
+      let bridgeFee: string | undefined = "--";
+      if (
+        tokenStandard === TokenStandard.ERC20 &&
+        bridgeFeeStore[TokenStandard.ERC20]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.ERC20][tokenName];
+      } else if (
+        tokenStandard === TokenStandard.BEP20 &&
+        bridgeFeeStore[TokenStandard.BEP20]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.BEP20][tokenName];
+      } else if (
+        tokenStandard === TokenStandard.SPL &&
+        bridgeFeeStore[TokenStandard.SPL]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.SPL][tokenName];
       }
       if (isNaN(Number(relayFee)) || isNaN(Number(bridgeFee))) {
         return "--";
       }
       return Number(relayFee) + Number(bridgeFee) + "";
     }
-  }, [
-    relayFee,
-    maticErc20BridgeFee,
-    maticBep20BridgeFee,
-    maticSolBridgeFee,
-    tokenStandard,
-  ]);
+  }, [relayFee, tokenStandard, bridgeFeeStore]);
 
   const transactionCost = useMemo(() => {
     if (tokenStandard === TokenStandard.Native) {
@@ -253,13 +256,22 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       }
       return Number(relayFee) + Number(estimateFee) + "";
     } else {
-      let bridgeFee: string = "--";
-      if (tokenStandard === TokenStandard.ERC20) {
-        bridgeFee = maticErc20BridgeFee;
-      } else if (tokenStandard === TokenStandard.BEP20) {
-        bridgeFee = maticBep20BridgeFee;
-      } else if (tokenStandard === TokenStandard.SPL) {
-        bridgeFee = maticSolBridgeFee;
+      let bridgeFee: string | undefined = "--";
+      if (
+        tokenStandard === TokenStandard.ERC20 &&
+        bridgeFeeStore[TokenStandard.ERC20]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.ERC20][tokenName];
+      } else if (
+        tokenStandard === TokenStandard.BEP20 &&
+        bridgeFeeStore[TokenStandard.BEP20]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.BEP20][tokenName];
+      } else if (
+        tokenStandard === TokenStandard.SPL &&
+        bridgeFeeStore[TokenStandard.SPL]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.SPL][tokenName];
       }
 
       if (
@@ -271,19 +283,16 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       }
       return Number(relayFee) + Number(estimateFee) + Number(bridgeFee) + "";
     }
-  }, [
-    maticErc20BridgeFee,
-    maticBep20BridgeFee,
-    maticSolBridgeFee,
-    relayFee,
-    estimateFee,
-    tokenStandard,
-  ]);
+  }, [relayFee, estimateFee, tokenStandard, bridgeFeeStore]);
 
   const transactionCostValue = useMemo(() => {
-    if (isNaN(Number(transactionCost)) || isNaN(Number(ethPrice))) return "--";
-    return Number(transactionCost) * Number(ethPrice) + "";
-  }, [transactionCost, ethPrice]);
+    let price = ethPrice;
+    if (tokenName === TokenName.BNB) {
+      price = bnbPrice;
+    }
+    if (isNaN(Number(transactionCost)) || isNaN(Number(price))) return "--";
+    return Number(transactionCost) * Number(price) + "";
+  }, [transactionCost, ethPrice, bnbPrice]);
 
   const [buttonDisabled, buttonText] = useMemo(() => {
     if (walletNotConnected) {
@@ -385,10 +394,6 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       props.onClickConnectWallet();
       return;
     }
-    /*
-    dispatch(mockProcess(stakeAmount, willReceiveAmount, tokenStandard, targetAddress, newTotalStakedAmount));
-    return;
-    */
     if (tokenName === TokenName.ETH) {
       dispatch(
         handleEthTokenStake(
@@ -408,13 +413,22 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         )
       );
     } else if (tokenName === TokenName.MATIC) {
-      let bridgeFee: string = "0";
-      if (tokenStandard === TokenStandard.ERC20) {
-        bridgeFee = maticErc20BridgeFee;
-      } else if (tokenStandard === TokenStandard.BEP20) {
-        bridgeFee = maticBep20BridgeFee;
-      } else if (tokenStandard === TokenStandard.SPL) {
-        bridgeFee = maticSolBridgeFee;
+      let bridgeFee: string | undefined = "0";
+      if (
+        tokenStandard === TokenStandard.ERC20 &&
+        bridgeFeeStore[TokenStandard.ERC20]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.ERC20][tokenName];
+      } else if (
+        tokenStandard === TokenStandard.BEP20 &&
+        bridgeFeeStore[TokenStandard.BEP20]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.BEP20][tokenName];
+      } else if (
+        tokenStandard === TokenStandard.SPL &&
+        bridgeFeeStore[TokenStandard.SPL]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.SPL][tokenName];
       }
       let txFee = "--";
       if (!isNaN(Number(relayFee)) && !isNaN(Number(bridgeFee))) {
@@ -484,6 +498,30 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         //mockProcess(stakeAmount, willReceiveAmount, tokenStandard, newTotalStakedAmount)
       );
     } else if (tokenName === TokenName.BNB) {
+      let bridgeFee: string | undefined = "0";
+      if (
+        tokenStandard === TokenStandard.ERC20 &&
+        bridgeFeeStore[TokenStandard.ERC20]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.ERC20][tokenName];
+      } else if (
+        tokenStandard === TokenStandard.BEP20 &&
+        bridgeFeeStore[TokenStandard.BEP20]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.BEP20][tokenName];
+      } else if (
+        tokenStandard === TokenStandard.SPL &&
+        bridgeFeeStore[TokenStandard.SPL]
+      ) {
+        bridgeFee = bridgeFeeStore[TokenStandard.SPL][tokenName];
+      }
+      let txFee = "--";
+      if (!isNaN(Number(relayFee)) && !isNaN(Number(bridgeFee))) {
+        txFee = (Number(relayFee) + Number(bridgeFee)).toString();
+      }
+      if (txFee === "--") {
+        return;
+      }
       dispatch(
         handleBnbStake(
           stakeAmount,
@@ -491,7 +529,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           tokenStandard,
           targetAddress,
           newTotalStakedAmount,
-          "",
+          txFee,
           false,
           (success) => {
             if (success) {
@@ -529,24 +567,6 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     variant: "popover",
     popupId: "maticTxCost",
   });
-
-  const renderBridgeFee = () => {
-    let bridgeFee: string = "--";
-    if (tokenStandard === TokenStandard.ERC20) {
-      bridgeFee = maticErc20BridgeFee;
-    } else if (tokenStandard === TokenStandard.BEP20) {
-      bridgeFee = maticBep20BridgeFee;
-    } else if (tokenStandard === TokenStandard.SPL) {
-      bridgeFee = maticSolBridgeFee;
-    }
-
-    return (
-      <div className="flex justify-between my-[.18rem]">
-        <div>Bridge Fee</div>
-        <div>{formatNumber(bridgeFee, { decimals: 4 })} ETH</div>
-      </div>
-    );
-  };
 
   return (
     <Dialog
@@ -828,7 +848,8 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     )}{" "}
                     ETH
                   </div>
-                ) : tokenName === TokenName.MATIC ? (
+                ) : tokenName === TokenName.MATIC ||
+                  tokenName === TokenName.BNB ? (
                   <div
                     className="mt-[.15rem] text-text1 text-[.24rem] flex cursor-pointer"
                     {...bindHover(maticTxCostPopupState)}
@@ -838,7 +859,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     ) : (
                       formatNumber(transactionCost, { decimals: 4 })
                     )}{" "}
-                    ETH
+                    {tokenName === TokenName.BNB ? "BNB" : "ETH"}
                     <div className="w-[.19rem] h-[0.1rem] relative ml-[.19rem] self-center">
                       <Image src={downIcon} layout="fill" alt="down" />
                     </div>
@@ -948,18 +969,20 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                         ) : (
                           formatNumber(totalBridgeFee, { decimals: 4 })
                         )}{" "}
-                        ETH
+                        {tokenName === TokenName.BNB ? "BNB" : "ETH"}
                       </div>
                     </div>
                     <div className="flex justify-between my-[.18rem]">
-                      <div>ETH Tx Fee</div>
+                      <div>
+                        {tokenName === TokenName.BNB ? "BNB" : "ETH"} Tx Fee
+                      </div>
                       <div>
                         {isEmptyValue(estimateFee) ? (
                           <BubblesLoading />
                         ) : (
                           formatNumber(estimateFee, { decimals: 4 })
                         )}{" "}
-                        ETH
+                        {tokenName === TokenName.BNB ? "BNB" : "ETH"}
                       </div>
                     </div>
                     <div className="h-[1px] bg-text3 my-[.1rem]" />
@@ -970,7 +993,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                       ) : (
                         formatNumber(transactionCost, { decimals: 4 })
                       )}{" "}
-                      ETH
+                      {tokenName === TokenName.BNB ? "BNB" : "ETH"}
                     </div>
                     <div className="mt-[.18rem] text-right">
                       ~$

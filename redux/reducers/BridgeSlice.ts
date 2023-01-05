@@ -1,15 +1,22 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { getBnbStakePortalAbi, getBnbStakePortalAddress } from "config/bnb";
 import {
   getMaticStakePortalAbi,
   getMaticStakePortalAddress,
 } from "config/matic";
-import { ChainId } from "interfaces/common";
+import { ChainId, TokenName, TokenStandard } from "interfaces/common";
 import { AppThunk } from "redux/store";
 import StafiServer from "servers/stafi";
 import numberUtil from "utils/numberUtil";
 import { createWeb3 } from "utils/web3Utils";
 
 const stafiServer = new StafiServer();
+
+export type BridgeFeeCollection = {
+  [tokenStandard in TokenStandard]?: {
+    [tokenName in TokenName]?: string;
+  };
+};
 
 export interface BridgeState {
   erc20BridgeFee: string;
@@ -18,6 +25,7 @@ export interface BridgeState {
   maticErc20BridgeFee: string;
   maticBep20BridgeFee: string;
   maticSolBridgeFee: string;
+  bridgeFeeStore: BridgeFeeCollection;
 }
 
 const initialState: BridgeState = {
@@ -27,6 +35,7 @@ const initialState: BridgeState = {
   maticErc20BridgeFee: "--",
   maticBep20BridgeFee: "--",
   maticSolBridgeFee: "--",
+  bridgeFeeStore: {},
 };
 
 export const bridgeSlice = createSlice({
@@ -60,6 +69,12 @@ export const bridgeSlice = createSlice({
     ) => {
       state.maticSolBridgeFee = action.payload;
     },
+    setBridgeFeeStore: (
+      state: BridgeState,
+      action: PayloadAction<BridgeFeeCollection>
+    ) => {
+      state.bridgeFeeStore = action.payload;
+    },
   },
 });
 
@@ -70,6 +85,7 @@ export const {
   setMaticErc20BridgeFee,
   setMaticBep20BridgeFee,
   setMaticSolBridgeFee,
+  setBridgeFeeStore,
 } = bridgeSlice.actions;
 
 export default bridgeSlice.reducer;
@@ -145,3 +161,72 @@ export const getBridgeFee = (): AppThunk => async (dispatch, getState) => {
     }
   } catch (err: unknown) {}
 };
+
+/**
+ * query bridge fee collection from staking portal contract
+ */
+export const queryBridgeFee =
+  (tokenName: TokenName): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const web3 = createWeb3();
+      const metaMaskAccount = getState().wallet.metaMaskAccount;
+
+      let portalAbi = getMaticStakePortalAbi();
+      let portalAddress = getMaticStakePortalAddress();
+
+      if (tokenName === TokenName.BNB) {
+        portalAbi = getBnbStakePortalAbi();
+        portalAddress = getBnbStakePortalAddress();
+      }
+
+      const portalContract = new web3.eth.Contract(portalAbi, portalAddress, {
+        from: metaMaskAccount,
+      });
+
+      const erc20BridgeFeeResult = await portalContract.methods
+        .bridgeFee(ChainId.ETH)
+        .call();
+      let erc20BridgeFee = "--";
+      if (!isNaN(Number(erc20BridgeFeeResult))) {
+        erc20BridgeFee = web3.utils.fromWei(erc20BridgeFeeResult);
+      }
+
+      const bep20BridgeFeeResult = await portalContract.methods
+        .bridgeFee(ChainId.BSC)
+        .call();
+      let bep20BridgeFee = "--";
+      if (!isNaN(Number(bep20BridgeFeeResult))) {
+        bep20BridgeFee = web3.utils.fromWei(bep20BridgeFeeResult);
+      }
+
+      const solBridgeFeeResult = await portalContract.methods
+        .bridgeFee(ChainId.SOL)
+        .call();
+      let solBridgeFee = "--";
+      if (!isNaN(Number(solBridgeFeeResult))) {
+        solBridgeFee = web3.utils.fromWei(solBridgeFeeResult);
+      }
+
+      const bridgeFeeStore = getState().bridge.bridgeFeeStore;
+      const newValue = {
+        ...bridgeFeeStore,
+        [TokenStandard.ERC20]: {
+          ...bridgeFeeStore.ERC20,
+          [tokenName]: erc20BridgeFee,
+        },
+        [TokenStandard.BEP20]: {
+          ...bridgeFeeStore.BEP20,
+          [tokenName]: bep20BridgeFee,
+        },
+        [TokenStandard.SPL]: {
+          ...bridgeFeeStore.SPL,
+          [tokenName]: solBridgeFee,
+        },
+      };
+
+      dispatch(setBridgeFeeStore(newValue));
+    } catch (err: any) {
+			console.error(err)
+		}
+  };

@@ -27,6 +27,9 @@ import numberUtil from "utils/numberUtil";
 import { getBnbStakePortalAbi, getBnbStakePortalAddress } from "config/bnb";
 import { getEtherScanTxUrl } from "config/explorer";
 import { LocalNotice } from "utils/notice";
+import { addRTokenUnbondRecords } from "utils/storage";
+import dayjs from "dayjs";
+import { estimateUnbondDays } from "config/unbond";
 
 const commonSlice = new CommonSlice();
 
@@ -37,6 +40,7 @@ export interface BnbState {
   poolLimit: any;
   unbondFee: string;
   bondFee: string;
+  relayFee: string | undefined;
   unbondCommision: string;
 }
 
@@ -48,6 +52,7 @@ const initialState: BnbState = {
   bondFee: "--",
   unbondFee: "--",
   unbondCommision: "--",
+  relayFee: undefined,
 };
 
 export const bnbSlice = createSlice({
@@ -79,6 +84,9 @@ export const bnbSlice = createSlice({
     setUnbondCommision: (state: BnbState, action: PayloadAction<string>) => {
       state.unbondCommision = action.payload;
     },
+    setRelayFee: (state: BnbState, action: PayloadAction<string>) => {
+      state.relayFee = action.payload;
+    },
   },
 });
 
@@ -90,6 +98,7 @@ export const {
   setBondFee,
   setUnbondFee,
   setUnbondCommision,
+  setRelayFee,
 } = bnbSlice.actions;
 
 declare const ethereum: any;
@@ -105,13 +114,15 @@ export const updateBnbBalance = (): AppThunk => async (dispatch, getState) => {
       method: "eth_getBalance",
       params: [account, "latest"],
     });
-		console.log({balance})
     dispatch(setBalance(Web3.utils.fromWei(balance.toString())));
   } catch (err) {
     console.error(err);
   }
 };
 
+/**
+ * stake BNB
+ */
 export const handleBnbStake =
   (
     stakeAmount: string,
@@ -147,7 +158,7 @@ export const handleBnbStake =
     dispatch(setIsLoading(true));
 
     try {
-      let steps = ["sending", "staking", "minting"];
+      let steps = ["staking", "minting"];
       if (tokenStandard !== TokenStandard.Native) {
         steps.push("swapping");
       }
@@ -178,9 +189,9 @@ export const handleBnbStake =
 
       const web3 = createWeb3();
       const amount = web3.utils.toWei(stakeAmount, "ether");
-      const amountInBnb = numberUtil.tokenAmountToChain(
-        stakeAmount,
-        rSymbol.Bnb
+      const msgValue = web3.utils.toWei(
+        Number(stakeAmount) + Number(txFee) + "",
+        "ether"
       );
 
       const validPools = getState().bnb.validPools;
@@ -228,7 +239,7 @@ export const handleBnbStake =
           polkadotPubKey,
           metaMaskAccount
         )
-        .send({ value: web3.utils.toWei(txFee) });
+        .send({ value: msgValue });
       if (!stakeResult || !stakeResult.status) {
         throw new Error(getMetaMaskTxErrorMsg(stakeResult));
       }
@@ -374,7 +385,7 @@ export const unbondRBnb =
     recipient: string,
     willReceiveAmount: string,
     newTotalStakedAmount: string,
-    cb?: (success: boolean) => void
+    cb?: (success?: boolean) => void
   ): AppThunk =>
   async (dispatch, getState) => {
     dispatch(setIsLoading(true));
@@ -382,10 +393,14 @@ export const unbondRBnb =
       setRedeemLoadingParams({
         modalVisible: true,
         status: "loading",
+        targetAddress: recipient,
         tokenName: TokenName.BNB,
         amount,
         willReceiveAmount,
         newTotalStakedAmount,
+        customMsg: `Please confirm the ${Number(
+          amount
+        )} rBNB unstaking transaction in your MetaMask wallet`,
       })
     );
 
@@ -397,7 +412,8 @@ export const unbondRBnb =
         rSymbol.Bnb
       );
       if (!selectedPool) {
-        return;
+        cb && cb();
+        throw new Error("No selected pool");
       }
       const keyringInstance = keyring.init(Symbol.Bnb);
 
@@ -407,11 +423,62 @@ export const unbondRBnb =
           rSymbol.Bnb,
           u8aToHex(keyringInstance.decodeAddress(recipient)),
           selectedPool.poolPubKey,
-          ""
+          "",
+          (r?: string, txHash?: string) => {
+            const uuid = stafiUuid();
+            if (r === "Success") {
+              addRTokenUnbondRecords(TokenName.BNB, {
+                id: uuid,
+                txHash,
+                estimateSuccessTime: dayjs()
+                  .add(estimateUnbondDays(TokenName.BNB), "d")
+                  .valueOf(),
+                amount: willReceiveAmount,
+                rTokenAmount: amount,
+                recipient,
+                txTimestamp: dayjs().unix(),
+              });
+              const metaMaskAccount = getState().wallet.metaMaskAccount;
+              if (txHash && metaMaskAccount) {
+                dispatch(
+                  addNotice({
+                    id: uuid,
+                    type: "rToken Unstake",
+                    data: {
+                      tokenName: TokenName.BNB,
+                      amount: amount,
+                      willReceiveAmount: willReceiveAmount,
+                    },
+                    scanUrl: getEtherScanTxUrl(txHash),
+                    status: "Confirmed",
+                  })
+                );
+              }
+              cb && cb();
+            } else if (r === "Failed") {
+              dispatch(
+                addNotice({
+                  id: uuid,
+                  type: "rToken Unstake",
+                  data: {
+                    tokenName: TokenName.BNB,
+                    amount: amount,
+                    willReceiveAmount: willReceiveAmount,
+                  },
+                  status: "Error",
+                })
+              );
+              cb && cb();
+            }
+          }
         )
       );
     } catch (err: any) {
+      dispatch(setIsLoading(false));
       console.error(err);
+    } finally {
+      dispatch(updateBnbBalance());
+      cb && cb();
     }
   };
 
@@ -435,4 +502,22 @@ export const getUnbondCommision =
     if (unbondCommision) {
       dispatch(setUnbondCommision(unbondCommision.toString()));
     }
+  };
+
+/**
+ * query relay fee from staking portal contract
+ */
+export const getBnbStakeRelayFee =
+  (): AppThunk => async (dispatch, getState) => {
+    try {
+      const web3 = createWeb3();
+      const portalContract = new web3.eth.Contract(
+        getBnbStakePortalAbi(),
+        getBnbStakePortalAddress()
+      );
+      let feeResult = await portalContract.methods.relayFee().call();
+      feeResult = feeResult || "1000000000000000"; // 0.001
+      const relayFee = web3.utils.fromWei(feeResult);
+      dispatch(setRelayFee(relayFee));
+    } catch (err: any) {}
   };

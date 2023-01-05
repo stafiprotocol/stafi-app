@@ -95,10 +95,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
     const stakedAmount = Number(rTokenBalance) * Number(rTokenRatio);
     const decimals = getDecimals(getTokenSymbol(props.tokenName));
 
-    return (
-      Math.ceil((((stakedAmount * 1000000) / decimals) * decimals) / 1000000) +
-      ""
-    );
+    return (((stakedAmount * 1000000) / decimals) * decimals) / 1000000 + "";
   }, [rTokenBalance, rTokenRatio, props.tokenName]);
 
   // User staked token value.

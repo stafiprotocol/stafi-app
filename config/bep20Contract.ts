@@ -15,7 +15,7 @@ export function getBep20TokenContractConfig(): Bep20TokenContractConfig {
       rMATIC: "0x4204deeb6c923a57dc270c0b09e8a2615be08593",
       rKSM: "0x7a8d8b0c6e869ee331d8a1855150bbca0c00aa22",
       rDOT: "0x79df548d4a8019bea6aef47401152f053c806ef6",
-			rBNB: "0x03c73f69282e3a1b2a22948bd5a23ce7414490f2",
+			rBNB: "0xa05b158da3e58f6f9f8bf2473bc5cbfe3d70bc48",
     };
   }
 

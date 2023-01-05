@@ -19,6 +19,7 @@ import {
   getUnbondFees as getMaticUnbondFee,
 } from "redux/reducers/MaticSlice";
 import {
+	getBnbStakeRelayFee,
   getBondFee as getBnbBondFee,
   getUnbondCommision as getBnbUnbondCommision,
   getUnbondFee as getBnbUnbondFee,
@@ -53,7 +54,7 @@ export function useTransactionCost(
       return {
         bondFees: state.bnb.bondFee,
         unbondFees: state.bnb.unbondFee,
-        relayFee: "--",
+        relayFee: state.bnb.relayFee,
 				unbondCommision: state.bnb.unbondCommision,
 			};
     } else if (tokenName === TokenName.KSM) {
@@ -95,6 +96,7 @@ export function useTransactionCost(
 			dispatch(getBnbBondFee());
 			dispatch(getBnbUnbondCommision());
 			dispatch(getBnbUnbondFee());
+			dispatch(getBnbStakeRelayFee());
 		} else if (tokenName === TokenName.KSM) {
       dispatch(getKsmUnbondCommision());
       dispatch(getKsmUnbondFees());

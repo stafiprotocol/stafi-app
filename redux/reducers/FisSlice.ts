@@ -46,7 +46,11 @@ import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
 import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
 import { getTokenNameFromrSymbol, getTokenSymbol } from "utils/rToken";
-import { getBep20RDotTokenAbi, getBep20RKsmTokenAbi } from "config/bep20Abi";
+import {
+  getBep20RBnbTokenAbi,
+  getBep20RDotTokenAbi,
+  getBep20RKsmTokenAbi,
+} from "config/bep20Abi";
 import { getErc20RDotTokenAbi, getErc20RKsmTokenAbi } from "config/erc20Abi";
 import { chainAmountToHuman, formatNumber, numberToChain } from "utils/number";
 
@@ -565,6 +569,9 @@ export const getMinting =
                 } else if (rsymbol === rSymbol.Dot) {
                   tokenAbi = getBep20RDotTokenAbi();
                   tokenAddress = getBep20TokenContractConfig().rDOT;
+                } else if (rsymbol === rSymbol.Bnb) {
+                  tokenAbi = getBep20RBnbTokenAbi();
+                  tokenAddress = getBep20TokenContractConfig().rBNB;
                 }
                 oldBalance = await getBep20AssetBalance(
                   targetAddress,
@@ -757,9 +764,20 @@ export const queryRTokenSwapState =
       if (chainId === ChainId.BSC) {
         tokenAbi = getBSCRMaticAbi();
         tokenAddress = bep20TokenContractConfig.rMATIC;
+        balance = await getBep20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress
+        );
       } else if (chainId === ChainId.ETH) {
         tokenAbi = getERCMaticAbi();
         tokenAddress = getErc20TokenContractConfig().rMATIC;
+        balance = await getErc20AssetBalance(
+          targetAddress,
+          tokenAbi,
+          tokenAddress,
+          TokenName.MATIC
+        );
       }
     } else if (rsymbol === rSymbol.Ksm) {
       if (chainId === ChainId.BSC) {
@@ -799,6 +817,14 @@ export const queryRTokenSwapState =
           TokenName.DOT
         );
       }
+    } else if (rsymbol === rSymbol.Bnb) {
+      tokenAbi = getBep20RBnbTokenAbi();
+      tokenAddress = getBep20TokenContractConfig().rBNB;
+      balance = await getBep20AssetBalance(
+        targetAddress,
+        tokenAbi,
+        tokenAddress
+      );
     }
 
     if (
