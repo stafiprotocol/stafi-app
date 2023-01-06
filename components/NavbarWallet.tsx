@@ -99,6 +99,7 @@ export const NavbarWallet = () => {
 
   useEffect(() => {
     dispatch(updateEthBalance());
+    dispatch(updateBnbBalance());
     if (router.pathname === "/rtoken/stake/BNB") {
       dispatch(updateBnbBalance());
     }
@@ -265,12 +266,12 @@ export const NavbarWallet = () => {
     ) {
       return { balance: maticBalance, tokenName: "MATIC" };
     }
-    if (
-      targetMetaMaskChainId === getMetamaskBscChainId() &&
-      router.pathname === "/rtoken/stake/BNB"
-    ) {
-      return { balance: bnbBalance, tokenName: "BNB" };
-    }
+    // if (
+    //   targetMetaMaskChainId === getMetamaskBscChainId() &&
+    //   router.pathname === "/rtoken/stake/BNB"
+    // ) {
+    //   return { balance: bnbBalance, tokenName: "BNB" };
+    // }
     return { balance: ethBalance, tokenName: "ETH" };
   };
 
@@ -454,6 +455,16 @@ export const NavbarWallet = () => {
             balance={dotBalance}
             tokenName={"DOT"}
             onClickConnect={() => clickConnectWallet(WalletType.Polkadot_DOT)}
+          />
+
+          <WalletAccountItem
+            name="BSC"
+            walletType={WalletType.MetaMask}
+            connected={metaMaskConnected}
+            address={metaMaskAccount || ""}
+            balance={bnbBalance}
+            tokenName={"BNB"}
+            onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
         </div>
       </Popover>

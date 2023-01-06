@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getEthChainId } from "config/metaMask";
+import { getEthChainId, getWeb3ProviderUrlConfig } from "config/metaMask";
 import { ChainId, TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol, Symbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
@@ -35,6 +35,7 @@ import { LocalNotice } from "utils/notice";
 import { addRTokenUnbondRecords } from "utils/storage";
 import dayjs from "dayjs";
 import { estimateUnbondDays } from "config/unbond";
+import { isDev } from "config/env";
 
 const commonSlice = new CommonSlice();
 
@@ -121,10 +122,24 @@ export const updateBnbBalance = (): AppThunk => async (dispatch, getState) => {
   if (!account) return;
 
   try {
-    const balance = await ethereum.request({
-      method: "eth_getBalance",
-      params: [account, "latest"],
-    });
+    let provider;
+    if (isDev()) {
+      provider = new Web3.providers.HttpProvider(
+        getWeb3ProviderUrlConfig().bsc
+      );
+    } else {
+      provider = new Web3.providers.WebsocketProvider(
+        getWeb3ProviderUrlConfig().bsc
+      );
+    }
+    const web3 = createWeb3(provider);
+
+    const balance = await web3.eth.getBalance(account);
+
+    // const balance = await ethereum.request({
+    //   method: "eth_getBalance",
+    //   params: [account, "latest"],
+    // });
     dispatch(setBalance(Web3.utils.fromWei(balance.toString())));
   } catch (err) {
     console.error(err);
@@ -380,8 +395,8 @@ export const handleBnbStake =
         );
       }
     } finally {
-			dispatch(updateBnbBalance());
-		}
+      dispatch(updateBnbBalance());
+    }
   };
 
 export const getPools = (): AppThunk => async (dispatch, setState) => {
