@@ -186,7 +186,7 @@ const RBnbStakePage = () => {
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
-          <span className="font-semibold">Stake BNB</span>: Ethereum Gas Fee +
+          <span className="font-semibold">Stake BNB</span>: BSC Gas Fee +
           Bridge Fee (pay for the cross-chain interaction).
           <br />
           <br />
