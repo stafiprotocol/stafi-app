@@ -271,16 +271,11 @@ export const updateRTokenRatio =
         const amount = web3.utils.toWei("1");
         const result = await contract.methods.getEthValue(amount).call();
         newRatio = web3.utils.fromWei(result, "ether");
-      } else if (tokenName === TokenName.MATIC) {
+      } else {
         const api = await new StafiServer().createStafiApi();
         const result = await api.query.rTokenRate.rate(
           getTokenSymbol(tokenName)
         );
-        let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
-        newRatio = (ratio || 1) + "";
-      } else if (tokenName === TokenName.BNB) {
-        const api = await new StafiServer().createStafiApi();
-        const result = await api.query.rTokenRate.rate(rSymbol.Bnb);
         let ratio = numberUtil.rTokenRateToHuman(result.toJSON());
         newRatio = (ratio || 1) + "";
       }
