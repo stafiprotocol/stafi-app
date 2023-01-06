@@ -214,7 +214,7 @@ export const handleBnbStake =
         })
       );
 
-      const web3 = createWeb3();
+      const web3 = createWeb3(ethereum);
       const amount = web3.utils.toWei(stakeAmount, "ether");
       const msgValue = web3.utils.toWei(
         Number(stakeAmount) + Number(txFee) + "",
@@ -539,7 +539,7 @@ export const getUnbondCommision =
 export const getBnbStakeRelayFee =
   (): AppThunk => async (dispatch, getState) => {
     try {
-      const web3 = createWeb3();
+      const web3 = createWeb3(ethereum);
       const portalContract = new web3.eth.Contract(
         getBnbStakePortalAbi(),
         getBnbStakePortalAddress()

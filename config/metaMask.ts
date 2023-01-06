@@ -78,6 +78,7 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
       // stafi testnet
       stafiEth: "wss://test-eth-node.stafi.io",
       bsc: "https://bsc-testnet.blockvision.org/v1/2HD6MqYwTgYlZD2uDKmLPey8Thh",
+			// bsc: "https://data-seed-prebsc-1-s3.binance.org:8545",
       polygon: "wss://matic-testnet-archive-ws.bwarelabs.com",
     };
   }
