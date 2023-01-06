@@ -356,7 +356,7 @@ export const updateRTokenStakerApr =
               newApr =
                 ((currentRate - lastRate) / 1000000000000) * 365.25 * 100 + "";
             } else {
-              newApr = "9.7";
+              newApr = "2.5";
             }
           }
         } catch (err) {

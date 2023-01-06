@@ -84,6 +84,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     if (tokenName === TokenName.DOT) {
       return "Polkadot";
     }
+		if (tokenName === TokenName.BNB) {
+			return "BSC";
+		}
     return "Ethereum";
   };
 

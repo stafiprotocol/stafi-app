@@ -286,6 +286,9 @@ export function getRedeemDaysLeft(tokenName: TokenName | undefined) {
   if (tokenName === TokenName.KSM) {
     return "8";
   }
+	if (tokenName === TokenName.BNB) {
+		return "16";
+	}
   return "9";
 }
 
