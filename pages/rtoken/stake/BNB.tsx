@@ -24,7 +24,7 @@ const RBnbStakePage = () => {
 
   const dispatch = useAppDispatch();
 
-  const tokenStandard = useTokenStandard(TokenName.MATIC);
+  const tokenStandard = useTokenStandard(TokenName.BNB);
 
   const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.BNB);
 
@@ -116,6 +116,219 @@ const RBnbStakePage = () => {
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            How to obtain BEP20 rBNB?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          You can swap rBNB tokens into BEP-20 format at 1:1 ratio through the
+          swapping function{" "}
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://app.stafi.io/rAsset/home/native/erc"
+            target="_blank"
+            rel="noreferrer"
+          >
+            rAsset
+          </a>
+          . Please refer to this guide to swap native rBNB into BEP20 format:
+          <br />
+          <br />
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://docs.stafi.io/rtoken-app/rasset/swap-guide"
+            target="_blank"
+            rel="noreferrer"
+          >
+            https://docs.stafi.io/rtoken-app/rasset/swap-guide
+          </a>
+        </div>
+      </CollapseCard>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            What&apos;s the contract address of rBNB?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          rBNB Contract Address:{" "}
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://etherscan.io/address/0x3dbb00c9be5a327e25caf4f650844c5dba81e34b"
+            target="_blank"
+            rel="noreferrer"
+          >
+            0xf027e525d491ef6ffcc478555fbb3cfabb3406a6
+          </a>
+        </div>
+      </CollapseCard>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            What are the commissions and fees in rBNB?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          <span className="font-semibold">Stake BNB</span>: Ethereum Gas Fee +
+          Bridge Fee (pay for the cross-chain interaction).
+          <br />
+          <br />
+          <span className="font-semibold">Unstake BNB</span>: 0.2% unstake
+          fee(based on the amount of unstaked rBNB).
+          <br />
+          <br />
+          Details:{" "}
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://docs.stafi.io/rtoken-app/rbnb-solution#rbnb-charge"
+            target="_blank"
+            rel="noreferrer"
+          >
+            https://docs.stafi.io/rtoken-app/rbnb-solution#rbnb-charge
+          </a>
+        </div>
+      </CollapseCard>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            What fee is applied by StaFi? What is this used for?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          <span className="font-semibold">Staking Reward Fee</span>: 10% of your
+          staking reward(your total staking reward minus validator commission)
+          <br />
+          <br />
+          <span className="font-semibold">Bridge Fee</span>: The fee charged by
+          the relayers to pay for the cross-chain contract interaction service
+          fee between StaFi chain and designated chain.
+          <br />
+          <br />
+          <span className="font-semibold">Unstake Fee</span>: 0.2% of your
+          unstaked rBNB tokens.
+          <br />
+          <br />
+          Those fees are split between node operators and the StaFi DAO, as well
+          as developers who contribute to the StaFi ecosystem.
+        </div>
+      </CollapseCard>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            What&apos;re the factors that affect the staking rewards?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          Reward normally is updated every 24 hours.
+          <br />
+          <br />
+          rBNB liquid staking rewards are mainly decided by the BSC chain&apos;s
+          staking APY, delegation strategy and the original validator’s slash
+          risks.
+        </div>
+      </CollapseCard>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            How to get my rBNB back?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          After completing the &quot;Unstake&quot; operation, plz wait for
+          around 16 days to get the unstaked BNB tokens, which will be
+          automatically sent to your designated account after the lock-up
+          period.
+        </div>
+      </CollapseCard>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            How to calculate rBNB on-chain rate?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          rBNB on-chain rate is recording how many BNBs could be unstaked with 1
+          rBNB token. It will start from 1 and gradually increase along with the
+          staking rewards generated continuously.
+          <br />
+          <br />
+          You could refer to{" "}
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://docs.stafi.io/rtoken-app/rbnb-solution"
+            target="_blank"
+            rel="noreferrer"
+          >
+            rBNB Solution
+          </a>{" "}
+          to check its calculation details.
+        </div>
+      </CollapseCard>
+
+      <CollapseCard
+        defaultCollapsed
+        background="rgba(26, 40, 53, 0.2)"
+        mt=".36rem"
+        title={
+          <div className="text-white text-[.32rem]">
+            What’s the rBNB secondary market peg?
+          </div>
+        }
+      >
+        <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
+          Secondary market peg is the trading price of rBNB against the BNB on
+          secondary markets like{" "}
+          <a
+            className="text-primary cursor-pointer underline"
+            href="https://pancakeswap.finance/swap?inputCurrency=0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c&outputCurrency=0xf027e525d491ef6ffcc478555fbb3cfabb3406a6"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Pancake
+          </a>{" "}
+          DEX. Sometimes the rBNB peg could be lower or higher than the on-chain
+          rate due to the secondary market trading, but the rBNB token holders
+          could always unstake the BNBs back according to the on-chain rate from
+          StaFi.
+        </div>
+      </CollapseCard>
     </div>
   );
 };

@@ -225,7 +225,11 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (tokenName === TokenName.MATIC) {
       gasLimit = 36928;
     }
-    if (tokenName === TokenName.ETH || tokenName === TokenName.MATIC) {
+    if (
+      tokenName === TokenName.ETH ||
+      tokenName === TokenName.MATIC ||
+      tokenName === TokenName.BNB
+    ) {
       if (isNaN(Number(ethGasPrice))) {
         return "--";
       }
@@ -331,9 +335,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (tokenName === TokenName.MATIC) {
       return "https://docs.stafi.io/rtoken-app/rmatic-solution/rmatic-faq#4.what-should-be-noted-in-rmatic-redemption";
     }
-		if (tokenName === TokenName.BNB) {
-			return "https://docs.stafi.io/rtoken-app/rbnb-solution/rbnb-faq#4.whats-the-unbonding-period-of-rbnb";
-		}
+    if (tokenName === TokenName.BNB) {
+      return "https://docs.stafi.io/rtoken-app/rbnb-solution/rbnb-faq#4.whats-the-unbonding-period-of-rbnb";
+    }
     return "";
   };
 
