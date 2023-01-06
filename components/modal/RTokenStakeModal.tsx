@@ -230,17 +230,17 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         tokenStandard === TokenStandard.ERC20 &&
         bridgeFeeStore[TokenStandard.ERC20]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.ERC20][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.ERC20] as any)[tokenName];
       } else if (
         tokenStandard === TokenStandard.BEP20 &&
         bridgeFeeStore[TokenStandard.BEP20]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.BEP20][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.BEP20] as any)[tokenName];
       } else if (
         tokenStandard === TokenStandard.SPL &&
         bridgeFeeStore[TokenStandard.SPL]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.SPL][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.SPL] as any)[tokenName];
       }
       if (isNaN(Number(relayFee)) || isNaN(Number(bridgeFee))) {
         return "--";
@@ -261,17 +261,17 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         tokenStandard === TokenStandard.ERC20 &&
         bridgeFeeStore[TokenStandard.ERC20]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.ERC20][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.ERC20] as any)[tokenName];
       } else if (
         tokenStandard === TokenStandard.BEP20 &&
         bridgeFeeStore[TokenStandard.BEP20]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.BEP20][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.BEP20] as any)[tokenName];
       } else if (
         tokenStandard === TokenStandard.SPL &&
         bridgeFeeStore[TokenStandard.SPL]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.SPL][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.SPL] as any)[tokenName];
       }
 
       if (
@@ -418,17 +418,17 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         tokenStandard === TokenStandard.ERC20 &&
         bridgeFeeStore[TokenStandard.ERC20]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.ERC20][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.ERC20] as any)[tokenName];
       } else if (
         tokenStandard === TokenStandard.BEP20 &&
         bridgeFeeStore[TokenStandard.BEP20]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.BEP20][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.BEP20] as any)[tokenName];
       } else if (
         tokenStandard === TokenStandard.SPL &&
         bridgeFeeStore[TokenStandard.SPL]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.SPL][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.SPL] as any)[tokenName];
       }
       let txFee = "--";
       if (!isNaN(Number(relayFee)) && !isNaN(Number(bridgeFee))) {
@@ -503,17 +503,17 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         tokenStandard === TokenStandard.ERC20 &&
         bridgeFeeStore[TokenStandard.ERC20]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.ERC20][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.ERC20] as any)[tokenName];
       } else if (
         tokenStandard === TokenStandard.BEP20 &&
         bridgeFeeStore[TokenStandard.BEP20]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.BEP20][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.BEP20] as any)[tokenName];
       } else if (
         tokenStandard === TokenStandard.SPL &&
         bridgeFeeStore[TokenStandard.SPL]
       ) {
-        bridgeFee = bridgeFeeStore[TokenStandard.SPL][tokenName];
+        bridgeFee = (bridgeFeeStore[TokenStandard.SPL] as any)[tokenName];
       }
       let txFee = "--";
       if (!isNaN(Number(relayFee)) && !isNaN(Number(bridgeFee))) {
