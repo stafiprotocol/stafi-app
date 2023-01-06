@@ -319,7 +319,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
           (isNaN(Number(estimateFee)) ? 0 : Number(estimateFee) * 1.4) >
         Number(balance)
       ) {
-        return [true, "Not Enough ETH to Stake"];
+        return [true, `Not Enough ${tokenName} to Stake`];
       }
     } else if (tokenName === TokenName.MATIC) {
       if (Number(stakeAmount) > Number(balance)) {
