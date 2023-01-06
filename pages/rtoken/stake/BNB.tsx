@@ -34,13 +34,16 @@ const RBnbStakePage = () => {
 
   const { polkadotAccount } = useWalletAccount();
 
-  const { balance } = useAppSelector((state: RootState) => {
+  const { balance, refreshDataFlag } = useAppSelector((state: RootState) => {
     const balance = state.bnb.balance;
     if (isNaN(Number(balance))) {
       return { balance: "--" };
     }
     const transferrableAmount = Math.max(0, Number(balance) - 0.0003) + "";
-    return { balance: transferrableAmount };
+    return {
+      balance: transferrableAmount,
+      refreshDataFlag: state.app.refreshDataFlag,
+    };
   });
 
   useEffect(() => {
@@ -52,7 +55,7 @@ const RBnbStakePage = () => {
 
   useEffect(() => {
     dispatch(updateBnbBalance());
-  }, [dispatch, metaMaskAccount, chainId]);
+  }, [dispatch, metaMaskAccount, chainId, refreshDataFlag]);
 
   useEffect(() => {
     dispatch(getPools());
@@ -64,7 +67,7 @@ const RBnbStakePage = () => {
       dispatch(updateBnbBalance());
       setStakeModalVisible(true);
     } else {
-			return;
+      return;
     }
   };
 
@@ -101,7 +104,7 @@ const RBnbStakePage = () => {
       <RTokenIntegrations tokenName={TokenName.BNB} />
 
       <RTokenStakeModal
-				rTokenBalance={rTokenBalance}
+        rTokenBalance={rTokenBalance}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         tokenName={TokenName.BNB}
         visible={stakeModalVisible}

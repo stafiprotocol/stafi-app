@@ -535,6 +535,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
             if (success) {
               resetState();
               dispatch(updateRTokenBalance(tokenStandard, tokenName));
+							dispatch(updateRefreshDataFlag());
               props.onClose();
             }
           }

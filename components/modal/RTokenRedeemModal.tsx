@@ -275,6 +275,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           newTotalStakedAmount,
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+            dispatch(updateRefreshDataFlag());
           }
         )
       );

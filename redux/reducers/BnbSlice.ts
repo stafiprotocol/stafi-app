@@ -379,7 +379,9 @@ export const handleBnbStake =
           )
         );
       }
-    }
+    } finally {
+			dispatch(updateBnbBalance());
+		}
   };
 
 export const getPools = (): AppThunk => async (dispatch, setState) => {
