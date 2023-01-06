@@ -45,3 +45,10 @@ export function getDotScanTxUrl(txHash: string | undefined) {
   }
   return `https://polkadot.subscan.io/extrinsic/${txHash}`;
 }
+
+export function getBnbScanTxUrl(txHash: string | undefined) {
+  if (isDev()) {
+    return `https://testnet.bscscan.com/tx/${txHash}`;
+  }
+  return `https://bscscan.com/tx/${txHash}`;
+}

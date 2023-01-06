@@ -31,6 +31,7 @@ interface Props {
 export const StakeMyUnbondList = (props: Props) => {
   const [page, setPage] = useState(1);
   const { unbondList, totalCount } = useRTokenUnbond(props.tokenName, page);
+	console.log(unbondList)
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
@@ -143,7 +144,9 @@ export const StakeMyUnbondList = (props: Props) => {
                 openLink(getStafiScanTxUrl(item.txHash));
               } else if (props.tokenName === TokenName.DOT) {
                 openLink(getStafiScanTxUrl(item.txHash));
-              }
+              } else if (props.tokenName === TokenName.BNB) {
+								openLink(getStafiScanTxUrl(item.txHash));
+							}
             }}
           >
             {item.receivedStatus === 1

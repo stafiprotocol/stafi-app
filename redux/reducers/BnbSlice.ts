@@ -25,7 +25,7 @@ import keyring from "servers/keyring";
 import { u8aToHex } from "@polkadot/util";
 import numberUtil from "utils/numberUtil";
 import { getBnbStakePortalAbi, getBnbStakePortalAddress } from "config/bnb";
-import { getEtherScanTxUrl } from "config/explorer";
+import { getBnbScanTxUrl, getEtherScanTxUrl } from "config/explorer";
 import { LocalNotice } from "utils/notice";
 import { addRTokenUnbondRecords } from "utils/storage";
 import dayjs from "dayjs";
@@ -153,6 +153,7 @@ export const handleBnbStake =
       tokenStandard,
       newTotalStakedAmount,
       targetAddress,
+			txFee,
     };
 
     dispatch(setIsLoading(true));
@@ -284,7 +285,7 @@ export const handleBnbStake =
               },
             },
             customMsg: "Minting processing, please wait for a moment",
-            scanUrl: getEtherScanTxUrl(txHash),
+            scanUrl: getBnbScanTxUrl(txHash),
             txHash: txHash,
           },
           (newParams) => {
@@ -297,7 +298,7 @@ export const handleBnbStake =
                 amount: Number(stakeAmount) + "",
                 willReceiveAmount: Number(willReceiveAmount) + "",
               },
-              scanUrl: getEtherScanTxUrl(stakeResult.transactionHash),
+              scanUrl: getBnbScanTxUrl(stakeResult.transactionHash),
               status: "Pending",
               stakeLoadingParams: newParams,
             };
