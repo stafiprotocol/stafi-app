@@ -56,6 +56,7 @@ export function useTransactionCost(
         unbondFees: state.bnb.unbondFee,
         relayFee: state.bnb.relayFee,
 				unbondCommision: state.bnb.unbondCommision,
+				unbondTxFees: state.bnb.unbondTxFees,
 			};
     } else if (tokenName === TokenName.KSM) {
       return {

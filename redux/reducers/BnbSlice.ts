@@ -20,7 +20,12 @@ import {
   updateStakeLoadingParams,
 } from "./AppSlice";
 import CommonSlice from "./CommonSlice";
-import { bond, fisUnbond, getMinting } from "./FisSlice";
+import {
+  bond,
+  fisUnbond,
+  getMinting,
+  getUnbondTransactionFees,
+} from "./FisSlice";
 import keyring from "servers/keyring";
 import { u8aToHex } from "@polkadot/util";
 import numberUtil from "utils/numberUtil";
@@ -42,6 +47,7 @@ export interface BnbState {
   bondFee: string;
   relayFee: string | undefined;
   unbondCommision: string;
+  unbondTxFees: string | undefined;
 }
 
 const initialState: BnbState = {
@@ -53,6 +59,7 @@ const initialState: BnbState = {
   unbondFee: "--",
   unbondCommision: "--",
   relayFee: undefined,
+  unbondTxFees: undefined,
 };
 
 export const bnbSlice = createSlice({
@@ -87,6 +94,9 @@ export const bnbSlice = createSlice({
     setRelayFee: (state: BnbState, action: PayloadAction<string>) => {
       state.relayFee = action.payload;
     },
+    setUnbondTxFee: (state: BnbState, action: PayloadAction<string>) => {
+      state.unbondTxFees = action.payload;
+    },
   },
 });
 
@@ -99,6 +109,7 @@ export const {
   setUnbondFee,
   setUnbondCommision,
   setRelayFee,
+  setUnbondTxFee,
 } = bnbSlice.actions;
 
 declare const ethereum: any;
@@ -153,7 +164,7 @@ export const handleBnbStake =
       tokenStandard,
       newTotalStakedAmount,
       targetAddress,
-			txFee,
+      txFee,
     };
 
     dispatch(setIsLoading(true));
@@ -521,4 +532,29 @@ export const getBnbStakeRelayFee =
       const relayFee = web3.utils.fromWei(feeResult);
       dispatch(setRelayFee(relayFee));
     } catch (err: any) {}
+  };
+
+export const getBnbUnbondTxFees =
+  (amount: string, recipient: string): AppThunk =>
+  async (dispatch, getState) => {
+    if (!recipient) return;
+    const validPools = getState().bnb.validPools;
+    let selectedPool = commonSlice.getPoolForUnbond(
+      amount,
+      validPools,
+      rSymbol.Bnb
+    );
+    if (!selectedPool) return;
+    const keyringInstance = keyring.init(Symbol.Bnb);
+    dispatch(
+      getUnbondTransactionFees(
+        amount,
+        rSymbol.Bnb,
+        u8aToHex(keyringInstance.decodeAddress(recipient)),
+        selectedPool.poolPubKey,
+        (fee: string) => {
+          dispatch(setUnbondTxFee(fee));
+        }
+      )
+    );
   };

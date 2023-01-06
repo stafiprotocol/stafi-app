@@ -11,7 +11,7 @@ import { useAppDispatch } from "hooks/common";
 import { useAppSlice } from "hooks/selector";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
-import { unbondRBnb } from "redux/reducers/BnbSlice";
+import { getBnbUnbondTxFees, unbondRBnb } from "redux/reducers/BnbSlice";
 import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { useTokenStandard } from "hooks/useTokenStandard";
@@ -316,7 +316,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
         dispatch(getKsmUnbondTxFees(redeemAmount || "1", targetAddress));
       } else if (tokenName === TokenName.DOT) {
         dispatch(getDotUnbondTxFees(redeemAmount || "1", targetAddress));
-      }
+      } else if (tokenName === TokenName.BNB) {
+				dispatch(getBnbUnbondTxFees("0.001", targetAddress));
+			}
     }
   }, [dispatch, targetAddress, addressCorrect, redeemAmount, tokenName]);
 

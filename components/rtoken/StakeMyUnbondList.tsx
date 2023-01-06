@@ -31,7 +31,6 @@ interface Props {
 export const StakeMyUnbondList = (props: Props) => {
   const [page, setPage] = useState(1);
   const { unbondList, totalCount } = useRTokenUnbond(props.tokenName, page);
-	console.log(unbondList)
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
