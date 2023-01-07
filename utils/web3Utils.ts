@@ -92,9 +92,9 @@ export async function getBep20AssetBalance(
         ? new Web3.providers.HttpProvider(getWeb3ProviderUrlConfig().bsc)
         : new Web3.providers.WebsocketProvider(getWeb3ProviderUrlConfig().bsc)
     );
-    // if (tokenName === TokenName.MATIC && window.ethereum) {
-    //   web3 = createWeb3(window.ethereum);
-    // }
+    if (tokenName === TokenName.BNB && window.ethereum) {
+      web3 = createWeb3(window.ethereum);
+    }
 
     let contract = new web3.eth.Contract(tokenAbi, tokenAddress, {
       from: userAddress,
