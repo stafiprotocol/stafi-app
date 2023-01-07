@@ -200,14 +200,6 @@ export const queryBridgeFee =
         bep20BridgeFee = web3.utils.fromWei(bep20BridgeFeeResult);
       }
 
-      const solBridgeFeeResult = await portalContract.methods
-        .bridgeFee(ChainId.SOL)
-        .call();
-      let solBridgeFee = "--";
-      if (!isNaN(Number(solBridgeFeeResult))) {
-        solBridgeFee = web3.utils.fromWei(solBridgeFeeResult);
-      }
-
       const bridgeFeeStore = getState().bridge.bridgeFeeStore;
       const newValue = {
         ...bridgeFeeStore,
@@ -218,10 +210,6 @@ export const queryBridgeFee =
         [TokenStandard.BEP20]: {
           ...bridgeFeeStore.BEP20,
           [tokenName]: bep20BridgeFee,
-        },
-        [TokenStandard.SPL]: {
-          ...bridgeFeeStore.SPL,
-          [tokenName]: solBridgeFee,
         },
       };
 

@@ -8,7 +8,7 @@ export const SIGN_ERROR_MESSAGE = "Sign message rejected";
 export const STAFI_ACCOUNT_EMPTY_MESSAGE = "StaFi account not connected";
 export const NO_VALID_POOL_MESSAGE = "No valid pool";
 export const NO_ENOUGH_FEE_MESSAGE = "No enough fee in your account";
-export const NETWORK_ERR_MESSAGE = "Network exception, please troubleshoot network problems and try again later.";
+export const NETWORK_ERR_MESSAGE = "Network exception, please try again later.";
 
 export const PAGE_SIZE = 10;
 export const STAFI_SS58_FORMAT = 20;
