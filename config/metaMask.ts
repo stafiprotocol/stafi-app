@@ -77,8 +77,8 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
       eth: "wss://eth-goerli.alchemyapi.io/v2/O4w9rgihCPcRvH1IDF2BHLt5YSzSI9oJ",
       // stafi testnet
       stafiEth: "wss://test-eth-node.stafi.io",
-      bsc: "https://bsc-testnet.blockvision.org/v1/2HD6MqYwTgYlZD2uDKmLPey8Thh",
-			// bsc: "https://data-seed-prebsc-1-s3.binance.org:8545",
+      // bsc: "https://bsc-testnet.blockvision.org/v1/2HD6MqYwTgYlZD2uDKmLPey8Thh",
+			bsc: "https://data-seed-prebsc-1-s3.binance.org:8545",
       polygon: "wss://matic-testnet-archive-ws.bwarelabs.com",
     };
   }
@@ -102,7 +102,7 @@ export function getMetaMaskBscConfig(): AddEthereumChainParameter {
         symbol: "BNB",
         decimals: 18,
       },
-      rpcUrls: ["https://data-seed-prebsc-2-s3.binance.org:8545/"],
+      rpcUrls: ["https://data-seed-prebsc-1-s3.binance.org:8545/"],
       blockExplorerUrls: ["https://testnet.bscscan.com"],
     };
   }
