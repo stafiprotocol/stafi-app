@@ -110,7 +110,7 @@ export const NavbarWallet = () => {
   }, [dispatch, polkadotAccount]);
 
   const polkadotExtensionAccountsKey = useMemo(() => {
-    return polkadotExtensionAccounts.map((item) => item.address).join("-");
+    return polkadotExtensionAccounts.map((item: any) => item.address).join("-");
   }, [polkadotExtensionAccounts]);
 
   useEffect(() => {

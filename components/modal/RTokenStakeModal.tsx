@@ -68,6 +68,8 @@ import { handleDotStake } from "redux/reducers/DotSlice";
 import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
 import { useStakeFees } from "hooks/useStakeFees";
 import { StakeFee } from "components/rtoken/StakeFee";
+import snackbarUtil from "utils/snackbarUtils";
+import { NETWORK_ERR_MESSAGE } from "utils/constants";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -435,6 +437,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         txFee = (Number(relayFee) + Number(bridgeFee)).toString();
       }
       if (txFee === "--") {
+				snackbarUtil.error(NETWORK_ERR_MESSAGE);
         return;
       }
       dispatch(
@@ -520,6 +523,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
         txFee = (Number(relayFee) + Number(bridgeFee)).toString();
       }
       if (txFee === "--") {
+				snackbarUtil.error(NETWORK_ERR_MESSAGE);
         return;
       }
       dispatch(
