@@ -975,7 +975,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     </div>
                     <div className="flex justify-between my-[.18rem]">
                       <div>
-                        {tokenName === TokenName.BNB ? "BNB" : "ETH"} Tx Fee
+                        {tokenName === TokenName.BNB ? "BSC" : "ETH"} Tx Fee
                       </div>
                       <div>
                         {isEmptyValue(estimateFee) ? (

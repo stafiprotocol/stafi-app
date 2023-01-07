@@ -169,7 +169,7 @@ export const queryBridgeFee =
   (tokenName: TokenName): AppThunk =>
   async (dispatch, getState) => {
     try {
-      const web3 = createWeb3();
+      const web3 = createWeb3(window.ethereum);
       const metaMaskAccount = getState().wallet.metaMaskAccount;
 
       let portalAbi = getMaticStakePortalAbi();

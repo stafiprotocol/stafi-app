@@ -67,7 +67,6 @@ interface Web3ProviderUrlConfig {
   stafiEth: string;
   eth: string;
   bsc: string;
-  polygon: string;
 }
 
 export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
@@ -79,7 +78,6 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
       stafiEth: "wss://test-eth-node.stafi.io",
       // bsc: "https://bsc-testnet.blockvision.org/v1/2HD6MqYwTgYlZD2uDKmLPey8Thh",
 			bsc: "https://data-seed-prebsc-1-s3.binance.org:8545",
-      polygon: "wss://matic-testnet-archive-ws.bwarelabs.com",
     };
   }
 
@@ -88,7 +86,6 @@ export function getWeb3ProviderUrlConfig(): Web3ProviderUrlConfig {
     stafiEth:
       "wss://eth-mainnet.ws.alchemyapi.io/v2/bkdml_X06uuwFV4-KONSO3NoPHkIIv8Z",
     bsc: "wss://speedy-nodes-nyc.moralis.io/5a284cffde906505c6eb2af8/bsc/mainnet/ws",
-    polygon: "wss://rpc-mainnet.matic.network",
   };
 }
 
