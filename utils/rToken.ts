@@ -1,6 +1,7 @@
 import {
   DexType,
   RTokenName,
+  RTokenSymbol,
   TokenName,
   TokenStandard,
   TokenSymbol,
@@ -79,6 +80,29 @@ export const rTokenNameToTokenSymbol = (
       return TokenSymbol.MATIC;
     default:
       return TokenSymbol.SOL;
+  }
+};
+
+export const rTokenSymbolToRTokenName = (
+  rTokenSymbol: RTokenSymbol
+): RTokenName => {
+  switch (rTokenSymbol) {
+    case RTokenSymbol.rETH:
+      return RTokenName.rETH;
+    case RTokenSymbol.rFIS:
+      return RTokenName.rFIS;
+    case RTokenSymbol.rDOT:
+      return RTokenName.rDOT;
+    case RTokenSymbol.rKSM:
+      return RTokenName.rKSM;
+    case RTokenSymbol.rATOM:
+      return RTokenName.rATOM;
+    case RTokenSymbol.rSOL:
+      return RTokenName.rSOL;
+    case RTokenSymbol.rMATIC:
+      return RTokenName.rMATIC;
+    default:
+      return RTokenName.rBNB;
   }
 };
 
@@ -162,7 +186,7 @@ export function getEraEstTimeTip(
 export function getExchangeRateUpdateTime(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) return 8;
   if (tokenName === TokenName.MATIC) return 24;
-	if (tokenName === TokenName.BNB) return 24;
+  if (tokenName === TokenName.BNB) return 24;
   return 24;
 }
 
@@ -286,9 +310,9 @@ export function getRedeemDaysLeft(tokenName: TokenName | undefined) {
   if (tokenName === TokenName.KSM) {
     return "8";
   }
-	if (tokenName === TokenName.BNB) {
-		return "16";
-	}
+  if (tokenName === TokenName.BNB) {
+    return "16";
+  }
   return "9";
 }
 

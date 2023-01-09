@@ -43,7 +43,7 @@ export const CustomChart = (props: CustomChartProps) => {
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             formatStakedValue = parts.join(".");
 
-            let displayData = `${formatStakedValue} ${
+            let displayData = `+${formatStakedValue} ${
               props.tokenName || "ETH"
             }`;
             if (props.isDataValue) {
@@ -54,7 +54,7 @@ export const CustomChart = (props: CustomChartProps) => {
             <div style="color:#9DAFBE;">${params[0].axisValue}</div>
             <span style="color:${
               props.isYellowLine ? "#FFA540" : "#00F3AB"
-            };margin-top:0.05rem">+${displayData}<span>
+            };margin-top:0.05rem">${displayData}<span>
           </div>`;
           }
           // console.log(params, "======params");

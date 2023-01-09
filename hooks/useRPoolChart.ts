@@ -1,10 +1,20 @@
 import { getRTokenApi2Host } from "config/env";
 import dayjs from "dayjs";
-import { RequestStatus } from "interfaces/common";
+import { RequestStatus, RTokenName } from "interfaces/common";
 import { useCallback, useEffect, useState } from "react";
 import { COMMON_ERROR_MESSAGE, PAGE_SIZE } from "utils/constants";
 import numberUtil from "utils/numberUtil";
+import {
+  rTokenNameToTokenSymbol,
+  rTokenSymbolToRTokenName,
+} from "utils/rToken";
 import { useAppSlice } from "./selector";
+
+export interface RPoolRewardFISChartItem {
+  totalAmount: string;
+  addedRToken: RTokenName;
+  addedAmount: string;
+}
 
 export function useRPoolChart(chartDuSeconds: number) {
   const { updateFlag15s, refreshDataFlag } = useAppSlice();
@@ -19,7 +29,9 @@ export function useRPoolChart(chartDuSeconds: number) {
     []
   );
   const [rewardChartXData, setRewardChartXData] = useState<string[]>([]);
-  const [rewardChartYData, setRewardChartYData] = useState<string[]>([]);
+  const [rewardChartYData, setRewardChartYData] = useState<
+    RPoolRewardFISChartItem[]
+  >([]);
 
   const fetchData = useCallback(async () => {
     if (!updateFlag15s) return;
@@ -66,7 +78,13 @@ export function useRPoolChart(chartDuSeconds: number) {
 
       setRewardChartYData(
         resJson.data.rewardChartYData
-          .map((item: any) => numberUtil.fisAmountToHuman(item.totalAmount))
+          .map((item: any) => {
+            return {
+              totalAmount: numberUtil.fisAmountToHuman(item.totalAmount),
+              addedRToken: rTokenSymbolToRTokenName(item.rTokenType),
+              addedAmount: numberUtil.fisAmountToHuman(item.addedAmount),
+            };
+          })
           .reverse() || []
       );
     } catch (err: any) {}
