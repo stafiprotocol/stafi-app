@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { RequestStatus } from "interfaces/common";
 import { useCallback, useEffect, useState } from "react";
 import { COMMON_ERROR_MESSAGE, PAGE_SIZE } from "utils/constants";
+import numberUtil from "utils/numberUtil";
 import { useAppSlice } from "./selector";
 
 export function useRPoolChart(chartDuSeconds: number) {
@@ -17,6 +18,8 @@ export function useRPoolChart(chartDuSeconds: number) {
   const [mintedValueChartYData, setMintedValueChartYData] = useState<string[]>(
     []
   );
+  const [rewardChartXData, setRewardChartXData] = useState<string[]>([]);
+  const [rewardChartYData, setRewardChartYData] = useState<string[]>([]);
 
   const fetchData = useCallback(async () => {
     if (!updateFlag15s) return;
@@ -54,6 +57,18 @@ export function useRPoolChart(chartDuSeconds: number) {
           .map((item: number) => item)
           .reverse() || []
       );
+
+      setRewardChartXData(
+        resJson.data.rewardChartXData
+          .map((item: number) => dayjs.unix(item).format("YYYY.MM.DD HH:mm:ss"))
+          .reverse() || []
+      );
+
+      setRewardChartYData(
+        resJson.data.rewardChartYData
+          .map((item: any) => numberUtil.fisAmountToHuman(item.totalAmount))
+          .reverse() || []
+      );
     } catch (err: any) {}
   }, [chartDuSeconds, updateFlag15s]);
 
@@ -65,5 +80,7 @@ export function useRPoolChart(chartDuSeconds: number) {
     requestStatus,
     mintedValueChartXData,
     mintedValueChartYData,
+    rewardChartXData,
+    rewardChartYData,
   };
 }

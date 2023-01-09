@@ -1,5 +1,7 @@
 import classNames from "classnames";
 import { BubblesLoading } from "components/common/BubblesLoading";
+import { EmptyContent } from "components/common/EmptyContent";
+import { CustomBarChart } from "components/data/CustomBarChart";
 import { CustomChart } from "components/data/CustomChart";
 import { useRPoolChart } from "hooks/useRPoolChart";
 import { ChartDu } from "interfaces/common";
@@ -18,9 +20,12 @@ const MintChart = (props: Props) => {
   const [chartWidth, setChartWidth] = useState("");
   const [chartHeight, setChartHeight] = useState("");
 
-  const { mintedValueChartXData, mintedValueChartYData } = useRPoolChart(
-    getChartDuSeconds(chartDu)
-  );
+  const {
+    mintedValueChartXData,
+    mintedValueChartYData,
+    rewardChartXData,
+    rewardChartYData,
+  } = useRPoolChart(getChartDuSeconds(chartDu));
 
   const resizeListener = () => {
     let designSize = 2048;
@@ -44,7 +49,7 @@ const MintChart = (props: Props) => {
   return (
     <div className="flex justify-between mt-[.36rem]">
       <div
-        className="rounded-[.16rem] w-[49%] min-h-[1rem] p-[.32rem]"
+        className="rounded-[.16rem] w-[49%] min-h-[1rem] p-[.32rem] relative pb-[.64rem]"
         style={{
           background: "rgba(23, 38, 54, 0.15)",
           border: "1px solid #1A2835",
@@ -62,26 +67,31 @@ const MintChart = (props: Props) => {
           </div>
         </div>
 
+				{mintedValueChartXData.length === 0 && (
+          <div className="absolute left-[.56rem] right-0 flex justify-center top-[140px]">
+            <EmptyContent size="0.6rem" />
+          </div>
+        )}
+
         <CustomChart
           height={chartHeight}
           width={chartWidth}
           xData={mintedValueChartXData}
           yData={mintedValueChartYData}
           isDataValue
+          isYellowLine
         />
 
         <div
           className={classNames(
-            "flex items-center justify-end text-[.16rem] absolute bottom-[20px] right-[10px]",
+            "flex items-center justify-end text-[.16rem] absolute bottom-[.16rem] right-[10px]",
             { invisible: mintedValueChartXData.length === 0 }
           )}
         >
           <div
             className={classNames(
               "mr-[.5rem] cursor-pointer",
-              chartDu === ChartDu["1W"]
-                ? "text-primary font-[700]"
-                : "text-text2"
+              chartDu === ChartDu["1W"] ? "text-text1 font-[700]" : "text-text2"
             )}
             onClick={() => setChartDu(ChartDu["1W"])}
           >
@@ -90,9 +100,7 @@ const MintChart = (props: Props) => {
           <div
             className={classNames(
               "mr-[.5rem] cursor-pointer",
-              chartDu === ChartDu["1M"]
-                ? "text-primary font-[700]"
-                : "text-text2"
+              chartDu === ChartDu["1M"] ? "text-text1 font-[700]" : "text-text2"
             )}
             onClick={() => setChartDu(ChartDu["1M"])}
           >
@@ -101,9 +109,7 @@ const MintChart = (props: Props) => {
           <div
             className={classNames(
               "mr-[.5rem] cursor-pointer",
-              chartDu === ChartDu["3M"]
-                ? "text-primary font-[700]"
-                : "text-text2"
+              chartDu === ChartDu["3M"] ? "text-text1 font-[700]" : "text-text2"
             )}
             onClick={() => setChartDu(ChartDu["3M"])}
           >
@@ -112,9 +118,7 @@ const MintChart = (props: Props) => {
           <div
             className={classNames(
               "mr-[.5rem] cursor-pointer",
-              chartDu === ChartDu["6M"]
-                ? "text-primary font-[700]"
-                : "text-text2"
+              chartDu === ChartDu["6M"] ? "text-text1 font-[700]" : "text-text2"
             )}
             onClick={() => setChartDu(ChartDu["6M"])}
           >
@@ -123,7 +127,7 @@ const MintChart = (props: Props) => {
           <div
             className={classNames(
               "cursor-pointer",
-              chartDu === ChartDu.ALL ? "text-primary font-[700]" : "text-text2"
+              chartDu === ChartDu.ALL ? "text-text1 font-[700]" : "text-text2"
             )}
             onClick={() => setChartDu(ChartDu.ALL)}
           >
@@ -148,6 +152,72 @@ const MintChart = (props: Props) => {
             ) : (
               props.totalRewardFis
             )}
+          </div>
+        </div>
+
+				{rewardChartXData.length === 0 && (
+          <div className="absolute left-[.56rem] right-0 flex justify-center top-[140px]">
+            <EmptyContent size="0.6rem" />
+          </div>
+        )}
+
+        <CustomBarChart
+          height={chartHeight}
+          width={chartWidth}
+          xData={rewardChartXData}
+          yData={rewardChartYData}
+        />
+
+        <div
+          className={classNames(
+            "flex items-center justify-end text-[.16rem] absolute bottom-[.16rem] right-[10px]",
+            { invisible: mintedValueChartXData.length === 0 }
+          )}
+        >
+          <div
+            className={classNames(
+              "mr-[.5rem] cursor-pointer",
+              chartDu === ChartDu["1W"] ? "text-text1 font-[700]" : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu["1W"])}
+          >
+            1W
+          </div>
+          <div
+            className={classNames(
+              "mr-[.5rem] cursor-pointer",
+              chartDu === ChartDu["1M"] ? "text-text1 font-[700]" : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu["1M"])}
+          >
+            1M
+          </div>
+          <div
+            className={classNames(
+              "mr-[.5rem] cursor-pointer",
+              chartDu === ChartDu["3M"] ? "text-text1 font-[700]" : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu["3M"])}
+          >
+            3M
+          </div>
+          <div
+            className={classNames(
+              "mr-[.5rem] cursor-pointer",
+              chartDu === ChartDu["6M"] ? "text-text1 font-[700]" : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu["6M"])}
+          >
+            6M
+          </div>
+          <div
+            className={classNames(
+              "cursor-pointer",
+              chartDu === ChartDu.ALL ? "text-text1 font-[700]" : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu.ALL)}
+          >
+            ALL
           </div>
         </div>
       </div>
