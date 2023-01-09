@@ -1,5 +1,10 @@
+import classNames from "classnames";
 import { BubblesLoading } from "components/common/BubblesLoading";
-import { isEmptyValue } from "utils/common";
+import { CustomChart } from "components/data/CustomChart";
+import { useRPoolChart } from "hooks/useRPoolChart";
+import { ChartDu } from "interfaces/common";
+import { useEffect, useState } from "react";
+import { getChartDuSeconds, isEmptyValue } from "utils/common";
 
 interface Props {
   totalMintedValue?: string;
@@ -7,6 +12,35 @@ interface Props {
 }
 
 const MintChart = (props: Props) => {
+  const [chartDu, setChartDu] = useState<"1W" | "1M" | "3M" | "6M" | "ALL">(
+    "ALL"
+  );
+  const [chartWidth, setChartWidth] = useState("");
+  const [chartHeight, setChartHeight] = useState("");
+
+  const { mintedValueChartXData, mintedValueChartYData } = useRPoolChart(
+    getChartDuSeconds(chartDu)
+  );
+
+  const resizeListener = () => {
+    let designSize = 2048;
+    let html = document.documentElement;
+    let clientW = html.clientWidth;
+    let htmlRem = (clientW * 100) / designSize;
+
+    setChartWidth(htmlRem * 6.7 + "px");
+    setChartHeight(htmlRem * 2.8 + "px");
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", resizeListener);
+    resizeListener();
+
+    return () => {
+      window.removeEventListener("resize", resizeListener);
+    };
+  }, []);
+
   return (
     <div className="flex justify-between mt-[.36rem]">
       <div
@@ -25,6 +59,75 @@ const MintChart = (props: Props) => {
             ) : (
               `$${props.totalMintedValue}`
             )}
+          </div>
+        </div>
+
+        <CustomChart
+          height={chartHeight}
+          width={chartWidth}
+          xData={mintedValueChartXData}
+          yData={mintedValueChartYData}
+          isDataValue
+        />
+
+        <div
+          className={classNames(
+            "flex items-center justify-end text-[.16rem] absolute bottom-[20px] right-[10px]",
+            { invisible: mintedValueChartXData.length === 0 }
+          )}
+        >
+          <div
+            className={classNames(
+              "mr-[.5rem] cursor-pointer",
+              chartDu === ChartDu["1W"]
+                ? "text-primary font-[700]"
+                : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu["1W"])}
+          >
+            1W
+          </div>
+          <div
+            className={classNames(
+              "mr-[.5rem] cursor-pointer",
+              chartDu === ChartDu["1M"]
+                ? "text-primary font-[700]"
+                : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu["1M"])}
+          >
+            1M
+          </div>
+          <div
+            className={classNames(
+              "mr-[.5rem] cursor-pointer",
+              chartDu === ChartDu["3M"]
+                ? "text-primary font-[700]"
+                : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu["3M"])}
+          >
+            3M
+          </div>
+          <div
+            className={classNames(
+              "mr-[.5rem] cursor-pointer",
+              chartDu === ChartDu["6M"]
+                ? "text-primary font-[700]"
+                : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu["6M"])}
+          >
+            6M
+          </div>
+          <div
+            className={classNames(
+              "cursor-pointer",
+              chartDu === ChartDu.ALL ? "text-primary font-[700]" : "text-text2"
+            )}
+            onClick={() => setChartDu(ChartDu.ALL)}
+          >
+            ALL
           </div>
         </div>
       </div>

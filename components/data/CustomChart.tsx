@@ -11,6 +11,7 @@ interface CustomChartProps {
   width: string;
   height: string;
 	tokenName?: TokenName;
+	isDataValue?: boolean;
 }
 
 export const CustomChart = (props: CustomChartProps) => {
@@ -41,9 +42,14 @@ export const CustomChart = (props: CustomChartProps) => {
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             formatStakedValue = parts.join(".");
 
+						let displayData = `${formatStakedValue} ${props.tokenName || 'ETH'}`;
+						if (props.isDataValue) {
+							displayData = `$${formatStakedValue}`;
+						}
+
             return `<div style="font-size:0.24rem;display:flex;flex-direction:column;align-items:center;">
             <div style="color:#9DAFBE;">${params[0].axisValue}</div>
-            <span style="color:#00F3AB;margin-top:0.05rem">+${formatStakedValue} ${props.tokenName || 'ETH'}<span>
+            <span style="color:#00F3AB;margin-top:0.05rem">+${displayData}<span>
           </div>`;
           }
           // console.log(params, "======params");
