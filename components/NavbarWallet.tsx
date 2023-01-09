@@ -8,6 +8,7 @@ import {
 } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useAppSlice } from "hooks/selector";
 import { useDotBalance } from "hooks/useDotBalance";
 import { useKsmBalance } from "hooks/useKsmBalance";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
@@ -59,6 +60,7 @@ export const NavbarWallet = () => {
     walletNotConnected,
   } = useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
+  const { updateFlag15s } = useAppSlice();
   const { api } = usePolkadotApi();
   const {
     metaMaskAccount,
@@ -107,7 +109,7 @@ export const NavbarWallet = () => {
 
   useEffect(() => {
     dispatch(updateSelectedPolkadotAccountBalance());
-  }, [dispatch, polkadotAccount]);
+  }, [dispatch, polkadotAccount, updateFlag15s]);
 
   const polkadotExtensionAccountsKey = useMemo(() => {
     return polkadotExtensionAccounts.map((item: any) => item.address).join("-");
@@ -115,7 +117,7 @@ export const NavbarWallet = () => {
 
   useEffect(() => {
     dispatch(updatePolkadotExtensionAccountsBalances());
-  }, [dispatch, polkadotExtensionAccountsKey]);
+  }, [dispatch, polkadotExtensionAccountsKey, updateFlag15s]);
 
   const clickAccountLeftArea = () => {
     if (isWrongMetaMaskNetwork) {
