@@ -4,6 +4,7 @@ import { EmptyContent } from "components/common/EmptyContent";
 import { CustomBarChart } from "components/data/CustomBarChart";
 import { CustomChart } from "components/data/CustomChart";
 import { useRPoolChart } from "hooks/useRPoolChart";
+import { useRPoolRewardChart } from "hooks/useRPoolRewardChart";
 import { ChartDu } from "interfaces/common";
 import { useEffect, useState } from "react";
 import { getChartDuSeconds, isEmptyValue } from "utils/common";
@@ -17,15 +18,20 @@ const MintChart = (props: Props) => {
   const [chartDu, setChartDu] = useState<"1W" | "1M" | "3M" | "6M" | "ALL">(
     "ALL"
   );
+  const [chartDuReward, setChartDuReward] = useState<
+    "1W" | "1M" | "3M" | "6M" | "ALL"
+  >("ALL");
+
   const [chartWidth, setChartWidth] = useState("");
   const [chartHeight, setChartHeight] = useState("");
 
-  const {
-    mintedValueChartXData,
-    mintedValueChartYData,
-    rewardChartXData,
-    rewardChartYData,
-  } = useRPoolChart(getChartDuSeconds(chartDu));
+  const { mintedValueChartXData, mintedValueChartYData } = useRPoolChart(
+    getChartDuSeconds(chartDu)
+  );
+
+  const { rewardChartXData, rewardChartYData } = useRPoolRewardChart(
+    getChartDuSeconds(chartDuReward)
+  );
 
   const resizeListener = () => {
     let designSize = 2048;
@@ -67,7 +73,7 @@ const MintChart = (props: Props) => {
           </div>
         </div>
 
-				{mintedValueChartXData.length === 0 && (
+        {mintedValueChartXData.length === 0 && (
           <div className="absolute left-[.56rem] right-0 flex justify-center top-[140px]">
             <EmptyContent size="0.6rem" />
           </div>
@@ -155,7 +161,7 @@ const MintChart = (props: Props) => {
           </div>
         </div>
 
-				{rewardChartXData.length === 0 && (
+        {rewardChartXData.length === 0 && (
           <div className="absolute left-[.56rem] right-0 flex justify-center top-[140px]">
             <EmptyContent size="0.6rem" />
           </div>
@@ -177,45 +183,55 @@ const MintChart = (props: Props) => {
           <div
             className={classNames(
               "mr-[.5rem] cursor-pointer",
-              chartDu === ChartDu["1W"] ? "text-text1 font-[700]" : "text-text2"
+              chartDuReward === ChartDu["1W"]
+                ? "text-text1 font-[700]"
+                : "text-text2"
             )}
-            onClick={() => setChartDu(ChartDu["1W"])}
+            onClick={() => setChartDuReward(ChartDu["1W"])}
           >
             1W
           </div>
           <div
             className={classNames(
               "mr-[.5rem] cursor-pointer",
-              chartDu === ChartDu["1M"] ? "text-text1 font-[700]" : "text-text2"
+              chartDuReward === ChartDu["1M"]
+                ? "text-text1 font-[700]"
+                : "text-text2"
             )}
-            onClick={() => setChartDu(ChartDu["1M"])}
+            onClick={() => setChartDuReward(ChartDu["1M"])}
           >
             1M
           </div>
           <div
             className={classNames(
               "mr-[.5rem] cursor-pointer",
-              chartDu === ChartDu["3M"] ? "text-text1 font-[700]" : "text-text2"
+              chartDuReward === ChartDu["3M"]
+                ? "text-text1 font-[700]"
+                : "text-text2"
             )}
-            onClick={() => setChartDu(ChartDu["3M"])}
+            onClick={() => setChartDuReward(ChartDu["3M"])}
           >
             3M
           </div>
           <div
             className={classNames(
               "mr-[.5rem] cursor-pointer",
-              chartDu === ChartDu["6M"] ? "text-text1 font-[700]" : "text-text2"
+              chartDuReward === ChartDu["6M"]
+                ? "text-text1 font-[700]"
+                : "text-text2"
             )}
-            onClick={() => setChartDu(ChartDu["6M"])}
+            onClick={() => setChartDuReward(ChartDu["6M"])}
           >
             6M
           </div>
           <div
             className={classNames(
               "cursor-pointer",
-              chartDu === ChartDu.ALL ? "text-text1 font-[700]" : "text-text2"
+              chartDuReward === ChartDu.ALL
+                ? "text-text1 font-[700]"
+                : "text-text2"
             )}
-            onClick={() => setChartDu(ChartDu.ALL)}
+            onClick={() => setChartDuReward(ChartDu.ALL)}
           >
             ALL
           </div>

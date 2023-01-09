@@ -1,5 +1,5 @@
 import ReactEcharts from "echarts-for-react";
-import { RPoolRewardFISChartItem } from "hooks/useRPoolChart";
+import { RPoolRewardFISChartItem } from "hooks/useRPoolRewardChart";
 import { formatNumber } from "utils/number";
 
 interface Props {
@@ -44,6 +44,7 @@ export const CustomBarChart = (props: Props) => {
         },
       },
       xAxis: {
+				show: false,
         data: props.xData,
         type: "category",
       },
