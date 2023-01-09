@@ -52,24 +52,26 @@ export const BridgeTokenSelector = (props: BridgeTokenSelectorProps) => {
       >
         <div
           className={classNames(
-            "flex items-center justify-center rounded-[.16rem] w-[2.1rem] h-[.68rem]",
+            "flex items-center justify-between rounded-[.16rem] w-[2.1rem] h-[.68rem] px-[.24rem]",
             selectionList.length > 0 ? "cursor-pointer" : "cursor-default"
           )}
           {...(selectionList.length > 0
             ? bindTrigger(selectionPopupState)
             : {})}
         >
-          <div className="text-white text-[.24rem]">
-            {props.selectedTokenName || ""}
-          </div>
-          <div className="w-[.28rem] h-[.28rem] relative ml-[.16rem]">
-            {props.selectedTokenName && (
-              <Image
-                alt="logo"
-                layout="fill"
-                src={getRBridgeTokenIcon(props.selectedTokenName)}
-              />
-            )}
+          <div className="flex items-center">
+            <div className="w-[.28rem] h-[.28rem] relative mr-[.16rem]">
+              {props.selectedTokenName && (
+                <Image
+                  alt="logo"
+                  layout="fill"
+                  src={getRBridgeTokenIcon(props.selectedTokenName)}
+                />
+              )}
+            </div>
+            <div className="text-white text-[.24rem]">
+              {props.selectedTokenName || ""}
+            </div>
           </div>
 
           <div

@@ -13,8 +13,8 @@ export function getBep20TokenContractConfig(): Bep20TokenContractConfig {
   if (isDev()) {
     return {
       FIS: "0x3dabfb5b0ca8c416684e2a26c1ebc4039627c94a",
-      rFIS: "0x40cc0f7a3600c31aab1970b9df7d96b0813ab136",
-      rETH: "0x3b507040b02c55aa3363baf7ed4f4a6439b98771",
+      rFIS: "0xd92ae76ce2b60775f20f8022e667f7752802127f",
+      rETH: "0x55e26c165aad558f32a3f9660749ff278811a6ee",
       rMATIC: "0x4204deeb6c923a57dc270c0b09e8a2615be08593",
       rKSM: "0x7a8d8b0c6e869ee331d8a1855150bbca0c00aa22",
       rDOT: "0x79df548d4a8019bea6aef47401152f053c806ef6",

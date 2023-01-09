@@ -18,7 +18,13 @@ import { useFisBalance } from "hooks/useFisBalance";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
+import {
+  ChainId,
+  RTokenName,
+  TokenName,
+  TokenStandard,
+  TokenSymbol,
+} from "interfaces/common";
 import Image from "next/image";
 import modalBg from "public/rBridge/rBridge_bg.png";
 import swapLine from "public/rBridge/swap_line.png";
@@ -37,9 +43,10 @@ import {
 } from "redux/reducers/BridgeSlice";
 import { connectMetaMask, connectPolkadotJs } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
+import { stafiServer } from "servers/stafi";
 import { isEmptyValue, openLink } from "utils/common";
 import { getTokenStandardIcon } from "utils/icon";
-import { formatNumber } from "utils/number";
+import { chainAmountToHuman, formatNumber } from "utils/number";
 import { getTokenType, rTokenNameToTokenName } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
@@ -63,7 +70,8 @@ export const RBridgeModal = () => {
     };
   });
   const { isLoading } = useAppSlice();
-  const { polkadotAccount, metaMaskAccount } = useWalletAccount();
+  const { polkadotAccount, metaMaskAccount, polkadotBalance } =
+    useWalletAccount();
 
   const [srcTokenStandard, setSrcTokenStandard] = useState<
     TokenStandard | undefined
@@ -78,8 +86,37 @@ export const RBridgeModal = () => {
   const [editAddress, setEditAddress] = useState(false);
   const [targetAddress, setTargetAddress] = useState<string | undefined>();
   const [swapAmount, setSwapAmount] = useState("");
+  const [fisTxFee, setFisTxFee] = useState("");
 
   const selectedTokenPrice = useTokenPrice(selectedTokenName);
+
+  useEffect(() => {
+    (async () => {
+      if (polkadotAccount && !isNaN(Number(polkadotBalance))) {
+        const api = await stafiServer.createStafiApi();
+        const tx = await api.tx.bridgeSwap.transferNative(
+          polkadotBalance,
+          "",
+          !dstTokenStandard
+            ? ChainId.STAFI
+            : dstTokenStandard === TokenStandard.SPL
+            ? ChainId.SOL
+            : dstTokenStandard === TokenStandard.ERC20
+            ? ChainId.ETH
+            : dstTokenStandard === TokenStandard.BEP20
+            ? ChainId.BSC
+            : ChainId.STAFI
+        );
+        const paymentInfo = await tx.paymentInfo(polkadotAccount);
+        const fisFee = chainAmountToHuman(
+          paymentInfo.partialFee.toJSON(),
+          TokenSymbol.FIS
+        );
+        // console.log("fisFee", fisFee);
+        setFisTxFee(fisFee.toString());
+      }
+    })();
+  }, [polkadotAccount, polkadotBalance, dstTokenStandard]);
 
   const srcSelectionList = useMemo(() => {
     return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
@@ -121,10 +158,6 @@ export const RBridgeModal = () => {
     true
   );
 
-  const balance = useMemo(() => {
-    return selectedTokenName === TokenName.FIS ? fisBalance : rTokenBalance;
-  }, [selectedTokenName, fisBalance, rTokenBalance]);
-
   const fee: { amount: string; tokenName: string } = useMemo(() => {
     if (!srcTokenStandard) {
       return {
@@ -156,6 +189,35 @@ export const RBridgeModal = () => {
       tokenName: "FIS",
     };
   }, [srcTokenStandard, dstTokenStandard, erc20BridgeFee, bep20BridgeFee]);
+
+  const balance = useMemo(() => {
+    if (
+      selectedTokenName === TokenName.FIS &&
+      srcTokenStandard === TokenStandard.Native
+    ) {
+      if (
+        isNaN(Number(fisBalance)) ||
+        isNaN(Number(fisTxFee)) ||
+        isNaN(Number(fee.amount))
+      ) {
+        return "--";
+      }
+      return (
+        Math.max(
+          0,
+          Number(fisBalance) - Number(fisTxFee) - Number(fee.amount)
+        ) + ""
+      );
+    }
+    return selectedTokenName === TokenName.FIS ? fisBalance : rTokenBalance;
+  }, [
+    selectedTokenName,
+    fisBalance,
+    rTokenBalance,
+    srcTokenStandard,
+    fee,
+    fisTxFee,
+  ]);
 
   useEffect(() => {
     dispatch(queryBridgeFees());
@@ -238,8 +300,11 @@ export const RBridgeModal = () => {
       }
     }
 
+    if (!swapAmount) {
+      return [true, "Swap"];
+    }
+
     if (
-      !swapAmount ||
       isNaN(Number(swapAmount)) ||
       Number(swapAmount) === 0 ||
       isNaN(Number(balance))
@@ -477,13 +542,13 @@ export const RBridgeModal = () => {
           padding: "0",
           "& .MuiPaper-root": {
             width: "100%",
-            maxWidth: "16.88rem", // Set your width here
+            maxWidth: "14.88rem", // Set your width here
             backgroundColor: "transparent",
             padding: "0",
           },
           "& .MuiDialogContent-root": {
             padding: "0",
-            width: "16.88rem",
+            width: "14.88rem",
           },
         },
       }}
@@ -502,8 +567,8 @@ export const RBridgeModal = () => {
         </div>
 
         <Card background="#0A131B" className="max-h-full" mt="-2rem">
-          <div className="flex flex-col items-stretch px-[1rem] pb-[1rem] relative overflow-hidden">
-            <div className="absolute left-0 right-0 top-[0.15rem] w-[16.88rem] h-[4.5rem]">
+          <div className="flex flex-col items-stretch px-[1rem] pb-[.6rem] relative overflow-hidden">
+            <div className="absolute left-0 right-0 top-[0.15rem] w-[14.88rem] h-[4.5rem]">
               <Image src={modalBg} layout="fill" alt="bg" />
             </div>
 
@@ -521,7 +586,7 @@ export const RBridgeModal = () => {
                 rBridge
               </div>
 
-              <div className="flex items-center justify-center mx-[2rem] mt-[.1rem]">
+              <div className="flex items-center justify-center mt-[.1rem]">
                 <BridgeTokenStandardSelector
                   isFrom
                   selectionList={srcSelectionList}
@@ -667,7 +732,7 @@ export const RBridgeModal = () => {
             <a
               className="self-center underline text-text2 text-[.24rem] mt-[.56rem]"
               target="_blank"
-              href="https://www.google.com"
+              href="https://docs.stafi.io/rtoken-app/rasset/swap-guide"
               rel="noreferrer"
             >
               rBridge Guide

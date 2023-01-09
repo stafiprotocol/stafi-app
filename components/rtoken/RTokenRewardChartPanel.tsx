@@ -14,6 +14,7 @@ import dotIcon from "public/dot_type_green.png";
 import ethIcon from "public/eth_type_green.svg";
 import ksmIcon from "public/ksm_type_green.png";
 import maticIcon from "public/matic_type_green.svg";
+import solIcon from "public/sol_type_green.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { getChartDuSeconds } from "utils/common";
 import { formatNumber } from "utils/number";
@@ -95,6 +96,9 @@ export const RewardChartPanel = (props: RewardChartPanelProps) => {
     }
     if (tokenName === TokenName.DOT) {
       return dotIcon;
+    }
+    if (tokenName === TokenName.SOL) {
+      return solIcon;
     }
     return ethIcon;
   };

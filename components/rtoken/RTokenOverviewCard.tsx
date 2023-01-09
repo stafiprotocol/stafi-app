@@ -20,6 +20,7 @@ import dotLogo from "public/dot_type_black.png";
 import ethLogo from "public/eth_type_black.svg";
 import ksmLogo from "public/ksm_type_black.png";
 import maticLogo from "public/matic_type_black.png";
+import solLogo from "public/sol_type_black.png";
 import { useMemo } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { setRouteNextPage } from "redux/reducers/FisSlice";
@@ -69,6 +70,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     if (tokenName === TokenName.DOT) {
       return dotLogo;
     }
+    if (tokenName === TokenName.SOL) {
+      return solLogo;
+    }
     return ethLogo;
   };
 
@@ -84,6 +88,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     }
     if (tokenName === TokenName.DOT) {
       return "Polkadot";
+    }
+    if (tokenName === TokenName.SOL) {
+      return "Solana";
     }
     return "Ethereum";
   };

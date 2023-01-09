@@ -29,6 +29,23 @@ export const BridgeTokenStandardSelector = (
     popupId: "selection",
   });
 
+  const getTitle = (tokenStandard: TokenStandard | undefined) => {
+    if (tokenStandard === TokenStandard.Native) {
+      return "StaFi Chain";
+    }
+    if (tokenStandard === TokenStandard.ERC20) {
+      return "Ethereum";
+    }
+    if (tokenStandard === TokenStandard.BEP20) {
+      return "BSC";
+    }
+    if (tokenStandard === TokenStandard.SPL) {
+      return "Solana";
+    }
+
+    return "";
+  };
+
   return (
     <>
       <div
@@ -53,18 +70,8 @@ export const BridgeTokenStandardSelector = (
             : {})}
         >
           <div className="text-white text-[.24rem]">
-            {props.selectedStandard || ""}
+            {getTitle(props.selectedStandard)}
           </div>
-          <div className="w-[.28rem] h-[.28rem] relative ml-[.16rem]">
-            {props.selectedStandard && (
-              <Image
-                alt="logo"
-                layout="fill"
-                src={getTokenStandardIcon(props.selectedStandard)}
-              />
-            )}
-          </div>
-
           <div
             className={classNames(
               "ml-[.16rem] flex items-center",
