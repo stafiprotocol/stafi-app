@@ -4,7 +4,7 @@ import { CustomPagination } from "components/common/pagination";
 import { TableSkeleton } from "components/common/TableSkeleton";
 import { Icomoon } from "components/icon/Icomoon";
 import { UnbondModel, useRTokenUnbond } from "hooks/useRTokenUnbond";
-import { TokenName } from "interfaces/common";
+import { TokenName, TokenStandard } from "interfaces/common";
 import { useState } from "react";
 import numberUtil from "utils/numberUtil";
 import { getShortAddress } from "utils/string";
@@ -26,11 +26,16 @@ dayjs.extend(utc);
 
 interface Props {
   tokenName: TokenName;
+  tokenStandard: TokenStandard | undefined;
 }
 
 export const StakeMyUnbondList = (props: Props) => {
   const [page, setPage] = useState(1);
-  const { unbondList, totalCount } = useRTokenUnbond(props.tokenName, page);
+  const { unbondList, totalCount } = useRTokenUnbond(
+    props.tokenName,
+    page,
+    props.tokenStandard !== TokenStandard.Native
+  );
 
   return (
     <div className="mt-[.56rem] min-h-[2rem]">
@@ -144,8 +149,8 @@ export const StakeMyUnbondList = (props: Props) => {
               } else if (props.tokenName === TokenName.DOT) {
                 openLink(getStafiScanTxUrl(item.txHash));
               } else if (props.tokenName === TokenName.BNB) {
-								openLink(getStafiScanTxUrl(item.txHash));
-							}
+                openLink(getStafiScanTxUrl(item.txHash));
+              }
             }}
           >
             {item.receivedStatus === 1
@@ -172,7 +177,8 @@ export const StakeMyUnbondList = (props: Props) => {
         </div>
       )}
 
-      {!!unbondList && totalCount === 0 && (
+      {((!!unbondList && totalCount === 0) ||
+        props.tokenStandard !== TokenStandard.Native) && (
         <div className="flex flex-col items-center pb-[.3rem]">
           <div className="flex flex-col items-center">
             <EmptyContent mt="0.2rem" size=".8rem" />
@@ -186,7 +192,7 @@ export const StakeMyUnbondList = (props: Props) => {
         </div>
       )}
 
-      {!unbondList && (
+      {!unbondList && props.tokenStandard === TokenStandard.Native && (
         <div className="px-[.56rem]">
           <TableSkeleton />
         </div>

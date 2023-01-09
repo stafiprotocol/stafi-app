@@ -45,7 +45,11 @@ export interface UnbondModel {
   txTimestamp?: number;
 }
 
-export function useRTokenUnbond(tokenName: TokenName, page: number) {
+export function useRTokenUnbond(
+  tokenName: TokenName,
+  page: number,
+  noFetch?: boolean
+) {
   const tokenStandard = useTokenStandard(tokenName);
 
   const [requestStatus, setRequestStatus] = useState<RequestStatus>(
@@ -72,6 +76,12 @@ export function useRTokenUnbond(tokenName: TokenName, page: number) {
   }, [tokenStandard, metaMaskAccount, polkadotAccount]);
 
   const fetchData = useCallback(async () => {
+    if (noFetch) {
+      setTotalCount(0);
+      setUnbondList([]);
+      return;
+    }
+
     const chainType =
       tokenStandard === TokenStandard.Native
         ? ChainId.STAFI
