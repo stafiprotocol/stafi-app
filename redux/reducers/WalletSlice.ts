@@ -8,6 +8,7 @@ import {
   removeStorage,
   saveStorage,
   STORAGE_KEY_DISCONNECT_METAMASK,
+  STORAGE_KEY_DISCONNECT_PHANTOM,
   STORAGE_KEY_DOT_ACCOUNT,
   STORAGE_KEY_DOT_WALLET_ALLOWED_FLAG,
   STORAGE_KEY_KSM_ACCOUNT,
@@ -24,7 +25,7 @@ import {
 } from "./FisSlice";
 import { cloneDeep } from "lodash";
 import snackbarUtil from "utils/snackbarUtils";
-import { getStafiRpc } from "config/env";
+import { getSolanaRestRpc, getSolanaWsRpc, getStafiRpc } from "config/env";
 import { stafi_types } from "config/stafi_types";
 import { stafiServer } from "servers/stafi";
 import { ksmServer } from "servers/ksm";
@@ -39,6 +40,8 @@ import {
   getMetamaskValidatorChainId,
   getMetaMaskValidatorConnectConfig,
 } from "config/metaMask";
+
+declare const window: any;
 
 export interface InjectedPolkadotAccountWithMeta
   extends ExtType.InjectedAccountWithMeta {
@@ -63,6 +66,9 @@ export interface WalletState {
   polkadotBalance: string | undefined;
   ksmAccount: string | undefined;
   dotAccount: string | undefined;
+  phantomDisconnected: boolean;
+  solanaAccount: string | undefined;
+  solanaBalance: string | undefined;
 }
 
 const initialState: WalletState = {
@@ -75,6 +81,9 @@ const initialState: WalletState = {
   polkadotBalance: undefined,
   ksmAccount: "",
   dotAccount: "",
+  phantomDisconnected: false,
+  solanaAccount: "",
+  solanaBalance: undefined,
 };
 
 export const walletSlice = createSlice({
@@ -133,6 +142,25 @@ export const walletSlice = createSlice({
       saveStorage(STORAGE_KEY_DOT_ACCOUNT, action.payload || "");
       state.dotAccount = action.payload;
     },
+    setPhantomDisconnected: (
+      state: WalletState,
+      action: PayloadAction<boolean>
+    ) => {
+      saveStorage(STORAGE_KEY_DISCONNECT_PHANTOM, action.payload ? "1" : "");
+      state.phantomDisconnected = action.payload;
+    },
+    setSolanaAccount: (
+      state: WalletState,
+      action: PayloadAction<string | undefined>
+    ) => {
+      state.solanaAccount = action.payload;
+    },
+    setSolanaBalance: (
+      state: WalletState,
+      action: PayloadAction<string | undefined>
+    ) => {
+      state.solanaBalance = action.payload;
+    },
   },
 });
 
@@ -145,6 +173,9 @@ export const {
   setPolkadotBalance,
   setKsmAccount,
   setDotAccount,
+  setPhantomDisconnected,
+  setSolanaAccount,
+  setSolanaBalance,
 } = walletSlice.actions;
 
 export default walletSlice.reducer;
@@ -395,6 +426,81 @@ export const disconnectWallet =
         removeStorage(STORAGE_KEY_KSM_WALLET_ALLOWED_FLAG);
       } else if (walletType === WalletType.MetaMask) {
         dispatch(setMetaMaskDisconnected(true));
+      } else if (walletType === WalletType.Phantom) {
+        dispatch(setSolanaAccount(undefined));
+        dispatch(disconnectPhantom());
       }
     } catch (err: unknown) {}
+  };
+
+export const connectPhantom =
+  (isEargly: boolean): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      if (window.solana && window.solana.isPhantom) {
+        window.solana
+          .connect({ onlyIfTrusted: isEargly })
+          .then((res: { publicKey: any }) => {
+            const publicKey = res.publicKey.toString();
+            dispatch(setSolanaAccount(publicKey));
+            if (!isEargly) {
+              dispatch(setPhantomDisconnected(false));
+            }
+          })
+          .catch(() => {});
+      }
+    } catch (err: unknown) {}
+  };
+
+export const disconnectPhantom = (): AppThunk => async (dispatch, getState) => {
+  try {
+    if (window.solana && window.solana.isPhantom) {
+      window.solana.disconnect().catch(() => {});
+      dispatch(setPhantomDisconnected(true));
+    }
+  } catch (err: unknown) {}
+};
+
+// export const connectPhantom =
+//   (cb: (publicKey: string) => void): AppThunk =>
+//   async (dispatch, getState) => {
+//     if (window.solana && window.solana.isPhantom) {
+//       window.solana.on("connect", () => {
+//         // const account = {
+//         //   name: '',
+//         //   pubkey: solana.publicKey.toString(),
+//         //   address: solana.publicKey.toString(),
+//         //   balance: '--',
+//         // };
+//         const publicKey = window.solana.publicKey.toString();
+//         dispatch(setSolanaAccount(publicKey));
+//         cb && cb(publicKey);
+//       });
+
+//       await window.solana.connect();
+//     }
+//   };
+
+export const updateSolanaBalance =
+  (): AppThunk => async (dispatch, getState) => {
+    const solAddress = getState().wallet.solanaAccount;
+    if (!solAddress) {
+      return;
+    }
+
+    const { Connection, PublicKey } = await import("@solana/web3.js");
+
+    try {
+      const connection = new Connection(getSolanaRestRpc(), {
+        wsEndpoint: getSolanaWsRpc(),
+        commitment: "singleGossip",
+      });
+
+      const balance = await connection.getBalance(new PublicKey(solAddress));
+      let solBalance = chainAmountToHuman(balance, TokenSymbol.SOL);
+
+      dispatch(setSolanaBalance(solBalance ? solBalance : "0"));
+    } catch (err) {
+      dispatch(setSolanaBalance("--"));
+    }
   };

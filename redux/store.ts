@@ -8,6 +8,7 @@ import maticReducer from "./reducers/MaticSlice";
 import ksmReducer from "./reducers/KsmSlice";
 import dotReducer from "./reducers/DotSlice";
 import fisReducer from "./reducers/FisSlice";
+import solReducer from "./reducers/SolSlice";
 import bridgeReducer from "./reducers/BridgeSlice";
 import bnbReducer from "./reducers/BnbSlice";
 import mintProgramReducer from "./reducers/MintProgramSlice";
@@ -22,6 +23,7 @@ export const store = configureStore({
     matic: maticReducer,
     ksm: ksmReducer,
     dot: dotReducer,
+    sol: solReducer,
     fis: fisReducer,
     bridge: bridgeReducer,
     bnb: bnbReducer,

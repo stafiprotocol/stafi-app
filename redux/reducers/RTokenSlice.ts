@@ -6,7 +6,12 @@ import {
   getBep20RKsmTokenAbi,
 } from "config/bep20Abi";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
-import { getApiHost, getDropHost } from "config/env";
+import {
+  getApiHost,
+  getDropHost,
+  getSolanaRestRpc,
+  getSolanaWsRpc,
+} from "config/env";
 import {
   getErc20FisTokenAbi,
   getErc20RDotTokenAbi,
@@ -17,7 +22,7 @@ import {
 import { getErc20TokenContractConfig } from "config/erc20Contract";
 import { getBSCRMaticAbi, getERCMaticAbi } from "config/matic";
 import { getWeb3ProviderUrlConfig } from "config/metaMask";
-import { TokenName, TokenStandard } from "interfaces/common";
+import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import { rSymbol } from "keyring/defaults";
 import { AppThunk } from "redux/store";
 import StafiServer, { stafiServer } from "servers/stafi";
@@ -26,7 +31,11 @@ import {
   getNativeFisBalance,
   getNativeRTokenBalance,
 } from "utils/polkadotUtils";
-import { getTokenSymbol } from "utils/rToken";
+import { getTokenSymbol, getTokenType } from "utils/rToken";
+import {
+  getSolanaTokenAccountPubkey,
+  getSplAssetBalance,
+} from "utils/solanaUtils";
 import {
   createWeb3,
   getBep20AssetBalance,
@@ -233,6 +242,7 @@ export const updateRTokenBalance =
     try {
       const metaMaskAccount = getState().wallet.metaMaskAccount;
       const polkadotAccount = getState().wallet.polkadotAccount;
+      const solanaAccount = getState().wallet.solanaAccount;
       if (!tokenStandard) {
         return;
       }
@@ -297,6 +307,12 @@ export const updateRTokenBalance =
           tokenAddress,
           tokenName
         );
+      } else if (tokenStandard === TokenStandard.SPL) {
+        let rTokenName;
+        if (tokenName === TokenName.SOL) {
+          rTokenName = RTokenName.rSOL;
+        }
+        newBalance = await getSplAssetBalance(solanaAccount, rTokenName);
       }
 
       if (newBalance !== undefined) {
@@ -475,6 +491,35 @@ export const updateRTokenStakerApr =
         } catch (err) {
           console.error(err);
         }
+      } else if (tokenName === TokenName.SOL) {
+        const api = await new StafiServer().createStafiApi();
+        try {
+          const eraResult = await api.query.rTokenLedger.chainEras(rSymbol.Sol);
+          let currentEra = eraResult.toJSON() as number;
+          if (currentEra) {
+            let rateResult = await api.query.rTokenRate.eraRate(
+              rSymbol.Sol,
+              currentEra - 1
+            );
+            const currentRate = rateResult.toJSON() as number;
+            const rateResult2 = await api.query.rTokenRate.eraRate(
+              rSymbol.Sol,
+              currentEra - 2
+            );
+            let lastRate = rateResult2.toJSON() as number;
+            if (currentRate && lastRate && currentRate > lastRate) {
+              newApr =
+                ((currentRate - lastRate) / 1000000000000 / 2.54) *
+                  365.25 *
+                  100 +
+                "";
+            } else {
+              newApr = "7.2";
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
       }
 
       const rTokenStakerAprStore = getState().rToken.rTokenStakerAprStore;
@@ -497,7 +542,7 @@ export const updateTokenPoolData =
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            rsymbols: ["rmatic", "rbnb", "rksm", "rdot"],
+            rsymbols: ["rmatic", "rbnb", "rksm", "rdot", "rsol"],
           }),
         }
       );
@@ -521,6 +566,8 @@ export const updateTokenPoolData =
             poolDataStore.KSM = poolData;
           } else if (data.rsymbol === "Rdot") {
             poolDataStore.DOT = poolData;
+          } else if (data.rsymbol === "Rsol") {
+            poolDataStore.SOL = poolData;
           }
         });
 

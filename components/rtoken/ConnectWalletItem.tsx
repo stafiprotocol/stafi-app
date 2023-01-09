@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
   connectMetaMask,
+  connectPhantom,
   connectPolkadotJs,
   disconnectWallet,
 } from "redux/reducers/WalletSlice";
@@ -26,8 +27,13 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
   const { walletType, targetMetaMaskChainId } = props;
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
-  const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
-    useWalletAccount();
+  const {
+    metaMaskAccount,
+    polkadotAccount,
+    ksmAccount,
+    dotAccount,
+    solanaAccount,
+  } = useWalletAccount();
   const [showDetail, setShowDetail] = useState(true);
 
   const userAddress = useMemo(() => {
@@ -43,8 +49,18 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
     if (walletType === WalletType.Polkadot_DOT) {
       return transformSs58Address(dotAccount, walletType);
     }
+    if (walletType === WalletType.Phantom) {
+      return solanaAccount;
+    }
     return "";
-  }, [metaMaskAccount, walletType, polkadotAccount, ksmAccount, dotAccount]);
+  }, [
+    metaMaskAccount,
+    walletType,
+    polkadotAccount,
+    ksmAccount,
+    dotAccount,
+    solanaAccount,
+  ]);
 
   const showWrongNetwork =
     walletType === WalletType.MetaMask &&
@@ -178,6 +194,8 @@ export const ConnectWalletItem = (props: ConnectWalletItemProps) => {
                 dispatch(connectMetaMask(targetMetaMaskChainId));
               } else if (isPolkadotWallet(walletType)) {
                 dispatch(connectPolkadotJs(true, walletType));
+              } else if (walletType === WalletType.Phantom) {
+                dispatch(connectPhantom(false));
               }
             }}
           >

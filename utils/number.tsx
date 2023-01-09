@@ -98,7 +98,7 @@ export function formatNumber(
 }
 
 export function chainAmountToHuman(
-  num: string,
+  num: string | number,
   tokenSymbol: TokenSymbol | rSymbol | undefined
 ) {
   if (num === "" || num === undefined || num === null || isNaN(Number(num))) {

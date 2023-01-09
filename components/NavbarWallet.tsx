@@ -1,10 +1,13 @@
 import { Popover } from "@mui/material";
 import classNames from "classnames";
-import { getEtherScanUrl, getStafiScanUrl } from "config/explorer";
 import {
-  getMetamaskEthChainId,
-  getMetamaskMaticChainId,
-} from "config/metaMask";
+  getEtherScanUrl,
+  getKsmScanUrl,
+  getPolkadotScanUrl,
+  getSolanaScanUrl,
+  getStafiScanUrl,
+} from "config/explorer";
+import { getMetamaskMaticChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useDotBalance } from "hooks/useDotBalance";
@@ -28,11 +31,12 @@ import {
 } from "redux/reducers/FisSlice";
 import {
   connectMetaMask,
+  connectPhantom,
   connectPolkadotJs,
   disconnectWallet,
-  setMetaMaskDisconnected,
   updatePolkadotExtensionAccountsBalances,
   updateSelectedPolkadotAccountBalance,
+  updateSolanaBalance,
 } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import styles from "styles/Navbar.module.scss";
@@ -65,6 +69,8 @@ export const NavbarWallet = () => {
     polkadotBalance,
     ksmAccount,
     dotAccount,
+    solanaAccount,
+    solanaBalance,
   } = useWalletAccount();
   const ksmBalance = useKsmBalance();
   const dotBalance = useDotBalance();
@@ -77,20 +83,34 @@ export const NavbarWallet = () => {
 
   const router = useRouter();
 
-  const { metaMaskConnected, polkadotConnected, ksmConnected, dotConnected } =
-    useMemo(() => {
-      return {
-        metaMaskConnected: !!metaMaskAccount,
-        polkadotConnected: !!polkadotAccount,
-        ksmConnected: !!ksmAccount,
-        dotConnected: !!dotAccount,
-      };
-    }, [metaMaskAccount, polkadotAccount, ksmAccount, dotAccount]);
+  const {
+    metaMaskConnected,
+    polkadotConnected,
+    ksmConnected,
+    dotConnected,
+    solanaConnected,
+  } = useMemo(() => {
+    return {
+      metaMaskConnected: !!metaMaskAccount,
+      polkadotConnected: !!polkadotAccount,
+      ksmConnected: !!ksmAccount,
+      dotConnected: !!dotAccount,
+      solanaConnected: !!solanaAccount,
+    };
+  }, [metaMaskAccount, polkadotAccount, ksmAccount, dotAccount, solanaAccount]);
 
   const accountsPopupState = usePopupState({
     variant: "popover",
     popupId: "accounts",
   });
+
+  useEffect(() => {
+    dispatch(connectPhantom(true));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(updateSolanaBalance());
+  }, [solanaAccount, dispatch]);
 
   useEffect(() => {
     dispatch(updateEthBalance());
@@ -116,11 +136,13 @@ export const NavbarWallet = () => {
 
   const clickConnectWallet = (walletType: WalletType) => {
     if (walletType === WalletType.MetaMask) {
-      dispatch(setMetaMaskDisconnected(false));
       dispatch(connectMetaMask(targetMetaMaskChainId));
     }
     if (isPolkadotWallet(walletType)) {
       dispatch(connectPolkadotJs(true, walletType));
+    }
+    if (walletType === WalletType.Phantom) {
+      dispatch(connectPhantom(false));
     }
   };
 
@@ -185,6 +207,13 @@ export const NavbarWallet = () => {
           tokenName: "DOT",
         });
       }
+    } else if (walletType === WalletType.Phantom) {
+      if (solanaConnected) {
+        res.push({
+          balance: solanaBalance,
+          tokenName: "SOL",
+        });
+      }
     } else if (walletType === WalletType.MetaMask || !isWrongMetaMaskNetwork) {
       if (metaMaskConnected) {
         res.push({
@@ -206,6 +235,8 @@ export const NavbarWallet = () => {
     dotConnected,
     dotBalance,
     ksmConnected,
+    solanaConnected,
+    solanaBalance,
   ]);
 
   const [displayAddress, displayWalletType] = useMemo(() => {
@@ -229,9 +260,17 @@ export const NavbarWallet = () => {
         return [polkadotAccount, WalletType.Polkadot];
       }
     }
+    if (walletType === WalletType.Phantom) {
+      if (solanaAccount) {
+        return [solanaAccount, WalletType.Phantom];
+      }
+      if (polkadotAccount) {
+        return [polkadotAccount, WalletType.Polkadot];
+      }
+    }
 
     return ["", undefined];
-  }, [walletType, polkadotAccount, metaMaskAccount, router]);
+  }, [walletType, polkadotAccount, metaMaskAccount, router, solanaAccount]);
 
   const showConnectWallet = useMemo(() => {
     return !displayAddress;
@@ -428,6 +467,16 @@ export const NavbarWallet = () => {
             tokenName={"DOT"}
             onClickConnect={() => clickConnectWallet(WalletType.Polkadot_DOT)}
           />
+
+          <WalletAccountItem
+            name="Solana"
+            walletType={WalletType.Phantom}
+            connected={solanaConnected}
+            address={solanaAccount || ""}
+            balance={solanaBalance}
+            tokenName={"SOL"}
+            onClickConnect={() => clickConnectWallet(WalletType.Phantom)}
+          />
         </div>
       </Popover>
     </div>
@@ -611,6 +660,12 @@ const WalletAccountItem = (props: WalletAccountItemProps) => {
                 openLink(getEtherScanUrl());
               } else if (props.walletType === WalletType.Polkadot) {
                 openLink(getStafiScanUrl());
+              } else if (props.walletType === WalletType.Polkadot_KSM) {
+                openLink(getKsmScanUrl());
+              } else if (props.walletType === WalletType.Polkadot_DOT) {
+                openLink(getPolkadotScanUrl());
+              } else if (props.walletType === WalletType.Phantom) {
+                openLink(getSolanaScanUrl());
               }
             }}
           >

@@ -1,3 +1,5 @@
+import { isDev } from "config/env";
+import { EraRewardModel } from "hooks/useRTokenReward";
 import {
   DexType,
   RTokenName,
@@ -7,21 +9,19 @@ import {
   TokenType,
   WalletType,
 } from "interfaces/common";
-import { formatNumber } from "./number";
+import { rSymbol } from "keyring/defaults";
 import curveIcon from "public/dex/curve.svg";
 import pancakeIcon from "public/dex/pancake.svg";
+import quickswapIcon from "public/dex/quick_swap.png";
+import atrixIcon from "public/dex/atrix.svg";
 import rDEXIcon from "public/dex/r_dex.png";
 import sifchainIcon from "public/dex/sifchain.svg";
 import uniswapIcon from "public/dex/uniswap.png";
-import { getMetamaskMaticChainId } from "config/metaMask";
-import quickswapIcon from "public/dex/quick_swap.png";
 import metaMask from "public/wallet/metaMask.svg";
+import phantom from "public/wallet/phantom.png";
 import polkadot from "public/wallet/polkadot.svg";
-import { EraRewardModel } from "hooks/useRTokenReward";
-import dayjs from "dayjs";
 import { isPolkadotWallet } from "./common";
-import { rSymbol } from "keyring/defaults";
-import { isDev } from "config/env";
+import { formatNumber, getDecimals } from "./number";
 
 export interface DexItem {
   type: DexType;
@@ -33,6 +33,10 @@ export function getSupportedTokenStandards(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) {
     // return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
     return [TokenStandard.ERC20];
+  }
+  if (tokenName === TokenName.SOL) {
+    // return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
+    return [TokenStandard.Native, TokenStandard.SPL];
   }
   return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
 }
@@ -71,6 +75,8 @@ export function getTokenType(tokenName: TokenName | RTokenName): TokenType {
     return TokenType.rKSM;
   } else if (tokenName === RTokenName.rDOT) {
     return TokenType.rDOT;
+  } else if (tokenName === RTokenName.rSOL) {
+    return TokenType.rSOL;
   }
   return TokenType.FIS;
 }
@@ -164,6 +170,29 @@ export function getTokenNameFromrSymbol(
   return undefined;
 }
 
+export function getRTokenNameFromrSymbol(
+  symbol: rSymbol
+): RTokenName | undefined {
+  if (symbol === rSymbol.Fis) {
+    return RTokenName.rFIS;
+  } else if (symbol === rSymbol.Eth) {
+    return RTokenName.rETH;
+  } else if (symbol === rSymbol.Dot) {
+    return RTokenName.rDOT;
+  } else if (symbol === rSymbol.Ksm) {
+    return RTokenName.rKSM;
+  } else if (symbol === rSymbol.Matic) {
+    return RTokenName.rMATIC;
+  } else if (symbol === rSymbol.Bnb) {
+    return RTokenName.rBNB;
+  } else if (symbol === rSymbol.Sol) {
+    return RTokenName.rSOL;
+  } else if (symbol === rSymbol.Atom) {
+    return RTokenName.rATOM;
+  }
+  return undefined;
+}
+
 export function getRewardText(reward: string) {
   return reward !== "--"
     ? Number(reward) > 0 && Number(reward) < 0.000001
@@ -217,6 +246,8 @@ export function getDexIcon(type: DexType): any {
     return sifchainIcon;
   } else if (type === DexType.Quickswap) {
     return quickswapIcon;
+  } else if (type === DexType.Atrix) {
+    return atrixIcon;
   }
 }
 
@@ -287,6 +318,20 @@ export function getDexList(tokenName: TokenName): DexItem[] {
       },
     ];
   }
+  if (tokenName === TokenName.SOL) {
+    return [
+      {
+        type: DexType.rDEX,
+        tokenStandard: TokenStandard.Native,
+        url: "https://app.rdex.finance/swap?first=rSOL&second=FIS",
+      },
+      {
+        type: DexType.Atrix,
+        tokenStandard: TokenStandard.SPL,
+        url: "https://app.atrix.finance/swap?from=7hUdUTkJLwdcmt3jSEeqx4ep91sm1XwBxMDaJae6bD5D",
+      },
+    ];
+  }
   return [];
 }
 
@@ -296,6 +341,9 @@ export function getWalletIcon(walletType: WalletType | undefined) {
   }
   if (isPolkadotWallet(walletType)) {
     return polkadot;
+  }
+  if (walletType === WalletType.Phantom) {
+    return phantom;
   }
   return undefined;
 }
@@ -347,4 +395,19 @@ export function getBridgeResourceId(tokenType: TokenType) {
   } else if (tokenType == "rbnb") {
     return "0x000000000000000000000000000000ab226cdfdcd7e0d15fa85810f500d8e601";
   }
+}
+
+export function getRefinedStakedAmount(
+  tokenName: TokenName,
+  rTokenAmount: string | undefined,
+  rTokenRatio: string | undefined
+): string {
+  if (!rTokenAmount || !rTokenRatio) {
+    return "--";
+  }
+  const decimals = getDecimals(getTokenSymbol(tokenName));
+  const stakedAmount = Number(rTokenAmount) * Number(rTokenRatio);
+  const result =
+    Math.ceil(((stakedAmount * 1000000) / decimals) * decimals) / 1000000;
+  return result + "";
 }

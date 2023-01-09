@@ -54,7 +54,11 @@ import downIcon from "public/icon_down.png";
 import HoverPopover from "material-ui-popup-state/HoverPopover";
 import { RootState } from "redux/store";
 import { useBridgeFees } from "hooks/useBridgeFees";
-import { validateETHAddress, validateSS58Address } from "utils/validator";
+import {
+  validateETHAddress,
+  validateSolanaAddress,
+  validateSS58Address,
+} from "utils/validator";
 import { RTokenStakeLoadingSidebar } from "./RTokenStakeLoadingSidebar";
 import { BubblesLoading } from "components/common/BubblesLoading";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
@@ -66,6 +70,8 @@ import { handleDotStake } from "redux/reducers/DotSlice";
 import { updateRefreshDataFlag } from "redux/reducers/AppSlice";
 import { useStakeFees } from "hooks/useStakeFees";
 import { StakeFee } from "components/rtoken/StakeFee";
+import { handleSolStake } from "redux/reducers/SolSlice";
+import { getRefinedStakedAmount } from "utils/rToken";
 
 interface RTokenStakeModalProps {
   visible: boolean;
@@ -75,7 +81,7 @@ interface RTokenStakeModalProps {
   onClose: () => void;
   balance: string;
   onClickConnectWallet: () => void;
-	rTokenBalance: string | undefined;
+  rTokenBalance: string | undefined;
 }
 
 export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
@@ -88,7 +94,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     balance,
     defaultReceivingAddress,
     editAddressDisabled,
-		rTokenBalance,
+    rTokenBalance,
   } = props;
   const tokenStandard = useTokenStandard(tokenName);
   const [expandUserAddress, setExpandUserAddress] = useState(false);
@@ -170,6 +176,12 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       } else {
         return validateETHAddress(targetAddress);
       }
+    } else if (tokenName === TokenName.SOL) {
+      if (tokenStandard === TokenStandard.Native) {
+        return validateSS58Address(targetAddress);
+      } else {
+        return validateSolanaAddress(targetAddress);
+      }
     }
     return true;
   }, [targetAddress, tokenName, tokenStandard]);
@@ -190,6 +202,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     }
     if (tokenName === TokenName.DOT) {
       return "0.015";
+    }
+    if (tokenName === TokenName.SOL) {
+      return "0.0001";
     }
     let gasLimit = 146316;
     if (tokenName === TokenName.MATIC) {
@@ -363,10 +378,18 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     ) {
       return "--";
     }
+    // console.log(
+    //   "xxx",
+    //   getRefinedStakedAmount(tokenName, rTokenBalance, rTokenRatio),
+    //   Number(getRefinedStakedAmount(tokenName, rTokenBalance, rTokenRatio)) +
+    //     Number(stakeAmount)
+    // );
     return (
-      Number(rTokenBalance) * Number(rTokenRatio) + Number(stakeAmount) + ""
+      Number(getRefinedStakedAmount(tokenName, rTokenBalance, rTokenRatio)) +
+      Number(stakeAmount) +
+      ""
     );
-  }, [rTokenBalance, rTokenRatio, stakeAmount]);
+  }, [rTokenBalance, rTokenRatio, stakeAmount, tokenName]);
 
   const resetState = () => {
     setEditAddress(false);
@@ -460,6 +483,26 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     } else if (tokenName === TokenName.DOT) {
       dispatch(
         handleDotStake(
+          Number(stakeAmount) + "",
+          willReceiveAmount,
+          tokenStandard,
+          targetAddress,
+          newTotalStakedAmount,
+          false,
+          (success) => {
+            if (success) {
+              resetState();
+              dispatch(updateRTokenBalance(tokenStandard, tokenName));
+              dispatch(updateRefreshDataFlag());
+              props.onClose();
+            }
+          }
+        )
+        //mockProcess(stakeAmount, willReceiveAmount, tokenStandard, newTotalStakedAmount)
+      );
+    } else if (tokenName === TokenName.SOL) {
+      dispatch(
+        handleSolStake(
           Number(stakeAmount) + "",
           willReceiveAmount,
           tokenStandard,
@@ -739,6 +782,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
                     isNaN(Number(balance)) ||
                     isNaN(Number(estimateFee))
                   ) {
+                    console.log("xxx");
                     return;
                   }
                   let amount = Number(balance);

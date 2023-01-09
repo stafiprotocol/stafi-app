@@ -74,7 +74,7 @@ export const Navbar = () => {
           </div>
         </Link>
         <div
-          className={classNames(styles["rtoken-button"], "text-white")}
+          className={classNames(styles["rtoken-button"])}
           onClick={() => {
             dispatch(setBridgeModalVisible(true));
           }}

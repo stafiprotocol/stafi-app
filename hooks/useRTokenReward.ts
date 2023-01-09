@@ -59,7 +59,8 @@ export function useRTokenReward(
   );
 
   const { updateFlag15s, refreshDataFlag } = useAppSlice();
-  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount, solanaAccount } =
+    useWalletAccount();
 
   const userAddress = useMemo(() => {
     if (tokenStandard === TokenStandard.ERC20) {
@@ -70,9 +71,11 @@ export function useRTokenReward(
       return u8aToHex(keyringInstance.decodeAddress(polkadotAccount as string));
     } else if (tokenStandard === TokenStandard.BEP20) {
       return metaMaskAccount;
+    } else if (tokenStandard === TokenStandard.SPL) {
+      return solanaAccount;
     }
     return "";
-  }, [tokenStandard, metaMaskAccount, polkadotAccount]);
+  }, [tokenStandard, metaMaskAccount, polkadotAccount, solanaAccount]);
 
   const fetchData = useCallback(async () => {
     const chainType =

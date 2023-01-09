@@ -16,6 +16,7 @@ export const STORAGE_KEY_KSM_WALLET_ALLOWED_FLAG = "ksm_wallet_allowed";
 export const STORAGE_KEY_DOT_WALLET_ALLOWED_FLAG = "dot_wallet_allowed";
 export const STORAGE_KEY_UNBOND_RECORDS = "stafi_unbond_records";
 export const STORAGE_KEY_DISCONNECT_METAMASK = "stafi_disconnect_metamask";
+export const STORAGE_KEY_DISCONNECT_PHANTOM = "stafi_disconnect_phantom";
 
 export function saveStorage(key: string, value: string) {
   localStorage.setItem(key, value);

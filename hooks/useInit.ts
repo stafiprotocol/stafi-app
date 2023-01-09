@@ -10,11 +10,13 @@ import {
   connectPolkadotJs,
   setMetaMaskAccount,
   setMetaMaskDisconnected,
+  setPhantomDisconnected,
   updatePolkadotExtensionAccountsBalances,
 } from "redux/reducers/WalletSlice";
 import {
   getStorage,
   STORAGE_KEY_DISCONNECT_METAMASK,
+  STORAGE_KEY_DISCONNECT_PHANTOM,
   STORAGE_KEY_DOT_WALLET_ALLOWED_FLAG,
   STORAGE_KEY_KSM_WALLET_ALLOWED_FLAG,
   STORAGE_KEY_POLKADOT_WALLET_ALLOWED_FLAG,
@@ -37,6 +39,9 @@ export function useInit() {
     dispatch(setUnreadNoticeFlag(!!unreadNotice));
     dispatch(
       setMetaMaskDisconnected(!!getStorage(STORAGE_KEY_DISCONNECT_METAMASK))
+    );
+    dispatch(
+      setPhantomDisconnected(!!getStorage(STORAGE_KEY_DISCONNECT_PHANTOM))
     );
   }, [dispatch]);
 

@@ -10,6 +10,10 @@ import {
   getKsmBondFees,
   getKsmBondTransactionFees,
 } from "redux/reducers/KsmSlice";
+import {
+  getSolBondFees,
+  getSolBondTransactionFees,
+} from "redux/reducers/SolSlice";
 import { RootState } from "redux/store";
 import { chainAmountToHuman } from "utils/number";
 import { useAppDispatch, useAppSelector } from "./common";
@@ -32,6 +36,8 @@ export function useStakeFees(
     ksmBondTxFees,
     dotBondFees,
     dotBondTxFees,
+    solBondFees,
+    solBondTxFees,
   } = useAppSelector((state: RootState) => {
     return {
       erc20BridgeFee: state.bridge.erc20BridgeFee,
@@ -41,6 +47,8 @@ export function useStakeFees(
       ksmBondTxFees: state.ksm.bondTxFees,
       dotBondFees: state.dot.bondFees,
       dotBondTxFees: state.dot.bondTxFees,
+      solBondFees: state.sol.bondFees,
+      solBondTxFees: state.sol.bondTxFees,
     };
   });
 
@@ -53,6 +61,9 @@ export function useStakeFees(
     } else if (tokenName === TokenName.DOT) {
       dispatch(getDotBondFees());
       dispatch(getDotBondTransactionFees(tokenStandard));
+    } else if (tokenName === TokenName.SOL) {
+      dispatch(getSolBondFees());
+      dispatch(getSolBondTransactionFees(tokenStandard));
     }
   }, [dispatch, tokenStandard, tokenName]);
 
@@ -132,6 +143,41 @@ export function useStakeFees(
           tokenName: "FIS",
         });
       }
+    } else if (tokenName === TokenName.SOL) {
+      setSendFee({
+        amount: "0.0001",
+        tokenName: "SOL",
+      });
+
+      const bondFee = Number(chainAmountToHuman(solBondFees, TokenSymbol.FIS));
+      const txFeeAmount = Number(solBondTxFees);
+      setTxFee({
+        amount: txFeeAmount + "",
+        tokenName: "FIS",
+      });
+
+      // console.log("xxx bondFee", bondFee);
+      if (tokenStandard === TokenStandard.Native) {
+        setBridgeFee({
+          amount: bondFee + "",
+          tokenName: "FIS",
+        });
+      } else if (tokenStandard === TokenStandard.ERC20) {
+        setBridgeFee({
+          amount: bondFee + Number(erc20BridgeFee) + "",
+          tokenName: "FIS",
+        });
+      } else if (tokenStandard === TokenStandard.BEP20) {
+        setBridgeFee({
+          amount: bondFee + Number(bep20BridgeFee) + "",
+          tokenName: "FIS",
+        });
+      } else if (tokenStandard === TokenStandard.SPL) {
+        setBridgeFee({
+          amount: bondFee + Number(solBridgeFee) + "",
+          tokenName: "FIS",
+        });
+      }
     }
   }, [
     tokenName,
@@ -143,6 +189,8 @@ export function useStakeFees(
     erc20BridgeFee,
     bep20BridgeFee,
     solBridgeFee,
+    solBondFees,
+    solBondTxFees,
   ]);
 
   return {

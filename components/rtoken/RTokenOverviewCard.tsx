@@ -34,8 +34,13 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
-  const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
-    useWalletAccount();
+  const {
+    metaMaskAccount,
+    polkadotAccount,
+    ksmAccount,
+    dotAccount,
+    solanaAccount,
+  } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
 
@@ -156,6 +161,18 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         return;
       }
       router.push("/rtoken/stake/DOT");
+    } else if (tokenName === TokenName.SOL) {
+      if (!solanaAccount || !polkadotAccount) {
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.Polkadot, WalletType.Phantom],
+            targetUrl: "/rtoken/stake/SOL",
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/SOL");
     }
   };
 

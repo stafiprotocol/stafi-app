@@ -40,6 +40,18 @@ export function getStafiScanUrl() {
   return "https://stafi.subscan.io/";
 }
 
+export function getPolkadotScanUrl() {
+  return "https://polkadot.subscan.io/";
+}
+
+export function getKsmScanUrl() {
+  return "https://kusama.subscan.io/";
+}
+
+export function getSolanaScanUrl() {
+  return "https://solscan.io";
+}
+
 export function getStafiScanTxUrl(txHash: string | undefined) {
   if (isDev()) {
     return `https://stafi.subscan.io/extrinsic/${txHash}`;
@@ -59,6 +71,13 @@ export function getDotScanTxUrl(txHash: string | undefined) {
     return `https://polkadot.subscan.io/extrinsic/${txHash}`;
   }
   return `https://polkadot.subscan.io/extrinsic/${txHash}`;
+}
+
+export function getSolScanTxUrl(txHash: string | undefined) {
+  if (isDev()) {
+    return `https://solscan.io/tx/${txHash}`;
+  }
+  return `https://solscan.io/tx/${txHash}`;
 }
 
 export function getBridgeSwapScanUrl(chainId: ChainId, targetAddress: string) {

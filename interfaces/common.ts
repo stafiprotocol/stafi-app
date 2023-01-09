@@ -118,6 +118,7 @@ export enum DexType {
   Curve = "Curve",
   Sifchain = "Sifchain",
   Quickswap = "Quickswap",
+  Atrix = "Atrix",
 }
 
 export interface Fee {

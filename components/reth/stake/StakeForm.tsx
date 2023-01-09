@@ -5,25 +5,21 @@ import { MyLayoutContext } from "components/layout/layout";
 import { ConfirmModal } from "components/modal/ConfirmModal";
 import { ValidatorKeyUpload } from "components/reth/upload";
 import { isDev } from "config/env";
-import { getMetamaskValidatorChainId } from "config/metaMask";
 import { getEthValidatorWithdrawalCredentials } from "config/erc20Contract";
-import { hooks, metaMask } from "connectors/metaMask";
+import { getMetamaskValidatorChainId } from "config/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useEthPoolData } from "hooks/useEthPoolData";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { useRouter } from "next/router";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   handleEthValidatorStake,
   updateEthBalance,
 } from "redux/reducers/EthSlice";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import snackbarUtil from "utils/snackbarUtils";
 import { getShortAddress } from "utils/string";
-import {
-  connectMetaMask,
-  setMetaMaskDisconnected,
-} from "redux/reducers/WalletSlice";
 
 export const StakeForm = () => {
   const { isWrongMetaMaskNetwork } = useContext(MyLayoutContext);

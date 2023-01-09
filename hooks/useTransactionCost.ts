@@ -18,6 +18,11 @@ import {
   getUnbondCommision,
   getUnbondFees,
 } from "redux/reducers/MaticSlice";
+import {
+  getSolBondFees,
+  getSolUnbondCommision,
+  getSolUnbondFees,
+} from "redux/reducers/SolSlice";
 import { RootState } from "redux/store";
 import { useAppDispatch, useAppSelector } from "./common";
 
@@ -62,6 +67,15 @@ export function useTransactionCost(
         bondFees: state.dot.bondFees,
         relayFee: "--",
       };
+    } else if (tokenName === TokenName.SOL) {
+      return {
+        unbondCommision: state.sol.unbondCommision,
+        unbondFees: state.sol.unbondFees,
+        bondTxFees: state.sol.bondTxFees,
+        unbondTxFees: state.sol.unbondTxFees,
+        bondFees: state.sol.bondFees,
+        relayFee: "--",
+      };
     }
     return {
       unbondCommision: "--",
@@ -87,6 +101,10 @@ export function useTransactionCost(
       dispatch(getDotUnbondCommision());
       dispatch(getDotUnbondFees());
       dispatch(getDotBondFees());
+    } else if (tokenName === TokenName.SOL) {
+      dispatch(getSolUnbondCommision());
+      dispatch(getSolUnbondFees());
+      dispatch(getSolBondFees());
     }
   }, [dispatch, tokenName]);
 
