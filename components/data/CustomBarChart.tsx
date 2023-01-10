@@ -16,8 +16,11 @@ export const CustomBarChart = (props: Props) => {
       animation: false,
       color: ["#00F3AB"],
       tooltip: {
-        backgroundColor: "rgba(25, 38, 52, 1)",
+        backgroundColor: "rgba(25, 38, 52, 0.9)",
         borderColor: "#1A2835",
+        className: "",
+        extraCssText:
+          "border-radius:0.16rem;padding:0.2rem;backdrop-filter:blur(0.4rem);",
         formatter: (params: any) => {
           if (!params) return;
           // console.log(params)
@@ -35,16 +38,17 @@ export const CustomBarChart = (props: Props) => {
           partsAdded[0] = partsAdded[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           formatAdded = partsAdded.join(".");
 
-          return `<div style="font-size:0.24rem;display:flex;flex-direction:column;">
-					<div style="color:#9DAFBE;">${params.name}</div>
-					<div style="color:#00F3AB;">Overall: ${formatOverall}</div>
-					<div style="color:#00F3AB;margin-top:0.05rem">+${chartItem.addedRToken} Mintdrop</div>
-					<div style="color:#00F3AB;margin-top:0.05rem">+${formatAdded} FIS Reward</div>
-				</div>`;
+          return `
+					<div style="color:#9DAFBE;font-size:0.24rem;">${params.name}</div>
+					<div style="color:#9DAFBE;margin-top:0.18rem;font-size:0.24rem;">${chartItem.addedRToken} Mintdrop</div>
+					<div style="color:#00F3AB;margin-top:0.18rem;font-size:0.24rem;">+${formatAdded} FIS Reward</div>
+					<div style="height:1px;background:#5B6872;margin:0.18rem 0;font-size:0.24rem;"></div>
+					<div style="color:#9DAFBE;font-size:0.24rem;">Overall: ${formatOverall}</div>
+				`;
         },
       },
       xAxis: {
-				show: false,
+        show: false,
         data: props.xData,
         type: "category",
       },

@@ -39,7 +39,11 @@ const MintChart = (props: Props) => {
     let clientW = html.clientWidth;
     let htmlRem = (clientW * 100) / designSize;
 
-    setChartWidth(htmlRem * 6.7 + "px");
+    let widthFactor = 6.7;
+    if (htmlRem > 1800) {
+      widthFactor = 6;
+    }
+    setChartWidth(htmlRem * widthFactor + "px");
     setChartHeight(htmlRem * 2.8 + "px");
   };
 
