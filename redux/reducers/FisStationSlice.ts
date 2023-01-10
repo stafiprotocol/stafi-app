@@ -13,6 +13,9 @@ import {
 } from "config/metaMask";
 import snackbarUtil from "utils/snackbarUtils";
 import { CANCELLED_MESSAGE } from "utils/constants";
+import { stafiServer } from "servers/stafi";
+import { dotServer } from "servers/dot";
+import { ksmServer } from "servers/ksm";
 
 declare const ethereum: any;
 
@@ -125,6 +128,16 @@ export const handleSwap =
     if (tokenName === TokenName.ETH) {
       dispatch(
         handleSwapEth(
+          selectedPoolInfo.poolAddress,
+          tokenAmount,
+          fisAmount,
+          minOutFisAmount
+        )
+      );
+    } else if (tokenName === TokenName.DOT || tokenName === TokenName.KSM) {
+      dispatch(
+        handleSwapDotAndKsm(
+          tokenName,
           selectedPoolInfo.poolAddress,
           tokenAmount,
           fisAmount,
@@ -264,11 +277,126 @@ export const handleSwapEth =
     }
   };
 
-export const handleSwapDot = (poolAddress: string, tokenAmount: string, fisAmount: string, minOutFisAmount: string | number): AppThunk =>
-async (dispatch, getState) => {
-	const address = getState().wallet.dotAccount;
-	if (!address) return;
-}
+export const handleSwapDotAndKsm =
+  (
+    tokenName: TokenName.DOT | TokenName.KSM,
+    poolAddress: string,
+    tokenAmount: string,
+    fisAmount: string,
+    minOutFisAmount: string | number
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    let address;
+    if (tokenName === TokenName.DOT) {
+      address = getState().wallet.dotAccount;
+    } else {
+      address = getState().wallet.ksmAccount;
+    }
+    const polkadotAccount = getState().wallet.polkadotAccount;
+    if (!address || !polkadotAccount) return;
+
+    const amount = numberUtil.tokenAmountToChain(
+      tokenAmount,
+      tokenName === TokenName.DOT ? rSymbol.Dot : rSymbol.Ksm
+    );
+    const minOutAmount = numberUtil.tokenAmountToChain(
+      minOutFisAmount + "",
+      rSymbol.Fis
+    );
+
+    const { web3Enable, web3FromSource } = await import(
+      "@polkadot/extension-dapp"
+    );
+    web3Enable(stafiServer.getWeb3EnableName());
+    const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
+
+    let api;
+    if (tokenName === TokenName.DOT) {
+      api = await dotServer.createDotApi();
+    } else {
+      api = await ksmServer.createKsmApi();
+    }
+
+    const dotKeyringInstance = keyring.init(Symbol.Dot);
+    const ksmKeyringInstance = keyring.init(Symbol.Ksm);
+    const fisKeyringInstance = keyring.init(Symbol.Fis);
+
+    let pubKey: `0x${string}`;
+    if (tokenName === TokenName.DOT) {
+      pubKey = u8aToHex(dotKeyringInstance.decodeAddress(address));
+    } else {
+      pubKey = u8aToHex(ksmKeyringInstance.decodeAddress(address));
+    }
+    const stafiAddress = u8aToHex(
+      fisKeyringInstance.decodeAddress(polkadotAccount)
+    );
+
+    const signature = await fisStationSignature(address, stafiAddress);
+    if (!signature) {
+      console.error("signature error");
+      return;
+    }
+
+    const response = await await fetch(
+      `${getApiHost()}/feeStation/api/v1/station/bundleAddress`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          stafiAddress,
+          symbol: tokenName,
+          poolAddress,
+          signature,
+          pubKey,
+        }),
+      }
+    );
+    const resJson = await response.json();
+    if (
+      !resJson ||
+      resJson.status !== "80000" ||
+      !resJson.data ||
+      !resJson.data.bundleAddressId
+    ) {
+      throw new Error("bundle address error");
+    }
+
+    const bundleAddressId = resJson.data.bundleAddressId;
+
+    const ex = await api.tx.balances.transferKeepAlive(poolAddress, amount);
+    ex.signAndSend(address, { signer: injector.signer }, (result: any) => {
+      const tx = ex.hash.toHex();
+      const asInBlock = result.status.asInBlock;
+
+      if (result.status.isInBlock) {
+        result.events
+          .filter((e: any) => e.event.section === "system")
+          .forEach((data: any) => {
+            if (data.event.method === "ExtrinsicFailed") {
+              const [dispatchError] = data.event.data;
+              if (dispatchError.isModule) {
+              }
+            } else if (data.event.method === "ExtrinsicSuccess") {
+              const params: UploadSwapInfoParams = {
+                stafiAddress,
+                symbol: tokenName,
+                blockHash: asInBlock,
+                txHash: tx,
+                poolAddress,
+                signature,
+                pubKey,
+                inAmount: amount,
+                minOutAmount,
+                bundleAddressId,
+              };
+              dispatch(uploadSwapInfo(params));
+            }
+          });
+      }
+    }).catch((err: any) => {});
+  };
 
 export const uploadSwapInfo =
   (params: UploadSwapInfoParams): AppThunk =>
@@ -303,4 +431,22 @@ export const uploadSwapInfo =
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+const fisStationSignature = async (address: string, data: any) => {
+  const { web3Enable, web3FromSource } = await import(
+    "@polkadot/extension-dapp"
+  );
+  web3Enable(stafiServer.getWeb3EnableName());
+  const injector = await web3FromSource(stafiServer.getPolkadotJsSource());
+
+  const signRaw = injector.signer.signRaw;
+  if (!signRaw) return;
+  const { signature } = await signRaw({
+    address,
+    data,
+    type: "bytes",
+  });
+
+  return signature;
 };
