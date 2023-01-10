@@ -57,19 +57,26 @@ const rTokenList: RTokenListItem[] = [
 export function useRPoolMintRTokenActs() {
   const dispatch = useAppDispatch();
 
-  const { rTokenActs, priceList, queryActsLoading, firstQueryActs } =
-    useAppSelector((state: RootState) => {
-      const rTokenActs = state.mintProgram.rTokenActs;
-      const priceList = state.rToken.priceList;
-      const queryActsLoading = state.mintProgram.queryActsLoading;
-      const firstQueryActs = state.mintProgram.firstQueryActs;
-      return {
-        rTokenActs,
-        priceList,
-        queryActsLoading,
-        firstQueryActs,
-      };
-    });
+  const {
+    rTokenActs,
+    priceList,
+    queryActsLoading,
+    firstQueryActs,
+    firstQueryUserActs,
+  } = useAppSelector((state: RootState) => {
+    const rTokenActs = state.mintProgram.rTokenActs;
+    const priceList = state.rToken.priceList;
+    const queryActsLoading = state.mintProgram.queryActsLoading;
+    const firstQueryActs = state.mintProgram.firstQueryActs;
+    const firstQueryUserActs = state.mintProgram.firstQueryUserActs;
+    return {
+      rTokenActs,
+      priceList,
+      queryActsLoading,
+      firstQueryActs,
+      firstQueryUserActs,
+    };
+  });
 
   const mintDataList = useMemo(() => {
     const fisPrice = priceList.find(
@@ -107,8 +114,7 @@ export function useRPoolMintRTokenActs() {
     });
     rTokenList.forEach((item: RTokenListItem) => {
       const unitPrice = priceList.find(
-        (priceItem: PriceItem) =>
-          priceItem.symbol === item.rToken
+        (priceItem: PriceItem) => priceItem.symbol === item.rToken
       );
       if (!unitPrice || !item.children || item.children.length === 0) {
         return true;
@@ -207,6 +213,7 @@ export function useRPoolMintRTokenActs() {
     liveList,
     finishedList,
     queryActsLoading,
-		firstQueryActs,
+    firstQueryActs,
+    firstQueryUserActs,
   };
 }

@@ -26,6 +26,7 @@ interface Props {
   firstQueryLoading: boolean;
   userActs: UserActs;
   loading: boolean;
+  firstQueryUserActs: boolean;
 }
 
 export interface AllListItem extends RTokenActs {
@@ -41,11 +42,12 @@ const RPoolLiveList = (props: Props) => {
     firstQueryLoading,
     userActs,
     loading,
+    firstQueryUserActs,
   } = props;
 
-	const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-	const [updateFlag, setUpdateFlag] = useState<number>(dayjs().unix());
+  const [updateFlag, setUpdateFlag] = useState<number>(dayjs().unix());
 
   const flatList = useMemo(() => {
     const validList = list.filter((item: RTokenListItem) => {
@@ -78,19 +80,30 @@ const RPoolLiveList = (props: Props) => {
     return allListData;
   }, [list, viewMyStakes, userActs, updateFlag]);
 
-	const isListEmpty = useMemo(() => {
-		return !((queryActsLoading && firstQueryLoading) || loading) && flatList.length === 0;
-	}, [queryActsLoading, firstQueryLoading, loading, flatList]);
+  const isListEmpty = useMemo(() => {
+    return (
+      !(
+        (queryActsLoading && firstQueryLoading) ||
+        (loading && firstQueryUserActs)
+      ) && flatList.length === 0
+    );
+  }, [
+    queryActsLoading,
+    firstQueryLoading,
+    loading,
+    flatList,
+    firstQueryUserActs,
+  ]);
 
-	useEffect(() => {
-		dispatch(getPools());
-		dispatch(getDotPools());
-		dispatch(getKsmPools());
-	}, [dispatch]);
+  useEffect(() => {
+    dispatch(getPools());
+    dispatch(getDotPools());
+    dispatch(getKsmPools());
+  }, [dispatch]);
 
-	useInterval(() => {
-		setUpdateFlag(dayjs().unix());
-	}, 1000);
+  useInterval(() => {
+    setUpdateFlag(dayjs().unix());
+  }, 1000);
 
   return (
     <div
@@ -100,22 +113,24 @@ const RPoolLiveList = (props: Props) => {
         justifyContent: "space-between",
         alignItems: "start",
         rowGap: ".5rem",
-				marginTop: isListEmpty ? "1.2rem" : "",
+        marginTop: isListEmpty ? "1.2rem" : "",
       }}
     >
-      {((queryActsLoading && firstQueryLoading) || loading) && flatList.length === 0 && (
+      {((queryActsLoading && firstQueryLoading) ||
+        (loading && firstQueryUserActs)) &&
+        flatList.length === 0 && (
           <div className="absolute top-0 left-0 w-full">
             <TableSkeleton />
           </div>
         )}
 
       {isListEmpty && (
-          <div className="flex flex-col items-center pb-[.3rem] w-full absolute top-0 left-0">
-            <div className="flex flex-col items-center">
-              <EmptyContent mt="0.2rem" size=".8rem" />
-            </div>
+        <div className="flex flex-col items-center pb-[.3rem] w-full absolute top-0 left-0">
+          <div className="flex flex-col items-center">
+            <EmptyContent mt="0.2rem" size=".8rem" />
           </div>
-        )}
+        </div>
+      )}
 
       {/* {props.programTab === ProgramTab.Mint ? ( */}
       {/* <> */}
