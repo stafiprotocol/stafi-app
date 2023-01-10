@@ -36,8 +36,11 @@ const RMaticStakePage = () => {
   const { polkadotAccount } = useWalletAccount();
 
   // const rTokenBalance = useRTokenBalance(tokenStandard, TokenName.MATIC);
-  const { balance } = useAppSelector((state: RootState) => {
-    return { balance: state.matic.balance };
+  const { balance, refreshDataFlag } = useAppSelector((state: RootState) => {
+    return {
+      balance: state.matic.balance,
+      refreshDataFlag: state.app.refreshDataFlag,
+    };
   });
 
   useEffect(() => {
@@ -49,7 +52,7 @@ const RMaticStakePage = () => {
 
   useEffect(() => {
     dispatch(updateMaticBalance());
-  }, [dispatch, metaMaskAccount, chainId]);
+  }, [dispatch, metaMaskAccount, chainId, refreshDataFlag]);
 
   useEffect(() => {
     dispatch(getPools());

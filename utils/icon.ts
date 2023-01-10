@@ -14,6 +14,8 @@ import nativeLogo from "public/mintType/native.svg";
 import splLogo from "public/mintType/spl.svg";
 import maticLogo from "public/matic_logo.svg";
 import maticLogoBlack from "public/matic_logo_black.svg";
+import bnbWhiteIcon from "public/token/bnb_white.svg";
+import bnbChainIcon from "public/token/bnb_chain.svg";
 
 export function getWhiteTokenIcon(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) {
@@ -30,6 +32,9 @@ export function getWhiteTokenIcon(tokenName: TokenName) {
   }
   if (tokenName === TokenName.SOL) {
     return solWhiteIcon;
+  }
+  if (tokenName === TokenName.BNB) {
+    return bnbWhiteIcon;
   }
 
   return ethWhiteIcon;
@@ -50,6 +55,9 @@ export function getChainIcon(tokenName: TokenName) {
   }
   if (tokenName === TokenName.SOL) {
     return solChainIcon;
+  }
+  if (tokenName === TokenName.BNB) {
+    return bnbChainIcon;
   }
 
   return ethChainIcon;

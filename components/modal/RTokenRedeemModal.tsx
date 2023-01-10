@@ -11,6 +11,7 @@ import { useAppDispatch } from "hooks/common";
 import { useAppSlice } from "hooks/selector";
 import { useEthGasPrice } from "hooks/useEthGasPrice";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
+import { getBnbUnbondTxFees, unbondRBnb } from "redux/reducers/BnbSlice";
 import { useRTokenRatio } from "hooks/useRTokenRatio";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { useTokenStandard } from "hooks/useTokenStandard";
@@ -27,6 +28,7 @@ import downIcon from "public/icon_down.png";
 import maticBlackIcon from "public/matic_type_black.png";
 import ksmBlackIcon from "public/ksm_type_black.png";
 import dotBlackIcon from "public/dot_type_black.png";
+import bnbBlackIcon from "public/bnb_type_black.png";
 import rectangle from "public/rectangle_h.svg";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -230,7 +232,11 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (tokenName === TokenName.MATIC) {
       gasLimit = 36928;
     }
-    if (tokenName === TokenName.ETH || tokenName === TokenName.MATIC) {
+    if (
+      tokenName === TokenName.ETH ||
+      tokenName === TokenName.MATIC ||
+      tokenName === TokenName.BNB
+    ) {
       if (isNaN(Number(ethGasPrice))) {
         return "--";
       }
@@ -269,6 +275,19 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
             dispatch(updateRefreshDataFlag());
             props.onClose();
+          }
+        )
+      );
+    } else if (tokenName === TokenName.BNB) {
+      dispatch(
+        unbondRBnb(
+          redeemAmount,
+          targetAddress,
+          willReceiveAmount,
+          newTotalStakedAmount,
+          () => {
+            dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+            dispatch(updateRefreshDataFlag());
           }
         )
       );
@@ -327,6 +346,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
         dispatch(getDotUnbondTxFees(redeemAmount || "1", targetAddress));
       } else if (tokenName === TokenName.SOL) {
         dispatch(getSolUnbondTxFees(redeemAmount || "1", targetAddress));
+      } else if (tokenName === TokenName.BNB) {
+        dispatch(getBnbUnbondTxFees("0.001", targetAddress));
       }
     }
   }, [dispatch, targetAddress, addressCorrect, redeemAmount, tokenName]);
@@ -340,6 +361,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (tokenName === TokenName.MATIC) {
       return "https://docs.stafi.io/rtoken-app/rmatic-solution/rmatic-faq#4.what-should-be-noted-in-rmatic-redemption";
     }
+    if (tokenName === TokenName.BNB) {
+      return "https://docs.stafi.io/rtoken-app/rbnb-solution/rbnb-faq#4.whats-the-unbonding-period-of-rbnb";
+    }
     return "";
   };
 
@@ -352,6 +376,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     }
     if (tokenName === TokenName.DOT) {
       return dotBlackIcon;
+    }
+    if (tokenName === TokenName.BNB) {
+      return bnbBlackIcon;
     }
     return ethIcon;
   };

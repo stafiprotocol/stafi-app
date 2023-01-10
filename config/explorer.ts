@@ -90,3 +90,10 @@ export function getBridgeSwapScanUrl(chainId: ChainId, targetAddress: string) {
   }
   return "";
 }
+
+export function getBnbScanTxUrl(txHash: string | undefined) {
+  if (isDev()) {
+    return `https://testnet.bscscan.com/tx/${txHash}`;
+  }
+  return `https://bscscan.com/tx/${txHash}`;
+}

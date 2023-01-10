@@ -7,9 +7,14 @@ import {
   getSolanaScanUrl,
   getStafiScanUrl,
 } from "config/explorer";
-import { getMetamaskMaticChainId } from "config/metaMask";
+import {
+  getMetamaskBscChainId,
+  getMetamaskEthChainId,
+  getMetamaskMaticChainId,
+} from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
+import { useAppSlice } from "hooks/selector";
 import { useDotBalance } from "hooks/useDotBalance";
 import { useKsmBalance } from "hooks/useKsmBalance";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
@@ -24,6 +29,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import downIcon from "public/icon_down.png";
 import { useContext, useEffect, useMemo } from "react";
+import { updateBnbBalance } from "redux/reducers/BnbSlice";
 import { updateEthBalance } from "redux/reducers/EthSlice";
 import {
   setChooseAccountVisible,
@@ -61,6 +67,7 @@ export const NavbarWallet = () => {
     walletNotConnected,
   } = useContext(MyLayoutContext);
   const dispatch = useAppDispatch();
+  const { updateFlag15s } = useAppSlice();
   const { api } = usePolkadotApi();
   const {
     metaMaskAccount,
@@ -74,12 +81,15 @@ export const NavbarWallet = () => {
   } = useWalletAccount();
   const ksmBalance = useKsmBalance();
   const dotBalance = useDotBalance();
-  const { ethBalance, maticBalance } = useAppSelector((state: RootState) => {
-    return {
-      ethBalance: state.eth.balance,
-      maticBalance: state.matic.balance,
-    };
-  });
+  const { ethBalance, maticBalance, bnbBalance } = useAppSelector(
+    (state: RootState) => {
+      return {
+        ethBalance: state.eth.balance,
+        maticBalance: state.matic.balance,
+        bnbBalance: state.bnb.balance,
+      };
+    }
+  );
 
   const router = useRouter();
 
@@ -114,19 +124,23 @@ export const NavbarWallet = () => {
 
   useEffect(() => {
     dispatch(updateEthBalance());
+    dispatch(updateBnbBalance());
+    if (router.pathname === "/rtoken/stake/BNB") {
+      dispatch(updateBnbBalance());
+    }
   }, [dispatch, metaMaskAccount, metaMaskChainId]);
 
   useEffect(() => {
     dispatch(updateSelectedPolkadotAccountBalance());
-  }, [dispatch, polkadotAccount]);
+  }, [dispatch, polkadotAccount, updateFlag15s]);
 
   const polkadotExtensionAccountsKey = useMemo(() => {
-    return polkadotExtensionAccounts.map((item) => item.address).join("-");
+    return polkadotExtensionAccounts.map((item: any) => item.address).join("-");
   }, [polkadotExtensionAccounts]);
 
   useEffect(() => {
     dispatch(updatePolkadotExtensionAccountsBalances());
-  }, [dispatch, polkadotExtensionAccountsKey]);
+  }, [dispatch, polkadotExtensionAccountsKey, updateFlag15s]);
 
   const clickAccountLeftArea = () => {
     if (isWrongMetaMaskNetwork) {
@@ -156,12 +170,19 @@ export const NavbarWallet = () => {
     ) {
       return maticBalance;
     }
+    if (
+      targetMetaMaskChainId === getMetamaskBscChainId() &&
+      router.pathname === "/rtoken/stake/BNB"
+    ) {
+      return bnbBalance;
+    }
     return ethBalance;
   }, [
     targetMetaMaskChainId,
     isWrongMetaMaskNetwork,
     ethBalance,
     maticBalance,
+    bnbBalance,
     router.pathname,
   ]);
 
@@ -181,6 +202,12 @@ export const NavbarWallet = () => {
       router.pathname === "/rtoken/stake/MATIC"
     ) {
       return "MATIC";
+    }
+    if (
+      targetMetaMaskChainId === getMetamaskBscChainId() &&
+      router.pathname === "/rtoken/stake/BNB"
+    ) {
+      return "BNB";
     }
     return "ETH";
   }, [targetMetaMaskChainId, router.pathname]);
@@ -275,6 +302,22 @@ export const NavbarWallet = () => {
   const showConnectWallet = useMemo(() => {
     return !displayAddress;
   }, [displayAddress]);
+
+  const getWalletAccountBalance = () => {
+    if (
+      targetMetaMaskChainId === getMetamaskMaticChainId() &&
+      router.pathname === "/rtoken/stake/MATIC"
+    ) {
+      return { balance: maticBalance, tokenName: "MATIC" };
+    }
+    // if (
+    //   targetMetaMaskChainId === getMetamaskBscChainId() &&
+    //   router.pathname === "/rtoken/stake/BNB"
+    // ) {
+    //   return { balance: bnbBalance, tokenName: "BNB" };
+    // }
+    return { balance: ethBalance, tokenName: "ETH" };
+  };
 
   return (
     <div>
@@ -433,18 +476,8 @@ export const NavbarWallet = () => {
             walletType={WalletType.MetaMask}
             connected={metaMaskConnected}
             address={metaMaskAccount || ""}
-            balance={
-              targetMetaMaskChainId === getMetamaskMaticChainId() &&
-              router.pathname === "/rtoken/stake/MATIC"
-                ? maticBalance
-                : ethBalance
-            }
-            tokenName={
-              targetMetaMaskChainId === getMetamaskMaticChainId() &&
-              router.pathname === "/rtoken/stake/MATIC"
-                ? "MATIC"
-                : "ETH"
-            }
+            balance={getWalletAccountBalance().balance}
+            tokenName={getWalletAccountBalance().tokenName}
             onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
 
@@ -466,6 +499,16 @@ export const NavbarWallet = () => {
             balance={dotBalance}
             tokenName={"DOT"}
             onClickConnect={() => clickConnectWallet(WalletType.Polkadot_DOT)}
+          />
+
+          <WalletAccountItem
+            name="BSC"
+            walletType={WalletType.MetaMask}
+            connected={metaMaskConnected}
+            address={metaMaskAccount || ""}
+            balance={bnbBalance}
+            tokenName={"BNB"}
+            onClickConnect={() => clickConnectWallet(WalletType.MetaMask)}
           />
 
           <WalletAccountItem

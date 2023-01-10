@@ -10,7 +10,9 @@ interface CustomChartProps {
   yData: string[];
   width: string;
   height: string;
-	tokenName?: TokenName;
+  tokenName?: TokenName;
+  isDataValue?: boolean;
+  isYellowLine?: boolean;
 }
 
 export const CustomChart = (props: CustomChartProps) => {
@@ -26,9 +28,9 @@ export const CustomChart = (props: CustomChartProps) => {
         trigger: "axis",
         axisPointer: {
           type: "line",
-					lineStyle: {
-						color: "#5B6872"
-					}
+          lineStyle: {
+            color: props.isYellowLine ? "#FFA540" : "#5B6872",
+          },
         },
         backgroundColor: "rgba(25, 38, 52, 1)",
         borderColor: "#1A2835",
@@ -36,14 +38,23 @@ export const CustomChart = (props: CustomChartProps) => {
           if (params && params.length > 0) {
             const stakedValue = params[0].data;
             // let formatStakedValue = stakedValue;
-						let formatStakedValue = formatNumber(stakedValue);
+            let formatStakedValue = formatNumber(stakedValue);
             const parts = formatStakedValue.split(".");
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             formatStakedValue = parts.join(".");
 
+            let displayData = `+${formatStakedValue} ${
+              props.tokenName || "ETH"
+            }`;
+            if (props.isDataValue) {
+              displayData = `$${formatStakedValue}`;
+            }
+
             return `<div style="font-size:0.24rem;display:flex;flex-direction:column;align-items:center;">
             <div style="color:#9DAFBE;">${params[0].axisValue}</div>
-            <span style="color:#00F3AB;margin-top:0.05rem">+${formatStakedValue} ${props.tokenName || 'ETH'}<span>
+            <span style="color:${
+              props.isYellowLine ? "#FFA540" : "#00F3AB"
+            };margin-top:0.05rem">${displayData}<span>
           </div>`;
           }
           // console.log(params, "======params");
@@ -106,18 +117,18 @@ export const CustomChart = (props: CustomChartProps) => {
           symbol: "circle",
           symbolSize: 6,
           lineStyle: {
-            color: "#00F3AB",
+            color: props.isYellowLine ? "#FFA540" : "#00F3AB",
             width: 2,
           },
           itemStyle: {
-            color: "#00F3AB",
+            color: props.isYellowLine ? "#FFA540" : "#00F3AB",
           },
           areaStyle: {
             // color: "#14494E",
             color: new graphic.LinearGradient(0, 0, 0, 1, [
               {
                 offset: 0,
-                color: "#14494E",
+                color: props.isYellowLine ? "#FFA540" : "#14494E",
               },
               {
                 offset: 1,

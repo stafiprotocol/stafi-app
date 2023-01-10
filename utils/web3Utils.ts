@@ -122,10 +122,12 @@ export async function getBep20AssetBalance(
     return undefined;
   }
   try {
-    const web3 = getBscWeb3();
-    // if (tokenName === TokenName.MATIC && window.ethereum) {
-    //   web3 = createWeb3(window.ethereum);
-    // }
+    let web3;
+    if (tokenName === TokenName.BNB && window.ethereum) {
+      web3 = createWeb3(window.ethereum);
+    } else {
+      web3 = getBscWeb3();
+    }
 
     let contract = new web3.eth.Contract(tokenAbi, tokenAddress, {
       from: userAddress,

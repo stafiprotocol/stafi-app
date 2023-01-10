@@ -1,7 +1,6 @@
 import { MyLayoutContext } from "components/layout/layout";
 import { RTokenOverviewCard } from "components/rtoken/RTokenOverviewCard";
-import { getMetamaskEthChainId } from "config/metaMask";
-import { TokenName, WalletType } from "interfaces/common";
+import { TokenName } from "interfaces/common";
 import Image from "next/image";
 import leftArrowIcon from "public/icon_arrow_left.png";
 import rectangle from "public/rectangle_h.svg";
@@ -72,9 +71,9 @@ const RTokenPage = () => {
 
         <RTokenOverviewCard tokenName={TokenName.DOT} />
 
-        <RTokenOverviewCard tokenName={TokenName.SOL} />
+        <RTokenOverviewCard tokenName={TokenName.BNB} />
 
-        {/* <RTokenOverviewCard tokenName={TokenName.BNB} /> */}
+        <RTokenOverviewCard tokenName={TokenName.SOL} />
       </div>
     </div>
   );

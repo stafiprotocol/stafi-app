@@ -28,6 +28,7 @@ import {
   STAFI_ACCOUNT_EMPTY_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
 } from "utils/constants";
+import { getBnbAbi, getRBnbTokenAddress } from "config/bnb";
 import {
   ChainId,
   RTokenName,
@@ -53,7 +54,11 @@ import {
   getTokenSymbol,
   getTokenType,
 } from "utils/rToken";
-import { getBep20RDotTokenAbi, getBep20RKsmTokenAbi } from "config/bep20Abi";
+import {
+  getBep20RBnbTokenAbi,
+  getBep20RDotTokenAbi,
+  getBep20RKsmTokenAbi,
+} from "config/bep20Abi";
 import { getErc20RDotTokenAbi, getErc20RKsmTokenAbi } from "config/erc20Abi";
 import { chainAmountToHuman, formatNumber, numberToChain } from "utils/number";
 import {
@@ -594,6 +599,9 @@ export const getMinting =
                 } else if (rsymbol === rSymbol.Dot) {
                   tokenAbi = getBep20RDotTokenAbi();
                   tokenAddress = getBep20TokenContractConfig().rDOT;
+                } else if (rsymbol === rSymbol.Bnb) {
+                  tokenAbi = getBep20RBnbTokenAbi();
+                  tokenAddress = getBep20TokenContractConfig().rBNB;
                 }
                 oldBalance =
                   (await getBep20AssetBalance(
@@ -787,6 +795,9 @@ export const queryRTokenSwapState =
     let tokenAbi: any = "";
     let tokenAddress: any = "";
     let balance: string = "";
+
+    const bep20TokenContractConfig = getBep20TokenContractConfig();
+
     if (rsymbol === rSymbol.Matic) {
       if (chainId === ChainId.BSC) {
         tokenAbi = getBSCRMaticAbi();
@@ -846,6 +857,12 @@ export const queryRTokenSwapState =
         balance =
           (await getSplAssetBalance(targetAddress, RTokenName.rSOL)) || "0";
       }
+    } else if (rsymbol === rSymbol.Bnb) {
+      tokenAbi = getBep20RBnbTokenAbi();
+      tokenAddress = getBep20TokenContractConfig().rBNB;
+      balance =
+        (await getBep20AssetBalance(targetAddress, tokenAbi, tokenAddress)) ||
+        "0";
     }
     // console.log("newB", balance);
     if (

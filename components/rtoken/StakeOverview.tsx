@@ -186,7 +186,9 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 }}
               >
                 <div className="text-white text-[.24rem] mr-[.14rem]">
-                  Switch to Ethereum Network
+                  Switch to{" "}
+                  {props.tokenName === TokenName.BNB ? "BSC" : "Ethereum"}{" "}
+                  Network
                 </div>
                 <Icomoon icon="arrow-right" size=".26rem" color="#9DAFBE" />
               </div>
@@ -325,11 +327,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                   ) : isEmptyValue(totalReward) ? (
                     <BubblesLoading />
                   ) : (
-                    <>
-                      {isWrongMetaMaskNetwork
-                        ? "--"
-                        : formatNumber(totalReward)}
-                    </>
+                    <>{formatNumber(totalReward)}</>
                   )}
                   <div className="ml-[.06rem]">{props.tokenName}</div>
                 </div>

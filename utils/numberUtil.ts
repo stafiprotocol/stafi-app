@@ -147,12 +147,12 @@ const numberUtil = {
         factor = BigInt('10000000000000000');
         break;
       default:
-        factor = BigInt('1000000000000');
+        factor = BigInt("1000000000000");
         break;
-		}
-		
-		return divide(Number(amount), Number(factor));
-	}
-}
+    }
+
+    return divide(Number(amount), Number(factor));
+  },
+};
 
 export default numberUtil;

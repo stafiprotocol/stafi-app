@@ -115,6 +115,7 @@ export const StakeLoadingProgressItem = (
             {
               hidden:
                 props.tokenName === TokenName.MATIC ||
+								props.tokenName === TokenName.BNB ||
                 props.name === "Minting" ||
                 props.name === "Swapping",
             },

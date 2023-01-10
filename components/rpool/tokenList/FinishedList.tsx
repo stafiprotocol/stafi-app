@@ -281,7 +281,6 @@ const RPoolFinishedList = (props: Props) => {
         paginatedList.map((data: RTokenListItem, i: number) => (
           <div
             key={`${data.rToken}${i}`}
-            className="px-[.56rem]"
             style={{
               borderBottom: "1px solid #1A2835",
               background: i % 2 === 0 ? "transparent" : "rgba(26, 40, 53, 0.3)",
@@ -290,7 +289,7 @@ const RPoolFinishedList = (props: Props) => {
             {data.children.map((item: RTokenActs, index: number) => (
               <div
                 key={`${data.rToken}${i}${index}`}
-                className="grid h-[1.1rem] text-[.24rem] text-text1"
+                className="grid h-[1.1rem] text-[.24rem] text-text1 hover:bg-[#58779826] px-[.56rem]"
                 style={{
                   gridTemplateColumns: "14% 21% 21% 16% 28%",
                 }}

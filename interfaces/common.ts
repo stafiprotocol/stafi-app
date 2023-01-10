@@ -80,6 +80,17 @@ export enum RTokenName {
   rATOM = "rATOM",
 }
 
+export enum RTokenSymbol {
+	rETH = -1,
+	rFIS = 0,
+	rDOT = 1,
+	rKSM = 2,
+	rATOM = 3,
+	rSOL = 4,
+	rMATIC = 5,
+	rBNB = 6,
+}
+
 export enum EthPubkeyStatus {
   all = 0,
   deposited = 2,

@@ -7,7 +7,7 @@ export function useTokenStandard(tokenName: TokenName) {
   const router = useRouter();
   const [selectedStandard, setSelectedStandard] = useState<
     TokenStandard | undefined
-  >(TokenStandard.Native);
+  >(undefined);
 
   useEffect(() => {
     try {

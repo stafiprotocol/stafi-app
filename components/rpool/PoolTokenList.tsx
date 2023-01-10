@@ -41,7 +41,7 @@ const PoolTokenList = (props: Props) => {
   const [viewMyStakes, setViewMyStakes] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!polkadotAccount || !metaMaskAccount) {
+    if (!polkadotAccount || !metaMaskAccount || !viewMyStakes) {
       return;
     }
     dispatch(getAllUserActs());

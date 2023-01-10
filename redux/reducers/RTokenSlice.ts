@@ -1,17 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  getBep20RBnbTokenAbi,
   getBep20RDotTokenAbi,
   getBep20REthTokenAbi,
   getBep20RFisTokenAbi,
   getBep20RKsmTokenAbi,
 } from "config/bep20Abi";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
-import {
-  getApiHost,
-  getDropHost,
-  getSolanaRestRpc,
-  getSolanaWsRpc,
-} from "config/env";
+import { getApiHost, getDropHost } from "config/env";
 import {
   getErc20FisTokenAbi,
   getErc20RDotTokenAbi,
@@ -31,11 +27,8 @@ import {
   getNativeFisBalance,
   getNativeRTokenBalance,
 } from "utils/polkadotUtils";
-import { getTokenSymbol, getTokenType } from "utils/rToken";
-import {
-  getSolanaTokenAccountPubkey,
-  getSplAssetBalance,
-} from "utils/solanaUtils";
+import { getTokenSymbol } from "utils/rToken";
+import { getSplAssetBalance } from "utils/solanaUtils";
 import {
   createWeb3,
   getBep20AssetBalance,
@@ -267,6 +260,9 @@ export const updateRTokenBalance =
         } else if (tokenName === TokenName.MATIC) {
           tokenAbi = getBSCRMaticAbi();
           tokenAddress = bep20TokenContractConfig.rMATIC;
+        } else if (tokenName === TokenName.BNB) {
+          tokenAbi = getBep20RBnbTokenAbi();
+          tokenAddress = bep20TokenContractConfig.rBNB;
         } else if (tokenName === TokenName.KSM) {
           tokenAbi = getBep20RKsmTokenAbi();
           tokenAddress = bep20TokenContractConfig.rKSM;
@@ -431,7 +427,7 @@ export const updateRTokenStakerApr =
               newApr =
                 ((currentRate - lastRate) / 1000000000000) * 365.25 * 100 + "";
             } else {
-              newApr = "9.7";
+              newApr = "2.5";
             }
           }
         } catch (err) {

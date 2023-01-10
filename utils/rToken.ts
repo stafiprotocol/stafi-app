@@ -3,6 +3,7 @@ import { EraRewardModel } from "hooks/useRTokenReward";
 import {
   DexType,
   RTokenName,
+  RTokenSymbol,
   TokenName,
   TokenStandard,
   TokenSymbol,
@@ -37,6 +38,9 @@ export function getSupportedTokenStandards(tokenName: TokenName) {
   if (tokenName === TokenName.SOL) {
     // return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
     return [TokenStandard.Native, TokenStandard.SPL];
+  }
+  if (tokenName === TokenName.BNB) {
+    return [TokenStandard.Native, TokenStandard.BEP20];
   }
   return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
 }
@@ -124,6 +128,29 @@ export const rTokenNameToTokenSymbol = (
       return TokenSymbol.MATIC;
     default:
       return TokenSymbol.SOL;
+  }
+};
+
+export const rTokenSymbolToRTokenName = (
+  rTokenSymbol: RTokenSymbol
+): RTokenName => {
+  switch (rTokenSymbol) {
+    case RTokenSymbol.rETH:
+      return RTokenName.rETH;
+    case RTokenSymbol.rFIS:
+      return RTokenName.rFIS;
+    case RTokenSymbol.rDOT:
+      return RTokenName.rDOT;
+    case RTokenSymbol.rKSM:
+      return RTokenName.rKSM;
+    case RTokenSymbol.rATOM:
+      return RTokenName.rATOM;
+    case RTokenSymbol.rSOL:
+      return RTokenName.rSOL;
+    case RTokenSymbol.rMATIC:
+      return RTokenName.rMATIC;
+    default:
+      return RTokenName.rBNB;
   }
 };
 
@@ -230,6 +257,7 @@ export function getEraEstTimeTip(
 export function getExchangeRateUpdateTime(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) return 8;
   if (tokenName === TokenName.MATIC) return 24;
+  if (tokenName === TokenName.BNB) return 24;
   return 24;
 }
 
@@ -332,6 +360,20 @@ export function getDexList(tokenName: TokenName): DexItem[] {
       },
     ];
   }
+  if (tokenName === TokenName.BNB) {
+    return [
+      {
+        type: DexType.rDEX,
+        tokenStandard: TokenStandard.Native,
+        url: "https://app.rdex.finance/swap?first=rBNB&second=FIS",
+      },
+      {
+        type: DexType.Pancake,
+        tokenStandard: TokenStandard.BEP20,
+        url: "https://pancakeswap.finance/swap?inputCurrency=0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c&outputCurrency=0xf027e525d491ef6ffcc478555fbb3cfabb3406a6",
+      },
+    ];
+  }
   return [];
 }
 
@@ -357,6 +399,9 @@ export function getRedeemDaysLeft(tokenName: TokenName | undefined) {
   }
   if (tokenName === TokenName.KSM) {
     return "8";
+  }
+  if (tokenName === TokenName.BNB) {
+    return "16";
   }
   return "9";
 }
