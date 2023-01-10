@@ -373,6 +373,12 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (tokenName === TokenName.SOL) {
       return "https://docs.stafi.io/rtoken-app/rsol-solution/rsol-faq#4.whats-the-unbonding-period-of-rsol";
     }
+    if (tokenName === TokenName.KSM) {
+      return "https://docs.stafi.io/rtoken-app/rksm-solution";
+    }
+    if (tokenName === TokenName.DOT) {
+      return "https://docs.stafi.io/rtoken-app/rdot-solution";
+    }
     return "";
   };
 

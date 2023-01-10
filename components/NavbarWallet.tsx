@@ -113,7 +113,7 @@ export const NavbarWallet = () => {
 
   useEffect(() => {
     dispatch(updateSolanaBalance());
-  }, [solanaAccount, dispatch]);
+  }, [solanaAccount, dispatch, updateFlag15s]);
 
   useEffect(() => {
     dispatch(updateEthBalance());
@@ -121,7 +121,7 @@ export const NavbarWallet = () => {
     if (router.pathname === "/rtoken/stake/BNB") {
       dispatch(updateBnbBalance());
     }
-  }, [dispatch, metaMaskAccount, metaMaskChainId]);
+  }, [dispatch, metaMaskAccount, metaMaskChainId, router.pathname]);
 
   useEffect(() => {
     dispatch(updateSelectedPolkadotAccountBalance());
