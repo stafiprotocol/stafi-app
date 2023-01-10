@@ -17,6 +17,7 @@ import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useAppSlice } from "hooks/selector";
 import { useDotBalance } from "hooks/useDotBalance";
 import { useKsmBalance } from "hooks/useKsmBalance";
+import { useMetaMaskBalance } from "hooks/useMetaMaskBalance";
 import { usePolkadotApi } from "hooks/usePolkadotApi";
 import { useWalletAccount } from "hooks/useWalletAccount";
 import { TokenStandard, WalletType } from "interfaces/common";
@@ -81,15 +82,7 @@ export const NavbarWallet = () => {
   } = useWalletAccount();
   const ksmBalance = useKsmBalance();
   const dotBalance = useDotBalance();
-  const { ethBalance, maticBalance, bnbBalance } = useAppSelector(
-    (state: RootState) => {
-      return {
-        ethBalance: state.eth.balance,
-        maticBalance: state.matic.balance,
-        bnbBalance: state.bnb.balance,
-      };
-    }
-  );
+  const { ethBalance, maticBalance, bnbBalance } = useMetaMaskBalance();
 
   const router = useRouter();
 

@@ -3,7 +3,10 @@ import { validateAddress } from "@polkadot/util-crypto/address/validate";
 import base58 from "bs58";
 import { isAddress } from "web3-utils";
 
-export function validateSS58Address(address: string): boolean {
+export function validateSS58Address(address: string | undefined): boolean {
+  if (!address) {
+    return false;
+  }
   try {
     const isValid = validateAddress(address);
     return isValid;
@@ -12,11 +15,17 @@ export function validateSS58Address(address: string): boolean {
   }
 }
 
-export function validateETHAddress(address: string): boolean {
+export function validateETHAddress(address: string | undefined): boolean {
+  if (!address) {
+    return false;
+  }
   return isAddress(address);
 }
 
-export function validateSolanaAddress(address: string): boolean {
+export function validateSolanaAddress(address: string | undefined): boolean {
+  if (!address) {
+    return false;
+  }
   try {
     const decoded = base58.decode(address);
     if (decoded.length != 32) {

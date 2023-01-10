@@ -36,6 +36,13 @@ export function getBscScanBep20TxUrl(address: any) {
   return `https://bscscan.com/address/${address}#tokentxns`;
 }
 
+export function getSolScanSpl20TxUrl(address: any) {
+  if (isDev()) {
+    return `https://solscan.io/account/${address}#tokenAccounts`;
+  }
+  return `https://solscan.io/account/${address}#tokenAccounts`;
+}
+
 export function getStafiScanUrl() {
   return "https://stafi.subscan.io/";
 }
@@ -87,6 +94,8 @@ export function getBridgeSwapScanUrl(chainId: ChainId, targetAddress: string) {
     return getEtherScanErc20TxUrl(targetAddress);
   } else if (chainId === ChainId.BSC) {
     return getBscScanBep20TxUrl(targetAddress);
+  } else if (chainId === ChainId.SOL) {
+    return getSolScanSpl20TxUrl(targetAddress);
   }
   return "";
 }

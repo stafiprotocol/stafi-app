@@ -13,7 +13,7 @@ import {
   getBep20BridgeContractConfig,
   getBep20TokenContractConfig,
 } from "config/bep20Contract";
-import { isDev } from "config/env";
+import { getSolanaRestRpc, getSolanaWsRpc, isDev } from "config/env";
 import {
   getErc20BridgeAbi,
   getErc20FisTokenAbi,
@@ -63,6 +63,18 @@ import {
   getErc20AssetBalance,
 } from "utils/web3Utils";
 import { addNotice, setIsLoading, updateNotice } from "./AppSlice";
+import {
+  getSolanaExtension,
+  getSolanaTokenAccountPubkey,
+  getSplAssetBalance,
+  refreshPhantom,
+} from "utils/solanaUtils";
+import { connectPhantom } from "./WalletSlice";
+import * as crypto from "crypto";
+import {
+  getSPLBridgeConfig,
+  getSPLTokenContractConfig,
+} from "config/splContract";
 
 const stafiServer = new StafiServer();
 
@@ -194,6 +206,14 @@ export const getBridgeEstimateBscFee = () => {
   }
 };
 
+export const getBridgeEstimateSolFee = () => {
+  if (isDev()) {
+    return "0.000200";
+  } else {
+    return "0.000200";
+  }
+};
+
 /**
  * query estimate bridge fees
  */
@@ -291,18 +311,18 @@ export const nativeToOtherSwap =
       const noticeUuid = stafiUuid();
 
       let txAddress = targetAddress;
-      // if (dstTokenStandard === TokenStandard.SPL) {
-      //   txAddress = u8aToHex(new PublicKey(destAddress).toBytes());
-      //   const tokenMintPublicKey = await solServer.getTokenAccountPubkey(destAddress, tokenType);
-      //   if (!tokenMintPublicKey) {
-      //     throw new Error('Please add the SPL token account first.');
-      //   }
-      //   txAddress = u8aToHex(tokenMintPublicKey.toBytes());
-      // } else if (dstTokenStandard === STAFIHUB_CHAIN_ID) {
-      //   const { words } = bech32.decode(destAddress);
-      //   const hex = u8aToHex(new Uint8Array(bech32.fromWords(words)));
-      //   txAddress = '0x' + hex.substr(2).toUpperCase();
-      // }
+      if (dstTokenStandard === TokenStandard.SPL) {
+        const { PublicKey } = await import("@solana/web3.js");
+        txAddress = u8aToHex(new PublicKey(targetAddress).toBytes());
+        const tokenMintPublicKey = await getSolanaTokenAccountPubkey(
+          targetAddress,
+          tokenType
+        );
+        if (!tokenMintPublicKey) {
+          throw new Error("Please add the SPL token account first.");
+        }
+        txAddress = u8aToHex(tokenMintPublicKey.toBytes());
+      }
 
       // if (dstTokenStandard === TokenStandard.ERC20) {
       //   updateSwapParamsOfErc(dispatch, notice_uuid, tokenType, tokenAmount, destAddress);
@@ -1144,6 +1164,229 @@ export const bep20ToOtherSwap =
     }
   };
 
+export const splToOtherSwap =
+  (
+    dstTokenStandard: TokenStandard,
+    tokenStr: TokenName | RTokenName,
+    tokenType: TokenType,
+    tokenAmount: any,
+    targetAddress: string,
+    cb?: Function
+  ): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      dispatch(setIsLoading(true));
+      const solana = getSolanaExtension();
+      if (!solana) {
+        snackbarUtil.error("Phantom extension not found");
+        dispatch(setIsLoading(false));
+        return;
+      }
+
+      await refreshPhantom();
+      if (!solana.isConnected) {
+        snackbarUtil.error("Please connect Phantom first");
+        dispatch(setIsLoading(false));
+        return;
+      }
+
+      const localSolAddress = getState().wallet.solanaAccount;
+      const solAddress = solana.publicKey.toString();
+      if (localSolAddress !== solAddress) {
+        dispatch(connectPhantom(false));
+        dispatch(setIsLoading(false));
+        snackbarUtil.warning(
+          "Phantom wallet address switched, please try again"
+        );
+        return;
+      }
+
+      let splTokenAddress = "";
+      if (tokenType === TokenType.FIS) {
+        splTokenAddress = getSPLTokenContractConfig().FIS;
+      } else if (tokenType === TokenType.rSOL) {
+        splTokenAddress = getSPLTokenContractConfig().rSOL;
+      }
+      const tokenAccountPubkey = await getSolanaTokenAccountPubkey(
+        localSolAddress,
+        tokenType
+      );
+      if (!tokenAccountPubkey) {
+        dispatch(setIsLoading(false));
+        snackbarUtil.error("Please create token account first");
+        return;
+      }
+
+      const chainId =
+        dstTokenStandard === TokenStandard.Native
+          ? ChainId.STAFI
+          : dstTokenStandard === TokenStandard.ERC20
+          ? ChainId.ETH
+          : dstTokenStandard === TokenStandard.BEP20
+          ? ChainId.BSC
+          : dstTokenStandard === TokenStandard.SPL
+          ? ChainId.SOL
+          : -1;
+      const noticeUuid = stafiUuid();
+      const { Transaction, Connection, PublicKey, TransactionInstruction } =
+        await import("@solana/web3.js");
+
+      const transaction = new Transaction();
+
+      const bf = crypto
+        .createHash("sha256")
+        .update("global:transfer_out")
+        .digest();
+      const methodData = bf.slice(0, 8);
+      // amount, LittleEndian
+      const num = BigInt(Number(tokenAmount) * 1000000000);
+      const ab = new ArrayBuffer(8);
+      new DataView(ab).setBigInt64(0, num, true);
+      // const amountBf = hexToU8a('0x' + num.toString(16));
+      const amountData = Buffer.from(ab);
+      // hex: 20 00 00 00
+      const addressLengthData = Buffer.from([32, 0, 0, 0]).slice(0, 4);
+      const addressData = decodeAddress(targetAddress);
+      const bufferAddressData = Buffer.from(addressData);
+      const chanIdData = Buffer.from([1]).slice(0, 1);
+
+      const data = Buffer.concat([
+        methodData,
+        amountData,
+        addressLengthData,
+        bufferAddressData,
+        chanIdData,
+      ]);
+      // console.log('sdfsdfsdf', u8aToHex(data));
+
+      const connection = new Connection(getSolanaRestRpc(), {
+        wsEndpoint: getSolanaWsRpc(),
+        commitment: "singleGossip",
+      });
+
+      const bridgeAccountPubKey = new PublicKey(getSPLBridgeConfig().bridge);
+      // const bridgeAccountInfo = await connection.getParsedAccountInfo(bridgeAccountPubKey);
+
+      const instruction = new TransactionInstruction({
+        keys: [
+          // bridge account
+          { pubkey: bridgeAccountPubKey, isSigner: false, isWritable: true },
+          // fee payer
+          { pubkey: solana.publicKey, isSigner: true, isWritable: false },
+          // token mint account
+          {
+            pubkey: new PublicKey(splTokenAddress),
+            isSigner: false,
+            isWritable: true,
+          },
+          // from account
+          { pubkey: tokenAccountPubkey, isSigner: false, isWritable: true },
+          // fee receiver
+          {
+            pubkey: new PublicKey(getSPLBridgeConfig().feeReceiver),
+            isSigner: false,
+            isWritable: true,
+          },
+          // token program id
+          {
+            pubkey: new PublicKey(getSPLBridgeConfig().tokenProgramId),
+            isSigner: false,
+            isWritable: false,
+          },
+          // system program
+          {
+            pubkey: new PublicKey(getSPLBridgeConfig().systemProgramId),
+            isSigner: false,
+            isWritable: false,
+          },
+        ],
+        programId: new PublicKey(getSPLBridgeConfig().bridgeProgramId),
+        data: data,
+      });
+      transaction.add(instruction);
+
+      let { blockhash } = await connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+
+      transaction.feePayer = solana.publicKey;
+
+      let signed = await solana.signTransaction(transaction);
+      let txid = await connection.sendRawTransaction(signed.serialize(), {
+        skipPreflight: true,
+      });
+      const result = await connection.confirmTransaction(txid);
+      // console.log("txid", txid);
+
+      // console.log('slp bridge swap result:', result);
+
+      if (result.value && result.value.err === null) {
+        cb && cb({});
+        dispatch(setIsLoading(false));
+
+        const newNotice: LocalNotice = {
+          id: noticeUuid,
+          type: "rBridge Swap",
+          txDetail: {
+            transactionHash: txid,
+            sender: solAddress,
+          },
+          data: {
+            tokenName: tokenStr,
+            amount: Number(tokenAmount) + "",
+            srcTokenStandard: TokenStandard.SPL,
+            dstTokenStandard,
+            targetAddress: targetAddress,
+          },
+          scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+          status: "Pending",
+        };
+        dispatch(addNotice(newNotice));
+
+        dispatch(
+          setBridgeSwapLoadingParams({
+            modalVisible: true,
+            tokenName: tokenStr,
+            swapAmount: tokenAmount,
+            srcTokenStandard: TokenStandard.SPL,
+            dstTokenStandard: dstTokenStandard,
+            status: "loading",
+            scanUrl: getBridgeSwapScanUrl(chainId, targetAddress),
+          })
+        );
+
+        dispatch(
+          checkSwapStatus(
+            dstTokenStandard,
+            tokenStr,
+            tokenType,
+            tokenAmount,
+            targetAddress,
+            (status) => {
+              if (status === "success") {
+                dispatch(
+                  setBridgeSwapLoadingParams({
+                    status: "success",
+                  })
+                );
+
+                dispatch(updateNotice(noticeUuid, { status: "Confirmed" }));
+              } else if (status === "pending") {
+              }
+            }
+          )
+        );
+      } else {
+        console.log("result", result);
+        throw new Error("failed");
+      }
+    } catch (error) {
+      console.log("error", error);
+      dispatch(setIsLoading(false));
+    } finally {
+      dispatch(setIsLoading(false));
+    }
+  };
+
 export const checkSwapStatus =
   (
     dstTokenStandard: TokenStandard,
@@ -1192,39 +1435,9 @@ export const checkSwapStatus =
           getTokenSymbolFromTokenType(tokenType)
         );
       }
+    } else if (chainId === ChainId.SOL) {
+      oldBalance = await getSplAssetBalance(targetAddress, tokenStr);
     }
-
-    // const checkNewTokenAmount = async () => {
-    //   let newBalance: string = "0";
-    //   if (chainId === ChainId.BSC) {
-    //     newBalance = await getBep20AssetBalance(
-    //       targetAddress,
-    //       tokenAbi,
-    //       tokenAddress
-    //     );
-    //   } else if (chainId === ChainId.ETH) {
-    //     newBalance = await getErc20AssetBalance(
-    //       targetAddress,
-    //       tokenAbi,
-    //       tokenAddress,
-    //       tokenStr
-    //     );
-    //   }
-
-    //   console.log("xxx newBalance", newBalance);
-
-    //   if (
-    //     Number(newBalance) - Number(oldBalance) <= Number(tokenAmount) * 1.1 &&
-    //     Number(newBalance) - Number(oldBalance) >= Number(tokenAmount) * 0.9
-    //   ) {
-    //     cb && cb("success");
-    //   } else {
-    //     setTimeout(() => {
-    //       checkNewTokenAmount();
-    //     }, 3000);
-    //   }
-    // };
-    // checkNewTokenAmount();
 
     let count = 0;
     while (true) {
@@ -1251,14 +1464,17 @@ export const checkSwapStatus =
             getTokenSymbolFromTokenType(tokenType)
           );
         }
+      } else if (chainId === ChainId.SOL) {
+        newBalance = await getSplAssetBalance(targetAddress, tokenStr);
       }
 
-      console.log("newBalance", newBalance);
+      // console.log("newBalance", newBalance, targetAddress, tokenStr);
 
       if (
         Number(newBalance) - Number(oldBalance) <= Number(tokenAmount) * 1.1 &&
         Number(newBalance) - Number(oldBalance) >= Number(tokenAmount) * 0.9
       ) {
+        await timeout(1000);
         cb && cb("success");
         break;
       }

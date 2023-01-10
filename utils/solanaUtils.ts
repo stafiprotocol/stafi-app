@@ -105,7 +105,7 @@ export async function getSolanaTokenAccountPubkey(
 }
 
 export async function createSolanaTokenAccount(
-  walletAddress: string,
+  walletAddress: string | undefined,
   tokenType: TokenType
 ) {
   try {
@@ -114,7 +114,7 @@ export async function createSolanaTokenAccount(
       return false;
     }
 
-    if (solana.publicKey.toString() !== walletAddress) {
+    if (!walletAddress || solana.publicKey.toString() !== walletAddress) {
       return false;
     }
 
@@ -179,8 +179,6 @@ export async function createSolanaTokenAccount(
       return true;
     }
   } catch (err) {
-    console.log("yyy", err);
-
     return false;
   }
 }

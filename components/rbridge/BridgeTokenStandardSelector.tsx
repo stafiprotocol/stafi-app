@@ -143,6 +143,8 @@ export const BridgeTokenStandardSelector = (
                       ? "StaFi Chain"
                       : item === TokenStandard.BEP20
                       ? "BSC"
+                      : item === TokenStandard.SPL
+                      ? "Solana"
                       : "Ethereum"}
                   </div>
                 </div>
@@ -153,6 +155,8 @@ export const BridgeTokenStandardSelector = (
                       ? "Native"
                       : item === TokenStandard.BEP20
                       ? "BEP20"
+                      : item === TokenStandard.SPL
+                      ? "SPL"
                       : "ERC20"}
                   </div>
 

@@ -174,12 +174,15 @@ export const handleSolStake =
     const solana = getSolanaExtension();
     if (!solana) {
       snackbarUtil.error("Phantom extension not found");
+      dispatch(setIsLoading(false));
       return;
     }
 
     await refreshPhantom();
     if (!solana.isConnected) {
       snackbarUtil.error("Please connect Phantom first");
+      dispatch(setIsLoading(false));
+
       return;
     }
 
@@ -187,7 +190,10 @@ export const handleSolStake =
     const solanaAddress = solana.publicKey.toString();
     // console.log('solana account:', solana.publicKey.toString());
     if (localSolanaAddress !== solanaAddress) {
-      dispatch(connectPhantom(true));
+      dispatch(connectPhantom(false));
+      dispatch(setIsLoading(false));
+      snackbarUtil.warning("Phantom wallet address switched, please try again");
+      return;
     }
 
     let chainId = ChainId.STAFI;

@@ -198,6 +198,7 @@ export const updateFisBalance =
     try {
       const metaMaskAccount = getState().wallet.metaMaskAccount;
       const polkadotAccount = getState().wallet.polkadotAccount;
+      const solanaAccount = getState().wallet.solanaAccount;
       if (!tokenStandard) {
         return;
       }
@@ -216,6 +217,8 @@ export const updateFisBalance =
           tokenAddress,
           TokenName.FIS
         );
+      } else if (tokenStandard === TokenStandard.SPL) {
+        newBalance = await getSplAssetBalance(solanaAccount, TokenName.FIS);
       }
 
       if (newBalance !== undefined) {

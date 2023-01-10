@@ -6,7 +6,7 @@ import { useAppSelector } from "./common";
  * @param symbol e.g. ETH, rETH
  * @returns
  */
-export function useTokenPrice(symbol: string) {
+export function useTokenPrice(symbol: string | undefined) {
   const price = useAppSelector((state: RootState) => {
     const priceList = state.rToken.priceList;
     const match = priceList.find((item) => item.symbol === `${symbol}`);

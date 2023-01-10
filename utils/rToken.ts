@@ -66,7 +66,9 @@ export function getTokenSymbol(tokenName: TokenName): TokenSymbol | undefined {
   return undefined;
 }
 
-export function getTokenType(tokenName: TokenName | RTokenName): TokenType {
+export function getTokenType(
+  tokenName: TokenName | RTokenName | undefined
+): TokenType {
   if (tokenName === TokenName.FIS) {
     return TokenType.FIS;
   } else if (tokenName === RTokenName.rFIS) {
@@ -154,7 +156,9 @@ export const rTokenSymbolToRTokenName = (
   }
 };
 
-export const rTokenNameToTokenName = (rTokenName: RTokenName): TokenName => {
+export const rTokenNameToTokenName = (
+  rTokenName: RTokenName | undefined
+): TokenName => {
   switch (rTokenName) {
     case RTokenName.rATOM:
       return TokenName.ATOM;

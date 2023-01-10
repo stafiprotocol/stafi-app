@@ -1,6 +1,7 @@
 import { Popover } from "@mui/material";
 import classNames from "classnames";
 import { BubblesLoading } from "components/common/BubblesLoading";
+import { EmptyContent } from "components/common/EmptyContent";
 import { Icomoon } from "components/icon/Icomoon";
 import { useFisBalance } from "hooks/useFisBalance";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
@@ -53,32 +54,32 @@ export const BridgeTokenSelector = (props: BridgeTokenSelectorProps) => {
         <div
           className={classNames(
             "flex items-center justify-between rounded-[.16rem] w-[2.1rem] h-[.68rem] px-[.24rem]",
-            selectionList.length > 0 ? "cursor-pointer" : "cursor-default"
+            "cursor-pointer"
           )}
-          {...(selectionList.length > 0
-            ? bindTrigger(selectionPopupState)
-            : {})}
+          {...bindTrigger(selectionPopupState)}
         >
-          <div className="flex items-center">
-            <div className="w-[.28rem] h-[.28rem] relative mr-[.16rem]">
-              {props.selectedTokenName && (
+          <div className="flex items-center flex-1">
+            {props.selectedTokenName && (
+              <div className="w-[.28rem] h-[.28rem] relative mr-[.16rem]">
                 <Image
                   alt="logo"
                   layout="fill"
                   src={getRBridgeTokenIcon(props.selectedTokenName)}
                 />
-              )}
-            </div>
+              </div>
+            )}
+
             <div className="text-white text-[.24rem]">
-              {props.selectedTokenName || ""}
+              {props.selectedTokenName || (
+                <div className="text-[.18rem]">Select Token</div>
+              )}
             </div>
           </div>
 
           <div
             className={classNames(
               "ml-[.16rem] flex items-center",
-              selectionPopupState.isOpen ? "rotate-0" : "rotate-180",
-              { hidden: selectionList.length === 0 }
+              selectionPopupState.isOpen ? "rotate-0" : "rotate-180"
             )}
           >
             <Icomoon icon="up" color="#ffffff" size=".19rem" />
@@ -115,6 +116,13 @@ export const BridgeTokenSelector = (props: BridgeTokenSelectorProps) => {
           <div className="text-text1 text-[.2rem] mt-[.35rem] ml-[.24rem] mb-[.2rem]">
             Choose Token Type
           </div>
+
+          {selectionList.length === 0 && (
+            <div className="flex justify-center my-[.4rem]">
+              <EmptyContent size="0.6rem" />
+            </div>
+          )}
+
           {selectionList.map((item, index) => (
             <div key={item}>
               <div

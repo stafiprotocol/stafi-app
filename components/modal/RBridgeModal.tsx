@@ -9,12 +9,12 @@ import { MyTooltip } from "components/common/MyTooltip";
 import { Icomoon } from "components/icon/Icomoon";
 import { BridgeTokenSelector } from "components/rbridge/BridgeTokenSelector";
 import { BridgeTokenStandardSelector } from "components/rbridge/BridgeTokenStandardSelector";
-import { isDev } from "config/env";
 import { getMetamaskBscChainId, getMetamaskEthChainId } from "config/metaMask";
 import { hooks } from "connectors/metaMask";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import { useAppSlice } from "hooks/selector";
 import { useFisBalance } from "hooks/useFisBalance";
+import { useMetaMaskBalance } from "hooks/useMetaMaskBalance";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenPrice } from "hooks/useTokenPrice";
 import { useWalletAccount } from "hooks/useWalletAccount";
@@ -25,6 +25,7 @@ import {
   TokenStandard,
   TokenSymbol,
 } from "interfaces/common";
+import { boolean } from "mathjs";
 import Image from "next/image";
 import modalBg from "public/rBridge/rBridge_bg.png";
 import swapLine from "public/rBridge/swap_line.png";
@@ -32,25 +33,40 @@ import whiteLight from "public/rBridge/white_light.svg";
 import whiteLightWrapper from "public/rBridge/white_light_wrapper.svg";
 import userAvatar from "public/userAvatar.svg";
 import { useEffect, useMemo, useState } from "react";
+import { setIsLoading } from "redux/reducers/AppSlice";
 import {
   bep20ToOtherSwap,
   erc20ToOtherSwap,
   getBridgeEstimateBscFee,
   getBridgeEstimateEthFee,
+  getBridgeEstimateSolFee,
   nativeToOtherSwap,
   queryBridgeFees,
   setBridgeModalVisible,
+  splToOtherSwap,
 } from "redux/reducers/BridgeSlice";
-import { connectMetaMask, connectPolkadotJs } from "redux/reducers/WalletSlice";
+import {
+  connectMetaMask,
+  connectPhantom,
+  connectPolkadotJs,
+} from "redux/reducers/WalletSlice";
 import { RootState } from "redux/store";
 import { stafiServer } from "servers/stafi";
-import { isEmptyValue, openLink } from "utils/common";
+import { isEmptyValue, isUnsupportedBridgePair, openLink } from "utils/common";
 import { getTokenStandardIcon } from "utils/icon";
 import { chainAmountToHuman, formatNumber } from "utils/number";
 import { getTokenType, rTokenNameToTokenName } from "utils/rToken";
 import snackbarUtil from "utils/snackbarUtils";
+import {
+  createSolanaTokenAccount,
+  getSolanaTokenAccountPubkey,
+} from "utils/solanaUtils";
 import { getShortAddress } from "utils/string";
-import { validateETHAddress, validateSS58Address } from "utils/validator";
+import {
+  validateETHAddress,
+  validateSolanaAddress,
+  validateSS58Address,
+} from "utils/validator";
 
 export const RBridgeModal = () => {
   const dispatch = useAppDispatch();
@@ -61,17 +77,25 @@ export const RBridgeModal = () => {
     bridgeSwapLoadingParams,
     erc20BridgeFee,
     bep20BridgeFee,
+    solBridgeFee,
   } = useAppSelector((state: RootState) => {
     return {
       bridgeModalVisible: state.bridge.bridgeModalVisible,
       bridgeSwapLoadingParams: state.bridge.bridgeSwapLoadingParams,
       erc20BridgeFee: state.bridge.erc20BridgeFee,
       bep20BridgeFee: state.bridge.bep20BridgeFee,
+      solBridgeFee: state.bridge.solBridgeFee,
     };
   });
   const { isLoading } = useAppSlice();
-  const { polkadotAccount, metaMaskAccount, polkadotBalance } =
-    useWalletAccount();
+  const {
+    polkadotAccount,
+    metaMaskAccount,
+    solanaAccount,
+    polkadotBalance,
+    solanaBalance,
+  } = useWalletAccount();
+  const { ethBalance, bnbBalance } = useMetaMaskBalance();
 
   const [srcTokenStandard, setSrcTokenStandard] = useState<
     TokenStandard | undefined
@@ -80,57 +104,82 @@ export const RBridgeModal = () => {
     TokenStandard | undefined
   >(TokenStandard.ERC20);
   const [selectedTokenName, setSelectedTokenName] = useState<
-    TokenName.FIS | RTokenName
+    TokenName.FIS | RTokenName | undefined
   >(TokenName.FIS);
   const [expandUserAddress, setExpandUserAddress] = useState(false);
   const [editAddress, setEditAddress] = useState(false);
   const [targetAddress, setTargetAddress] = useState<string | undefined>();
   const [swapAmount, setSwapAmount] = useState("");
   const [fisTxFee, setFisTxFee] = useState("");
+  const [needCreateSplTokenAccount, setNeedCreateSplTokenAccount] =
+    useState(false);
 
   const selectedTokenPrice = useTokenPrice(selectedTokenName);
+  const fisBalance = useFisBalance(srcTokenStandard);
+  const rTokenBalance = useRTokenBalance(
+    srcTokenStandard,
+    rTokenNameToTokenName(
+      selectedTokenName === TokenName.FIS ? RTokenName.rFIS : selectedTokenName
+    ),
+    true
+  );
 
   useEffect(() => {
     setSwapAmount("");
-  }, [selectedTokenName]);
+  }, [selectedTokenName, bridgeModalVisible]);
 
   useEffect(() => {
     (async () => {
       if (polkadotAccount && !isNaN(Number(polkadotBalance))) {
-        const api = await stafiServer.createStafiApi();
-        const tx = await api.tx.bridgeSwap.transferNative(
-          polkadotBalance,
-          "",
-          !dstTokenStandard
-            ? ChainId.STAFI
-            : dstTokenStandard === TokenStandard.SPL
-            ? ChainId.SOL
-            : dstTokenStandard === TokenStandard.ERC20
-            ? ChainId.ETH
-            : dstTokenStandard === TokenStandard.BEP20
-            ? ChainId.BSC
-            : ChainId.STAFI
-        );
-        const paymentInfo = await tx.paymentInfo(polkadotAccount);
-        const fisFee = chainAmountToHuman(
-          paymentInfo.partialFee.toJSON(),
-          TokenSymbol.FIS
-        );
-        // console.log("fisFee", fisFee);
-        setFisTxFee(fisFee.toString());
+        try {
+          const api = await stafiServer.createStafiApi();
+          const tx = await api.tx.bridgeSwap.transferNative(
+            polkadotBalance,
+            "",
+            !dstTokenStandard
+              ? ChainId.STAFI
+              : dstTokenStandard === TokenStandard.SPL
+              ? ChainId.SOL
+              : dstTokenStandard === TokenStandard.ERC20
+              ? ChainId.ETH
+              : dstTokenStandard === TokenStandard.BEP20
+              ? ChainId.BSC
+              : ChainId.STAFI
+          );
+          const paymentInfo = await tx.paymentInfo(polkadotAccount);
+          const fisFee = chainAmountToHuman(
+            paymentInfo.partialFee.toJSON(),
+            TokenSymbol.FIS
+          );
+          // console.log("fisFee", fisFee);
+          setFisTxFee(fisFee.toString());
+        } catch (err: unknown) {}
       }
     })();
   }, [polkadotAccount, polkadotBalance, dstTokenStandard]);
 
   const srcSelectionList = useMemo(() => {
-    return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
+    return [
+      TokenStandard.Native,
+      TokenStandard.ERC20,
+      TokenStandard.BEP20,
+      TokenStandard.SPL,
+    ];
   }, []);
 
   const dstSelectionList = useMemo(() => {
-    return [TokenStandard.Native, TokenStandard.ERC20, TokenStandard.BEP20];
+    return [
+      TokenStandard.Native,
+      TokenStandard.ERC20,
+      TokenStandard.BEP20,
+      TokenStandard.SPL,
+    ];
   }, []);
 
   const tokenList: (TokenName.FIS | RTokenName)[] = useMemo(() => {
+    if (isUnsupportedBridgePair(srcTokenStandard, dstTokenStandard)) {
+      return [];
+    }
     if (
       srcTokenStandard === TokenStandard.BEP20 ||
       dstTokenStandard === TokenStandard.BEP20
@@ -143,6 +192,12 @@ export const RBridgeModal = () => {
         RTokenName.rDOT,
       ];
     }
+    if (
+      srcTokenStandard === TokenStandard.SPL ||
+      dstTokenStandard === TokenStandard.SPL
+    ) {
+      return [TokenName.FIS, RTokenName.rSOL];
+    }
     return [
       TokenName.FIS,
       RTokenName.rFIS,
@@ -153,14 +208,26 @@ export const RBridgeModal = () => {
     ];
   }, [srcTokenStandard, dstTokenStandard]);
 
-  const fisBalance = useFisBalance(srcTokenStandard);
-  const rTokenBalance = useRTokenBalance(
-    srcTokenStandard,
-    rTokenNameToTokenName(
-      selectedTokenName === TokenName.FIS ? RTokenName.rFIS : selectedTokenName
-    ),
-    true
-  );
+  /**
+   * Check SPL Token Account status.
+   */
+  useEffect(() => {
+    if (
+      dstTokenStandard !== TokenStandard.SPL ||
+      !selectedTokenName ||
+      !targetAddress
+    ) {
+      setNeedCreateSplTokenAccount(false);
+    }
+
+    (async () => {
+      const pubkey = await getSolanaTokenAccountPubkey(
+        targetAddress,
+        getTokenType(selectedTokenName)
+      );
+      setNeedCreateSplTokenAccount(!pubkey);
+    })();
+  }, [dstTokenStandard, selectedTokenName, targetAddress]);
 
   const fee: { amount: string; tokenName: string } = useMemo(() => {
     if (!srcTokenStandard) {
@@ -174,6 +241,8 @@ export const RBridgeModal = () => {
         amount:
           dstTokenStandard === TokenStandard.ERC20
             ? erc20BridgeFee
+            : dstTokenStandard === TokenStandard.SPL
+            ? solBridgeFee
             : bep20BridgeFee,
         tokenName: "FIS",
       };
@@ -187,12 +256,23 @@ export const RBridgeModal = () => {
         amount: getBridgeEstimateBscFee(),
         tokenName: "BNB",
       };
+    } else if (srcTokenStandard === TokenStandard.SPL) {
+      return {
+        amount: getBridgeEstimateSolFee(),
+        tokenName: "SOL",
+      };
     }
     return {
       amount: "--",
       tokenName: "FIS",
     };
-  }, [srcTokenStandard, dstTokenStandard, erc20BridgeFee, bep20BridgeFee]);
+  }, [
+    srcTokenStandard,
+    dstTokenStandard,
+    erc20BridgeFee,
+    bep20BridgeFee,
+    solBridgeFee,
+  ]);
 
   const balance = useMemo(() => {
     if (
@@ -235,10 +315,24 @@ export const RBridgeModal = () => {
       dstTokenStandard === TokenStandard.BEP20
     ) {
       setTargetAddress(metaMaskAccount);
+    } else if (dstTokenStandard === TokenStandard.SPL) {
+      setTargetAddress(solanaAccount);
     } else {
       setTargetAddress("");
     }
-  }, [dstTokenStandard, polkadotAccount, metaMaskAccount]);
+  }, [dstTokenStandard, polkadotAccount, metaMaskAccount, solanaAccount]);
+
+  useEffect(() => {
+    if (srcTokenStandard === TokenStandard.SPL) {
+      setDstTokenStandard(TokenStandard.Native);
+    }
+  }, [srcTokenStandard]);
+
+  useEffect(() => {
+    if (dstTokenStandard === TokenStandard.SPL) {
+      setSrcTokenStandard(TokenStandard.Native);
+    }
+  }, [dstTokenStandard]);
 
   useEffect(() => {
     setSwapAmount("");
@@ -253,6 +347,20 @@ export const RBridgeModal = () => {
         setSelectedTokenName(RTokenName.rFIS);
       }
     }
+    if (
+      srcTokenStandard === TokenStandard.SPL ||
+      dstTokenStandard === TokenStandard.SPL
+    ) {
+      if (
+        selectedTokenName !== TokenName.FIS &&
+        selectedTokenName !== RTokenName.rSOL
+      ) {
+        setSelectedTokenName(TokenName.FIS);
+      }
+    }
+    if (isUnsupportedBridgePair(srcTokenStandard, dstTokenStandard)) {
+      setSelectedTokenName(undefined);
+    }
   }, [srcTokenStandard, dstTokenStandard, selectedTokenName]);
 
   const userAddress = useMemo(() => {
@@ -263,9 +371,11 @@ export const RBridgeModal = () => {
       srcTokenStandard === TokenStandard.BEP20
     ) {
       return metaMaskAccount;
+    } else if (srcTokenStandard === TokenStandard.SPL) {
+      return solanaAccount;
     }
     return "";
-  }, [srcTokenStandard, metaMaskAccount, polkadotAccount]);
+  }, [srcTokenStandard, metaMaskAccount, polkadotAccount, solanaAccount]);
 
   const addressCorrect = useMemo(() => {
     if (!targetAddress) {
@@ -273,16 +383,48 @@ export const RBridgeModal = () => {
     }
     if (dstTokenStandard === TokenStandard.Native) {
       return validateSS58Address(targetAddress);
-    } else if (dstTokenStandard === TokenStandard.ERC20) {
+    } else if (
+      dstTokenStandard === TokenStandard.ERC20 ||
+      dstTokenStandard === TokenStandard.BEP20
+    ) {
       return validateETHAddress(targetAddress);
+    } else if (dstTokenStandard === TokenStandard.SPL) {
+      return validateSolanaAddress(targetAddress);
     }
     return true;
   }, [targetAddress, dstTokenStandard]);
 
-  const [buttonDisabled, buttonText] = useMemo(() => {
+  const [buttonDisabled, buttonText]: [
+    buttonDisabled: boolean,
+    buttonText:
+      | "Connect Wallet"
+      | "Not Enough FIS Fee"
+      | "Not Enough SOL Fee"
+      | "Not Enough ETH Fee"
+      | "Not Enough BNB Fee"
+      | "Switch Network"
+      | "Invalid Address"
+      | "Create SPL Token Account"
+      | "SPL Token Account Not Created"
+      | "Swap"
+      | "Input Swap Amount"
+      | "Insufficient Balance"
+  ] = useMemo(() => {
     if (srcTokenStandard === TokenStandard.Native) {
       if (!polkadotAccount) {
         return [false, "Connect Wallet"];
+      }
+      if (Number(fisBalance) < Number(fee.amount)) {
+        return [true, "Not Enough FIS Fee"];
+      }
+    }
+
+    if (srcTokenStandard === TokenStandard.SPL) {
+      if (!solanaAccount) {
+        return [false, "Connect Wallet"];
+      }
+      if (Number(solanaBalance) < Number(fee.amount)) {
+        return [true, "Not Enough SOL Fee"];
       }
     }
 
@@ -293,6 +435,9 @@ export const RBridgeModal = () => {
       if (metaMaskChainId !== getMetamaskEthChainId()) {
         return [false, "Switch Network"];
       }
+      if (Number(ethBalance) < Number(fee.amount)) {
+        return [true, "Not Enough ETH Fee"];
+      }
     }
 
     if (srcTokenStandard === TokenStandard.BEP20) {
@@ -302,9 +447,45 @@ export const RBridgeModal = () => {
       if (metaMaskChainId !== getMetamaskBscChainId()) {
         return [false, "Switch Network"];
       }
+      if (Number(bnbBalance) < Number(fee.amount)) {
+        return [true, "Not Enough BNB Fee"];
+      }
     }
 
-    if (!swapAmount) {
+    if (dstTokenStandard === TokenStandard.Native) {
+      if (!validateSS58Address(targetAddress)) {
+        return [true, "Invalid Address"];
+      }
+    }
+
+    if (
+      dstTokenStandard === TokenStandard.ERC20 ||
+      dstTokenStandard === TokenStandard.BEP20
+    ) {
+      if (!validateETHAddress(targetAddress)) {
+        return [true, "Invalid Address"];
+      }
+    }
+
+    if (dstTokenStandard === TokenStandard.SPL) {
+      if (!validateSolanaAddress(targetAddress)) {
+        return [true, "Invalid Address"];
+      }
+      if (needCreateSplTokenAccount) {
+        if (targetAddress === solanaAccount) {
+          return [false, "Create SPL Token Account"];
+        } else {
+          return [true, "SPL Token Account Not Created"];
+        }
+      }
+    }
+
+    if (
+      !swapAmount ||
+      !srcTokenStandard ||
+      !dstTokenStandard ||
+      !selectedTokenName
+    ) {
       return [true, "Swap"];
     }
 
@@ -325,7 +506,7 @@ export const RBridgeModal = () => {
     }
 
     if (!addressCorrect) {
-      return [true, "Invalid Receiving Address"];
+      return [true, "Invalid Address"];
     }
 
     return [false, "Swap"];
@@ -337,10 +518,37 @@ export const RBridgeModal = () => {
     metaMaskChainId,
     metaMaskAccount,
     polkadotAccount,
+    solanaAccount,
+    dstTokenStandard,
+    fee,
+    fisBalance,
+    selectedTokenName,
+    ethBalance,
+    bnbBalance,
+    solanaBalance,
+    needCreateSplTokenAccount,
+    targetAddress,
   ]);
 
+  const createSPLToken = async () => {
+    dispatch(setIsLoading(true));
+    const result = await createSolanaTokenAccount(
+      targetAddress,
+      getTokenType(selectedTokenName)
+    );
+    dispatch(setIsLoading(false));
+    if (result) {
+      setNeedCreateSplTokenAccount(false);
+    }
+  };
+
   const clickSwap = () => {
-    if (!targetAddress || !dstTokenStandard) {
+    if (
+      !targetAddress ||
+      !selectedTokenName ||
+      !srcTokenStandard ||
+      !dstTokenStandard
+    ) {
       return;
     }
 
@@ -356,6 +564,13 @@ export const RBridgeModal = () => {
       }
     }
 
+    if (srcTokenStandard === TokenStandard.SPL) {
+      if (!solanaAccount) {
+        dispatch(connectPhantom(false));
+        return;
+      }
+    }
+
     if (srcTokenStandard === TokenStandard.ERC20) {
       if (!metaMaskAccount || metaMaskChainId !== getMetamaskEthChainId()) {
         dispatch(connectMetaMask(getMetamaskEthChainId()));
@@ -366,6 +581,13 @@ export const RBridgeModal = () => {
     if (srcTokenStandard === TokenStandard.BEP20) {
       if (!metaMaskAccount || metaMaskChainId !== getMetamaskBscChainId()) {
         dispatch(connectMetaMask(getMetamaskBscChainId()));
+        return;
+      }
+    }
+
+    if (dstTokenStandard === TokenStandard.SPL) {
+      if (buttonText === "Create SPL Token Account") {
+        createSPLToken();
         return;
       }
     }
@@ -394,7 +616,6 @@ export const RBridgeModal = () => {
           targetAddress,
           () => {
             setSwapAmount("");
-            dispatch(setBridgeModalVisible(false));
           }
         )
       );
@@ -408,7 +629,19 @@ export const RBridgeModal = () => {
           targetAddress,
           () => {
             setSwapAmount("");
-            dispatch(setBridgeModalVisible(false));
+          }
+        )
+      );
+    } else if (srcTokenStandard === TokenStandard.SPL) {
+      dispatch(
+        splToOtherSwap(
+          dstTokenStandard,
+          selectedTokenName,
+          getTokenType(selectedTokenName),
+          swapAmount,
+          targetAddress,
+          () => {
+            setSwapAmount("");
           }
         )
       );
@@ -519,7 +752,7 @@ export const RBridgeModal = () => {
   };
 
   const renderSwapTokenValue = () => {
-    if (!swapAmount || Number(swapAmount) === 0) {
+    if (!swapAmount || Number(swapAmount) === 0 || !selectedTokenName) {
       return undefined;
     }
     if (isNaN(Number(selectedTokenPrice))) {

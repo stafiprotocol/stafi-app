@@ -1,5 +1,5 @@
 import { encodeAddress } from "@polkadot/util-crypto";
-import { WalletType } from "interfaces/common";
+import { TokenStandard, WalletType } from "interfaces/common";
 import { checkAddressChecksum } from "web3-utils";
 
 export function openLink(url: string | undefined | null) {
@@ -127,4 +127,34 @@ export function isPolkadotWallet(walletType: WalletType | undefined) {
 
 export function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function isUnsupportedBridgePair(
+  srcTokenStandard: TokenStandard | undefined,
+  dstTokenStandard: TokenStandard | undefined
+) {
+  if (
+    (srcTokenStandard === TokenStandard.ERC20 &&
+      dstTokenStandard === TokenStandard.BEP20) ||
+    (srcTokenStandard === TokenStandard.BEP20 &&
+      dstTokenStandard === TokenStandard.ERC20)
+  ) {
+    return true;
+  }
+  if (
+    (srcTokenStandard === TokenStandard.ERC20 &&
+      dstTokenStandard === TokenStandard.SPL) ||
+    (srcTokenStandard === TokenStandard.SPL &&
+      dstTokenStandard === TokenStandard.ERC20)
+  ) {
+    return true;
+  }
+  if (
+    (srcTokenStandard === TokenStandard.BEP20 &&
+      dstTokenStandard === TokenStandard.SPL) ||
+    (srcTokenStandard === TokenStandard.SPL &&
+      dstTokenStandard === TokenStandard.BEP20)
+  ) {
+    return true;
+  }
 }
