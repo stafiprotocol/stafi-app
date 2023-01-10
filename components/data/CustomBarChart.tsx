@@ -16,11 +16,11 @@ export const CustomBarChart = (props: Props) => {
       animation: false,
       color: ["#00F3AB"],
       tooltip: {
-        backgroundColor: "rgba(25, 38, 52, 0.9)",
+        backgroundColor: "rgba(25, 38, 52, 0.6)",
         borderColor: "#1A2835",
         className: "",
         extraCssText:
-          "border-radius:0.16rem;padding:0.2rem;backdrop-filter:blur(0.4rem);",
+          "border-radius:0.16rem;padding:0.2rem;backdrop-filter:blur(40px);",
         formatter: (params: any) => {
           if (!params) return;
           // console.log(params)
