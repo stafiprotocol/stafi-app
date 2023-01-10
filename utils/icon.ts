@@ -11,6 +11,8 @@ import bep20Logo from "public/mintType/bep20.png";
 import nativeLogo from "public/mintType/native.png";
 import maticLogo from "public/matic_logo.svg";
 import maticLogoBlack from "public/matic_logo_black.svg";
+import bnbWhiteIcon from "public/token/bnb_white.svg";
+import bnbChainIcon from "public/token/bnb_chain.svg";
 
 export function getWhiteTokenIcon(tokenName: TokenName) {
   if (tokenName === TokenName.ETH) {
@@ -24,6 +26,9 @@ export function getWhiteTokenIcon(tokenName: TokenName) {
   }
   if (tokenName === TokenName.DOT) {
     return dotWhiteIcon;
+  }
+  if (tokenName === TokenName.BNB) {
+    return bnbWhiteIcon;
   }
 
   return ethWhiteIcon;
@@ -41,6 +46,9 @@ export function getChainIcon(tokenName: TokenName) {
   }
   if (tokenName === TokenName.DOT) {
     return dotChainIcon;
+  }
+  if (tokenName === TokenName.BNB) {
+    return bnbChainIcon;
   }
 
   return ethChainIcon;

@@ -72,7 +72,7 @@ const RTokenPage = () => {
 
         <RTokenOverviewCard tokenName={TokenName.DOT} />
 
-        {/* <RTokenOverviewCard tokenName={TokenName.BNB} /> */}
+        <RTokenOverviewCard tokenName={TokenName.BNB} />
       </div>
     </div>
   );

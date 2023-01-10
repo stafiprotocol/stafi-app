@@ -25,7 +25,9 @@ export const TradeModal = (props: TradeModalProps) => {
       window.open("https://app.stafi.io/rAsset/swap/rKSM?first=native");
     } else if (props.tokenName === TokenName.DOT) {
       window.open("https://app.stafi.io/rAsset/swap/rDOT?first=native");
-    }
+    } else if (props.tokenName === TokenName.BNB) {
+			window.open("https://app.stafi.io/rAsset/swap/rBNB?first=native");
+		}
   };
 
   return (

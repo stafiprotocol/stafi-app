@@ -22,6 +22,7 @@ import { formatNumber } from "utils/number";
 import snackbarUtil from "utils/snackbarUtils";
 import { handleKsmStake } from "redux/reducers/KsmSlice";
 import { getStakeTransactionCount } from "utils/rToken";
+import { handleBnbStake } from "redux/reducers/BnbSlice";
 
 export const RTokenStakeLoadingModal = () => {
   const dispatch = useAppDispatch();
@@ -95,7 +96,19 @@ export const RTokenStakeLoadingModal = () => {
             true
           )
         );
-      }
+      } else if (stakeLoadingParams.tokenName === TokenName.BNB) {
+				dispatch(
+					handleBnbStake(
+						sendingParams.amount,
+						sendingParams.willReceiveAmount,
+						sendingParams.tokenStandard,
+						sendingParams.targetAddress,
+						sendingParams.newTotalStakedAmount,
+						sendingParams.txFee || "0.002",
+						true
+					)
+				);
+			}
     }
 
     if (errorStep === "staking") {

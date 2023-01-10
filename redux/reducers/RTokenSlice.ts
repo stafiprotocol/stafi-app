@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { getBep20RBnbTokenAbi, getBep20REthTokenAbi } from "config/bep20Abi";
 import {
   getBep20RDotTokenAbi,
-  getBep20REthTokenAbi,
   getBep20RKsmTokenAbi,
 } from "config/bep20Abi";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
@@ -193,7 +193,10 @@ export const updateRTokenBalance =
         } else if (tokenName === TokenName.MATIC) {
           tokenAbi = getBSCRMaticAbi();
           tokenAddress = bep20TokenContractConfig.rMATIC;
-        } else if (tokenName === TokenName.KSM) {
+        } else if (tokenName === TokenName.BNB) {
+					tokenAbi = getBep20RBnbTokenAbi();
+					tokenAddress = bep20TokenContractConfig.rBNB;
+				} else if (tokenName === TokenName.KSM) {
           tokenAbi = getBep20RKsmTokenAbi();
           tokenAddress = bep20TokenContractConfig.rKSM;
         } else if (tokenName === TokenName.DOT) {
@@ -348,7 +351,7 @@ export const updateRTokenStakerApr =
               newApr =
                 ((currentRate - lastRate) / 1000000000000) * 365.25 * 100 + "";
             } else {
-              newApr = "9.7";
+              newApr = "2.5";
             }
           }
         } catch (err) {

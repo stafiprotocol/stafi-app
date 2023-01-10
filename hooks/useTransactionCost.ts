@@ -13,11 +13,17 @@ import {
 } from "redux/reducers/KsmSlice";
 // import { getTransactionFees } from "redux/reducers/FisSlice";
 import {
-  getBondFees,
-  getStakeRelayFee,
-  getUnbondCommision,
-  getUnbondFees,
+  getBondFees as getMaticBondFee,
+  getStakeRelayFee as getMaticStakeRelayFee,
+  getUnbondCommision as getMaticUnbondCommision,
+  getUnbondFees as getMaticUnbondFee,
 } from "redux/reducers/MaticSlice";
+import {
+	getBnbStakeRelayFee,
+  getBondFee as getBnbBondFee,
+  getUnbondCommision as getBnbUnbondCommision,
+  getUnbondFee as getBnbUnbondFee,
+} from "redux/reducers/BnbSlice";
 import { RootState } from "redux/store";
 import { useAppDispatch, useAppSelector } from "./common";
 
@@ -44,6 +50,14 @@ export function useTransactionCost(
         bondFees: state.matic.bondFees,
         relayFee: state.matic.relayFee,
       };
+    } else if (tokenName === TokenName.BNB) {
+      return {
+        bondFees: state.bnb.bondFee,
+        unbondFees: state.bnb.unbondFee,
+        relayFee: state.bnb.relayFee,
+				unbondCommision: state.bnb.unbondCommision,
+				unbondTxFees: state.bnb.unbondTxFees,
+			};
     } else if (tokenName === TokenName.KSM) {
       return {
         unbondCommision: state.ksm.unbondCommision,
@@ -75,11 +89,16 @@ export function useTransactionCost(
 
   useEffect(() => {
     if (tokenName === TokenName.MATIC) {
-      dispatch(getUnbondCommision());
-      dispatch(getUnbondFees());
-      dispatch(getBondFees());
-      dispatch(getStakeRelayFee());
-    } else if (tokenName === TokenName.KSM) {
+      dispatch(getMaticUnbondCommision());
+      dispatch(getMaticUnbondFee());
+      dispatch(getMaticBondFee());
+      dispatch(getMaticStakeRelayFee());
+    } else if (tokenName === TokenName.BNB) {
+			dispatch(getBnbBondFee());
+			dispatch(getBnbUnbondCommision());
+			dispatch(getBnbUnbondFee());
+			dispatch(getBnbStakeRelayFee());
+		} else if (tokenName === TokenName.KSM) {
       dispatch(getKsmUnbondCommision());
       dispatch(getKsmUnbondFees());
       dispatch(getKsmBondFees());

@@ -20,6 +20,7 @@ import dotLogo from "public/dot_type_black.png";
 import ethLogo from "public/eth_type_black.svg";
 import ksmLogo from "public/ksm_type_black.png";
 import maticLogo from "public/matic_type_black.png";
+import bnbLogo from "public/bnb_type_black.png";
 import { useMemo } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
 import { setRouteNextPage } from "redux/reducers/FisSlice";
@@ -64,6 +65,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     if (tokenName === TokenName.DOT) {
       return dotLogo;
     }
+    if (tokenName === TokenName.BNB) {
+      return bnbLogo;
+    }
     return ethLogo;
   };
 
@@ -80,6 +84,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     if (tokenName === TokenName.DOT) {
       return "Polkadot";
     }
+		if (tokenName === TokenName.BNB) {
+			return "BSC";
+		}
     return "Ethereum";
   };
 
@@ -119,19 +126,25 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         })
       );
     } else if (tokenName === TokenName.BNB) {
-      if (!metaMaskAccount || metaMaskChainId !== getMetamaskBscChainId()) {
-        dispatch(setRouteNextPage("/rtoken/stake/BNB"));
-        dispatch(
-          setConnectWalletModalParams({
-            visible: true,
-            walletList: [WalletType.MetaMask],
-            targetMetaMaskChainId: getMetamaskBscChainId(),
-            targetUrl: "/rtoken/stake/BNB",
-          })
-        );
+      if (
+        metaMaskAccount &&
+        polkadotAccount &&
+        metaMaskChainId === getMetamaskBscChainId()
+      ) {
+        router.push("/rtoken/stake/BNB");
         return;
       }
-      router.push("/rtoken/stake/BNB");
+      let walletTypes: WalletType[] = [];
+      walletTypes.push(WalletType.MetaMask);
+      walletTypes.push(WalletType.Polkadot);
+      dispatch(
+        setConnectWalletModalParams({
+          visible: true,
+          walletList: walletTypes,
+          targetMetaMaskChainId: getMetamaskBscChainId(),
+          targetUrl: "/rtoken/stake/BNB",
+        })
+      );
     } else if (tokenName === TokenName.KSM) {
       if (!ksmAccount || !polkadotAccount) {
         dispatch(

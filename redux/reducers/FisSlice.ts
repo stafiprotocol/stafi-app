@@ -27,6 +27,7 @@ import {
   STAFI_ACCOUNT_EMPTY_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
 } from "utils/constants";
+import { getBnbAbi, getRBnbTokenAddress } from "config/bnb";
 import {
   ChainId,
   TokenName,
@@ -45,7 +46,11 @@ import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
 import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
 import { getTokenNameFromrSymbol, getTokenSymbol } from "utils/rToken";
-import { getBep20RDotTokenAbi, getBep20RKsmTokenAbi } from "config/bep20Abi";
+import {
+  getBep20RBnbTokenAbi,
+  getBep20RDotTokenAbi,
+  getBep20RKsmTokenAbi,
+} from "config/bep20Abi";
 import { getErc20RDotTokenAbi, getErc20RKsmTokenAbi } from "config/erc20Abi";
 import { chainAmountToHuman, formatNumber, numberToChain } from "utils/number";
 
@@ -564,6 +569,9 @@ export const getMinting =
                 } else if (rsymbol === rSymbol.Dot) {
                   tokenAbi = getBep20RDotTokenAbi();
                   tokenAddress = getBep20TokenContractConfig().rDOT;
+                } else if (rsymbol === rSymbol.Bnb) {
+                  tokenAbi = getBep20RBnbTokenAbi();
+                  tokenAddress = getBep20TokenContractConfig().rBNB;
                 }
                 oldBalance = await getBep20AssetBalance(
                   targetAddress,
@@ -749,10 +757,13 @@ export const queryRTokenSwapState =
     let tokenAbi: any = "";
     let tokenAddress: any = "";
     let balance: string = "";
+
+    const bep20TokenContractConfig = getBep20TokenContractConfig();
+
     if (rsymbol === rSymbol.Matic) {
       if (chainId === ChainId.BSC) {
         tokenAbi = getBSCRMaticAbi();
-        tokenAddress = getBep20TokenContractConfig().rMATIC;
+        tokenAddress = bep20TokenContractConfig.rMATIC;
         balance = await getBep20AssetBalance(
           targetAddress,
           tokenAbi,
@@ -806,6 +817,14 @@ export const queryRTokenSwapState =
           TokenName.DOT
         );
       }
+    } else if (rsymbol === rSymbol.Bnb) {
+      tokenAbi = getBep20RBnbTokenAbi();
+      tokenAddress = getBep20TokenContractConfig().rBNB;
+      balance = await getBep20AssetBalance(
+        targetAddress,
+        tokenAbi,
+        tokenAddress
+      );
     }
 
     if (

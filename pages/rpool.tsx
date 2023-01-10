@@ -137,7 +137,7 @@ const RPoolPage = () => {
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 
       {/* {currentPage === ProgramTab.Mint ? <MintFaq /> : <LpFaq />} */}
-			<MintFaq />
+			{/* <MintFaq /> */}
     </div>
   );
 };
