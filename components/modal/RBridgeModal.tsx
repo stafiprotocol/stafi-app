@@ -91,6 +91,10 @@ export const RBridgeModal = () => {
   const selectedTokenPrice = useTokenPrice(selectedTokenName);
 
   useEffect(() => {
+    setSwapAmount("");
+  }, [selectedTokenName]);
+
+  useEffect(() => {
     (async () => {
       if (polkadotAccount && !isNaN(Number(polkadotBalance))) {
         const api = await stafiServer.createStafiApi();
