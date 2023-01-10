@@ -264,7 +264,7 @@ export const bond =
       return;
     }
 
-    await sleep(5000);
+    await sleep(3000);
 
     dispatch(
       updateStakeLoadingParams({
@@ -340,6 +340,7 @@ export const bond =
             staking: {
               totalStatus: "loading",
               broadcastStatus: "loading",
+              packStatus: "loading",
             },
             minting: {},
             swapping: {},
@@ -367,7 +368,7 @@ export const bond =
                     staking: {
                       totalStatus: "loading",
                       broadcastStatus: "success",
-                      packStatus: "loading",
+                      packStatus: "success",
                     },
                     minting: {},
                     swapping: {},

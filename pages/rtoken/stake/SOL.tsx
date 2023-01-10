@@ -219,7 +219,7 @@ const RTokenStakePage = () => {
         }
       >
         <div className="text-text2 text-[.24rem] mx-[.56rem] leading-normal">
-          Reward normally is updated every 6 hours.
+          Reward normally is updated every 66 hours.
           <br />
           <br />
           rSOL liquid staking rewards are mainly decided by the Solana
