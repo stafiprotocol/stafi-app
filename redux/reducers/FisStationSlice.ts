@@ -11,6 +11,8 @@ import {
   getMetamaskEthChainId,
   getMetamaskMaticChainId,
 } from "config/metaMask";
+import snackbarUtil from "utils/snackbarUtils";
+import { CANCELLED_MESSAGE } from "utils/constants";
 
 declare const ethereum: any;
 
@@ -28,6 +30,7 @@ export interface PoolInfoItem {
 export interface FisStatonState {
   swapLimit: SwapLimit;
   poolInfoList: PoolInfoItem[];
+  swapLoading: boolean;
 }
 
 const initialState: FisStatonState = {
@@ -36,6 +39,7 @@ const initialState: FisStatonState = {
     min: 0,
   },
   poolInfoList: [],
+  swapLoading: false,
 };
 
 export const fisStationSlice = createSlice({
@@ -51,10 +55,14 @@ export const fisStationSlice = createSlice({
     ) => {
       state.poolInfoList = action.payload;
     },
+    setSwapLoading: (state: FisStatonState, aciton: PayloadAction<boolean>) => {
+      state.swapLoading = aciton.payload;
+    },
   },
 });
 
-export const { setSwapLimit, setPoolInfoList } = fisStationSlice.actions;
+export const { setSwapLimit, setPoolInfoList, setSwapLoading } =
+  fisStationSlice.actions;
 
 export default fisStationSlice.reducer;
 
@@ -100,8 +108,9 @@ interface UploadSwapInfoParams {
 export const handleSwap =
   (
     tokenName: TokenName,
-    amount: string,
-    minOutFisAmount: string,
+    tokenAmount: string,
+    fisAmount: string,
+    minOutFisAmount: string | number,
     cb?: Function
   ): AppThunk =>
   async (dispatch, getState) => {
@@ -111,15 +120,27 @@ export const handleSwap =
     );
     if (!selectedPoolInfo) return;
 
+    dispatch(setSwapLoading(true));
+
     if (tokenName === TokenName.ETH) {
       dispatch(
-        handleSwapEth(selectedPoolInfo.poolAddress, amount, minOutFisAmount)
+        handleSwapEth(
+          selectedPoolInfo.poolAddress,
+          tokenAmount,
+          fisAmount,
+          minOutFisAmount
+        )
       );
     }
   };
 
 export const handleSwapEth =
-  (poolAddress: string, amount: string, minOutFisAmount: string): AppThunk =>
+  (
+    poolAddress: string,
+    tokenAmount: string,
+    fisAmount: string,
+    minOutFisAmount: string | number
+  ): AppThunk =>
   async (dispatch, getState) => {
     try {
       const metaMaskAccount = getState().wallet.metaMaskAccount;
@@ -139,11 +160,12 @@ export const handleSwapEth =
           params: [metaMaskAccount, data],
         })
         .catch((err: any) => {
-          console.error(err);
+          throw new Error("signature error");
         });
       if (!signature) {
-        throw new Error("");
+        throw new Error("signature error");
       }
+
       const response = await fetch(
         `${getApiHost()}/feeStation/api/v1/station/bundleAddress`,
         {
@@ -167,28 +189,31 @@ export const handleSwapEth =
         !resJson.data ||
         !resJson.data.bundleAddressId
       ) {
-        throw new Error("");
+        throw new Error("bundle address error");
       }
 
       const bundleAddressId = resJson.data.bundleAddressId;
 
-      const amountInWei = Web3.utils.toWei(amount, "ether");
+      const amountInWei = Web3.utils.toWei(tokenAmount, "ether");
       const amountHex = Web3.utils.toHex(amountInWei);
+
       const txParams = {
         value: amountHex,
         gas: "0x54647",
         to: poolAddress,
         from: metaMaskAccount,
-        chainId: getMetamaskMaticChainId(),
+        chainId: getMetamaskEthChainId(),
       };
       const txHash = await ethereum
         .request({
           method: "eth_sendTransaction",
           params: [txParams],
         })
-        .catch((err: any) => {});
+        .catch((err: any) => {
+          throw new Error(err);
+        });
       if (!txHash) {
-        throw new Error("");
+        throw new Error("send transaction failed");
       }
 
       let txDetail;
@@ -199,7 +224,9 @@ export const handleSwapEth =
             method: "eth_getTransactionByHash",
             params: [txHash],
           })
-          .catch((err: any) => {});
+          .catch((err: any) => {
+            throw new Error(err.message);
+          });
         if (!txDetail || txDetail.blockHash) {
           break;
         }
@@ -207,11 +234,11 @@ export const handleSwapEth =
 
       const blockHash = txDetail && txDetail.blockHash;
       if (!blockHash) {
-        throw new Error("");
+        throw new Error("get block hash error");
       }
 
       const minOutAmount = numberUtil.tokenAmountToChain(
-        minOutFisAmount,
+        minOutFisAmount + "",
         rSymbol.Fis
       );
       const params: UploadSwapInfoParams = {
@@ -227,31 +254,50 @@ export const handleSwapEth =
         minOutAmount,
       };
       dispatch(uploadSwapInfo(params));
-    } catch (err: any) {}
+    } catch (err: any) {
+      dispatch(setSwapLoading(false));
+      if (err.code === 4001) {
+        snackbarUtil.error(CANCELLED_MESSAGE);
+      } else {
+        snackbarUtil.error(err.message);
+      }
+    }
   };
+
+export const handleSwapDot = (poolAddress: string, tokenAmount: string, fisAmount: string, minOutFisAmount: string | number): AppThunk =>
+async (dispatch, getState) => {
+	const address = getState().wallet.dotAccount;
+	if (!address) return;
+}
 
 export const uploadSwapInfo =
   (params: UploadSwapInfoParams): AppThunk =>
   async (dispatch, getState) => {
-    const response = await fetch(
-      `${getApiHost()}/feeStation/api/v2/station/swapInfo`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(params),
+    try {
+      const response = await fetch(
+        `${getApiHost()}/feeStation/api/v2/station/swapInfo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        }
+      );
+      const resJson = await response.json();
+      if (resJson.status === "80014") {
+        throw new Error("Slippage exceeded");
+      } else if (resJson.status === "80006") {
+        throw new Error("Failed to verify signature");
+      } else if (resJson.status === "80000") {
+        dispatch(setSwapLoading(false));
+        snackbarUtil.success("Swap Succeeded");
+      } else {
+        throw new Error("swap error");
       }
-    );
-    const resJson = await response.json();
-    if (resJson.status === "80014") {
-      throw new Error("Slippage exceeded");
-    } else if (resJson.status === "80006") {
-      throw new Error("Failed to verify signature");
-    } else if (resJson.status === "80000") {
-      console.log("succeeded");
-    } else {
-      throw new Error("swap error");
+    } catch (err: any) {
+      dispatch(setSwapLoading(false));
+      snackbarUtil.error(err);
     }
   };
 

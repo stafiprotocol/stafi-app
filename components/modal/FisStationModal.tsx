@@ -4,7 +4,7 @@ import { Icomoon } from "components/icon/Icomoon";
 import { MyLayoutContext } from "components/layout/layout";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import Image from "next/image";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { setFisStationModalVisible } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
 import SettingsActiveLogo from "public/settings.svg";
@@ -34,6 +34,8 @@ import { useDotBalance } from "hooks/useDotBalance";
 import { formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
 import { PriceItem } from "redux/reducers/RTokenSlice";
+import { getMetamaskEthChainId } from "config/metaMask";
+import { connectMetaMask } from "redux/reducers/WalletSlice";
 
 const FisStationModal = () => {
   const dispatch = useAppDispatch();
@@ -46,6 +48,9 @@ const FisStationModal = () => {
       };
     }
   );
+
+  const { targetMetaMaskChainId, setTargetMetaMaskChainId } = useContext(MyLayoutContext);
+	console.log({targetMetaMaskChainId})
 
   const { swapLimit, poolInfoList } = useFisStationPoolInfo();
 
@@ -98,8 +103,42 @@ const FisStationModal = () => {
   };
 
   const [buttonDisabled, buttonText] = useMemo(() => {
+    if (slippage <= 0) {
+      return [true, "Invalid Slippage Setting"];
+    }
+    if (
+      isNaN(Number(swapFisAmount)) ||
+      isNaN(Number(swapTokenAmount)) ||
+      Number(swapFisAmount) === 0 ||
+      Number(swapTokenAmount) === 0
+    ) {
+      return [true, "Input Swap Amount"];
+    }
+    if (
+      Number(swapFisAmount) < swapLimit.min ||
+      Number(swapFisAmount) > swapLimit.max
+    ) {
+      return [
+        true,
+        `You can Swap ${swapLimit.min}~${swapLimit.max} FIS every transaction`,
+      ];
+    }
+
+    if (
+      selectedToken === TokenName.ETH &&
+      targetMetaMaskChainId !== getMetamaskEthChainId()
+    ) {
+      return [false, "Switch Network"];
+    }
+    // todo: ATOM
     return [false, "Swap"];
-  }, []);
+  }, [
+    swapLimit,
+    swapFisAmount,
+    swapTokenAmount,
+    selectedToken,
+    targetMetaMaskChainId,
+  ]);
 
   const onClickSlippageAuto = () => {
     setSlippage(1);
@@ -149,7 +188,26 @@ const FisStationModal = () => {
   };
 
   const onClickSwap = () => {
-    // dispatch(handleSwap(selectedToken, ))
+    if (!selectedToken) return;
+    const minReceiveFisAmount = (1 - slippage / 100) * Number(swapFisAmount);
+
+    if (
+      selectedToken === TokenName.ETH &&
+      targetMetaMaskChainId !== getMetamaskEthChainId()
+    ) {
+      dispatch(connectMetaMask(getMetamaskEthChainId()));
+			setTargetMetaMaskChainId(getMetamaskEthChainId());
+      return;
+    }
+
+    dispatch(
+      handleSwap(
+        selectedToken,
+        swapTokenAmount,
+        swapFisAmount,
+        minReceiveFisAmount
+      )
+    );
   };
 
   const getTokenLogo = (tokenName: TokenName) => {
@@ -388,7 +446,11 @@ const FisStationModal = () => {
             </div>
 
             <div className="mt-[.56rem]">
-              <Button radius=".32rem" disabled={buttonDisabled}>
+              <Button
+                radius=".32rem"
+                disabled={buttonDisabled}
+                onClick={onClickSwap}
+              >
                 {buttonText}
               </Button>
             </div>
