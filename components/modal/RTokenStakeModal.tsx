@@ -12,6 +12,7 @@ import maticIcon from "public/matic_type_green.svg";
 import ksmIcon from "public/ksm_type_green.png";
 import dotIcon from "public/dot_type_green.png";
 import bnbIcon from "public/bnb_type_green.svg";
+import solIcon from "public/sol_type_green.svg";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CustomNumberInput } from "components/common/CustomNumberInput";
@@ -264,7 +265,7 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
       }
       return Number(relayFee) + Number(bridgeFee) + "";
     }
-  }, [relayFee, tokenStandard, bridgeFeeStore]);
+  }, [relayFee, tokenStandard, bridgeFeeStore, tokenName]);
 
   const transactionCost = useMemo(() => {
     if (tokenStandard === TokenStandard.Native) {
@@ -602,6 +603,9 @@ export const RTokenStakeModal = (props: RTokenStakeModalProps) => {
     }
     if (tokenName === TokenName.BNB) {
       return bnbIcon;
+    }
+    if (tokenName === TokenName.SOL) {
+      return solIcon;
     }
     return ethIcon;
   };

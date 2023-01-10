@@ -250,7 +250,7 @@ const RTokenStakePage = () => {
           <br />
           rKSM liquid staking rewards are mainly decided by the Kusama
           chain&apos;s staking APY, delegation strategy and the original
-          validator’s slash risks.
+          validator&apos;s slash risks.
         </div>
       </CollapseCard>
 
@@ -307,7 +307,7 @@ const RTokenStakePage = () => {
         mt=".36rem"
         title={
           <div className="text-white text-[.32rem]">
-            What’s the rKSM secondary market peg?
+            What&apos;s the rKSM secondary market peg?
           </div>
         }
       >

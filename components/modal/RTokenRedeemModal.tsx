@@ -29,6 +29,7 @@ import maticBlackIcon from "public/matic_type_black.png";
 import ksmBlackIcon from "public/ksm_type_black.png";
 import dotBlackIcon from "public/dot_type_black.png";
 import bnbBlackIcon from "public/bnb_type_black.png";
+import solBlackIcon from "public/sol_type_green.svg";
 import rectangle from "public/rectangle_h.svg";
 import userAvatar from "public/userAvatar.svg";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -50,6 +51,7 @@ import {
 import Web3 from "web3";
 import { RTokenRedeemLoadingSidebar } from "./RTokenRedeemLoadingSidebar";
 import { getSolUnbondTxFees, unstakeRSol } from "redux/reducers/SolSlice";
+import { estimateUnbondDays } from "config/unbond";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -251,6 +253,10 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
       return "0.005";
     }
 
+    if (tokenName === TokenName.SOL) {
+      return "0.005";
+    }
+
     return "--";
   }, [ethGasPrice, tokenName]);
 
@@ -364,6 +370,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     if (tokenName === TokenName.BNB) {
       return "https://docs.stafi.io/rtoken-app/rbnb-solution/rbnb-faq#4.whats-the-unbonding-period-of-rbnb";
     }
+    if (tokenName === TokenName.SOL) {
+      return "https://docs.stafi.io/rtoken-app/rsol-solution/rsol-faq#4.whats-the-unbonding-period-of-rsol";
+    }
     return "";
   };
 
@@ -379,6 +388,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
     }
     if (tokenName === TokenName.BNB) {
       return bnbBlackIcon;
+    }
+    if (tokenName === TokenName.SOL) {
+      return solBlackIcon;
     }
     return ethIcon;
   };
@@ -428,7 +440,9 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
               <div>
                 <div className="text-text1 text-[.24rem]">
                   <MyTooltip
-                    title={`The address that receives redeemed ${tokenName} tokens, ${tokenName} tokens will be sent to the receiving address after receiving the request of redemption around 9 days`}
+                    title={`The address that receives redeemed ${tokenName} tokens, ${tokenName} tokens will be sent to the receiving address after receiving the request of redemption around ${estimateUnbondDays(
+                      tokenName
+                    )} days`}
                     text="Receiving Address"
                   />
                 </div>
