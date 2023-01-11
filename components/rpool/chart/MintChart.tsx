@@ -78,7 +78,7 @@ const MintChart = (props: Props) => {
         </div>
 
         {mintedValueChartXData.length === 0 && (
-          <div className="absolute left-[.56rem] right-0 flex justify-center top-[140px]">
+          <div className="absolute left-[.56rem] right-0 flex justify-center top-[160px]">
             <EmptyContent size="0.6rem" />
           </div>
         )}
@@ -166,7 +166,7 @@ const MintChart = (props: Props) => {
         </div>
 
         {rewardChartXData.length === 0 && (
-          <div className="absolute left-[.56rem] right-0 flex justify-center top-[140px]">
+          <div className="absolute left-[.56rem] right-0 flex justify-center top-[160px]">
             <EmptyContent size="0.6rem" />
           </div>
         )}

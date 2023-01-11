@@ -22,6 +22,7 @@ export const CustomBarChart = (props: Props) => {
         extraCssText:
           "border-radius:0.16rem;padding:0.2rem;backdrop-filter:blur(40px);",
         formatter: (params: any) => {
+					console.log(params)
           if (!params) return;
           // console.log(params)
           const index = props.xData.indexOf(params.name);
@@ -39,7 +40,7 @@ export const CustomBarChart = (props: Props) => {
           formatAdded = partsAdded.join(".");
 
           return `
-					<div style="color:#9DAFBE;font-size:0.24rem;">${params.name}</div>
+					<div style="color:#9DAFBE;font-size:0.24rem;">${params.name.substring(0, 11)}</div>
 					<div style="color:#9DAFBE;margin-top:0.18rem;font-size:0.24rem;">${chartItem.addedRToken} Mintdrop</div>
 					<div style="color:#00F3AB;margin-top:0.18rem;font-size:0.24rem;">+${formatAdded} FIS Reward</div>
 					<div style="height:1px;background:#5B6872;margin:0.18rem 0;font-size:0.24rem;"></div>

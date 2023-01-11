@@ -51,7 +51,7 @@ export function useRPoolRewardChart(chartDuSeconds: number) {
 
       setRewardChartXData(
         resJson.data.rewardChartXData
-          .map((item: number) => dayjs.unix(item).format("YYYY.MM.DD"))
+          .map((item: number) => dayjs.unix(item).format("YYYY.MM.DD hh:mm:ss"))
           .reverse() || []
       );
 
