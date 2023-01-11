@@ -24,11 +24,20 @@ import rectangle from "public/rectangle_v.svg";
 import rectangleError from "public/rectangle_v_error.svg";
 import { useContext, useMemo, useState } from "react";
 import { connectMetaMask } from "redux/reducers/WalletSlice";
-import { isEmptyValue, isInvalidValue, openLink } from "utils/common";
+import {
+  isEmptyValue,
+  isInvalidValue,
+  isPolkadotWallet,
+  openLink,
+} from "utils/common";
 import { getChainIcon, getWhiteTokenIcon } from "utils/icon";
 import { formatNumber, getDecimals } from "utils/number";
 import { transformSs58Address } from "utils/polkadotUtils";
-import { getExchangeRateUpdateTime, getTokenSymbol } from "utils/rToken";
+import {
+  getExchangeRateUpdateTime,
+  getRefinedStakedAmount,
+  getTokenSymbol,
+} from "utils/rToken";
 import { TokenStandardSelector } from "./TokenStandardSelector";
 
 interface StakeOverviewProps {
@@ -55,16 +64,19 @@ export const StakeOverview = (props: StakeOverviewProps) => {
   const [rTokenRedeemModalVisible, setRTokenRedeemModalVisible] =
     useState(false);
 
-  const { metaMaskAccount, ksmAccount, dotAccount } = useWalletAccount();
+  const { metaMaskAccount, ksmAccount, dotAccount, solanaAccount } =
+    useWalletAccount();
 
   const defaultReceivingAddress = useMemo(() => {
     if (props.tokenName === TokenName.KSM) {
       return transformSs58Address(ksmAccount, WalletType.Polkadot_KSM);
     } else if (props.tokenName === TokenName.DOT) {
       return transformSs58Address(dotAccount, WalletType.Polkadot_DOT);
+    } else if (props.tokenName === TokenName.SOL) {
+      return solanaAccount;
     }
     return metaMaskAccount;
-  }, [props.tokenName, metaMaskAccount, ksmAccount, dotAccount]);
+  }, [props.tokenName, metaMaskAccount, ksmAccount, dotAccount, solanaAccount]);
 
   const selectedStandard = useTokenStandard(props.tokenName);
   const rTokenBalance = useRTokenBalance(selectedStandard, props.tokenName);
@@ -92,10 +104,7 @@ export const StakeOverview = (props: StakeOverviewProps) => {
       return "--";
     }
 
-    const stakedAmount = Number(rTokenBalance) * Number(rTokenRatio);
-    const decimals = getDecimals(getTokenSymbol(props.tokenName));
-
-    return (((stakedAmount * 1000000) / decimals) * decimals) / 1000000 + "";
+    return getRefinedStakedAmount(props.tokenName, rTokenBalance, rTokenRatio);
   }, [rTokenBalance, rTokenRatio, props.tokenName]);
 
   // User staked token value.
@@ -158,7 +167,8 @@ export const StakeOverview = (props: StakeOverviewProps) => {
                 onClick={props.onClickConnectWallet}
               >
                 <div className="text-white text-[.24rem] mr-[.14rem]">
-                  Connect {walletType}
+                  Connect{" "}
+                  {isPolkadotWallet(walletType) ? "Polkadot.js" : walletType}
                 </div>
                 <Icomoon icon="arrow-right" size=".26rem" color="#9DAFBE" />
               </div>

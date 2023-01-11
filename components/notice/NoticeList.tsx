@@ -17,6 +17,7 @@ import {
   getNoticeList,
   LocalNotice,
   NoticeEthDepositData,
+  NoticeRBridgeSwapData,
   NoticeRTokenStakeData,
   NoticeType,
 } from "utils/notice";
@@ -92,14 +93,25 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
                     })
                   );
                 }
-                setTimeout(() => {
-                  updateNoticeList();
-                }, 500);
               }
             }
           }
         }
+
+        if (notice.type === "rBridge Swap" && notice.status === "Pending") {
+          if (dayjs().valueOf() - Number(notice.timestamp) > 3600000) {
+            dispatch(
+              updateNotice(notice.id, {
+                status: "Confirmed",
+              })
+            );
+          }
+        }
       });
+
+      setTimeout(() => {
+        updateNoticeList();
+      }, 500);
     }
   }, [dispatch, props.isOpen, stakeLoadingParams]);
 
@@ -142,6 +154,10 @@ export const NoticeList = (props: { isOpen: boolean; onClose: () => void }) => {
         } from StaFi Pool Contract to your wallet, and receive ${formatNumber(
           data.willReceiveAmount
         )} ${data.tokenName}.`;
+      }
+      if (notice.type === "rBridge Swap") {
+        data = notice.data as NoticeRBridgeSwapData;
+        return `Swap ${data.amount} ${data.srcTokenStandard} ${data.tokenName} to ${data.dstTokenStandard} ${data.tokenName}, it may take 2~10 minutes to arrive.`;
       }
     } catch (err: unknown) {}
 

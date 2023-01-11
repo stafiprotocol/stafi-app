@@ -7,7 +7,7 @@ import { hooks } from "connectors/metaMask";
 import { useAppDispatch } from "hooks/common";
 import { useInit } from "hooks/useInit";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { NavigationItem, WalletType } from "interfaces/common";
+import { NavigationItem, TokenStandard, WalletType } from "interfaces/common";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -30,6 +30,9 @@ import { RTokenStakeLoadingSidebar } from "components/modal/RTokenStakeLoadingSi
 import { RTokenRedeemLoadingModal } from "components/modal/RTokenRedeemLoadingModal";
 import { RTokenRedeemLoadingSidebar } from "components/modal/RTokenRedeemLoadingSidebar";
 import FisStationModal from "components/modal/FisStationModal";
+import { RBridgeModal } from "components/modal/RBridgeModal";
+import { RBridgeSwapLoadingModal } from "components/modal/RBridgeSwapLoadingModal";
+import { RBridgeSwapLoadingSidebar } from "components/modal/RBridgeSwapLoadingSidebar";
 
 type LayoutProps = React.PropsWithChildren<{}>;
 
@@ -70,7 +73,13 @@ export const Layout = (props: LayoutProps) => {
   >();
   const [walletType, setWalletType] = useState<WalletType>(WalletType.MetaMask);
 
-  const { metaMaskAccount } = useWalletAccount();
+  const {
+    metaMaskAccount,
+    polkadotAccount,
+    ksmAccount,
+    dotAccount,
+    solanaAccount,
+  } = useWalletAccount();
 
   const isWrongMetaMaskNetwork = useMemo(() => {
     return (
@@ -88,11 +97,38 @@ export const Layout = (props: LayoutProps) => {
   }, [isWrongMetaMaskNetwork]);
 
   const walletNotConnected = useMemo(() => {
+    const tokenStandardQuery = router.query.tokenStandard;
     if (walletType === WalletType.MetaMask) {
       return !metaMaskAccount;
+    } else if (walletType === WalletType.Polkadot_KSM) {
+      if (
+        tokenStandardQuery === TokenStandard.ERC20 ||
+        tokenStandardQuery === TokenStandard.BEP20
+      ) {
+        return !metaMaskAccount || !ksmAccount;
+      }
+      return !polkadotAccount || !ksmAccount;
+    } else if (walletType === WalletType.Polkadot_DOT) {
+      if (
+        tokenStandardQuery === TokenStandard.ERC20 ||
+        tokenStandardQuery === TokenStandard.BEP20
+      ) {
+        return !metaMaskAccount || !dotAccount;
+      }
+      return !polkadotAccount || !dotAccount;
+    } else if (walletType === WalletType.Phantom) {
+      return !polkadotAccount || !solanaAccount;
     }
     return false;
-  }, [walletType, metaMaskAccount]);
+  }, [
+    router.query,
+    walletType,
+    metaMaskAccount,
+    polkadotAccount,
+    ksmAccount,
+    dotAccount,
+    solanaAccount,
+  ]);
 
   const particlesInit = useCallback(async (engine: Engine) => {
     console.log(engine);
@@ -129,6 +165,9 @@ export const Layout = (props: LayoutProps) => {
     } else if (router.pathname === "/rtoken/stake/DOT") {
       setTargetMetaMaskChainId(undefined);
       setWalletType(WalletType.Polkadot_DOT);
+    } else if (router.pathname === "/rtoken/stake/SOL") {
+      setTargetMetaMaskChainId(undefined);
+      setWalletType(WalletType.Phantom);
     } else if (router.pathname.startsWith("/rpool")) {
       setTargetMetaMaskChainId(undefined);
       setWalletType(WalletType.MetaMask);
@@ -336,11 +375,16 @@ export const Layout = (props: LayoutProps) => {
 
         <RTokenRedeemLoadingModal />
 
+        <RBridgeSwapLoadingModal />
+
+        <RBridgeSwapLoadingSidebar />
+
         <ConnectWalletModal />
 
         <ChooseFisAccountModal />
 
 				<FisStationModal />
+        <RBridgeModal />
       </div>
     </MyLayoutContext.Provider>
   );

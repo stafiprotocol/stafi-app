@@ -9,6 +9,8 @@ export function useWalletAccount() {
     polkadotBalance,
     ksmAccount,
     dotAccount,
+    solanaAccount,
+    solanaBalance,
   } = useAppSelector((state: RootState) => {
     return {
       metaMaskAccount: state.wallet.metaMaskDisconnected
@@ -19,6 +21,10 @@ export function useWalletAccount() {
       polkadotBalance: state.wallet.polkadotBalance,
       ksmAccount: state.wallet.ksmAccount,
       dotAccount: state.wallet.dotAccount,
+      solanaAccount: state.wallet.phantomDisconnected
+        ? undefined
+        : state.wallet.solanaAccount,
+      solanaBalance: state.wallet.solanaBalance,
     };
   });
 
@@ -29,5 +35,7 @@ export function useWalletAccount() {
     polkadotBalance,
     ksmAccount,
     dotAccount,
+    solanaAccount,
+    solanaBalance,
   };
 }

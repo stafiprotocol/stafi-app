@@ -98,7 +98,7 @@ export function formatNumber(
 }
 
 export function chainAmountToHuman(
-  num: string,
+  num: string | number,
   tokenSymbol: TokenSymbol | rSymbol | undefined
 ) {
   if (num === "" || num === undefined || num === null || isNaN(Number(num))) {
@@ -159,37 +159,40 @@ export function rTokenRateToHuman(num: string | number) {
   // return Web3.utils.toBN(num).div(Web3.utils.toBN("1000000000000")).toString();
 }
 
-export function numberToChain(input: string | number, symbol: rSymbol): string {
+export function numberToChain(
+  input: string | number,
+  symbol: rSymbol | TokenSymbol
+): string {
   if (isNaN(Number(input))) {
     return "--";
   }
   let factor;
   switch (symbol) {
-    case rSymbol.Dot:
+    case rSymbol.Dot || TokenSymbol.DOT:
       factor = "10000000000";
       break;
-    case rSymbol.Atom:
+    case rSymbol.Atom || TokenSymbol.ATOM:
       factor = "1000000";
       break;
-    case rSymbol.Fis:
+    case rSymbol.Fis || TokenSymbol.FIS:
       factor = "1000000000000";
       break;
-    case rSymbol.Ksm:
+    case rSymbol.Ksm || TokenSymbol.KSM:
       factor = "1000000000000";
       break;
-    case rSymbol.Sol:
+    case rSymbol.Sol || TokenSymbol.SOL:
       factor = "1000000000";
       break;
-    case rSymbol.Eth:
+    case rSymbol.Eth || TokenSymbol.ETH:
       factor = "1000000000000000000";
       break;
-    case rSymbol.Matic:
+    case rSymbol.Matic || TokenSymbol.MATIC:
       factor = "1000000000000000000";
       break;
-    case rSymbol.Bnb:
+    case rSymbol.Bnb || TokenSymbol.BNB:
       factor = "100000000";
       break;
-    case rSymbol.StafiHub:
+    case rSymbol.StafiHub || TokenSymbol.StafiHub:
       factor = "1000000";
       break;
     default:

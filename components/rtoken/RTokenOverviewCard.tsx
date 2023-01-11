@@ -20,6 +20,7 @@ import dotLogo from "public/dot_type_black.png";
 import ethLogo from "public/eth_type_black.svg";
 import ksmLogo from "public/ksm_type_black.png";
 import maticLogo from "public/matic_type_black.png";
+import solLogo from "public/sol_type_black.png";
 import bnbLogo from "public/bnb_type_black.png";
 import { useMemo } from "react";
 import { setConnectWalletModalParams } from "redux/reducers/AppSlice";
@@ -35,8 +36,13 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
   const { useChainId: useMetaMaskChainId } = hooks;
   const metaMaskChainId = useMetaMaskChainId();
   const { tokenName } = props;
-  const { metaMaskAccount, polkadotAccount, ksmAccount, dotAccount } =
-    useWalletAccount();
+  const {
+    metaMaskAccount,
+    polkadotAccount,
+    ksmAccount,
+    dotAccount,
+    solanaAccount,
+  } = useWalletAccount();
   const router = useRouter();
   const { stakeApr, allEth, allEthValue } = useEthPoolData();
 
@@ -65,6 +71,9 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     if (tokenName === TokenName.DOT) {
       return dotLogo;
     }
+    if (tokenName === TokenName.SOL) {
+      return solLogo;
+    }
     if (tokenName === TokenName.BNB) {
       return bnbLogo;
     }
@@ -84,9 +93,12 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
     if (tokenName === TokenName.DOT) {
       return "Polkadot";
     }
-		if (tokenName === TokenName.BNB) {
-			return "BSC";
-		}
+    if (tokenName === TokenName.SOL) {
+      return "Solana";
+    }
+    if (tokenName === TokenName.BNB) {
+      return "BSC";
+    }
     return "Ethereum";
   };
 
@@ -169,6 +181,18 @@ export const RTokenOverviewCard = (props: RTokenOverviewCardProps) => {
         return;
       }
       router.push("/rtoken/stake/DOT");
+    } else if (tokenName === TokenName.SOL) {
+      if (!solanaAccount || !polkadotAccount) {
+        dispatch(
+          setConnectWalletModalParams({
+            visible: true,
+            walletList: [WalletType.Polkadot, WalletType.Phantom],
+            targetUrl: "/rtoken/stake/SOL",
+          })
+        );
+        return;
+      }
+      router.push("/rtoken/stake/SOL");
     }
   };
 

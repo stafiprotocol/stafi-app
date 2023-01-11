@@ -42,9 +42,14 @@ import { formatLargeAmount, formatNumber } from "utils/number";
 import numberUtil from "utils/numberUtil";
 import { getRedeemDaysLeft } from "utils/rToken";
 import { getShortAddress } from "utils/string";
-import { validateETHAddress, validateSS58Address } from "utils/validator";
+import {
+  validateETHAddress,
+  validateSolanaAddress,
+  validateSS58Address,
+} from "utils/validator";
 import Web3 from "web3";
 import { RTokenRedeemLoadingSidebar } from "./RTokenRedeemLoadingSidebar";
+import { getSolUnbondTxFees, unstakeRSol } from "redux/reducers/SolSlice";
 
 interface RTokenRedeemModalProps {
   visible: boolean;
@@ -164,6 +169,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
   const addressCorrect = useMemo(() => {
     if (tokenName === TokenName.KSM || tokenName === TokenName.DOT) {
       return validateSS58Address(targetAddress);
+    } else if (tokenName === TokenName.SOL) {
+      return validateSolanaAddress(targetAddress);
     }
     return validateETHAddress(targetAddress);
   }, [targetAddress, tokenName]);
@@ -267,6 +274,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
             dispatch(updateRefreshDataFlag());
+            props.onClose();
           }
         )
       );
@@ -293,6 +301,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
             dispatch(updateRefreshDataFlag());
+            props.onClose();
           }
         )
       );
@@ -306,6 +315,21 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
           () => {
             dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
             dispatch(updateRefreshDataFlag());
+            props.onClose();
+          }
+        )
+      );
+    } else if (tokenName === TokenName.SOL) {
+      dispatch(
+        unstakeRSol(
+          redeemAmount,
+          targetAddress,
+          willReceiveAmount,
+          newTotalStakedAmount,
+          () => {
+            dispatch(updateRTokenBalance(tokenStandard, props.tokenName));
+            dispatch(updateRefreshDataFlag());
+            props.onClose();
           }
         )
       );
@@ -320,6 +344,8 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
         dispatch(getKsmUnbondTxFees(redeemAmount || "1", targetAddress));
       } else if (tokenName === TokenName.DOT) {
         dispatch(getDotUnbondTxFees(redeemAmount || "1", targetAddress));
+      } else if (tokenName === TokenName.SOL) {
+        dispatch(getSolUnbondTxFees(redeemAmount || "1", targetAddress));
       } else if (tokenName === TokenName.BNB) {
         dispatch(getBnbUnbondTxFees("0.001", targetAddress));
       }
@@ -707,7 +733,7 @@ export const RTokenRedeemModal = (props: RTokenRedeemModalProps) => {
                 <div className="text-text2 text-[.24rem]">
                   <MyTooltip
                     text="Unstake Fee"
-                    title={`When users unstake the MATICs, StaFi protocol will charge 0.2% of the unstaked r${tokenName} tokens as a commission`}
+                    title={`When users unstake the ${tokenName}s, StaFi protocol will charge 0.2% of the unstaked r${tokenName} tokens as a commission`}
                   />
                 </div>
                 <div className="mt-[.15rem] text-text1 text-[.24rem]">

@@ -11,10 +11,10 @@ import { useKsmBalance } from "hooks/useKsmBalance";
 import { useRTokenBalance } from "hooks/useRTokenBalance";
 import { useTokenStandard } from "hooks/useTokenStandard";
 import { useWalletAccount } from "hooks/useWalletAccount";
-import { TokenName, TokenStandard } from "interfaces/common";
+import { TokenName, TokenStandard, WalletType } from "interfaces/common";
 import React, { useEffect, useState } from "react";
 import { getKsmPools } from "redux/reducers/KsmSlice";
-import { connectMetaMask } from "redux/reducers/WalletSlice";
+import { connectMetaMask, connectPolkadotJs } from "redux/reducers/WalletSlice";
 
 const RTokenStakePage = () => {
   const dispatch = useAppDispatch();
@@ -23,7 +23,7 @@ const RTokenStakePage = () => {
   const { setNavigation } = React.useContext(MyLayoutContext);
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
 
-  const { metaMaskAccount, polkadotAccount } = useWalletAccount();
+  const { metaMaskAccount, polkadotAccount, ksmAccount } = useWalletAccount();
   const balance = useKsmBalance();
 
   useEffect(() => {
@@ -44,14 +44,36 @@ const RTokenStakePage = () => {
     return metaMaskAccount;
   };
 
+  const connectWallet = () => {
+    if (tokenStandard === TokenStandard.Native) {
+      if (!polkadotAccount) {
+        dispatch(connectPolkadotJs(true, WalletType.Polkadot));
+        return;
+      }
+      if (!ksmAccount) {
+        dispatch(connectPolkadotJs(true, WalletType.Polkadot_KSM));
+        return;
+      }
+    } else {
+      if (!metaMaskAccount) {
+        dispatch(connectMetaMask(getMetamaskEthChainId()));
+        return;
+      }
+      if (!ksmAccount) {
+        dispatch(connectPolkadotJs(true, WalletType.Polkadot_KSM));
+        return;
+      }
+    }
+  };
+
   return (
     <div>
       <StakeOverview
         tokenName={TokenName.KSM}
         onClickStake={() => setStakeModalVisible(true)}
-        onClickConnectWallet={() =>
-          dispatch(connectMetaMask(getMetamaskEthChainId()))
-        }
+        onClickConnectWallet={() => {
+          connectWallet();
+        }}
       />
 
       <CollapseCard
@@ -70,16 +92,14 @@ const RTokenStakePage = () => {
       <RTokenIntegrations tokenName={TokenName.KSM} />
 
       <RTokenStakeModal
-				rTokenBalance={rTokenBalance}
+        rTokenBalance={rTokenBalance}
         tokenName={TokenName.KSM}
         defaultReceivingAddress={getDefaultReceivingAddress()}
         visible={stakeModalVisible}
         onClose={() => setStakeModalVisible(false)}
         balance={balance || "--"}
         editAddressDisabled={false}
-        onClickConnectWallet={() =>
-          dispatch(connectMetaMask(getMetamaskEthChainId()))
-        }
+        onClickConnectWallet={() => connectWallet()}
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>

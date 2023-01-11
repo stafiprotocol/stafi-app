@@ -24,15 +24,18 @@ import {
   CANCELLED_MESSAGE,
   REJECTED_MESSAGE,
   SIGN_ERROR_MESSAGE,
+  SOLANA_TOKEN_ACCOUNT_EMPTY,
   STAFI_ACCOUNT_EMPTY_MESSAGE,
   TRANSACTION_FAILED_MESSAGE,
 } from "utils/constants";
 import { getBnbAbi, getRBnbTokenAddress } from "config/bnb";
 import {
   ChainId,
+  RTokenName,
   TokenName,
   TokenStandard,
   TokenSymbol,
+  TokenType,
   WalletType,
 } from "interfaces/common";
 import {
@@ -45,7 +48,12 @@ import { getPolkadotStakingSignature } from "utils/polkadotUtils";
 import { getBep20TokenContractConfig } from "config/bep20Contract";
 import { getErc20TokenContractConfig } from "config/erc20Contract";
 import { getEtherScanTxUrl, getStafiScanTxUrl } from "config/explorer";
-import { getTokenNameFromrSymbol, getTokenSymbol } from "utils/rToken";
+import {
+  getRTokenNameFromrSymbol,
+  getTokenNameFromrSymbol,
+  getTokenSymbol,
+  getTokenType,
+} from "utils/rToken";
 import {
   getBep20RBnbTokenAbi,
   getBep20RDotTokenAbi,
@@ -53,6 +61,11 @@ import {
 } from "config/bep20Abi";
 import { getErc20RDotTokenAbi, getErc20RKsmTokenAbi } from "config/erc20Abi";
 import { chainAmountToHuman, formatNumber, numberToChain } from "utils/number";
+import {
+  getSolanaStakingSignature,
+  getSolanaTokenAccountPubkey,
+  getSplAssetBalance,
+} from "utils/solanaUtils";
 
 declare const ethereum: any;
 
@@ -224,15 +237,24 @@ export const bond =
     // } else {
     dispatch(
       updateStakeLoadingParams({
-        displayMsg:
-          "Please sign the staking transaction in your Polkadot.js wallet",
+        displayMsg: `Please sign the staking transaction in your ${
+          rsymbol === rSymbol.Sol ? "Phantom" : "Polkadot.js"
+        } wallet`,
       })
     );
-    signature = await getPolkadotStakingSignature(
-      address,
-      u8aToHex(keyringInstance.decodeAddress(fisAddress))
-    );
-    pubkey = u8aToHex(keyringInstance.decodeAddress(address));
+    if (rsymbol === rSymbol.Sol) {
+      const { PublicKey } = await import("@solana/web3.js");
+      signature = await getSolanaStakingSignature(fisAddress);
+      pubkey = u8aToHex(
+        new PublicKey(getState().wallet.solanaAccount || "").toBytes()
+      );
+    } else {
+      signature = await getPolkadotStakingSignature(
+        address,
+        u8aToHex(keyringInstance.decodeAddress(fisAddress))
+      );
+      pubkey = u8aToHex(keyringInstance.decodeAddress(address));
+    }
 
     // message.info('Signature succeeded, proceeding staking');
     // }
@@ -284,8 +306,16 @@ export const bond =
     } else {
       let swapAddress;
       if (chainId === ChainId.SOL) {
-        // sol chain id
-        // todo:
+        const tokenAccount = await getSolanaTokenAccountPubkey(
+          targetAddress,
+          rsymbol === rSymbol.Sol ? TokenType.rSOL : undefined
+        );
+        if (tokenAccount) {
+          swapAddress = u8aToHex(tokenAccount.toBytes());
+        } else {
+          handleStakeError(SOLANA_TOKEN_ACCOUNT_EMPTY);
+          return;
+        }
       } else {
         swapAddress = targetAddress;
       }
@@ -573,11 +603,12 @@ export const getMinting =
                   tokenAbi = getBep20RBnbTokenAbi();
                   tokenAddress = getBep20TokenContractConfig().rBNB;
                 }
-                oldBalance = await getBep20AssetBalance(
-                  targetAddress,
-                  tokenAbi,
-                  tokenAddress
-                );
+                oldBalance =
+                  (await getBep20AssetBalance(
+                    targetAddress,
+                    tokenAbi,
+                    tokenAddress
+                  )) || "0";
               } else if (chainId === ChainId.ETH) {
                 if (rsymbol === rSymbol.Matic) {
                   tokenAbi = getERCMaticAbi();
@@ -589,12 +620,19 @@ export const getMinting =
                   tokenAbi = getErc20RDotTokenAbi();
                   tokenAddress = getErc20TokenContractConfig().rDOT;
                 }
-                oldBalance = await getErc20AssetBalance(
-                  targetAddress,
-                  tokenAbi,
-                  tokenAddress,
-                  getTokenNameFromrSymbol(rsymbol)
-                );
+                oldBalance =
+                  (await getErc20AssetBalance(
+                    targetAddress,
+                    tokenAbi,
+                    tokenAddress,
+                    getTokenNameFromrSymbol(rsymbol)
+                  )) || "0";
+              } else if (chainId === ChainId.SOL) {
+                oldBalance =
+                  (await getSplAssetBalance(
+                    targetAddress,
+                    getRTokenNameFromrSymbol(rsymbol)
+                  )) || "0";
               }
 
               dispatch(
@@ -763,70 +801,70 @@ export const queryRTokenSwapState =
     if (rsymbol === rSymbol.Matic) {
       if (chainId === ChainId.BSC) {
         tokenAbi = getBSCRMaticAbi();
-        tokenAddress = bep20TokenContractConfig.rMATIC;
-        balance = await getBep20AssetBalance(
-          targetAddress,
-          tokenAbi,
-          tokenAddress
-        );
+        tokenAddress = getBep20TokenContractConfig().rMATIC;
+        balance =
+          (await getBep20AssetBalance(targetAddress, tokenAbi, tokenAddress)) ||
+          "0";
       } else if (chainId === ChainId.ETH) {
         tokenAbi = getERCMaticAbi();
         tokenAddress = getErc20TokenContractConfig().rMATIC;
-        balance = await getErc20AssetBalance(
-          targetAddress,
-          tokenAbi,
-          tokenAddress,
-          TokenName.MATIC
-        );
+        balance =
+          (await getErc20AssetBalance(
+            targetAddress,
+            tokenAbi,
+            tokenAddress,
+            TokenName.MATIC
+          )) || "0";
       }
     } else if (rsymbol === rSymbol.Ksm) {
       if (chainId === ChainId.BSC) {
         tokenAbi = getBep20RKsmTokenAbi();
         tokenAddress = getBep20TokenContractConfig().rKSM;
-        balance = await getBep20AssetBalance(
-          targetAddress,
-          tokenAbi,
-          tokenAddress
-        );
+        balance =
+          (await getBep20AssetBalance(targetAddress, tokenAbi, tokenAddress)) ||
+          "0";
       } else if (chainId === ChainId.ETH) {
         tokenAbi = getErc20RKsmTokenAbi();
         tokenAddress = getErc20TokenContractConfig().rKSM;
-        balance = await getErc20AssetBalance(
-          targetAddress,
-          tokenAbi,
-          tokenAddress,
-          TokenName.DOT
-        );
+        balance =
+          (await getErc20AssetBalance(
+            targetAddress,
+            tokenAbi,
+            tokenAddress,
+            TokenName.DOT
+          )) || "0";
       }
     } else if (rsymbol === rSymbol.Dot) {
       if (chainId === ChainId.BSC) {
         tokenAbi = getBep20RDotTokenAbi();
         tokenAddress = getBep20TokenContractConfig().rDOT;
-        balance = await getBep20AssetBalance(
-          targetAddress,
-          tokenAbi,
-          tokenAddress
-        );
+        balance =
+          (await getBep20AssetBalance(targetAddress, tokenAbi, tokenAddress)) ||
+          "0";
       } else if (chainId === ChainId.ETH) {
         tokenAbi = getErc20RDotTokenAbi();
         tokenAddress = getErc20TokenContractConfig().rDOT;
-        balance = await getErc20AssetBalance(
-          targetAddress,
-          tokenAbi,
-          tokenAddress,
-          TokenName.DOT
-        );
+        balance =
+          (await getErc20AssetBalance(
+            targetAddress,
+            tokenAbi,
+            tokenAddress,
+            TokenName.DOT
+          )) || "0";
+      }
+    } else if (rsymbol === rSymbol.Sol) {
+      if (chainId === ChainId.SOL) {
+        balance =
+          (await getSplAssetBalance(targetAddress, RTokenName.rSOL)) || "0";
       }
     } else if (rsymbol === rSymbol.Bnb) {
       tokenAbi = getBep20RBnbTokenAbi();
       tokenAddress = getBep20TokenContractConfig().rBNB;
-      balance = await getBep20AssetBalance(
-        targetAddress,
-        tokenAbi,
-        tokenAddress
-      );
+      balance =
+        (await getBep20AssetBalance(targetAddress, tokenAbi, tokenAddress)) ||
+        "0";
     }
-
+    // console.log("newB", balance);
     if (
       Number(balance) - Number(oldBalance) <= Number(willReceiveAmount) * 1.1 &&
       Number(balance) - Number(oldBalance) >= Number(willReceiveAmount) * 0.9

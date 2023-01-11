@@ -52,3 +52,19 @@ export function getRTokenApi2Host() {
     return "https://rtoken-api2.stafi.io";
   }
 }
+
+export function getSolanaRestRpc() {
+  if (isDev()) {
+    return "https://solana-dev-rpc.stafi.io";
+  } else {
+    return "https://mainnet-rpc.wetez.io/solana/v1/c06bde6963933337ce7cf260c8aa16a5";
+  }
+}
+
+export function getSolanaWsRpc() {
+  if (isDev()) {
+    return "wss://solana-dev-wss.stafi.io";
+  } else {
+    return "wss://mainnet-rpc.wetez.io/ws/solana/v1/c06bde6963933337ce7cf260c8aa16a5";
+  }
+}

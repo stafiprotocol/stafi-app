@@ -58,6 +58,7 @@ interface Props {
   firstQueryActs: boolean;
   userActs: UserActs;
   loading: boolean;
+  firstQueryUserActs: boolean;
 }
 
 const RPoolFinishedList = (props: Props) => {
@@ -69,6 +70,7 @@ const RPoolFinishedList = (props: Props) => {
     firstQueryActs,
     userActs,
     loading,
+    firstQueryUserActs,
   } = props;
 
   const dispatch = useAppDispatch();
@@ -269,7 +271,8 @@ const RPoolFinishedList = (props: Props) => {
         </div>
       </div>
 
-      {((queryActsLoading && firstQueryActs) || loading) &&
+      {((queryActsLoading && firstQueryActs) ||
+        (loading && firstQueryUserActs)) &&
         paginatedList.length === 0 && (
           <div className="px-[.56rem] mb-[.5rem]">
             <TableSkeleton />
@@ -369,7 +372,10 @@ const RPoolFinishedList = (props: Props) => {
           </div>
         ))}
 
-      {!((queryActsLoading && firstQueryActs) || loading) &&
+      {!(
+        (queryActsLoading && firstQueryActs) ||
+        (loading && firstQueryUserActs)
+      ) &&
         paginatedList.length === 0 && (
           <div className="flex flex-col items-center pb-[.56rem]">
             <div className="flex flex-col items-center">

@@ -70,6 +70,7 @@ export interface MintProgramState {
   firstQueryActs: boolean;
   userActs: UserActs;
   queryUserActsLoading: boolean;
+  firstQueryUserActs: boolean;
 }
 
 const initialState: MintProgramState = {
@@ -79,6 +80,7 @@ const initialState: MintProgramState = {
   firstQueryActs: true,
   userActs: {},
   queryUserActsLoading: false,
+  firstQueryUserActs: true,
 };
 
 export const mintProgramSlice = createSlice({
@@ -118,6 +120,12 @@ export const mintProgramSlice = createSlice({
     ) => {
       state.queryUserActsLoading = action.payload;
     },
+    setFirstQueryUserActs: (
+      state: MintProgramState,
+      action: PayloadAction<boolean>
+    ) => {
+      state.firstQueryUserActs = action.payload;
+    },
   },
 });
 
@@ -128,6 +136,7 @@ export const {
   setFirstQueryActs,
   setUserActs,
   setQueryUserActsLoading,
+  setFirstQueryUserActs,
 } = mintProgramSlice.actions;
 
 export default mintProgramSlice.reducer;
@@ -147,11 +156,11 @@ export const getMintPrograms = (): AppThunk => async (dispatch, getState) => {
   ])
     .then(() => {
       // console.log(getState().mintProgram.rTokenActs);
-      dispatch(setFirstQueryActs(false));
     })
     .catch((err: any) => {})
     .finally(() => {
       dispatch(setQueryActsLoading(false));
+      dispatch(setFirstQueryActs(false));
     });
 };
 
@@ -478,6 +487,7 @@ export const getAllUserActs = (): AppThunk => async (dispatch, getState) => {
     .then()
     .catch((err: any) => console.error(err))
     .finally(() => {
+      dispatch(setFirstQueryUserActs(false));
       setTimeout(() => {
         dispatch(setQueryUserActsLoading(false));
       }, 2000);

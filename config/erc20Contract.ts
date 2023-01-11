@@ -47,6 +47,8 @@ export function getErc20ContractConfig(): Erc20ContractConfig {
 }
 
 interface Erc20TokenContractConfig {
+  FIS: string;
+  rFIS: string;
   rETH: string;
   rMATIC: string;
   rKSM: string;
@@ -60,6 +62,8 @@ export function getErc20TokenContractConfig(): Erc20TokenContractConfig {
     //   rETH: "0x0ed54e1b7b3be1c02d91b4fa8bf5655f3fbe08b4",
     // };
     return {
+      FIS: "0x5e1ded438fe58cff70b2fca0c549dd9d0d97546b",
+      rFIS: "0x6b0686af7bbfd5c5db119de946fea7dc64a8e32f",
       rETH: "0xE6b876ED4e9191645484FC8940A35784381c2f9B",
       rMATIC: "0x97dce48fb450590f3fc7e8caf4868c374804dd9e",
       rKSM: "0xa3c51c171aed86d0565fd9034e6930e9454775fc",
@@ -68,9 +72,29 @@ export function getErc20TokenContractConfig(): Erc20TokenContractConfig {
   }
 
   return {
+    FIS: "0xef3a930e1ffffacd2fc13434ac81bd278b0ecc8d",
+    rFIS: "0xc82eb6dea0c93edb8b697b89ad1b13d19469d635",
     rETH: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593",
     rMATIC: "0xcc75b43d3e43a7a26efd88c1c1e231fc42487bb8",
     rKSM: "0x3c3842c4d3037ae121d69ea1e7a0b61413be806c",
     rDOT: "0x505f5a4ff10985fe9f93f2ae3501da5fe665f08a",
+  };
+}
+interface Erc20BridgeContractConfig {
+  bridgeHandler: string;
+  bridge: string;
+}
+
+export function getErc20BridgeContractConfig(): Erc20BridgeContractConfig {
+  if (isDev()) {
+    return {
+      bridgeHandler: "0x7284f366e415b92dbb8240340be5da5a233a28e1",
+      bridge: "0x091232d4a9808acf5762df387a1c2de4c938f762",
+    };
+  }
+
+  return {
+    bridgeHandler: "0x2b6b6fce3af32efe4430e446717bda72b95ebb9a",
+    bridge: "0xc0609ea6e4345555276fac1636b5c27ebc17d817",
   };
 }

@@ -37,6 +37,24 @@ export enum TokenName {
   SOL = "SOL",
   ATOM = "ATOM",
 }
+export enum TokenType {
+  FIS = "fis",
+  ETH = "eth",
+  DOT = "dot",
+  KSM = "ksm",
+  MATIC = "matic",
+  BNB = "bnb",
+  SOL = "sol",
+  ATOM = "atom",
+  rFIS = "rfis",
+  rETH = "reth",
+  rDOT = "rdot",
+  rKSM = "rksm",
+  rMATIC = "rmatic",
+  rBNB = "rbnb",
+  rSOL = "rsol",
+  rATOM = "ratom",
+}
 
 export enum TokenSymbol {
   StafiHub = -2,
@@ -111,6 +129,7 @@ export enum DexType {
   Curve = "Curve",
   Sifchain = "Sifchain",
   Quickswap = "Quickswap",
+  Atrix = "Atrix",
 }
 
 export interface Fee {

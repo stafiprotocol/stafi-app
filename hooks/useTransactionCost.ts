@@ -19,7 +19,12 @@ import {
   getUnbondFees as getMaticUnbondFee,
 } from "redux/reducers/MaticSlice";
 import {
-	getBnbStakeRelayFee,
+  getSolBondFees,
+  getSolUnbondCommision,
+  getSolUnbondFees,
+} from "redux/reducers/SolSlice";
+import {
+  getBnbStakeRelayFee,
   getBondFee as getBnbBondFee,
   getUnbondCommision as getBnbUnbondCommision,
   getUnbondFee as getBnbUnbondFee,
@@ -55,9 +60,9 @@ export function useTransactionCost(
         bondFees: state.bnb.bondFee,
         unbondFees: state.bnb.unbondFee,
         relayFee: state.bnb.relayFee,
-				unbondCommision: state.bnb.unbondCommision,
-				unbondTxFees: state.bnb.unbondTxFees,
-			};
+        unbondCommision: state.bnb.unbondCommision,
+        unbondTxFees: state.bnb.unbondTxFees,
+      };
     } else if (tokenName === TokenName.KSM) {
       return {
         unbondCommision: state.ksm.unbondCommision,
@@ -74,6 +79,15 @@ export function useTransactionCost(
         bondTxFees: state.dot.bondTxFees,
         unbondTxFees: state.dot.unbondTxFees,
         bondFees: state.dot.bondFees,
+        relayFee: "--",
+      };
+    } else if (tokenName === TokenName.SOL) {
+      return {
+        unbondCommision: state.sol.unbondCommision,
+        unbondFees: state.sol.unbondFees,
+        bondTxFees: state.sol.bondTxFees,
+        unbondTxFees: state.sol.unbondTxFees,
+        bondFees: state.sol.bondFees,
         relayFee: "--",
       };
     }
@@ -94,11 +108,11 @@ export function useTransactionCost(
       dispatch(getMaticBondFee());
       dispatch(getMaticStakeRelayFee());
     } else if (tokenName === TokenName.BNB) {
-			dispatch(getBnbBondFee());
-			dispatch(getBnbUnbondCommision());
-			dispatch(getBnbUnbondFee());
-			dispatch(getBnbStakeRelayFee());
-		} else if (tokenName === TokenName.KSM) {
+      dispatch(getBnbBondFee());
+      dispatch(getBnbUnbondCommision());
+      dispatch(getBnbUnbondFee());
+      dispatch(getBnbStakeRelayFee());
+    } else if (tokenName === TokenName.KSM) {
       dispatch(getKsmUnbondCommision());
       dispatch(getKsmUnbondFees());
       dispatch(getKsmBondFees());
@@ -106,6 +120,10 @@ export function useTransactionCost(
       dispatch(getDotUnbondCommision());
       dispatch(getDotUnbondFees());
       dispatch(getDotBondFees());
+    } else if (tokenName === TokenName.SOL) {
+      dispatch(getSolUnbondCommision());
+      dispatch(getSolUnbondFees());
+      dispatch(getSolBondFees());
     }
   }, [dispatch, tokenName]);
 

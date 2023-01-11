@@ -20,6 +20,7 @@ interface Props {
   };
   queryActsLoading: boolean;
   firstQueryActs: boolean;
+  firstQueryUserActs: boolean;
 }
 
 const PoolTokenList = (props: Props) => {
@@ -41,7 +42,7 @@ const PoolTokenList = (props: Props) => {
   const [viewMyStakes, setViewMyStakes] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!polkadotAccount || !metaMaskAccount || !viewMyStakes) {
+    if (!polkadotAccount || !metaMaskAccount) {
       return;
     }
     dispatch(getAllUserActs());
@@ -135,6 +136,7 @@ const PoolTokenList = (props: Props) => {
           viewMyStakes={viewMyStakes}
           // programTab={props.programTab}
           list={props.liveList}
+          firstQueryUserActs={props.firstQueryActs}
         />
       )}
 
@@ -148,6 +150,7 @@ const PoolTokenList = (props: Props) => {
           viewMyStakes={viewMyStakes}
           // programTab={props.programTab}
           list={props.finishedList}
+          firstQueryUserActs={props.firstQueryUserActs}
         />
       )}
     </>
