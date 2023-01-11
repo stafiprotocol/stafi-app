@@ -28,6 +28,7 @@ const RPoolPage = () => {
     finishedList,
     queryActsLoading,
     firstQueryActs,
+    firstQueryUserActs,
   } = useRPoolMintRTokenActs();
 
   const balanceRAtom = useRTokenBalance(TokenStandard.Native, TokenName.ATOM);
@@ -132,12 +133,13 @@ const RPoolPage = () => {
         // programTab={currentPage}
         liveList={liveList}
         finishedList={finishedList}
+        firstQueryUserActs={firstQueryUserActs}
       />
 
       <div className="mt-[.56rem] text-white text-[.32rem]">FAQs</div>
 
       {/* {currentPage === ProgramTab.Mint ? <MintFaq /> : <LpFaq />} */}
-			{/* <MintFaq /> */}
+      {/* <MintFaq /> */}
     </div>
   );
 };
