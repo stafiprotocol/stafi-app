@@ -2,10 +2,14 @@ import { Box, Modal } from "@mui/material";
 import { Icomoon } from "components/icon/Icomoon";
 import { TradeDexCardItem } from "components/rtoken/TradeDexCardItem";
 import { useAppDispatch } from "hooks/common";
-import { TokenName } from "interfaces/common";
+import { RTokenName, TokenName, TokenStandard } from "interfaces/common";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import rectangle from "public/rectangle_h.svg";
+import {
+  setBridgeModalVisible,
+  setBridgePresetParams,
+} from "redux/reducers/BridgeSlice";
 import { openLink } from "utils/common";
 import { getDexList } from "utils/rToken";
 
@@ -16,18 +20,74 @@ interface TradeModalProps {
 }
 
 export const TradeModal = (props: TradeModalProps) => {
+  const dispatch = useAppDispatch();
   const onClickRBridge = () => {
     if (props.tokenName === TokenName.ETH) {
-      window.open("https://app.stafi.io/rAsset/swap/rETH?first=native");
+      props.onClose();
+      dispatch(setBridgeModalVisible(true));
+      dispatch(
+        setBridgePresetParams({
+          tokenName: RTokenName.rETH,
+          srcTokenStandard: TokenStandard.ERC20,
+          dstTokenStandard: TokenStandard.Native,
+        })
+      );
+      // window.open("https://app.stafi.io/rAsset/swap/rETH?first=native");
     } else if (props.tokenName === TokenName.MATIC) {
-      window.open("https://app.stafi.io/rAsset/swap/rMATIC?first=native");
+      props.onClose();
+      dispatch(setBridgeModalVisible(true));
+      dispatch(
+        setBridgePresetParams({
+          tokenName: RTokenName.rMATIC,
+          srcTokenStandard: TokenStandard.Native,
+          dstTokenStandard: TokenStandard.ERC20,
+        })
+      );
+      // window.open("https://app.stafi.io/rAsset/swap/rMATIC?first=native");
     } else if (props.tokenName === TokenName.KSM) {
-      window.open("https://app.stafi.io/rAsset/swap/rKSM?first=native");
+      props.onClose();
+      dispatch(setBridgeModalVisible(true));
+      dispatch(
+        setBridgePresetParams({
+          tokenName: RTokenName.rKSM,
+          srcTokenStandard: TokenStandard.Native,
+          dstTokenStandard: TokenStandard.ERC20,
+        })
+      );
+      // window.open("https://app.stafi.io/rAsset/swap/rKSM?first=native");
     } else if (props.tokenName === TokenName.DOT) {
-      window.open("https://app.stafi.io/rAsset/swap/rDOT?first=native");
+      props.onClose();
+      dispatch(setBridgeModalVisible(true));
+      dispatch(
+        setBridgePresetParams({
+          tokenName: RTokenName.rDOT,
+          srcTokenStandard: TokenStandard.Native,
+          dstTokenStandard: TokenStandard.ERC20,
+        })
+      );
+      // window.open("https://app.stafi.io/rAsset/swap/rDOT?first=native");
     } else if (props.tokenName === TokenName.BNB) {
-			window.open("https://app.stafi.io/rAsset/swap/rBNB?first=native");
-		}
+      props.onClose();
+      dispatch(setBridgeModalVisible(true));
+      dispatch(
+        setBridgePresetParams({
+          tokenName: RTokenName.rBNB,
+          srcTokenStandard: TokenStandard.Native,
+          dstTokenStandard: TokenStandard.BEP20,
+        })
+      );
+      // window.open("https://app.stafi.io/rAsset/swap/rBNB?first=native");
+    } else if (props.tokenName === TokenName.SOL) {
+      props.onClose();
+      dispatch(setBridgeModalVisible(true));
+      dispatch(
+        setBridgePresetParams({
+          tokenName: RTokenName.rSOL,
+          srcTokenStandard: TokenStandard.Native,
+          dstTokenStandard: TokenStandard.SPL,
+        })
+      );
+    }
   };
 
   return (

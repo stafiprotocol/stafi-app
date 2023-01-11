@@ -25,7 +25,6 @@ import {
   TokenStandard,
   TokenSymbol,
 } from "interfaces/common";
-import { boolean } from "mathjs";
 import Image from "next/image";
 import modalBg from "public/rBridge/rBridge_bg.png";
 import swapLine from "public/rBridge/swap_line.png";
@@ -43,6 +42,7 @@ import {
   nativeToOtherSwap,
   queryBridgeFees,
   setBridgeModalVisible,
+  setBridgePresetParams,
   splToOtherSwap,
 } from "redux/reducers/BridgeSlice";
 import {
@@ -74,6 +74,7 @@ export const RBridgeModal = () => {
   const metaMaskChainId = useMetaMaskChainId();
   const {
     bridgeModalVisible,
+    bridgePresetParams,
     bridgeSwapLoadingParams,
     erc20BridgeFee,
     bep20BridgeFee,
@@ -81,6 +82,7 @@ export const RBridgeModal = () => {
   } = useAppSelector((state: RootState) => {
     return {
       bridgeModalVisible: state.bridge.bridgeModalVisible,
+      bridgePresetParams: state.bridge.bridgePresetParams,
       bridgeSwapLoadingParams: state.bridge.bridgeSwapLoadingParams,
       erc20BridgeFee: state.bridge.erc20BridgeFee,
       bep20BridgeFee: state.bridge.bep20BridgeFee,
@@ -127,6 +129,15 @@ export const RBridgeModal = () => {
   useEffect(() => {
     setSwapAmount("");
   }, [selectedTokenName, bridgeModalVisible]);
+
+  useEffect(() => {
+    if (bridgeModalVisible && bridgePresetParams) {
+      setSrcTokenStandard(bridgePresetParams.srcTokenStandard);
+      setDstTokenStandard(bridgePresetParams.dstTokenStandard);
+      setSelectedTokenName(bridgePresetParams.tokenName);
+      dispatch(setBridgePresetParams(undefined));
+    }
+  }, [dispatch, bridgeModalVisible, bridgePresetParams]);
 
   useEffect(() => {
     (async () => {
@@ -187,6 +198,7 @@ export const RBridgeModal = () => {
       return [
         RTokenName.rFIS,
         RTokenName.rETH,
+        RTokenName.rBNB,
         RTokenName.rMATIC,
         RTokenName.rKSM,
         RTokenName.rDOT,

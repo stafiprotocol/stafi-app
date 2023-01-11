@@ -78,6 +78,12 @@ import {
 
 const stafiServer = new StafiServer();
 
+interface BridgePresetParams {
+  tokenName: RTokenName | TokenName.FIS;
+  srcTokenStandard: TokenStandard;
+  dstTokenStandard: TokenStandard;
+}
+
 interface BridgeSwapLoadingParams {
   modalVisible?: boolean;
   status?: "loading" | "success" | "error";
@@ -95,6 +101,7 @@ export type BridgeFeeCollection = {
 
 export interface BridgeState {
   bridgeModalVisible: boolean;
+  bridgePresetParams: BridgePresetParams | undefined;
   bridgeSwapLoadingParams: BridgeSwapLoadingParams | undefined;
   erc20BridgeFee: string;
   bep20BridgeFee: string;
@@ -107,6 +114,7 @@ export interface BridgeState {
 
 const initialState: BridgeState = {
   bridgeModalVisible: false,
+  bridgePresetParams: undefined,
   bridgeSwapLoadingParams: undefined,
   erc20BridgeFee: "--",
   bep20BridgeFee: "--",
@@ -126,6 +134,12 @@ export const bridgeSlice = createSlice({
       action: PayloadAction<boolean>
     ) => {
       state.bridgeModalVisible = action.payload;
+    },
+    setBridgePresetParams: (
+      state: BridgeState,
+      action: PayloadAction<BridgePresetParams | undefined>
+    ) => {
+      state.bridgePresetParams = action.payload;
     },
     setBridgeSwapLoadingParams: (
       state: BridgeState,
@@ -178,6 +192,7 @@ export const bridgeSlice = createSlice({
 
 export const {
   setBridgeModalVisible,
+  setBridgePresetParams,
   setBridgeSwapLoadingParams,
   setBep20BridgeFee,
   setErc20BridgeFee,
