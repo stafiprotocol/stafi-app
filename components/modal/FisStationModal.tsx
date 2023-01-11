@@ -1,10 +1,9 @@
 import { Dialog, DialogContent, Popover } from "@mui/material";
 import { Card } from "components/common/card";
 import { Icomoon } from "components/icon/Icomoon";
-import { MyLayoutContext } from "components/layout/layout";
 import { useAppDispatch, useAppSelector } from "hooks/common";
 import Image from "next/image";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { setFisStationModalVisible } from "redux/reducers/AppSlice";
 import { RootState } from "redux/store";
 import SettingsActiveLogo from "public/settings.svg";
@@ -36,9 +35,13 @@ import numberUtil from "utils/numberUtil";
 import { PriceItem } from "redux/reducers/RTokenSlice";
 import { getMetamaskEthChainId } from "config/metaMask";
 import { connectMetaMask } from "redux/reducers/WalletSlice";
+import { hooks } from "connectors/metaMask";
 
 const FisStationModal = () => {
   const dispatch = useAppDispatch();
+
+  const { useChainId: useMetaMaskChainId } = hooks;
+	const metaMaskChainId = useMetaMaskChainId();
 
   const { fisStationModalVisible, priceList } = useAppSelector(
     (state: RootState) => {
@@ -48,9 +51,6 @@ const FisStationModal = () => {
       };
     }
   );
-
-  const { targetMetaMaskChainId, setTargetMetaMaskChainId } = useContext(MyLayoutContext);
-	console.log({targetMetaMaskChainId})
 
   const { swapLimit, poolInfoList } = useFisStationPoolInfo();
 
@@ -126,18 +126,17 @@ const FisStationModal = () => {
 
     if (
       selectedToken === TokenName.ETH &&
-      targetMetaMaskChainId !== getMetamaskEthChainId()
+      metaMaskChainId !== getMetamaskEthChainId()
     ) {
       return [false, "Switch Network"];
     }
-    // todo: ATOM
     return [false, "Swap"];
   }, [
     swapLimit,
     swapFisAmount,
     swapTokenAmount,
     selectedToken,
-    targetMetaMaskChainId,
+		metaMaskChainId,
   ]);
 
   const onClickSlippageAuto = () => {
@@ -193,10 +192,9 @@ const FisStationModal = () => {
 
     if (
       selectedToken === TokenName.ETH &&
-      targetMetaMaskChainId !== getMetamaskEthChainId()
+      metaMaskChainId !== getMetamaskEthChainId()
     ) {
       dispatch(connectMetaMask(getMetamaskEthChainId()));
-			setTargetMetaMaskChainId(getMetamaskEthChainId());
       return;
     }
 
@@ -499,6 +497,7 @@ const FisStationModal = () => {
               </div>
               {poolInfoList.map((info: PoolInfoItem, index: number) => (
                 <div
+									key={index}
                   className="flex justify-between h-[.76rem] items-center min-w-[4rem]"
                   style={{
                     borderBottom:
