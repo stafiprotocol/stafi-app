@@ -99,6 +99,9 @@ export function getRBridgeTokenIcon(tokenName: TokenName | RTokenName) {
   if (tokenName === RTokenName.rDOT) {
     return dotWhiteIcon;
   }
+  if (tokenName === RTokenName.rBNB) {
+    return bnbWhiteIcon;
+  }
 
   return nativeLogo;
 }
